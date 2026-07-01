@@ -1,0 +1,56 @@
+Improve the existing design without changing the overall visual style or navigation. Keep the current premium, modern, minimalist design while fixing the following issues and adding the requested features.
+
+1. Fix the TYT and AYT countdown section on the Home screen. The countdown numbers and progress indicators are overflowing outside their cards. Redesign this section so every element fits perfectly within its container on all screen sizes while maintaining a clean premium appearance.
+
+2. Improve the "My Question Bank" feature. Each subject must allow users to:
+- Upload photos directly from the gallery or camera.
+- Upload PDF files.
+- Add written notes explaining the mistake.
+- Edit or delete saved questions later.
+Currently, only text notes are available. Add complete image and file upload functionality with an elegant upload interface.
+
+3. Fix the FAQ section inside Settings. The "Questions & Answers" page currently does not open. Make it fully functional and include the following frequently asked questions:
+
+Q1: How is my TYT and AYT progress calculated?
+A: Your progress is calculated based on the official topics of your selected study field. Every completed topic automatically updates your progress percentage.
+
+Q2: Can I change my study field later?
+A: Yes. You can change your study field anytime from the Settings page. Your subjects and progress calculations will automatically adapt to your new selection.
+
+Q3: How do review reminders work?
+A: Every incorrect question you save will automatically enter the review system. After seven days, the app will remind you to review it every week until you mark it as "I Understand This Question."
+
+Q4: Will I lose my progress if I update the app?
+A: No. Your study progress, completed topics, saved questions, and statistics are securely stored and will remain available after updates.
+
+Q5: Can I customize study reminders?
+A: Yes. You can choose your preferred reminder times from the Settings page. The app sends silent push notifications without alarm sounds.
+
+4. Add a completely new page called "Exam Results" (or "Mock Exam Tracker") where students can record their TYT and AYT mock exam results.
+
+The page should include:
+- Exam Date
+- Exam Type (TYT or AYT)
+- Turkish Net
+- Mathematics Net
+- Science Net
+- Social Sciences Net
+- Branch-specific lesson nets depending on the selected study field
+- Total Net
+- Notes
+
+5. Create an analytics dashboard for mock exams that automatically generates beautiful charts showing:
+- Total Net progression over time.
+- Subject-by-subject performance improvements.
+- Highest and lowest scores.
+- Average net for each subject.
+- Weekly and monthly progress trends.
+
+6. Add a statistics summary above the charts displaying:
+- Highest TYT Net
+- Highest AYT Net
+- Average TYT Net
+- Average AYT Net
+- Total number of mock exams completed
+
+7. Ensure every newly added screen matches the existing premium design language with smooth animations, rounded cards, soft shadows, elegant spacing, and full Light/Dark Mode support. All new features should integrate seamlessly with the rest of the application.

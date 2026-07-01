@@ -6,7 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { router, Slot, Stack, useSegments } from "expo-router";
+import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -21,18 +21,6 @@ import { AchievementToast } from "@/components/AchievementToast";
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
-
-function RootLayoutNav() {
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="statistics" options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="achievements" options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="ai-coach" options={{ headerShown: false, presentation: "modal" }} />
-    </Stack>
-  );
-}
 
 function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { profile, isLoaded } = useApp();
@@ -57,7 +45,16 @@ function AppContent() {
   return (
     <View style={{ flex: 1 }}>
       <OnboardingGuard>
-        <RootLayoutNav />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="statistics" options={{ presentation: "modal" }} />
+          <Stack.Screen name="achievements" options={{ presentation: "modal" }} />
+          <Stack.Screen name="ai-coach" options={{ presentation: "modal" }} />
+          <Stack.Screen name="faq" options={{ presentation: "modal" }} />
+          <Stack.Screen name="mock-exams" options={{ presentation: "modal" }} />
+          <Stack.Screen name="exam-analytics" options={{ presentation: "modal" }} />
+        </Stack>
       </OnboardingGuard>
       {newAchievement && (
         <AchievementToast achievement={newAchievement} onDismiss={clearNewAchievement} />

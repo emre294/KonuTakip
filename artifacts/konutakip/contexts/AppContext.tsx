@@ -33,6 +33,12 @@ export interface DailySession {
   completed: boolean;
 }
 
+export interface QuestionAttachment {
+  type: "image" | "pdf";
+  uri: string;
+  name: string;
+}
+
 export interface Question {
   id: string;
   subjectId: string;
@@ -41,6 +47,20 @@ export interface Question {
   notes: string;
   understood: boolean;
   nextReviewDate: string;
+  attachments: QuestionAttachment[];
+}
+
+export interface MockExamResult {
+  id: string;
+  date: string;
+  type: "TYT" | "AYT";
+  turkishNet: number;
+  mathNet: number;
+  scienceNet: number;
+  socialNet: number;
+  fieldNets: Record<string, number>;
+  totalNet: number;
+  notes: string;
 }
 
 export interface Achievement {
@@ -77,7 +97,12 @@ interface AppContextValue {
   deleteSession: (id: string) => void;
   questions: Question[];
   addQuestion: (q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => void;
+  updateQuestion: (id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => void;
+  deleteQuestion: (id: string) => void;
   markQuestionUnderstood: (id: string) => void;
+  mockExamResults: MockExamResult[];
+  addMockExamResult: (r: Omit<MockExamResult, "id">) => void;
+  deleteMockExamResult: (id: string) => void;
   achievements: Achievement[];
   newAchievement: Achievement | null;
   clearNewAchievement: () => void;
@@ -92,9 +117,9 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-const STORAGE_KEY = "konutakip_v2";
+const STORAGE_KEY = "konutakip_v3";
 
-function generateId(): string {
+export function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 }
 
@@ -127,30 +152,40 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [topicCompletion, setTopicCompletion] = useState<Record<string, boolean>>({});
   const [sessions, setSessions] = useState<DailySession[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [mockExamResults, setMockExamResults] = useState<MockExamResult[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>(ACHIEVEMENTS_TEMPLATE);
   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
   const [studyDays, setStudyDays] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   async function loadData() {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) {
+      if (!raw) {
+        // Try migrating from v2
+        const oldRaw = await AsyncStorage.getItem("konutakip_v2");
+        if (oldRaw) {
+          const old = JSON.parse(oldRaw);
+          if (old.profile) setProfileState(old.profile);
+          if (old.topicCompletion) setTopicCompletion(old.topicCompletion);
+          if (old.sessions) setSessions(old.sessions);
+          if (old.questions) setQuestions((old.questions as Question[]).map((q) => ({ ...q, attachments: q.attachments ?? [] })));
+          if (old.achievements) setAchievements(old.achievements);
+          if (old.studyDays) setStudyDays(old.studyDays);
+        }
+      } else {
         const data = JSON.parse(raw);
         if (data.profile) setProfileState(data.profile);
         if (data.topicCompletion) setTopicCompletion(data.topicCompletion);
         if (data.sessions) setSessions(data.sessions);
-        if (data.questions) setQuestions(data.questions);
+        if (data.questions) setQuestions((data.questions as Question[]).map((q) => ({ ...q, attachments: q.attachments ?? [] })));
+        if (data.mockExamResults) setMockExamResults(data.mockExamResults);
         if (data.achievements) setAchievements(data.achievements);
         if (data.studyDays) setStudyDays(data.studyDays);
       }
-    } catch {
-      // ignore
-    } finally {
+    } catch { /* ignore */ } finally {
       setIsLoaded(true);
     }
   }
@@ -160,17 +195,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     topicCompletion: Record<string, boolean>;
     sessions: DailySession[];
     questions: Question[];
+    mockExamResults: MockExamResult[];
     achievements: Achievement[];
     studyDays: string[];
   }>) {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
       const existing = raw ? JSON.parse(raw) : {};
-      const merged = { ...existing, ...updates };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-    } catch {
-      // ignore
-    }
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...updates }));
+    } catch { /* ignore */ }
   }
 
   const setProfile = useCallback((p: UserProfile) => {
@@ -179,19 +212,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const tytProgress = useMemo(() => {
-    const allTopics = TYT_SUBJECTS.flatMap((s) => s.topics);
-    if (allTopics.length === 0) return 0;
-    const done = allTopics.filter((t) => topicCompletion[t.id]).length;
-    return Math.round((done / allTopics.length) * 100);
+    const all = TYT_SUBJECTS.flatMap((s) => s.topics);
+    if (!all.length) return 0;
+    return Math.round((all.filter((t) => topicCompletion[t.id]).length / all.length) * 100);
   }, [topicCompletion]);
 
   const aytProgress = useMemo(() => {
     if (!profile) return 0;
-    const aytSubjects = AYT_SUBJECTS_BY_FIELD[profile.studyField] || [];
-    const allTopics = aytSubjects.flatMap((s) => s.topics);
-    if (allTopics.length === 0) return 0;
-    const done = allTopics.filter((t) => topicCompletion[t.id]).length;
-    return Math.round((done / allTopics.length) * 100);
+    const all = (AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? []).flatMap((s) => s.topics);
+    if (!all.length) return 0;
+    return Math.round((all.filter((t) => topicCompletion[t.id]).length / all.length) * 100);
   }, [topicCompletion, profile]);
 
   const totalTopicsCompleted = useMemo(
@@ -201,24 +231,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const studyStreak = useMemo(() => computeStreak(studyDays), [studyDays]);
 
-  function checkAndUnlockAchievements(
-    newCompletion: Record<string, boolean>,
-    newSessions: DailySession[],
-    newQuestions: Question[],
-    currentAchievements: Achievement[],
-    field: StudyField | undefined
+  function checkAchievements(
+    comp: Record<string, boolean>,
+    sess: DailySession[],
+    qs: Question[],
+    prevA: Achievement[],
+    field?: StudyField
   ) {
-    const total = Object.values(newCompletion).filter(Boolean).length;
+    const total = Object.values(comp).filter(Boolean).length;
     const tytTopics = TYT_SUBJECTS.flatMap((s) => s.topics);
-    const tytDone = tytTopics.filter((t) => newCompletion[t.id]).length;
-    const tytPct = tytTopics.length > 0 ? (tytDone / tytTopics.length) * 100 : 0;
+    const tytPct = tytTopics.length > 0 ? (tytTopics.filter((t) => comp[t.id]).length / tytTopics.length) * 100 : 0;
     let aytPct = 0;
     if (field) {
-      const aytTopics = (AYT_SUBJECTS_BY_FIELD[field] || []).flatMap((s) => s.topics);
-      const aytDone = aytTopics.filter((t) => newCompletion[t.id]).length;
-      aytPct = aytTopics.length > 0 ? (aytDone / aytTopics.length) * 100 : 0;
+      const aytTopics = (AYT_SUBJECTS_BY_FIELD[field] ?? []).flatMap((s) => s.topics);
+      aytPct = aytTopics.length > 0 ? (aytTopics.filter((t) => comp[t.id]).length / aytTopics.length) * 100 : 0;
     }
-
     const conditions: Record<string, boolean> = {
       first_topic: total >= 1,
       topics_10: total >= 10,
@@ -228,64 +255,69 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       tyt_100: tytPct >= 100,
       ayt_50: aytPct >= 50,
       ayt_100: aytPct >= 100,
-      sessions_5: newSessions.length >= 5,
-      questions_10: newQuestions.length >= 10,
+      sessions_5: sess.length >= 5,
+      questions_10: qs.length >= 10,
     };
-
     let triggered: Achievement | null = null;
-    const updated = currentAchievements.map((a) => {
+    const updated = prevA.map((a) => {
       if (!a.unlocked && conditions[a.id]) {
         triggered = { ...a, unlocked: true, unlockedDate: new Date().toISOString() };
         return triggered;
       }
       return a;
     });
-
     return { updated, triggered };
   }
 
-  const toggleTopic = useCallback(
-    (topicId: string) => {
-      setTopicCompletion((prev) => {
-        const next = { ...prev, [topicId]: !prev[topicId] };
-        saveData({ topicCompletion: next });
-
-        setAchievements((prevA) => {
-          const { updated, triggered } = checkAndUnlockAchievements(
-            next, sessions, questions, prevA, profile?.studyField
+  const markStudyDay = useCallback(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setStudyDays((prev) => {
+      if (prev.includes(today)) return prev;
+      const next = [...prev, today];
+      saveData({ studyDays: next });
+      setAchievements((prevA) => {
+        if (computeStreak(next) >= 7) {
+          const updated = prevA.map((a) =>
+            a.id === "streak_7" && !a.unlocked
+              ? { ...a, unlocked: true, unlockedDate: new Date().toISOString() }
+              : a
           );
-          if (triggered) {
-            setNewAchievement(triggered);
-            saveData({ achievements: updated });
-          }
+          const wasLocked = prevA.find((a) => a.id === "streak_7")?.unlocked === false;
+          const nowUnlocked = updated.find((a) => a.id === "streak_7")?.unlocked;
+          if (wasLocked && nowUnlocked) setNewAchievement(updated.find((a) => a.id === "streak_7")!);
+          saveData({ achievements: updated });
           return updated;
-        });
-
-        return next;
+        }
+        return prevA;
       });
+      return next;
+    });
+  }, []);
 
-      markStudyDay();
-    },
-    [sessions, questions, profile]
-  );
+  const toggleTopic = useCallback((topicId: string) => {
+    setTopicCompletion((prev) => {
+      const next = { ...prev, [topicId]: !prev[topicId] };
+      saveData({ topicCompletion: next });
+      setAchievements((prevA) => {
+        const { updated, triggered } = checkAchievements(next, sessions, questions, prevA, profile?.studyField);
+        if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); }
+        return updated;
+      });
+      return next;
+    });
+    markStudyDay();
+  }, [sessions, questions, profile, markStudyDay]);
 
   const addSession = useCallback((s: Omit<DailySession, "id">) => {
     const session: DailySession = { ...s, id: generateId() };
     setSessions((prev) => {
       const next = [...prev, session];
       saveData({ sessions: next });
-
       setAchievements((prevA) => {
-        const { updated, triggered } = checkAndUnlockAchievements(
-          topicCompletion, next, questions, prevA, profile?.studyField
-        );
-        if (triggered) {
-          setNewAchievement(triggered);
-          saveData({ achievements: updated });
-        }
+        const { updated, triggered } = checkAchievements(topicCompletion, next, questions, prevA, profile?.studyField);
+        if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); }
         return updated;
       });
-
       return next;
     });
   }, [topicCompletion, questions, profile]);
@@ -297,7 +329,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
     markStudyDay();
-  }, []);
+  }, [markStudyDay]);
 
   const deleteSession = useCallback((id: string) => {
     setSessions((prev) => {
@@ -318,21 +350,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setQuestions((prev) => {
       const next = [...prev, question];
       saveData({ questions: next });
-
       setAchievements((prevA) => {
-        const { updated, triggered } = checkAndUnlockAchievements(
-          topicCompletion, sessions, next, prevA, profile?.studyField
-        );
-        if (triggered) {
-          setNewAchievement(triggered);
-          saveData({ achievements: updated });
-        }
+        const { updated, triggered } = checkAchievements(topicCompletion, sessions, next, prevA, profile?.studyField);
+        if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); }
         return updated;
       });
-
       return next;
     });
   }, [topicCompletion, sessions, profile]);
+
+  const updateQuestion = useCallback((id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => {
+    setQuestions((prev) => {
+      const next = prev.map((q) => q.id === id ? { ...q, ...updates } : q);
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
+  const deleteQuestion = useCallback((id: string) => {
+    setQuestions((prev) => {
+      const next = prev.filter((q) => q.id !== id);
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
 
   const markQuestionUnderstood = useCallback((id: string) => {
     setQuestions((prev) => {
@@ -342,68 +383,42 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const clearNewAchievement = useCallback(() => setNewAchievement(null), []);
-
-  const markStudyDay = useCallback(() => {
-    const today = new Date().toISOString().split("T")[0];
-    setStudyDays((prev) => {
-      if (prev.includes(today)) return prev;
-      const next = [...prev, today];
-      saveData({ studyDays: next });
-
-      setAchievements((prevA) => {
-        const streak = computeStreak(next);
-        if (streak >= 7) {
-          const updated = prevA.map((a) =>
-            a.id === "streak_7" && !a.unlocked
-              ? { ...a, unlocked: true, unlockedDate: new Date().toISOString() }
-              : a
-          );
-          const triggered = updated.find((a) => a.id === "streak_7" && a.unlocked && !prevA.find((pa) => pa.id === "streak_7")?.unlocked) ?? null;
-          if (triggered) setNewAchievement(triggered);
-          saveData({ achievements: updated });
-          return updated;
-        }
-        return prevA;
-      });
-
+  const addMockExamResult = useCallback((r: Omit<MockExamResult, "id">) => {
+    const result: MockExamResult = { ...r, id: generateId() };
+    setMockExamResults((prev) => {
+      const next = [...prev, result];
+      saveData({ mockExamResults: next });
       return next;
     });
   }, []);
 
-  const value = useMemo<AppContextValue>(
-    () => ({
-      profile,
-      setProfile,
-      topicCompletion,
-      toggleTopic,
-      sessions,
-      addSession,
-      completeSession,
-      deleteSession,
-      questions,
-      addQuestion,
-      markQuestionUnderstood,
-      achievements,
-      newAchievement,
-      clearNewAchievement,
-      tytProgress,
-      aytProgress,
-      totalTopicsCompleted,
-      studyStreak,
-      studyDays,
-      markStudyDay,
-      isLoaded,
-    }),
-    [
-      profile, setProfile, topicCompletion, toggleTopic,
-      sessions, addSession, completeSession, deleteSession,
-      questions, addQuestion, markQuestionUnderstood,
-      achievements, newAchievement, clearNewAchievement,
-      tytProgress, aytProgress, totalTopicsCompleted,
-      studyStreak, studyDays, markStudyDay, isLoaded,
-    ]
-  );
+  const deleteMockExamResult = useCallback((id: string) => {
+    setMockExamResults((prev) => {
+      const next = prev.filter((r) => r.id !== id);
+      saveData({ mockExamResults: next });
+      return next;
+    });
+  }, []);
+
+  const clearNewAchievement = useCallback(() => setNewAchievement(null), []);
+
+  const value = useMemo<AppContextValue>(() => ({
+    profile, setProfile, topicCompletion, toggleTopic,
+    sessions, addSession, completeSession, deleteSession,
+    questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
+    mockExamResults, addMockExamResult, deleteMockExamResult,
+    achievements, newAchievement, clearNewAchievement,
+    tytProgress, aytProgress, totalTopicsCompleted,
+    studyStreak, studyDays, markStudyDay, isLoaded,
+  }), [
+    profile, setProfile, topicCompletion, toggleTopic,
+    sessions, addSession, completeSession, deleteSession,
+    questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
+    mockExamResults, addMockExamResult, deleteMockExamResult,
+    achievements, newAchievement, clearNewAchievement,
+    tytProgress, aytProgress, totalTopicsCompleted,
+    studyStreak, studyDays, markStudyDay, isLoaded,
+  ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
