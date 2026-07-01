@@ -1,8 +1,13 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "zfpoM8lzgcXCA7-nC52dS"
 uri = "file://artifacts/konutakip/assets/images/icon.png"
 type = "image"
 title = "konutakip app icon"
+
+[[outputs]]
+id = "-nwWzUItlnJEisBB0_QFk"
+uri = "file://artifacts/konutakip/assets/images/icon.png"
+type = "image"
+title = "KonuTakip App Icon — 1024×1024"
