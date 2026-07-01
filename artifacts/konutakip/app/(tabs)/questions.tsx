@@ -3,34 +3,193 @@ import * as DocumentPicker from "expo-document-picker";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   Alert,
+  Dimensions,
+  FlatList,
+  ListRenderItemInfo,
   Modal,
   Platform,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeOut,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp, Question, QuestionAttachment } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS, Subject } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
-function AttachmentThumb({ att, onRemove, colors }: {
-  att: QuestionAttachment; onRemove?: () => void;
+const SCREEN = Dimensions.get("window");
+
+// ─── Full-screen image viewer ────────────────────────────────────────────────
+
+function ImageViewerModal({ visible, images, initialIndex, onClose }: {
+  visible: boolean;
+  images: string[];
+  initialIndex: number;
+  onClose: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+  const listRef = useRef<FlatList<string>>(null);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const backdropOpacity = useSharedValue(0);
+
+  // Animate backdrop in/out
+  React.useEffect(() => {
+    backdropOpacity.value = withTiming(visible ? 1 : 0, { duration: 220 });
+  }, [visible]);
+
+  // Scroll to correct image when modal opens
+  React.useEffect(() => {
+    if (visible && listRef.current && images.length > 1) {
+      // Small delay lets the FlatList finish layout before scrolling
+      setTimeout(() => {
+        listRef.current?.scrollToIndex({ index: initialIndex, animated: false });
+      }, 50);
+    }
+    if (visible) setCurrentIndex(initialIndex);
+  }, [visible, initialIndex]);
+
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
+      if (viewableItems.length > 0 && viewableItems[0].index !== null) {
+        setCurrentIndex(viewableItems[0].index);
+      }
+    },
+    []
+  );
+
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 60 }).current;
+
+  const renderImage = useCallback(
+    ({ item }: ListRenderItemInfo<string>) => (
+      <View style={styles.viewerPage}>
+        <Image
+          source={{ uri: item }}
+          style={styles.viewerImage}
+          contentFit="contain"
+          transition={180}
+        />
+      </View>
+    ),
+    []
+  );
+
+  const topInset = insets.top + (Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) : 0);
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <Animated.View style={[styles.viewerBackdrop, backdropStyle]}>
+
+        {/* Header row: counter + close */}
+        <Animated.View
+          entering={FadeIn.duration(200)}
+          style={[styles.viewerHeader, { paddingTop: topInset + 12 }]}
+        >
+          {/* Counter badge */}
+          <View style={styles.viewerCounter}>
+            <Text style={styles.viewerCounterText}>
+              {currentIndex + 1} / {images.length}
+            </Text>
+          </View>
+
+          {/* Close button */}
+          <TouchableOpacity
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onClose(); }}
+            style={styles.viewerClose}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Feather name="x" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Image pager */}
+        <FlatList
+          ref={listRef}
+          data={images}
+          keyExtractor={(_, i) => String(i)}
+          renderItem={renderImage}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          bounces={false}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          getItemLayout={(_, index) => ({
+            length: SCREEN.width,
+            offset: SCREEN.width * index,
+            index,
+          })}
+          initialScrollIndex={initialIndex}
+        />
+
+        {/* Dot indicators (only when multiple images) */}
+        {images.length > 1 && (
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            style={[styles.viewerDots, { paddingBottom: insets.bottom + 24 }]}
+          >
+            {images.map((_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.viewerDot,
+                  { backgroundColor: i === currentIndex ? "#fff" : "rgba(255,255,255,0.35)" },
+                  i === currentIndex && styles.viewerDotActive,
+                ]}
+              />
+            ))}
+          </Animated.View>
+        )}
+      </Animated.View>
+    </Modal>
+  );
+}
+
+// ─── Attachment thumbnail ─────────────────────────────────────────────────────
+
+function AttachmentThumb({ att, onRemove, onOpenViewer, colors }: {
+  att: QuestionAttachment;
+  onRemove?: () => void;
+  onOpenViewer?: () => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
   if (att.type === "image") {
     return (
       <View style={styles.thumbWrap}>
-        <Image source={{ uri: att.uri }} style={styles.thumb} contentFit="cover" />
+        <TouchableOpacity onPress={onOpenViewer} activeOpacity={0.85} disabled={!onOpenViewer}>
+          <Image source={{ uri: att.uri }} style={styles.thumb} contentFit="cover" />
+          {/* Subtle zoom hint icon */}
+          {onOpenViewer && (
+            <View style={styles.thumbZoomHint}>
+              <Feather name="maximize-2" size={10} color="#fff" />
+            </View>
+          )}
+        </TouchableOpacity>
         {onRemove && (
           <TouchableOpacity onPress={onRemove} style={styles.thumbRemove}>
             <Feather name="x" size={12} color="#fff" />
@@ -52,18 +211,26 @@ function AttachmentThumb({ att, onRemove, colors }: {
   );
 }
 
-function QuestionCard({ question, onUnderstood, onEdit, onDelete, colors }: {
+// ─── Question card ────────────────────────────────────────────────────────────
+
+function QuestionCard({ question, onUnderstood, onEdit, onDelete, onOpenImage, colors }: {
   question: Question;
   onUnderstood: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onOpenImage: (images: string[], startIndex: number) => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
   const today = new Date().toISOString().split("T")[0];
   const needsReview = !question.understood && question.nextReviewDate <= today;
+  const imageAttachments = question.attachments.filter((a) => a.type === "image");
 
   return (
-    <View style={[styles.qCard, { backgroundColor: colors.card, borderLeftColor: question.understood ? colors.success : needsReview ? colors.warning : colors.border, borderLeftWidth: 3 }]}>
+    <View style={[styles.qCard, {
+      backgroundColor: colors.card,
+      borderLeftColor: question.understood ? colors.success : needsReview ? colors.warning : colors.border,
+      borderLeftWidth: 3,
+    }]}>
       <View style={styles.qHeader}>
         <View style={styles.qBadges}>
           <Text style={[styles.qDate, { color: colors.mutedForeground }]}>{question.addedDate}</Text>
@@ -96,9 +263,23 @@ function QuestionCard({ question, onUnderstood, onEdit, onDelete, colors }: {
 
       {question.attachments.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.attachmentRow}>
-          {question.attachments.map((att, i) => (
-            <AttachmentThumb key={i} att={att} colors={colors} />
-          ))}
+          {question.attachments.map((att, i) => {
+            // For images, calculate which image index this is within image-only list
+            const imageIndex = att.type === "image"
+              ? imageAttachments.findIndex((img) => img.uri === att.uri)
+              : -1;
+            return (
+              <AttachmentThumb
+                key={i}
+                att={att}
+                colors={colors}
+                onOpenViewer={att.type === "image"
+                  ? () => onOpenImage(imageAttachments.map((a) => a.uri), imageIndex)
+                  : undefined
+                }
+              />
+            );
+          })}
         </ScrollView>
       )}
 
@@ -117,11 +298,14 @@ function QuestionCard({ question, onUnderstood, onEdit, onDelete, colors }: {
   );
 }
 
-function SubjectSection({ subject, questions, onUnderstood, onEdit, onDelete, colors }: {
+// ─── Subject section ──────────────────────────────────────────────────────────
+
+function SubjectSection({ subject, questions, onUnderstood, onEdit, onDelete, onOpenImage, colors }: {
   subject: Subject; questions: Question[];
   onUnderstood: (id: string) => void;
   onEdit: (q: Question) => void;
   onDelete: (id: string) => void;
+  onOpenImage: (images: string[], startIndex: number) => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -157,6 +341,7 @@ function SubjectSection({ subject, questions, onUnderstood, onEdit, onDelete, co
               onUnderstood={() => onUnderstood(q.id)}
               onEdit={() => onEdit(q)}
               onDelete={() => onDelete(q.id)}
+              onOpenImage={onOpenImage}
               colors={colors}
             />
           ))}
@@ -165,6 +350,8 @@ function SubjectSection({ subject, questions, onUnderstood, onEdit, onDelete, co
     </View>
   );
 }
+
+// ─── Add / edit question modal ────────────────────────────────────────────────
 
 function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubjects, colors }: {
   visible: boolean;
@@ -313,6 +500,8 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
   );
 }
 
+// ─── Screen ───────────────────────────────────────────────────────────────────
+
 export default function QuestionsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -320,10 +509,22 @@ export default function QuestionsScreen() {
   const [showModal, setShowModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
+  // Image viewer state
+  const [viewerVisible, setViewerVisible] = useState(false);
+  const [viewerImages, setViewerImages] = useState<string[]>([]);
+  const [viewerStartIndex, setViewerStartIndex] = useState(0);
+
   const allSubjects: Subject[] = [
     ...TYT_SUBJECTS,
     ...(profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : []),
   ];
+
+  function handleOpenImage(images: string[], startIndex: number) {
+    setViewerImages(images);
+    setViewerStartIndex(startIndex);
+    setViewerVisible(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }
 
   function handleSave(subjectId: string, subjectName: string, notes: string, attachments: QuestionAttachment[]) {
     if (editingQuestion) {
@@ -390,6 +591,7 @@ export default function QuestionsScreen() {
                 onUnderstood={markQuestionUnderstood}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onOpenImage={handleOpenImage}
                 colors={colors}
               />
             ))}
@@ -405,9 +607,18 @@ export default function QuestionsScreen() {
         allSubjects={allSubjects}
         colors={colors}
       />
+
+      <ImageViewerModal
+        visible={viewerVisible}
+        images={viewerImages}
+        initialIndex={viewerStartIndex}
+        onClose={() => setViewerVisible(false)}
+      />
     </View>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -439,6 +650,10 @@ const styles = StyleSheet.create({
   attachmentRow: { marginTop: 2 },
   thumbWrap: { position: "relative", marginRight: 8 },
   thumb: { width: 72, height: 72, borderRadius: 10 },
+  thumbZoomHint: {
+    position: "absolute", bottom: 5, right: 5,
+    backgroundColor: "rgba(0,0,0,0.45)", borderRadius: 5, padding: 3,
+  },
   thumbRemove: {
     position: "absolute", top: -6, right: -6,
     width: 18, height: 18, borderRadius: 9, backgroundColor: "#DC2626",
@@ -469,4 +684,48 @@ const styles = StyleSheet.create({
   infoText: { fontSize: 12, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
   saveBtn: { borderRadius: 14, paddingVertical: 14, alignItems: "center", marginTop: 16 },
   saveBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
+
+  // ── Image viewer ──
+  viewerBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.97)",
+    justifyContent: "center",
+  },
+  viewerHeader: {
+    position: "absolute", top: 0, left: 0, right: 0, zIndex: 10,
+    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+    paddingHorizontal: 20, paddingBottom: 12,
+  },
+  viewerCounter: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
+  },
+  viewerCounterText: {
+    color: "#fff", fontSize: 14, fontFamily: "Inter_600SemiBold", letterSpacing: 0.5,
+  },
+  viewerClose: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center", justifyContent: "center",
+  },
+  viewerPage: {
+    width: SCREEN.width,
+    height: SCREEN.height,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  viewerImage: {
+    width: SCREEN.width,
+    height: SCREEN.height,
+  },
+  viewerDots: {
+    position: "absolute", bottom: 0, left: 0, right: 0,
+    flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 7,
+  },
+  viewerDot: {
+    width: 6, height: 6, borderRadius: 3,
+  },
+  viewerDotActive: {
+    width: 20, height: 6, borderRadius: 3,
+  },
 });
