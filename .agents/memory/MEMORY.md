@@ -1,0 +1,1 @@
+- [KonuTakip Architecture](konutakip-arch.md) — Expo mobile YKS study tracker; all state AsyncStorage-only, no backend needed.
