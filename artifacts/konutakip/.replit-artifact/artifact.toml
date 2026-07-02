@@ -5,13 +5,9 @@ version = "1.0.0"
 id = "artifacts/konutakip"
 router = "expo-domain"
 
-[[integratedSkills]]
-name = "expo"
-version = "1.0.0"
-
 [[services]]
-ensurePreviewReachable = "/status"
 name = "expo"
+ensurePreviewReachable = "/status"
 paths = [ "/" ]
 localPort = 23167
 
