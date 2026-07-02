@@ -21,7 +21,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "@/contexts/AppContext";
-import { AYT_EXAM_DATE, TYT_EXAM_DATE } from "@/data/subjects";
+import { AYT_EXAM_DATE, AYT_SUBJECTS_BY_FIELD, TYT_EXAM_DATE, TYT_SUBJECTS } from "@/data/subjects";
 import { getRandomQuote, Quote } from "@/data/quotes";
 import { useColors } from "@/hooks/useColors";
 
@@ -39,9 +39,7 @@ function useCountdown(targetDate: Date) {
   return { days, hours, minutes, seconds };
 }
 
-function pad(n: number) {
-  return String(n).padStart(2, "0");
-}
+function pad(n: number) { return String(n).padStart(2, "0"); }
 
 function CountdownCard({ title, date, color, colors }: {
   title: string; date: Date; color: string;
@@ -72,9 +70,13 @@ function CircleProgress({ pct, color, size }: { pct: number; color: string; size
         borderLeftColor: pct < 75 ? "transparent" : color,
         transform: [{ rotate: `${Math.min((pct / 100) * 360, 360) - 90}deg` }],
       }} />
-      <Text style={{ fontFamily: "Inter_700Bold", fontSize: size > 70 ? 20 : 15, color }}>
-        {pct}%
-      </Text>
+      {pct > 0 ? (
+        <Text style={{ fontFamily: "Inter_700Bold", fontSize: size > 70 ? 20 : 15, color }}>
+          {pct}%
+        </Text>
+      ) : (
+        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: color + "60" }}>0</Text>
+      )}
     </View>
   );
 }
@@ -85,6 +87,96 @@ function ProgressCard({ title, pct, color, colors }: { title: string; pct: numbe
       <CircleProgress pct={pct} color={color} size={72} />
       <Text style={[styles.progressTitle, { color: colors.foreground }]}>{title}</Text>
       <Text style={[styles.progressSub, { color: colors.mutedForeground }]}>tamamlandı</Text>
+    </View>
+  );
+}
+
+function getMotivationMessage(overallPct: number): { text: string; emoji: string } {
+  if (overallPct === 0)   return { text: "Harika bir başlangıç seni bekliyor!", emoji: "🌟" };
+  if (overallPct < 10)    return { text: "Her büyük başarı ilk konuyla başlar. Devam et!", emoji: "🚀" };
+  if (overallPct < 25)    return { text: "Güzel bir başlangıç! Her gün biraz daha ilerliyorsun.", emoji: "💪" };
+  if (overallPct < 40)    return { text: "Çalışmaların meyve vermeye başlıyor. Harika gidiyorsun!", emoji: "📈" };
+  if (overallPct < 55)    return { text: "Yarıya yaklaştın! Her soru seni hedefe yaklaştırıyor.", emoji: "🎯" };
+  if (overallPct < 70)    return { text: "Yarıyı geçtin! Çok az kaldı, dur durma!", emoji: "⚡" };
+  if (overallPct < 80)    return { text: "Harika ilerliyorsun! Hedef artık çok yakın.", emoji: "🔥" };
+  if (overallPct < 90)    return { text: "Neredeyse hazırsın! Son düzlüğe girdin.", emoji: "🏆" };
+  if (overallPct < 100)   return { text: "Sadece birkaç konu kaldı. Sen yapabilirsin!", emoji: "✨" };
+  return { text: "Tüm konuları tamamladın! Artık tekrar ve denemeler zamanı.", emoji: "🎉" };
+}
+
+function MotivationBanner({ tytPct, aytPct, colors }: {
+  tytPct: number; aytPct: number;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}) {
+  const overall = Math.round((tytPct + aytPct) / 2);
+  const { text, emoji } = getMotivationMessage(overall);
+
+  return (
+    <View style={[styles.motivationBanner, { backgroundColor: colors.accent }]}>
+      <Text style={styles.motivationEmoji}>{emoji}</Text>
+      <Text style={[styles.motivationText, { color: colors.foreground }]}>{text}</Text>
+    </View>
+  );
+}
+
+function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, colors }: {
+  tytPct: number; aytPct: number;
+  profile: import("@/contexts/AppContext").UserProfile | null;
+  topicCompletion: Record<string, boolean>;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}) {
+  const { tytTotal, tytDone, aytTotal, aytDone } = useMemo(() => {
+    const tytTopics = TYT_SUBJECTS.flatMap(s => s.topics);
+    const aytTopics = profile ? (AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? []).flatMap(s => s.topics) : [];
+    return {
+      tytTotal: tytTopics.length,
+      tytDone: tytTopics.filter(t => topicCompletion[t.id]).length,
+      aytTotal: aytTopics.length,
+      aytDone: aytTopics.filter(t => topicCompletion[t.id]).length,
+    };
+  }, [profile, topicCompletion]);
+
+  const totalDone = tytDone + aytDone;
+  const totalAll = tytTotal + aytTotal;
+  const totalRemaining = totalAll - totalDone;
+
+  return (
+    <View style={[styles.remainingCard, { backgroundColor: colors.card }]}>
+      <View style={styles.remainingHeader}>
+        <Ionicons name="checkbox-outline" size={18} color={colors.success} />
+        <Text style={[styles.remainingTitle, { color: colors.foreground }]}>Konu Durumu</Text>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/subjects")} style={[styles.remainingLink, { backgroundColor: colors.secondary }]}>
+          <Text style={[styles.remainingLinkText, { color: colors.primary }]}>Konulara git</Text>
+          <Feather name="arrow-right" size={12} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.remainingRow}>
+        <View style={styles.remainingItem}>
+          <Text style={[styles.remainingValue, { color: colors.success }]}>{totalDone}</Text>
+          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Tamamlanan</Text>
+        </View>
+        <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
+        <View style={styles.remainingItem}>
+          <Text style={[styles.remainingValue, { color: colors.warning }]}>{totalRemaining}</Text>
+          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Kalan</Text>
+        </View>
+        <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
+        <View style={styles.remainingItem}>
+          <Text style={[styles.remainingValue, { color: colors.primary }]}>{totalAll}</Text>
+          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Toplam</Text>
+        </View>
+      </View>
+
+      <View style={[styles.totalProgressBar, { backgroundColor: colors.border }]}>
+        <View style={[styles.totalProgressFill, {
+          width: `${totalAll > 0 ? (totalDone / totalAll) * 100 : 0}%`,
+          backgroundColor: colors.success,
+        }]} />
+      </View>
+      <Text style={[styles.totalProgressPct, { color: colors.mutedForeground }]}>
+        {totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0}% genel ilerleme
+      </Text>
     </View>
   );
 }
@@ -131,7 +223,7 @@ function TaskItem({ session, onComplete, colors }: {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak } = useApp();
+  const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion } = useApp();
   const [quote] = useState<Quote>(getRandomQuote);
 
   const today = new Date().toISOString().split("T")[0];
@@ -168,6 +260,10 @@ export default function HomeScreen() {
         </View>
       </Animated.View>
 
+      <Animated.View entering={FadeInDown.delay(100).duration(500)}>
+        <MotivationBanner tytPct={tytProgress} aytPct={aytProgress} colors={colors} />
+      </Animated.View>
+
       <Animated.View entering={FadeInDown.delay(120).duration(500)}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Sınava Geri Sayım</Text>
         <View style={styles.countdownRow}>
@@ -186,7 +282,17 @@ export default function HomeScreen() {
         </View>
       </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(240).duration(500)}>
+      <Animated.View entering={FadeInDown.delay(220).duration(500)}>
+        <RemainingTopicsCard
+          tytPct={tytProgress}
+          aytPct={aytProgress}
+          profile={profile}
+          topicCompletion={topicCompletion}
+          colors={colors}
+        />
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(260).duration(500)}>
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="checkbox-outline" size={21} color={colors.success} />
@@ -270,11 +376,16 @@ const styles = StyleSheet.create({
   streakBadge: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
   streakText: { fontFamily: "Inter_700Bold", fontSize: 14 },
   quoteCard: {
-    borderRadius: 18, padding: 18, marginBottom: 26,
+    borderRadius: 18, padding: 18, marginBottom: 14,
     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   quoteText: { fontSize: 14, fontFamily: "Inter_500Medium", lineHeight: 22, marginBottom: 8 },
   quoteAuthor: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  motivationBanner: {
+    flexDirection: "row", alignItems: "center", gap: 10, padding: 14, borderRadius: 14, marginBottom: 22,
+  },
+  motivationEmoji: { fontSize: 22 },
+  motivationText: { fontSize: 13, fontFamily: "Inter_500Medium", flex: 1, lineHeight: 20 },
   sectionTitle: { fontSize: 17, fontFamily: "Inter_700Bold", marginBottom: 12 },
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
   seeAll: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
@@ -295,6 +406,22 @@ const styles = StyleSheet.create({
   },
   progressTitle: { fontSize: 14, fontFamily: "Inter_700Bold" },
   progressSub: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  remainingCard: {
+    borderRadius: 18, padding: 16, marginBottom: 20,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  },
+  remainingHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 16 },
+  remainingTitle: { fontSize: 15, fontFamily: "Inter_600SemiBold", flex: 1 },
+  remainingLink: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
+  remainingLinkText: { fontSize: 11, fontFamily: "Inter_600SemiBold" },
+  remainingRow: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
+  remainingItem: { flex: 1, alignItems: "center", gap: 4 },
+  remainingValue: { fontSize: 24, fontFamily: "Inter_700Bold" },
+  remainingLabel: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  remainingDivider: { width: 1, height: 36 },
+  totalProgressBar: { height: 6, borderRadius: 3, overflow: "hidden", marginBottom: 6 },
+  totalProgressFill: { height: "100%", borderRadius: 3 },
+  totalProgressPct: { fontSize: 12, fontFamily: "Inter_400Regular", textAlign: "right" },
   statsRow: { flexDirection: "row", gap: 10, marginBottom: 26 },
   statCard: {
     flex: 1, borderRadius: 16, padding: 14, alignItems: "center", gap: 3,

@@ -1,0 +1,303 @@
+Implement the following improvements without breaking any existing functionality. Preserve the current UI/UX design, animations, navigation, and user data. Ensure all changes are production-ready, optimized, and fully tested.
+
+==================================================
+1. THEME SYSTEM
+==================================================
+
+Add a manual theme selector in Settings.
+
+Available options:
+- Light Mode
+- Dark Mode
+- System Default
+
+Save the selected theme permanently so it remains after restarting the app.
+
+==================================================
+2. PROGRESS PERCENTAGES
+==================================================
+
+Hide progress percentages when the value is 0%.
+
+Display the percentage only after progress becomes greater than 0%.
+
+Keep all existing animations.
+
+==================================================
+3. SETTINGS PAGE
+==================================================
+
+Remove the Version Information section completely.
+
+Do not leave any empty spacing after removing it.
+
+==================================================
+4. EXAM (DENEME) IMPROVEMENTS
+==================================================
+
+When creating a new exam, add a required input field for the exam name.
+
+Examples:
+- TYT 15
+- Özdebir TYT 3
+- 345 Türkiye Geneli
+- AYT Deneme 8
+
+Display the exam name everywhere that exam appears.
+
+==================================================
+5. WRONG QUESTION REMINDER SYSTEM
+==================================================
+
+Replace the current reminder system.
+
+When adding a wrong question, let the student choose the reminder interval.
+
+Available options:
+- Every 3 Days
+- Every 5 Days
+- Every 7 Days
+
+Each question must store its own reminder interval.
+
+If the student has NOT marked the question as "Understood", continue sending reminder notifications forever using the selected interval.
+
+If the student marks the question as "Understood", immediately cancel every future reminder for that question.
+
+==================================================
+6. NOTIFICATION SYSTEM
+==================================================
+
+The notification system is currently completely broken in the production Android APK.
+
+Find the root cause and permanently fix it instead of applying temporary fixes.
+
+Requirements:
+
+- Notifications must work correctly in production APK builds, not only in Expo Go.
+- Configure Expo Notifications correctly.
+- Create Android notification channels correctly.
+- Request notification permission correctly (especially Android 13+).
+- Local notifications must actually be scheduled.
+- Daily reminders must trigger at the correct time.
+- Wrong question reminders must trigger exactly according to the selected reminder interval.
+- Notifications must continue working while the app is in the background.
+- Notifications must continue working when the app is completely closed.
+- Notifications must continue working after the phone restarts whenever technically possible.
+- Prevent duplicate notifications.
+- Ensure scheduled notifications persist correctly.
+- Notification sound and vibration must work.
+- Fix every notification-related bug.
+- Thoroughly test notifications before finishing.
+
+Do not complete this task until notifications are confirmed to work correctly in a production Android APK.
+
+==================================================
+7. ONBOARDING
+==================================================
+
+Remove the onboarding question:
+
+"When will you start studying?"
+
+Completely remove it and adjust the onboarding flow naturally.
+
+==================================================
+8. ACHIEVEMENT SYSTEM
+==================================================
+
+Create a professional achievement system with at least 40 unique badges.
+
+Badges should include:
+
+• First Topic Completed
+• 10 Topics Completed
+• 25 Topics Completed
+• 50 Topics Completed
+• 100 Topics Completed
+• All Topics Completed
+
+• First Wrong Question Added
+• 10 Wrong Questions Added
+• 25 Wrong Questions Reviewed
+• 100 Wrong Questions Reviewed
+• Wrong Question Master
+
+• First Exam Added
+• 10 Exams Added
+• 25 Exams Added
+• 50 Exams Added
+• 100 Exams Added
+
+• First 100 Questions Solved
+• 500 Questions Solved
+• 1000 Questions Solved
+• 5000 Questions Solved
+• 10000 Questions Solved
+
+• 3 Day Streak
+• 7 Day Streak
+• 15 Day Streak
+• 30 Day Streak
+• 60 Day Streak
+• 100 Day Streak
+
+• Mathematics Master
+• Physics Explorer
+• Chemistry Expert
+• Biology Specialist
+• Turkish Champion
+• History Scholar
+• Geography Master
+• Philosophy Thinker
+• Religious Culture Expert
+• English Learner
+
+• Early Bird
+• Night Owl
+• Time Manager
+• Discipline Master
+• Revision Expert
+• Goal Chaser
+• Never Give Up
+• Progress Maker
+• Halfway There
+• Almost Ready
+• Future Top Scorer
+• Exam Warrior
+• KonuTakip Champion
+
+Each badge must include:
+
+- Badge icon
+- Badge title
+- Description
+- Unlock condition
+- Unlock animation
+- Congratulations message
+
+==================================================
+9. PERSONALIZED MOTIVATION
+==================================================
+
+As students get closer to their target exam score, show personalized motivational messages.
+
+Examples:
+
+"You're getting closer every day! 🚀"
+
+"Only a little more effort—you can do this!"
+
+"Your hard work is paying off."
+
+"Keep going, your target is within reach!"
+
+"Believe in yourself. Every solved question brings you closer to your dream."
+
+Messages should update dynamically based on student progress.
+
+==================================================
+10. EXAM PERFORMANCE CHART
+==================================================
+
+Completely redesign the exam statistics chart.
+
+Requirements:
+
+- Premium modern appearance
+- Smooth animations
+- Clearly display score increases and decreases
+- Better spacing
+- Better labels
+- Highlight highest score
+- Highlight lowest score
+- Interactive tooltips
+- Responsive on every screen
+- Beautiful in Light and Dark themes
+
+The chart should look comparable to premium productivity applications.
+
+==================================================
+11. REMAINING TOPICS
+==================================================
+
+Add remaining topic statistics.
+
+Each lesson should display:
+
+- Completed Topics
+- Remaining Topics
+- Progress Percentage
+
+Example:
+
+Mathematics
+
+Completed: 42
+
+Remaining: 18
+
+Progress: 70%
+
+Also add an overall summary on the Home page.
+
+Display:
+
+- Total Completed Topics
+- Total Remaining Topics
+- Overall Progress
+
+Display motivational messages depending on remaining topics.
+
+Examples:
+
+200+ remaining:
+"Every big success starts with the first topic. Keep going!"
+
+100 remaining:
+"You've already completed more than half. Great job!"
+
+50 remaining:
+"You're getting very close. Don't stop now!"
+
+20 remaining:
+"The finish line is getting closer!"
+
+10 remaining:
+"Only a few topics left. You've got this!"
+
+0 remaining:
+"Congratulations! You've completed every topic. Now focus on revision and exams!"
+
+==================================================
+12. IMAGE VIEWER
+==================================================
+
+Improve the wrong question image viewer.
+
+Requirements:
+
+- Tapping an image should open it in full-screen.
+- Support pinch-to-zoom.
+- Support double-tap zoom.
+- If multiple images exist, allow swiping left and right.
+- Show the current image number (Example: 2 / 5).
+- Close by swiping down or tapping a close button.
+- Keep full image quality.
+- Maintain smooth animations.
+
+==================================================
+GENERAL REQUIREMENTS
+==================================================
+
+- Do NOT remove any existing features.
+- Do NOT break existing functionality.
+- Preserve all user data.
+- Keep the current design language.
+- Keep existing animations unless improving them.
+- Optimize performance.
+- Ensure compatibility with Expo SDK 54.
+- Test every feature before completion.
+- Fix any bugs encountered during implementation.
+- Ensure there are no regressions anywhere in the application.
+- Deliver production-quality code only.

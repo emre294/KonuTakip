@@ -22,11 +22,13 @@ import {
 import Animated, {
   FadeIn,
   FadeInDown,
-  FadeOut,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp, Question, QuestionAttachment } from "@/contexts/AppContext";
@@ -34,6 +36,68 @@ import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS, Subject } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
 const SCREEN = Dimensions.get("window");
+
+// ─── Zoomable image (pinch + double-tap) ─────────────────────────────────────
+
+function ZoomableImage({ uri, onScaleChange }: {
+  uri: string;
+  onScaleChange?: (isZoomed: boolean) => void;
+}) {
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+
+  function notifyScale(s: number) {
+    onScaleChange?.(s > 1.05);
+  }
+
+  const pinch = Gesture.Pinch()
+    .onUpdate((e) => {
+      scale.value = Math.max(1, savedScale.value * e.scale);
+    })
+    .onEnd(() => {
+      if (scale.value < 1.15) {
+        scale.value = withSpring(1);
+        savedScale.value = 1;
+        runOnJS(notifyScale)(1);
+      } else {
+        savedScale.value = scale.value;
+        runOnJS(notifyScale)(scale.value);
+      }
+    });
+
+  const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .onEnd(() => {
+      if (savedScale.value > 1.05) {
+        scale.value = withSpring(1);
+        savedScale.value = 1;
+        runOnJS(notifyScale)(1);
+      } else {
+        scale.value = withSpring(2.5);
+        savedScale.value = 2.5;
+        runOnJS(notifyScale)(2.5);
+      }
+    });
+
+  const composed = Gesture.Simultaneous(pinch, doubleTap);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <GestureDetector gesture={composed}>
+      <Animated.View style={[styles.viewerPage, animStyle]}>
+        <Image
+          source={{ uri }}
+          style={styles.viewerImage}
+          contentFit="contain"
+          transition={180}
+        />
+      </Animated.View>
+    </GestureDetector>
+  );
+}
 
 // ─── Full-screen image viewer ────────────────────────────────────────────────
 
@@ -46,17 +110,18 @@ function ImageViewerModal({ visible, images, initialIndex, onClose }: {
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList<string>>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [flatListScrollEnabled, setFlatListScrollEnabled] = useState(true);
   const backdropOpacity = useSharedValue(0);
 
-  // Animate backdrop in/out
   React.useEffect(() => {
     backdropOpacity.value = withTiming(visible ? 1 : 0, { duration: 220 });
+    if (visible) {
+      setFlatListScrollEnabled(true);
+    }
   }, [visible]);
 
-  // Scroll to correct image when modal opens
   React.useEffect(() => {
     if (visible && listRef.current && images.length > 1) {
-      // Small delay lets the FlatList finish layout before scrolling
       setTimeout(() => {
         listRef.current?.scrollToIndex({ index: initialIndex, animated: false });
       }, 50);
@@ -77,18 +142,15 @@ function ImageViewerModal({ visible, images, initialIndex, onClose }: {
     []
   );
 
+  function handleScaleChange(isZoomed: boolean) {
+    setFlatListScrollEnabled(!isZoomed);
+  }
+
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 60 }).current;
 
   const renderImage = useCallback(
     ({ item }: ListRenderItemInfo<string>) => (
-      <View style={styles.viewerPage}>
-        <Image
-          source={{ uri: item }}
-          style={styles.viewerImage}
-          contentFit="contain"
-          transition={180}
-        />
-      </View>
+      <ZoomableImage uri={item} onScaleChange={handleScaleChange} />
     ),
     []
   );
@@ -105,19 +167,20 @@ function ImageViewerModal({ visible, images, initialIndex, onClose }: {
     >
       <Animated.View style={[styles.viewerBackdrop, backdropStyle]}>
 
-        {/* Header row: counter + close */}
+        {/* Header: counter + zoom hint + close */}
         <Animated.View
           entering={FadeIn.duration(200)}
           style={[styles.viewerHeader, { paddingTop: topInset + 12 }]}
         >
-          {/* Counter badge */}
           <View style={styles.viewerCounter}>
             <Text style={styles.viewerCounterText}>
               {currentIndex + 1} / {images.length}
             </Text>
           </View>
-
-          {/* Close button */}
+          <View style={styles.viewerHint}>
+            <Feather name="zoom-in" size={12} color="rgba(255,255,255,0.7)" />
+            <Text style={styles.viewerHintText}>Yakınlaştırmak için sıkıştır</Text>
+          </View>
           <TouchableOpacity
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onClose(); }}
             style={styles.viewerClose}
@@ -137,6 +200,7 @@ function ImageViewerModal({ visible, images, initialIndex, onClose }: {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           bounces={false}
+          scrollEnabled={flatListScrollEnabled}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           getItemLayout={(_, index) => ({
@@ -147,7 +211,7 @@ function ImageViewerModal({ visible, images, initialIndex, onClose }: {
           initialScrollIndex={initialIndex}
         />
 
-        {/* Dot indicators (only when multiple images) */}
+        {/* Dot indicators */}
         {images.length > 1 && (
           <Animated.View
             entering={FadeIn.duration(200)}
@@ -165,6 +229,14 @@ function ImageViewerModal({ visible, images, initialIndex, onClose }: {
             ))}
           </Animated.View>
         )}
+
+        {/* Double-tap hint pill */}
+        <Animated.View
+          entering={FadeIn.duration(400)}
+          style={[styles.doubleTapHint, { bottom: insets.bottom + (images.length > 1 ? 64 : 32) }]}
+        >
+          <Text style={styles.doubleTapHintText}>2× dokunarak yakınlaştır</Text>
+        </Animated.View>
       </Animated.View>
     </Modal>
   );
@@ -183,7 +255,6 @@ function AttachmentThumb({ att, onRemove, onOpenViewer, colors }: {
       <View style={styles.thumbWrap}>
         <TouchableOpacity onPress={onOpenViewer} activeOpacity={0.85} disabled={!onOpenViewer}>
           <Image source={{ uri: att.uri }} style={styles.thumb} contentFit="cover" />
-          {/* Subtle zoom hint icon */}
           {onOpenViewer && (
             <View style={styles.thumbZoomHint}>
               <Feather name="maximize-2" size={10} color="#fff" />
@@ -246,6 +317,12 @@ function QuestionCard({ question, onUnderstood, onEdit, onDelete, onOpenImage, c
               <Text style={[styles.badgeText, { color: colors.success }]}>Anladım</Text>
             </View>
           )}
+          {!question.understood && (
+            <View style={[styles.badge, { backgroundColor: colors.secondary }]}>
+              <Ionicons name="timer-outline" size={11} color={colors.mutedForeground} />
+              <Text style={[styles.badgeText, { color: colors.mutedForeground }]}>{question.reminderInterval ?? 7}g</Text>
+            </View>
+          )}
         </View>
         <View style={styles.qActions}>
           <TouchableOpacity onPress={onEdit} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
@@ -264,7 +341,6 @@ function QuestionCard({ question, onUnderstood, onEdit, onDelete, onOpenImage, c
       {question.attachments.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.attachmentRow}>
           {question.attachments.map((att, i) => {
-            // For images, calculate which image index this is within image-only list
             const imageIndex = att.type === "image"
               ? imageAttachments.findIndex((img) => img.uri === att.uri)
               : -1;
@@ -353,11 +429,17 @@ function SubjectSection({ subject, questions, onUnderstood, onEdit, onDelete, on
 
 // ─── Add / edit question modal ────────────────────────────────────────────────
 
+const REMINDER_OPTIONS: { value: 3 | 5 | 7; label: string; desc: string }[] = [
+  { value: 3, label: "3 Gün", desc: "Zor" },
+  { value: 5, label: "5 Gün", desc: "Orta" },
+  { value: 7, label: "7 Gün", desc: "Kolay" },
+];
+
 function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubjects, colors }: {
   visible: boolean;
   onClose: () => void;
   editingQuestion: Question | null;
-  onSave: (subjectId: string, subjectName: string, notes: string, attachments: QuestionAttachment[]) => void;
+  onSave: (subjectId: string, subjectName: string, notes: string, attachments: QuestionAttachment[], reminderInterval: 3 | 5 | 7) => void;
   allSubjects: Subject[];
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
@@ -365,6 +447,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
   const [selectedName, setSelectedName] = useState(editingQuestion?.subjectName ?? "");
   const [notes, setNotes] = useState(editingQuestion?.notes ?? "");
   const [attachments, setAttachments] = useState<QuestionAttachment[]>(editingQuestion?.attachments ?? []);
+  const [reminderInterval, setReminderInterval] = useState<3 | 5 | 7>(editingQuestion?.reminderInterval ?? 7);
 
   React.useEffect(() => {
     if (visible) {
@@ -372,6 +455,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
       setSelectedName(editingQuestion?.subjectName ?? "");
       setNotes(editingQuestion?.notes ?? "");
       setAttachments(editingQuestion?.attachments ?? []);
+      setReminderInterval(editingQuestion?.reminderInterval ?? 7);
     }
   }, [visible, editingQuestion]);
 
@@ -414,7 +498,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
 
   function handleSave() {
     if (!selectedId) { Alert.alert("Hata", "Lütfen bir ders seçin."); return; }
-    onSave(selectedId, selectedName, notes, attachments);
+    onSave(selectedId, selectedName, notes, attachments, reminderInterval);
   }
 
   return (
@@ -458,6 +542,30 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
             numberOfLines={4}
           />
 
+          {!editingQuestion && (
+            <>
+              <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tekrar Aralığı</Text>
+              <View style={styles.intervalRow}>
+                {REMINDER_OPTIONS.map((opt) => {
+                  const active = reminderInterval === opt.value;
+                  return (
+                    <TouchableOpacity
+                      key={opt.value}
+                      onPress={() => { setReminderInterval(opt.value); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                      style={[styles.intervalBtn, {
+                        backgroundColor: active ? colors.primary : colors.card,
+                        borderColor: active ? colors.primary : colors.border,
+                      }]}
+                    >
+                      <Text style={[styles.intervalBtnLabel, { color: active ? "#fff" : colors.foreground }]}>{opt.label}</Text>
+                      <Text style={[styles.intervalBtnDesc, { color: active ? "rgba(255,255,255,0.8)" : colors.mutedForeground }]}>{opt.desc}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          )}
+
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Fotoğraf / Dosya</Text>
           <View style={styles.uploadButtons}>
             <TouchableOpacity onPress={pickImage} style={[styles.uploadBtn, { backgroundColor: colors.secondary }]}>
@@ -485,7 +593,9 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
           <View style={[styles.infoBox, { backgroundColor: colors.accent }]}>
             <Ionicons name="information-circle-outline" size={15} color={colors.primary} />
             <Text style={[styles.infoText, { color: colors.foreground }]}>
-              7 gün sonra otomatik tekrar zamanı başlar ve anlayana kadar haftada bir hatırlatır.
+              {!editingQuestion
+                ? `${reminderInterval} gün sonra tekrar hatırlatması alacaksın.`
+                : "Notunu ve eklerini güncelleyebilirsin."}
             </Text>
           </View>
 
@@ -509,7 +619,6 @@ export default function QuestionsScreen() {
   const [showModal, setShowModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
-  // Image viewer state
   const [viewerVisible, setViewerVisible] = useState(false);
   const [viewerImages, setViewerImages] = useState<string[]>([]);
   const [viewerStartIndex, setViewerStartIndex] = useState(0);
@@ -526,11 +635,17 @@ export default function QuestionsScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
-  function handleSave(subjectId: string, subjectName: string, notes: string, attachments: QuestionAttachment[]) {
+  function handleSave(
+    subjectId: string,
+    subjectName: string,
+    notes: string,
+    attachments: QuestionAttachment[],
+    reminderInterval: 3 | 5 | 7
+  ) {
     if (editingQuestion) {
       updateQuestion(editingQuestion.id, { notes, attachments });
     } else {
-      addQuestion({ subjectId, subjectName, notes, attachments });
+      addQuestion({ subjectId, subjectName, notes, attachments, reminderInterval });
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setShowModal(false);
@@ -676,6 +791,13 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 12, fontFamily: "Inter_500Medium" },
   input: { borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, fontFamily: "Inter_400Regular" },
   textarea: { minHeight: 90, textAlignVertical: "top" },
+  intervalRow: { flexDirection: "row", gap: 10, marginTop: 4 },
+  intervalBtn: {
+    flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1.5,
+    alignItems: "center", gap: 2,
+  },
+  intervalBtnLabel: { fontSize: 14, fontFamily: "Inter_700Bold" },
+  intervalBtnDesc: { fontSize: 10, fontFamily: "Inter_400Regular" },
   uploadButtons: { flexDirection: "row", gap: 10, marginTop: 4 },
   uploadBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12, borderRadius: 12 },
   uploadBtnText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
@@ -703,6 +825,13 @@ const styles = StyleSheet.create({
   viewerCounterText: {
     color: "#fff", fontSize: 14, fontFamily: "Inter_600SemiBold", letterSpacing: 0.5,
   },
+  viewerHint: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: "rgba(255,255,255,0.08)", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12,
+  },
+  viewerHintText: {
+    color: "rgba(255,255,255,0.6)", fontSize: 11, fontFamily: "Inter_400Regular",
+  },
   viewerClose: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: "rgba(255,255,255,0.15)",
@@ -722,10 +851,13 @@ const styles = StyleSheet.create({
     position: "absolute", bottom: 0, left: 0, right: 0,
     flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 7,
   },
-  viewerDot: {
-    width: 6, height: 6, borderRadius: 3,
+  viewerDot: { width: 6, height: 6, borderRadius: 3 },
+  viewerDotActive: { width: 20, height: 6, borderRadius: 3 },
+  doubleTapHint: {
+    position: "absolute", alignSelf: "center",
+    backgroundColor: "rgba(255,255,255,0.1)", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14,
   },
-  viewerDotActive: {
-    width: 20, height: 6, borderRadius: 3,
+  doubleTapHintText: {
+    color: "rgba(255,255,255,0.55)", fontSize: 11, fontFamily: "Inter_400Regular",
   },
 });

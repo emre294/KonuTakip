@@ -30,7 +30,7 @@ import { StudyField, FIELD_LABELS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
 const { width } = Dimensions.get("window");
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 7;
 
 export default function OnboardingScreen() {
   const colors = useColors();
@@ -45,9 +45,6 @@ export default function OnboardingScreen() {
   const [tytScore, setTytScore] = useState("");
   const [aytScore, setAytScore] = useState("");
   const [field, setField] = useState<StudyField>("sayisal");
-  const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
 
   const progress = useSharedValue((step + 1) / TOTAL_STEPS);
 
@@ -80,7 +77,7 @@ export default function OnboardingScreen() {
       targetDepartment: department.trim() || "-",
       tytTargetScore: parseInt(tytScore) || 300,
       aytTargetScore: parseInt(aytScore) || 300,
-      studyStartDate: startDate,
+      studyStartDate: new Date().toISOString().split("T")[0],
       studyField: field,
     };
     setProfile(profile);
@@ -102,7 +99,6 @@ export default function OnboardingScreen() {
     <TYTScoreStep key="tyt" value={tytScore} onChange={setTytScore} colors={colors} />,
     <AYTScoreStep key="ayt" value={aytScore} onChange={setAytScore} colors={colors} />,
     <FieldStep key="field" value={field} onChange={setField} colors={colors} />,
-    <StartDateStep key="date" value={startDate} onChange={setStartDate} colors={colors} />,
   ];
 
   return (
@@ -287,26 +283,6 @@ function FieldStep({ value, onChange, colors }: { value: StudyField; onChange: (
   );
 }
 
-function StartDateStep({ value, onChange, colors }: { value: string; onChange: (v: string) => void; colors: ReturnType<typeof useColors> }) {
-  return (
-    <Animated.View entering={FadeInDown.duration(400)} style={styles.formStep}>
-      <Text style={[styles.stepTitle, { color: colors.foreground }]}>Çalışma Başlangıcı</Text>
-      <Text style={[styles.stepSubtitle, { color: colors.mutedForeground }]}>Ne zaman başladın? (YYYY-AA-GG)</Text>
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
-        placeholder="2026-01-01"
-        placeholderTextColor={colors.mutedForeground}
-        value={value}
-        onChangeText={onChange}
-        autoFocus
-      />
-      <Text style={[styles.hint, { color: colors.mutedForeground }]}>
-        Bu bilgi, toplam çalışma sürenizi hesaplamak için kullanılır.
-      </Text>
-    </Animated.View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 24 },
   flex: { flex: 1 },
@@ -333,9 +309,7 @@ const styles = StyleSheet.create({
   },
   optionText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
   optionsColumn: { gap: 12 },
-  fieldCard: {
-    padding: 20, borderRadius: 16, borderWidth: 1.5,
-  },
+  fieldCard: { padding: 20, borderRadius: 16, borderWidth: 1.5 },
   fieldLabel: { fontSize: 18, fontFamily: "Inter_700Bold", marginBottom: 4 },
   fieldDesc: { fontSize: 13, fontFamily: "Inter_400Regular" },
   actions: { flexDirection: "row", gap: 0, paddingTop: 16 },
@@ -348,5 +322,4 @@ const styles = StyleSheet.create({
     gap: 8, paddingHorizontal: 28,
   },
   nextBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
-  hint: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 12, lineHeight: 18 },
 });

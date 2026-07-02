@@ -63,6 +63,7 @@ function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
 }) {
   const [expanded, setExpanded] = useState(false);
   const completed = subject.topics.filter((t) => topicCompletion[t.id]).length;
+  const remaining = subject.topics.length - completed;
   const pct = subject.topics.length > 0 ? Math.round((completed / subject.topics.length) * 100) : 0;
   const height = useSharedValue(0);
   const opacity = useSharedValue(0);
@@ -92,11 +93,26 @@ function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
         <View style={styles.subjectInfo}>
           <Text style={[styles.subjectName, { color: colors.foreground }]}>{subject.name}</Text>
           <View style={styles.subjectMeta}>
-            <Text style={[styles.subjectCount, { color: colors.mutedForeground }]}>{completed}/{subject.topics.length} konu</Text>
             <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
               <View style={[styles.progressFill, { width: `${pct}%`, backgroundColor: subject.color }]} />
             </View>
-            <Text style={[styles.pctText, { color: subject.color }]}>{pct}%</Text>
+          </View>
+          <View style={styles.subjectStats}>
+            <View style={styles.subjectStatItem}>
+              <Feather name="check-circle" size={11} color={colors.success} />
+              <Text style={[styles.subjectStatText, { color: colors.success }]}>{completed}</Text>
+            </View>
+            <Text style={[styles.subjectStatSep, { color: colors.border }]}>•</Text>
+            <View style={styles.subjectStatItem}>
+              <Feather name="circle" size={11} color={colors.mutedForeground} />
+              <Text style={[styles.subjectStatText, { color: colors.mutedForeground }]}>{remaining} kalan</Text>
+            </View>
+            {pct > 0 && (
+              <>
+                <Text style={[styles.subjectStatSep, { color: colors.border }]}>•</Text>
+                <Text style={[styles.pctText, { color: subject.color }]}>{pct}%</Text>
+              </>
+            )}
           </View>
         </View>
         <Ionicons
@@ -131,6 +147,7 @@ function ExamSection({ title, subjects, topicCompletion, onToggle, accentColor, 
   const [open, setOpen] = useState(true);
   const allTopics = subjects.flatMap((s) => s.topics);
   const done = allTopics.filter((t) => topicCompletion[t.id]).length;
+  const remaining = allTopics.length - done;
   const pct = allTopics.length > 0 ? Math.round((done / allTopics.length) * 100) : 0;
 
   return (
@@ -140,9 +157,18 @@ function ExamSection({ title, subjects, topicCompletion, onToggle, accentColor, 
         style={[styles.examHeader, { backgroundColor: accentColor }]}
         activeOpacity={0.85}
       >
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={[styles.examTitle, { color: "#fff" }]}>{title}</Text>
-          <Text style={[styles.examPct, { color: "rgba(255,255,255,0.8)" }]}>{done}/{allTopics.length} konu • {pct}% tamamlandı</Text>
+          <View style={styles.examMetaRow}>
+            <Text style={[styles.examPct, { color: "rgba(255,255,255,0.9)" }]}>
+              {done}/{allTopics.length} konu{pct > 0 ? ` • %${pct}` : ""}
+            </Text>
+            {remaining > 0 && (
+              <View style={styles.examRemainingBadge}>
+                <Text style={styles.examRemainingText}>{remaining} kaldı</Text>
+              </View>
+            )}
+          </View>
         </View>
         <Ionicons name={open ? "chevron-up" : "chevron-down"} size={20} color="#fff" />
       </TouchableOpacity>
@@ -211,7 +237,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between", alignItems: "center", marginBottom: 12,
   },
   examTitle: { fontSize: 17, fontFamily: "Inter_700Bold", marginBottom: 4 },
+  examMetaRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   examPct: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  examRemainingBadge: { backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
+  examRemainingText: { fontSize: 11, fontFamily: "Inter_600SemiBold", color: "#fff" },
   subjectsContainer: { gap: 10 },
   subjectCard: {
     borderRadius: 16,
@@ -219,13 +248,16 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   subjectHeader: { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
-  subjectDot: { width: 10, height: 10, borderRadius: 5 },
+  subjectDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   subjectInfo: { flex: 1 },
-  subjectName: { fontSize: 15, fontFamily: "Inter_600SemiBold", marginBottom: 6 },
-  subjectMeta: { flexDirection: "row", alignItems: "center", gap: 8 },
-  subjectCount: { fontSize: 12, fontFamily: "Inter_400Regular" },
-  progressBar: { flex: 1, height: 4, borderRadius: 2, overflow: "hidden" },
+  subjectName: { fontSize: 15, fontFamily: "Inter_600SemiBold", marginBottom: 8 },
+  subjectMeta: { marginBottom: 6 },
+  progressBar: { height: 4, borderRadius: 2, overflow: "hidden" },
   progressFill: { height: "100%", borderRadius: 2 },
+  subjectStats: { flexDirection: "row", alignItems: "center", gap: 6 },
+  subjectStatItem: { flexDirection: "row", alignItems: "center", gap: 3 },
+  subjectStatText: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  subjectStatSep: { fontSize: 10 },
   pctText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   topicsContainer: { borderTopWidth: 1 },
   topicRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderBottomWidth: 1 },

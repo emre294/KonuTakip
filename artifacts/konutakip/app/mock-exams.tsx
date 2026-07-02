@@ -20,7 +20,6 @@ import { useApp, MockExamResult } from "@/contexts/AppContext";
 import { FIELD_LABELS, StudyField } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
-// AYT field-specific subjects
 const AYT_FIELD_SUBJECTS: Record<StudyField, { key: string; label: string }[]> = {
   sayisal: [
     { key: "aytMath", label: "AYT Matematik" },
@@ -53,7 +52,7 @@ function NetInput({ label, value, onChange, colors }: {
     <View style={styles.netInputRow}>
       <Text style={[styles.netLabel, { color: colors.foreground }]}>{label}</Text>
       <TextInput
-        style={[styles.netInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
+        style={[styles.netInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.foreground }]}
         value={value}
         onChangeText={onChange}
         keyboardType="decimal-pad"
@@ -80,7 +79,10 @@ function ExamCard({ result, onDelete, colors }: {
             <Text style={styles.examTypeBadgeText}>{result.type}</Text>
           </View>
           <View style={styles.examCardMid}>
-            <Text style={[styles.examCardDate, { color: colors.foreground }]}>{result.date}</Text>
+            {result.name ? (
+              <Text style={[styles.examCardName, { color: colors.foreground }]}>{result.name}</Text>
+            ) : null}
+            <Text style={[styles.examCardDate, { color: result.name ? colors.mutedForeground : colors.foreground }]}>{result.date}</Text>
             <Text style={[styles.examCardTotal, { color: accentColor }]}>Toplam: {result.totalNet.toFixed(2)} net</Text>
           </View>
           <View style={styles.examCardRight}>
@@ -129,6 +131,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
   profile: import("@/contexts/AppContext").UserProfile | null;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
+  const [examName, setExamName] = useState("");
   const [examType, setExamType] = useState<"TYT" | "AYT">("TYT");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [turkish, setTurkish] = useState("");
@@ -137,6 +140,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
   const [social, setSocial] = useState("");
   const [fieldNets, setFieldNets] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
+  const [nameError, setNameError] = useState(false);
 
   const aytSubjects = profile ? AYT_FIELD_SUBJECTS[profile.studyField] : AYT_FIELD_SUBJECTS.sayisal;
 
@@ -145,11 +149,17 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
   }
 
   function handleSave() {
+    if (!examName.trim()) {
+      setNameError(true);
+      return;
+    }
+    setNameError(false);
     const p = (v: string) => parseFloat(v) || 0;
 
     if (examType === "TYT") {
       const total = p(turkish) + p(math) + p(science) + p(social);
       onSave({
+        name: examName.trim(),
         date, type: "TYT",
         turkishNet: p(turkish), mathNet: p(math), scienceNet: p(science), socialNet: p(social),
         fieldNets: {}, totalNet: total, notes,
@@ -163,14 +173,14 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
         total += v;
       }
       onSave({
+        name: examName.trim(),
         date, type: "AYT",
         turkishNet: 0, mathNet: 0, scienceNet: 0, socialNet: 0,
         fieldNets: nets, totalNet: total, notes,
       });
     }
 
-    // reset
-    setTurkish(""); setMath(""); setScience(""); setSocial(""); setFieldNets({}); setNotes("");
+    setExamName(""); setTurkish(""); setMath(""); setScience(""); setSocial(""); setFieldNets({}); setNotes("");
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     onClose();
   }
@@ -186,6 +196,19 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
         </View>
 
         <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
+          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Deneme Adı *</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.card, borderColor: nameError ? colors.destructive : colors.border, color: colors.foreground }]}
+            value={examName}
+            onChangeText={(v) => { setExamName(v); if (v.trim()) setNameError(false); }}
+            placeholder="Örn: TYT 15, Özdebir AYT 3..."
+            placeholderTextColor={colors.mutedForeground}
+            autoFocus
+          />
+          {nameError && (
+            <Text style={[styles.errorText, { color: colors.destructive }]}>Deneme adı zorunludur</Text>
+          )}
+
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Sınav Türü</Text>
           <View style={styles.typeRow}>
             {(["TYT", "AYT"] as const).map((t) => (
@@ -420,7 +443,8 @@ const styles = StyleSheet.create({
   examTypeBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
   examTypeBadgeText: { fontSize: 13, fontFamily: "Inter_700Bold", color: "#fff" },
   examCardMid: { flex: 1 },
-  examCardDate: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  examCardName: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
+  examCardDate: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 1 },
   examCardTotal: { fontSize: 13, fontFamily: "Inter_500Medium", marginTop: 1 },
   examCardRight: { flexDirection: "row", alignItems: "center", gap: 12 },
   examDetails: { borderTopWidth: 1, padding: 16, gap: 8 },
@@ -438,6 +462,7 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 19, fontFamily: "Inter_700Bold" },
   modalContent: { padding: 20, gap: 4, paddingBottom: 40 },
   fieldLabel: { fontSize: 13, fontFamily: "Inter_500Medium", marginBottom: 6, marginTop: 12 },
+  errorText: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 4 },
   typeRow: { flexDirection: "row", gap: 12 },
   typeBtn: { flex: 1, paddingVertical: 14, borderRadius: 14, alignItems: "center", borderWidth: 1.5 },
   typeBtnText: { fontSize: 16, fontFamily: "Inter_700Bold" },

@@ -16,7 +16,9 @@ import { View } from "react-native";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider, useApp } from "@/contexts/AppContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AchievementToast } from "@/components/AchievementToast";
+import { setupNotifications } from "@/utils/notifications";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,6 +43,10 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
 function AppContent() {
   const { newAchievement, clearNewAchievement } = useApp();
+
+  useEffect(() => {
+    setupNotifications().catch(() => {});
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -83,13 +89,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <AppProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProvider>
-                <AppContent />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
-          </AppProvider>
+          <ThemeProvider>
+            <AppProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <AppContent />
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </AppProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

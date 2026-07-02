@@ -1,4 +1,5 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -7,13 +8,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "@/contexts/AppContext";
+import { ThemePreference, useTheme } from "@/contexts/ThemeContext";
 import { FIELD_LABELS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
@@ -50,11 +51,45 @@ function Section({ title, children, colors }: { title: string; children: React.R
   );
 }
 
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: string }[] = [
+  { value: "light", label: "Açık Mod", icon: "sun" },
+  { value: "dark",  label: "Koyu Mod", icon: "moon" },
+  { value: "system", label: "Sistem", icon: "smartphone" },
+];
+
+function ThemeSelector({ colors }: { colors: ReturnType<typeof import("@/hooks/useColors").useColors> }) {
+  const { preference, setPreference } = useTheme();
+
+  return (
+    <View style={[styles.themeSelector, { backgroundColor: colors.muted, borderRadius: 14 }]}>
+      {THEME_OPTIONS.map((opt) => {
+        const active = preference === opt.value;
+        return (
+          <TouchableOpacity
+            key={opt.value}
+            onPress={() => { setPreference(opt.value); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+            style={[
+              styles.themeOption,
+              { backgroundColor: active ? colors.card : "transparent" },
+              active && styles.themeOptionActive,
+            ]}
+            activeOpacity={0.7}
+          >
+            <Feather name={opt.icon as never} size={15} color={active ? colors.primary : colors.mutedForeground} />
+            <Text style={[styles.themeOptionText, { color: active ? colors.primary : colors.mutedForeground }]}>
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
 export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const colorScheme = useColorScheme();
-  const { profile, achievements, questions, sessions, studyStreak, mockExamResults } = useApp();
+  const { profile, achievements, questions, sessions, mockExamResults } = useApp();
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
@@ -108,20 +143,18 @@ export default function SettingsScreen() {
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(200).duration(500)}>
-        <Section title="GÖRÜNÜM" colors={colors}>
-          <SettingRow
-            icon="sun"
-            label="Tema"
-            value={colorScheme === "dark" ? "Koyu" : "Açık"}
-            colors={colors}
-            last
-            rightElement={
-              <View style={[styles.themeBadge, { backgroundColor: colors.secondary }]}>
-                <Text style={[styles.themeBadgeText, { color: colors.primary }]}>Sistem</Text>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>GÖRÜNÜM</Text>
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, padding: 14 }]}>
+            <View style={styles.themeHeaderRow}>
+              <View style={[styles.iconWrap, { backgroundColor: colors.secondary }]}>
+                <Feather name="sun" size={17} color={colors.primary} />
               </View>
-            }
-          />
-        </Section>
+              <Text style={[styles.rowLabel, { color: colors.foreground, flex: 1, marginLeft: 12 }]}>Tema</Text>
+            </View>
+            <ThemeSelector colors={colors} />
+          </View>
+        </View>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(240).duration(500)}>
@@ -131,12 +164,6 @@ export default function SettingsScreen() {
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(280).duration(500)}>
-        <Section title="UYGULAMA" colors={colors}>
-          <SettingRow icon="info" label="Versiyon" value="1.1.0" colors={colors} last />
-        </Section>
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(320).duration(500)}>
         <View style={styles.statsGrid}>
           <View style={[styles.statBox, { backgroundColor: colors.card }]}>
             <Text style={[styles.statValue, { color: colors.primary }]}>{sessions.length}</Text>
@@ -183,8 +210,16 @@ const styles = StyleSheet.create({
   rowContent: { flex: 1 },
   rowLabel: { fontSize: 14, fontFamily: "Inter_500Medium" },
   rowValue: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 1 },
-  themeBadge: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 7 },
-  themeBadgeText: { fontSize: 11, fontFamily: "Inter_500Medium" },
+  themeHeaderRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  themeSelector: { flexDirection: "row", padding: 4, gap: 4 },
+  themeOption: {
+    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 5, paddingVertical: 9, paddingHorizontal: 4, borderRadius: 10,
+  },
+  themeOptionActive: {
+    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2,
+  },
+  themeOptionText: { fontSize: 11, fontFamily: "Inter_600SemiBold" },
   statsGrid: { flexDirection: "row", gap: 10, marginBottom: 8 },
   statBox: {
     flex: 1, borderRadius: 14, padding: 14, alignItems: "center", gap: 4,
