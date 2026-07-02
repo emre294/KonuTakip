@@ -65,6 +65,7 @@ function CircleProgress({ pct, color, size }: { pct: number; color: string; size
       <View style={{
         width: size, height: size, borderRadius: size / 2, borderWidth: 4,
         borderColor: color, position: "absolute",
+        borderTopColor: pct === 0 ? "transparent" : color,
         borderRightColor: pct < 25 ? "transparent" : color,
         borderBottomColor: pct < 50 ? "transparent" : color,
         borderLeftColor: pct < 75 ? "transparent" : color,
