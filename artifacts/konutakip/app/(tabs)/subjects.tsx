@@ -13,11 +13,11 @@ import {
   View,
 } from "react-native";
 import Animated, {
+  Easing,
   FadeIn,
   FadeInDown,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -123,7 +123,9 @@ function TopicRow({
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   function handlePress() {
-    scale.value = withSpring(0.95, {}, () => { scale.value = withSpring(1); });
+    scale.value = withTiming(0.96, { duration: 70 }, () => {
+      scale.value = withTiming(1, { duration: 120 });
+    });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onToggle();
   }
@@ -207,13 +209,18 @@ function SubjectCard({
     overflow: "hidden",
   }));
 
+  // Easing curves: expand uses standard decelerate, collapse uses accelerate
+  const EXPAND_EASING = Easing.bezier(0.0, 0.0, 0.2, 1);
+  const COLLAPSE_EASING = Easing.bezier(0.4, 0.0, 1.0, 1);
+
   function toggle() {
     if (expanded) {
-      height.value = withTiming(0, { duration: 250 });
-      opacity.value = withTiming(0, { duration: 200 });
+      height.value = withTiming(0, { duration: 220, easing: COLLAPSE_EASING });
+      opacity.value = withTiming(0, { duration: 160, easing: COLLAPSE_EASING });
     } else {
-      height.value = withSpring(subject.topics.length * TOPIC_ROW_HEIGHT + 2, { damping: 20 });
-      opacity.value = withTiming(1, { duration: 300 });
+      const target = subject.topics.length * TOPIC_ROW_HEIGHT + 2;
+      height.value = withTiming(target, { duration: 280, easing: EXPAND_EASING });
+      opacity.value = withTiming(1, { duration: 220, easing: EXPAND_EASING });
     }
     setExpanded((e) => !e);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
