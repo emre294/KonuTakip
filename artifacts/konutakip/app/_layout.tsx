@@ -9,21 +9,28 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import { AppState, type AppStateStatus, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View } from "react-native";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider, useApp } from "@/contexts/AppContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AchievementToast } from "@/components/AchievementToast";
-import { setupNotifications } from "@/utils/notifications";
+import {
+  handleColdStartNotification,
+  handleNotificationTap,
+  initNotifications,
+  invalidatePermissionCache,
+} from "@/utils/notifications";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+// ─── Onboarding guard ─────────────────────────────────────────────────────────
 
 function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { profile, isLoaded } = useApp();
@@ -42,31 +49,37 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// ─── App content (inside providers) ──────────────────────────────────────────
+
 function AppContent() {
   const { newAchievement, clearNewAchievement } = useApp();
+  const responseListenerRef = useRef<Notifications.EventSubscription | null>(null);
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   useEffect(() => {
-    setupNotifications().catch(() => {});
+    // 1. Init channels + request permission (non-blocking)
+    initNotifications().catch(() => {});
 
-    // Handle tap on a notification — navigate to the relevant screen
-    function handleResponse(response: Notifications.NotificationResponse) {
-      const data = response.notification.request.content.data as Record<string, unknown>;
-      if (data?.type === "topic_reminder") {
-        router.push("/(tabs)/subjects");
-      } else if (data?.type === "question_reminder") {
-        router.push("/(tabs)");
+    // 2. Handle foreground/background notification taps
+    responseListenerRef.current =
+      Notifications.addNotificationResponseReceivedListener(handleNotificationTap);
+
+    // 3. Handle cold-start (app launched by tapping a notification)
+    handleColdStartNotification();
+
+    // 4. Invalidate permission cache when app returns to foreground
+    //    (user may have toggled permission in OS settings)
+    const appStateSub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
+      if (appStateRef.current.match(/inactive|background/) && nextState === "active") {
+        invalidatePermissionCache();
       }
-    }
+      appStateRef.current = nextState;
+    });
 
-    // Listener for when the app is open / in foreground
-    const sub = Notifications.addNotificationResponseReceivedListener(handleResponse);
-
-    // Cold-start: app opened by tapping a notification while closed
-    Notifications.getLastNotificationResponseAsync()
-      .then((response) => { if (response) handleResponse(response); })
-      .catch(() => {});
-
-    return () => sub.remove();
+    return () => {
+      responseListenerRef.current?.remove();
+      appStateSub.remove();
+    };
   }, []);
 
   return (
@@ -89,6 +102,8 @@ function AppContent() {
     </View>
   );
 }
+
+// ─── Root layout ──────────────────────────────────────────────────────────────
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({

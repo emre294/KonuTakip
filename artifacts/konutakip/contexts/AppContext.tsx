@@ -10,10 +10,15 @@ import React, {
 
 import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
 import {
-  scheduleQuestionReminder,
+  cancelDailyStudyReminder,
   cancelQuestionReminder,
-  scheduleTopicReminder,
+  cancelSessionReminder,
   cancelTopicReminder,
+  scheduleDailyStudyReminder,
+  scheduleQuestionReminder,
+  scheduleSessionReminder,
+  scheduleTopicReminder,
+  syncNotifications,
 } from "@/utils/notifications";
 
 export interface UserProfile {
@@ -78,6 +83,21 @@ export interface Achievement {
   icon: string;
   unlocked: boolean;
   unlockedDate?: string;
+}
+
+export interface DailyReminderSetting {
+  hour: number;
+  minute: number;
+  enabled: boolean;
+}
+
+// Topic reminder record now also stores topicName/subjectName so that sync can
+// rebuild the notification after a device restart without extra data lookups.
+export interface TopicReminderRecord {
+  interval: 3 | 5 | 7;
+  nextDate: string; // YYYY-MM-DD
+  topicName?: string;
+  subjectName?: string;
 }
 
 const ACHIEVEMENTS_TEMPLATE: Achievement[] = [
@@ -165,9 +185,12 @@ interface AppContextValue {
   topicSolvedQuestions: Record<string, number>;
   setTopicSolvedQuestion: (topicId: string, count: number) => void;
   totalSolvedQuestions: number;
-  topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+  topicReminders: Record<string, TopicReminderRecord>;
   setTopicReminder: (topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7) => Promise<void>;
   removeTopicReminder: (topicId: string) => Promise<void>;
+  dailyReminder: DailyReminderSetting | null;
+  setDailyReminder: (hour: number, minute: number) => Promise<void>;
+  removeDailyReminder: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -202,7 +225,6 @@ function computeStreak(days: string[]): number {
   return streak;
 }
 
-// Merge saved achievements with template to pick up newly added ones
 function mergeAchievements(saved: Achievement[], template: Achievement[]): Achievement[] {
   const savedMap: Record<string, Achievement> = {};
   for (const a of saved) savedMap[a.id] = a;
@@ -220,14 +242,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [studyDays, setStudyDays] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [topicSolvedQuestions, setTopicSolvedQuestionsState] = useState<Record<string, number>>({});
-  const [topicReminders, setTopicRemindersState] = useState<Record<string, { interval: 3 | 5 | 7; nextDate: string }>>({});
+  const [topicReminders, setTopicRemindersState] = useState<Record<string, TopicReminderRecord>>({});
+  const [dailyReminder, setDailyReminderState] = useState<DailyReminderSetting | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
+
       if (!raw) {
+        // Migrate from v2 if present
         const oldRaw = await AsyncStorage.getItem("konutakip_v2");
         if (oldRaw) {
           const old = JSON.parse(oldRaw);
@@ -255,6 +280,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (data.studyDays) setStudyDays(data.studyDays);
         if (data.topicSolvedQuestions) setTopicSolvedQuestionsState(data.topicSolvedQuestions);
         if (data.topicReminders) setTopicRemindersState(data.topicReminders);
+        if (data.dailyReminder) setDailyReminderState(data.dailyReminder);
+
+        // ── App-start sync: validate & restore notifications ────────────────
+        // Run asynchronously so it never blocks the UI from appearing.
+        const loadedSessions: DailySession[] = data.sessions ?? [];
+        const loadedQuestions: Question[] = (data.questions ?? []).map((q: Question) => ({
+          ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+        }));
+        const loadedTopicReminders: Record<string, TopicReminderRecord> = data.topicReminders ?? {};
+        const loadedDailyReminder: DailyReminderSetting | null = data.dailyReminder ?? null;
+
+        syncNotifications({
+          topicReminders: loadedTopicReminders,
+          questions: loadedQuestions,
+          sessions: loadedSessions,
+          dailyReminder: loadedDailyReminder,
+        }).catch(() => {});
       }
     } catch { /* ignore */ } finally {
       setIsLoaded(true);
@@ -270,7 +312,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     achievements: Achievement[];
     studyDays: string[];
     topicSolvedQuestions: Record<string, number>;
-    topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+    topicReminders: Record<string, TopicReminderRecord>;
+    dailyReminder: DailyReminderSetting | null;
   }>) {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
@@ -456,19 +499,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // ── Topic reminders ──────────────────────────────────────────────────────────
+
   const setTopicReminderCtx = useCallback(async (
     topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7
   ) => {
     const nextDate = new Date();
     nextDate.setDate(nextDate.getDate() + interval);
     const nextDateStr = nextDate.toISOString().split("T")[0];
+
     const success = await scheduleTopicReminder(topicId, topicName, subjectName, interval);
     if (!success) {
-      // Scheduling failed (permission denied or error) — do not persist phantom reminder
       throw new Error("Bildirim izni reddedildi veya hatırlatma ayarlanamadı.");
     }
+
     setTopicRemindersState(prev => {
-      const next = { ...prev, [topicId]: { interval, nextDate: nextDateStr } };
+      const next = {
+        ...prev,
+        [topicId]: { interval, nextDate: nextDateStr, topicName, subjectName },
+      };
       saveData({ topicReminders: next });
       return next;
     });
@@ -483,6 +532,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
   }, []);
+
+  // ── toggleTopic ──────────────────────────────────────────────────────────────
 
   const toggleTopic = useCallback((topicId: string) => {
     setTopicCompletion(prev => {
@@ -525,8 +576,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     markStudyDay();
   }, [studyDays, markStudyDay]);
 
+  // ── Session management ────────────────────────────────────────────────────────
+
   const addSession = useCallback((s: Omit<DailySession, "id">) => {
     const session: DailySession = { ...s, id: generateId() };
+
+    // Schedule a notification at the session's start time
+    scheduleSessionReminder(
+      session.id,
+      session.date,
+      session.time,
+      session.subjectName,
+      session.topic
+    ).catch(() => {});
+
     setSessions(prev => {
       const next = [...prev, session];
       saveData({ sessions: next });
@@ -552,6 +615,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [topicCompletion, studyDays]);
 
   const completeSession = useCallback((id: string) => {
+    // Cancel session notification when session is marked complete
+    cancelSessionReminder(id).catch(() => {});
     setSessions(prev => {
       const next = prev.map(s => s.id === id ? { ...s, completed: true } : s);
       saveData({ sessions: next });
@@ -561,12 +626,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [markStudyDay]);
 
   const deleteSession = useCallback((id: string) => {
+    // Cancel notification when session is deleted
+    cancelSessionReminder(id).catch(() => {});
     setSessions(prev => {
       const next = prev.filter(s => s.id !== id);
       saveData({ sessions: next });
       return next;
     });
   }, []);
+
+  // ── Question management ───────────────────────────────────────────────────────
 
   const addQuestion = useCallback((q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => {
     const interval = q.reminderInterval ?? 7;
@@ -641,6 +710,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [topicCompletion, sessions, studyDays]);
 
+  // ── Mock exam results ─────────────────────────────────────────────────────────
+
   const addMockExamResult = useCallback((r: Omit<MockExamResult, "id">) => {
     const result: MockExamResult = { ...r, id: generateId() };
     setMockExamResults(prev => {
@@ -669,10 +740,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // ── Daily reminder ────────────────────────────────────────────────────────────
+
+  const setDailyReminderCtx = useCallback(async (hour: number, minute: number) => {
+    const setting: DailyReminderSetting = { hour, minute, enabled: true };
+    const success = await scheduleDailyStudyReminder(hour, minute);
+    if (!success) {
+      throw new Error("Bildirim izni reddedildi veya hatırlatma ayarlanamadı.");
+    }
+    setDailyReminderState(setting);
+    saveData({ dailyReminder: setting });
+  }, []);
+
+  const removeDailyReminderCtx = useCallback(async () => {
+    await cancelDailyStudyReminder();
+    const setting: DailyReminderSetting | null = null;
+    setDailyReminderState(setting);
+    saveData({ dailyReminder: setting });
+  }, []);
+
   const clearNewAchievement = useCallback(() => setNewAchievement(null), []);
 
+  // ─────────────────────────────────────────────────────────────────────────────
+
   const value = useMemo<AppContextValue>(() => ({
-    profile, setProfile, topicCompletion, toggleTopic,
+    profile, setProfile,
+    topicCompletion, toggleTopic,
     sessions, addSession, completeSession, deleteSession,
     questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
@@ -680,9 +773,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     tytProgress, aytProgress, totalTopicsCompleted,
     studyStreak, studyDays, markStudyDay, isLoaded,
     topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
-    topicReminders, setTopicReminder: setTopicReminderCtx, removeTopicReminder: removeTopicReminderCtx,
+    topicReminders,
+    setTopicReminder: setTopicReminderCtx,
+    removeTopicReminder: removeTopicReminderCtx,
+    dailyReminder,
+    setDailyReminder: setDailyReminderCtx,
+    removeDailyReminder: removeDailyReminderCtx,
   }), [
-    profile, setProfile, topicCompletion, toggleTopic,
+    profile, setProfile,
+    topicCompletion, toggleTopic,
     sessions, addSession, completeSession, deleteSession,
     questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
@@ -691,6 +790,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     studyStreak, studyDays, markStudyDay, isLoaded,
     topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
     topicReminders, setTopicReminderCtx, removeTopicReminderCtx,
+    dailyReminder, setDailyReminderCtx, removeDailyReminderCtx,
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
