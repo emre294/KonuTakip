@@ -1,0 +1,238 @@
+I want you to completely rebuild the notification system from scratch.
+
+Do NOT patch or modify the existing implementation.
+
+Analyze the current notification architecture, then replace it with a production-ready implementation.
+
+The new system must be reliable, maintainable, and free of duplicate notifications.
+
+========================
+GENERAL REQUIREMENTS
+========================
+
+The notification system must work correctly when:
+
+- The app is open.
+- The app is in the background.
+- The app is completely closed.
+- The device is restarted.
+
+Notifications must never be duplicated.
+
+Notifications must never disappear unexpectedly.
+
+Scheduling must always stay synchronized with AsyncStorage.
+
+If a notification already exists, do not schedule another one.
+
+Always cancel old notifications before creating new ones.
+
+========================
+TOPIC REVIEW REMINDERS
+========================
+
+When a topic is completed, the user can choose:
+
+- 3 days
+- 5 days
+- 7 days
+
+The system must:
+
+- Cancel the previous reminder.
+- Schedule exactly one new reminder.
+- Never create duplicates.
+- Persist reminders across app restarts.
+- Automatically remove reminders when the topic is completed or deleted.
+- Rebuild missing reminders if necessary.
+
+========================
+QUESTION REVIEW REMINDERS
+========================
+
+When a wrong question is added:
+
+- Schedule a reminder based on the selected interval.
+
+When the question is marked as understood:
+
+- Cancel the reminder.
+
+When the question is deleted:
+
+- Cancel the reminder.
+
+When the reminder interval changes:
+
+- Cancel the old notification.
+- Create a new one.
+
+========================
+DAILY STUDY REMINDER
+========================
+
+Create exactly one repeating daily reminder.
+
+Do not schedule it again every time the app starts.
+
+If it already exists, keep it.
+
+If the user changes the reminder time:
+
+- Cancel the old one.
+- Schedule the new one.
+
+========================
+LESSON REMINDERS
+========================
+
+Support weekly recurring lesson reminders.
+
+If lesson time changes:
+
+- Cancel previous notification.
+- Schedule new one.
+
+If lesson is deleted:
+
+- Remove notification.
+
+========================
+ANDROID
+========================
+
+Create dedicated notification channels:
+
+- Default
+- Topic Reminders
+- Question Reminders
+- Daily Reminder
+- Lesson Reminder
+
+Use proper importance levels.
+
+Support Android 13+ runtime notification permissions.
+
+========================
+IOS
+========================
+
+Support:
+
+- Alerts
+- Sound
+- Badge
+
+Handle permission requests correctly.
+
+========================
+APP START
+========================
+
+Whenever the app starts:
+
+- Validate scheduled notifications.
+- Restore missing notifications.
+- Remove orphaned notifications.
+- Remove duplicates.
+- Keep everything synchronized with AsyncStorage.
+
+========================
+NOTIFICATION TAP
+========================
+
+When the user taps a notification:
+
+Topic Reminder
+→ Subjects screen
+
+Question Reminder
+→ Wrong Questions screen
+
+Lesson Reminder
+→ Lesson Schedule
+
+Daily Reminder
+→ Home screen
+
+Support:
+
+- Foreground
+- Background
+- Cold Start
+
+========================
+CODE QUALITY
+========================
+
+Rewrite the notification system with clean architecture.
+
+Avoid duplicated logic.
+
+Extract reusable helper functions.
+
+Use TypeScript properly.
+
+Handle every possible error.
+
+Avoid unnecessary AsyncStorage writes.
+
+Avoid unnecessary notification scheduling.
+
+========================
+TEST EVERYTHING
+========================
+
+Verify:
+
+✔ Topic reminders
+
+✔ Question reminders
+
+✔ Lesson reminders
+
+✔ Daily reminders
+
+✔ Notification tap navigation
+
+✔ Foreground
+
+✔ Background
+
+✔ Cold start
+
+✔ Duplicate prevention
+
+✔ Permission denied
+
+✔ Permission granted
+
+✔ App restart
+
+✔ Notification cancellation
+
+========================
+FINAL REPORT
+========================
+
+After implementation provide:
+
+1. Files modified.
+
+2. Problems found.
+
+3. How each problem was fixed.
+
+4. How duplicate notifications are prevented.
+
+5. How permissions are handled.
+
+6. How app restart recovery works.
+
+7. How notification navigation works.
+
+8. Which scenarios were tested.
+
+Do not remove any existing application features.
+
+Only rebuild the notification infrastructure into a production-quality implementation.
