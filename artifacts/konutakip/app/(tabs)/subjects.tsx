@@ -195,8 +195,6 @@ interface SubjectCardProps {
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }
 
-const TOPIC_ROW_HEIGHT = 52;
-
 function SubjectCard({
   subject, topicCompletion, topicSolvedQuestions, topicReminders,
   onToggle, onSetSolved, onBellPress, colors,
@@ -207,6 +205,9 @@ function SubjectCard({
   const pct = subject.topics.length > 0 ? Math.round((completed / subject.topics.length) * 100) : 0;
   const height = useSharedValue(0);
   const opacity = useSharedValue(0);
+  // Measured from the real rendered content — the topics list is always mounted
+  // (just clipped via animated height), so onLayout gives us its true height.
+  const contentHeight = useSharedValue(0);
 
   const contentStyle = useAnimatedStyle(() => ({
     height: height.value,
@@ -218,13 +219,21 @@ function SubjectCard({
   const EXPAND_EASING = Easing.bezier(0.0, 0.0, 0.2, 1);
   const COLLAPSE_EASING = Easing.bezier(0.4, 0.0, 1.0, 1);
 
+  function handleContentLayout(measuredHeight: number) {
+    contentHeight.value = measuredHeight;
+    if (expanded) {
+      // Keep an already-expanded card in sync if content height changes
+      // (e.g. topics added/removed) without re-triggering the animation.
+      height.value = measuredHeight;
+    }
+  }
+
   function toggle() {
     if (expanded) {
       height.value = withTiming(0, { duration: 220, easing: COLLAPSE_EASING });
       opacity.value = withTiming(0, { duration: 160, easing: COLLAPSE_EASING });
     } else {
-      const target = subject.topics.length * TOPIC_ROW_HEIGHT + 2;
-      height.value = withTiming(target, { duration: 280, easing: EXPAND_EASING });
+      height.value = withTiming(contentHeight.value, { duration: 280, easing: EXPAND_EASING });
       opacity.value = withTiming(1, { duration: 220, easing: EXPAND_EASING });
     }
     setExpanded((e) => !e);
@@ -264,7 +273,10 @@ function SubjectCard({
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
-        <View style={[styles.topicsContainer, { borderTopColor: colors.border }]}>
+        <View
+          style={[styles.topicsContainer, { borderTopColor: colors.border }]}
+          onLayout={(e) => handleContentLayout(e.nativeEvent.layout.height)}
+        >
           {subject.topics.map((t) => (
             <TopicRow
               key={t.id}
@@ -487,7 +499,7 @@ const styles = StyleSheet.create({
   topicRow: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 12, paddingVertical: 10,
-    gap: 10, borderBottomWidth: 1, minHeight: TOPIC_ROW_HEIGHT,
+    gap: 10, borderBottomWidth: 1, minHeight: 52,
   },
   topicCheckBtn: { padding: 2 },
   topicCheck: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
