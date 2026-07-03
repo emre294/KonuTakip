@@ -42,7 +42,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-matematik",
-    name: "Temel Matematik",
+    name: "Matematik",
     color: "#2563EB",
     topics: makeTopics("tyt-matematik", [
       "Sayılar ve Sayı Sistemleri",
@@ -67,7 +67,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-fen-fizik",
-    name: "Fen Bilimleri (Fizik)",
+    name: "Fizik",
     color: "#0891B2",
     topics: makeTopics("tyt-fen-fizik", [
       "Fiziksel Büyüklükler ve Ölçme",
@@ -81,7 +81,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-fen-kimya",
-    name: "Fen Bilimleri (Kimya)",
+    name: "Kimya",
     color: "#0D9488",
     topics: makeTopics("tyt-fen-kimya", [
       "Atom ve Periyodik Sistem",
@@ -94,7 +94,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-fen-biyoloji",
-    name: "Fen Bilimleri (Biyoloji)",
+    name: "Biyoloji",
     color: "#16A34A",
     topics: makeTopics("tyt-fen-biyoloji", [
       "Hücre ve Organeller",
@@ -106,7 +106,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-sosyal-tarih",
-    name: "Sosyal Bilimler (Tarih)",
+    name: "Tarih",
     color: "#B45309",
     topics: makeTopics("tyt-sosyal-tarih", [
       "Tarih Bilimine Giriş",
@@ -118,7 +118,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-sosyal-cografya",
-    name: "Sosyal Bilimler (Coğrafya)",
+    name: "Coğrafya",
     color: "#9333EA",
     topics: makeTopics("tyt-sosyal-cografya", [
       "Coğrafyaya Giriş",
@@ -130,7 +130,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-sosyal-felsefe",
-    name: "Sosyal Bilimler (Felsefe)",
+    name: "Felsefe",
     color: "#DB2777",
     topics: makeTopics("tyt-sosyal-felsefe", [
       "Felsefeye Giriş",
@@ -140,7 +140,7 @@ export const TYT_SUBJECTS: Subject[] = [
   },
   {
     id: "tyt-sosyal-din",
-    name: "Sosyal Bilimler (Din Kültürü)",
+    name: "Din Kültürü",
     color: "#EA580C",
     topics: makeTopics("tyt-sosyal-din", [
       "İslam'ın Temel Kaynakları",

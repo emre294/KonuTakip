@@ -12,6 +12,8 @@ import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects
 import {
   scheduleQuestionReminder,
   cancelQuestionReminder,
+  scheduleTopicReminder,
+  cancelTopicReminder,
 } from "@/utils/notifications";
 
 export interface UserProfile {
@@ -160,6 +162,12 @@ interface AppContextValue {
   studyDays: string[];
   markStudyDay: () => void;
   isLoaded: boolean;
+  topicSolvedQuestions: Record<string, number>;
+  setTopicSolvedQuestion: (topicId: string, count: number) => void;
+  totalSolvedQuestions: number;
+  topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+  setTopicReminder: (topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7) => Promise<void>;
+  removeTopicReminder: (topicId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -211,6 +219,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
   const [studyDays, setStudyDays] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [topicSolvedQuestions, setTopicSolvedQuestionsState] = useState<Record<string, number>>({});
+  const [topicReminders, setTopicRemindersState] = useState<Record<string, { interval: 3 | 5 | 7; nextDate: string }>>({});
 
   useEffect(() => { loadData(); }, []);
 
@@ -243,6 +253,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         })));
         if (data.achievements) setAchievements(mergeAchievements(data.achievements, ACHIEVEMENTS_TEMPLATE));
         if (data.studyDays) setStudyDays(data.studyDays);
+        if (data.topicSolvedQuestions) setTopicSolvedQuestionsState(data.topicSolvedQuestions);
+        if (data.topicReminders) setTopicRemindersState(data.topicReminders);
       }
     } catch { /* ignore */ } finally {
       setIsLoaded(true);
@@ -257,6 +269,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     mockExamResults: MockExamResult[];
     achievements: Achievement[];
     studyDays: string[];
+    topicSolvedQuestions: Record<string, number>;
+    topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
   }>) {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
@@ -289,6 +303,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 
   const studyStreak = useMemo(() => computeStreak(studyDays), [studyDays]);
+
+  const totalSolvedQuestions = useMemo(
+    () => Object.values(topicSolvedQuestions).reduce((sum, n) => sum + (n || 0), 0),
+    [topicSolvedQuestions]
+  );
 
   function checkAchievements(
     comp: Record<string, boolean>,
@@ -429,10 +448,58 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [topicCompletion]);
 
+  const setTopicSolvedQuestion = useCallback((topicId: string, count: number) => {
+    setTopicSolvedQuestionsState(prev => {
+      const next = { ...prev, [topicId]: count };
+      saveData({ topicSolvedQuestions: next });
+      return next;
+    });
+  }, []);
+
+  const setTopicReminderCtx = useCallback(async (
+    topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7
+  ) => {
+    const nextDate = new Date();
+    nextDate.setDate(nextDate.getDate() + interval);
+    const nextDateStr = nextDate.toISOString().split("T")[0];
+    const success = await scheduleTopicReminder(topicId, topicName, subjectName, interval);
+    if (!success) {
+      // Scheduling failed (permission denied or error) — do not persist phantom reminder
+      throw new Error("Bildirim izni reddedildi veya hatırlatma ayarlanamadı.");
+    }
+    setTopicRemindersState(prev => {
+      const next = { ...prev, [topicId]: { interval, nextDate: nextDateStr } };
+      saveData({ topicReminders: next });
+      return next;
+    });
+  }, []);
+
+  const removeTopicReminderCtx = useCallback(async (topicId: string) => {
+    await cancelTopicReminder(topicId);
+    setTopicRemindersState(prev => {
+      const next = { ...prev };
+      delete next[topicId];
+      saveData({ topicReminders: next });
+      return next;
+    });
+  }, []);
+
   const toggleTopic = useCallback((topicId: string) => {
     setTopicCompletion(prev => {
+      const wasCompleted = !!prev[topicId];
       const next = { ...prev, [topicId]: !prev[topicId] };
       saveData({ topicCompletion: next });
+      // Auto-cancel reminder when topic is marked complete
+      if (!wasCompleted) {
+        cancelTopicReminder(topicId).catch(() => {});
+        setTopicRemindersState(prevR => {
+          if (!prevR[topicId]) return prevR;
+          const nextR = { ...prevR };
+          delete nextR[topicId];
+          saveData({ topicReminders: nextR });
+          return nextR;
+        });
+      }
       setSessions(sessSnap => {
         setQuestions(qSnap => {
           setMockExamResults(examSnap => {
@@ -612,6 +679,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,
     studyStreak, studyDays, markStudyDay, isLoaded,
+    topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+    topicReminders, setTopicReminder: setTopicReminderCtx, removeTopicReminder: removeTopicReminderCtx,
   }), [
     profile, setProfile, topicCompletion, toggleTopic,
     sessions, addSession, completeSession, deleteSession,
@@ -620,6 +689,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,
     studyStreak, studyDays, markStudyDay, isLoaded,
+    topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+    topicReminders, setTopicReminderCtx, removeTopicReminderCtx,
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp, MockExamResult } from "@/contexts/AppContext";
 import { FIELD_LABELS, StudyField } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
+import { DatePickerField } from "@/components/pickers";
 
 const AYT_FIELD_SUBJECTS: Record<StudyField, { key: string; label: string }[]> = {
   sayisal: [
@@ -222,14 +223,8 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
             ))}
           </View>
 
-          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih (YYYY-AA-GG)</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
-            value={date}
-            onChangeText={setDate}
-            placeholder="2026-07-01"
-            placeholderTextColor={colors.mutedForeground}
-          />
+          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih</Text>
+          <DatePickerField value={date} onChange={setDate} colors={colors} />
 
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Net Sayıları</Text>
           <View style={[styles.netsCard, { backgroundColor: colors.card }]}>

@@ -163,10 +163,11 @@ function MotivationBanner({ tytPct, aytPct, colors }: {
   );
 }
 
-function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, colors }: {
+function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSolvedQuestions, colors }: {
   tytPct: number; aytPct: number;
   profile: import("@/contexts/AppContext").UserProfile | null;
   topicCompletion: Record<string, boolean>;
+  totalSolvedQuestions: number;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
   const { tytTotal, tytDone, aytTotal, aytDone } = useMemo(() => {
@@ -207,8 +208,8 @@ function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, colors 
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
-          <Text style={[styles.remainingValue, { color: colors.primary }]}>{totalAll}</Text>
-          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Toplam</Text>
+          <Text style={[styles.remainingValue, { color: colors.primary }]}>{totalSolvedQuestions.toLocaleString("tr-TR")}</Text>
+          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Çözülen Soru</Text>
         </View>
       </View>
 
@@ -267,7 +268,7 @@ function TaskItem({ session, onComplete, colors }: {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion } = useApp();
+  const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion, totalSolvedQuestions } = useApp();
   const [quote] = useState<Quote>(getRandomQuote);
 
   const today = new Date().toISOString().split("T")[0];
@@ -332,6 +333,7 @@ export default function HomeScreen() {
           aytPct={aytProgress}
           profile={profile}
           topicCompletion={topicCompletion}
+          totalSolvedQuestions={totalSolvedQuestions}
           colors={colors}
         />
       </Animated.View>

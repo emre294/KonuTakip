@@ -6,6 +6,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -23,8 +25,8 @@ export async function setupNotifications(): Promise<boolean> {
       sound: "default",
     });
     await Notifications.setNotificationChannelAsync(CHANNEL_REMINDERS, {
-      name: "Soru Tekrar Hatırlatmaları",
-      description: "Yanlış soru tekrar zamanı bildirimleri",
+      name: "Konu & Soru Tekrar Hatırlatmaları",
+      description: "Konu ve yanlış soru tekrar zamanı bildirimleri",
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 300, 200, 300],
       lightColor: "#EA580C",
@@ -48,12 +50,13 @@ export async function setupNotifications(): Promise<boolean> {
       allowAlert: true,
       allowBadge: true,
       allowSound: true,
-      allowAnnouncements: true,
     },
   });
 
   return status === "granted";
 }
+
+// ─── Question reminders (existing) ───────────────────────────────────────────
 
 export async function scheduleQuestionReminder(
   questionId: string,
@@ -85,8 +88,8 @@ export async function scheduleQuestionReminder(
         date: reviewDate,
       },
     });
-  } catch {
-    // Notifications may not be available in Expo Go web preview
+  } catch (err) {
+    console.warn("[notifications] scheduleQuestionReminder failed:", err);
   }
 }
 
@@ -97,6 +100,72 @@ export async function cancelQuestionReminder(questionId: string): Promise<void> 
     // Ignore if notification doesn't exist
   }
 }
+
+// ─── Topic reminders (new) ────────────────────────────────────────────────────
+
+const TOPIC_MESSAGES = [
+  (topicName: string) => `📚 "${topicName}" konusunu tekrar etme zamanı. Bilgilerini taze tut!`,
+  (topicName: string) => `📖 "${topicName}" konusuna bir göz at. Tekrar etmek başarının anahtarı!`,
+  (topicName: string) => `🎯 İlerlemenizi kaybetme! Bugün "${topicName}" konusunu tekrar et.`,
+];
+
+/**
+ * Schedule a recurring topic reminder. Cancels any existing one first to
+ * avoid duplicates. Returns true if scheduling succeeded, false otherwise.
+ */
+export async function scheduleTopicReminder(
+  topicId: string,
+  topicName: string,
+  subjectName: string,
+  intervalDays: 3 | 5 | 7
+): Promise<boolean> {
+  // Always cancel existing first — prevents duplicates
+  await cancelTopicReminder(topicId);
+
+  const hasPermission = await setupNotifications();
+  if (!hasPermission) {
+    console.warn("[notifications] Permission denied — cannot schedule topic reminder");
+    return false;
+  }
+
+  const triggerDate = new Date();
+  triggerDate.setDate(triggerDate.getDate() + intervalDays);
+  triggerDate.setHours(9, 0, 0, 0);
+
+  const msgFn = TOPIC_MESSAGES[Math.floor(Math.random() * TOPIC_MESSAGES.length)];
+
+  try {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `topic-${topicId}`,
+      content: {
+        title: `${subjectName} Hatırlatması 📚`,
+        body: msgFn(topicName),
+        sound: "default",
+        data: { topicId, subjectName, type: "topic_reminder" },
+        ...(Platform.OS === "android" && { channelId: CHANNEL_REMINDERS }),
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: triggerDate,
+      },
+    });
+    console.info(`[notifications] Scheduled topic reminder for "${topicName}" in ${intervalDays} days`);
+    return true;
+  } catch (err) {
+    console.warn("[notifications] scheduleTopicReminder failed:", err);
+    return false;
+  }
+}
+
+export async function cancelTopicReminder(topicId: string): Promise<void> {
+  try {
+    await Notifications.cancelScheduledNotificationAsync(`topic-${topicId}`);
+  } catch {
+    // Ignore if notification doesn't exist
+  }
+}
+
+// ─── Daily study reminder ─────────────────────────────────────────────────────
 
 export async function scheduleDailyStudyReminder(hour: number = 20, minute: number = 0): Promise<void> {
   await cancelDailyStudyReminder();
@@ -117,8 +186,8 @@ export async function scheduleDailyStudyReminder(hour: number = 20, minute: numb
         minute,
       },
     });
-  } catch {
-    // Ignore in environments that don't support notifications
+  } catch (err) {
+    console.warn("[notifications] scheduleDailyStudyReminder failed:", err);
   }
 }
 
@@ -135,5 +204,15 @@ export async function cancelAllNotifications(): Promise<void> {
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch {
     // Ignore
+  }
+}
+
+/** Returns all currently scheduled notification identifiers for debugging */
+export async function getScheduledNotificationIds(): Promise<string[]> {
+  try {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    return scheduled.map((n) => n.identifier);
+  } catch {
+    return [];
   }
 }

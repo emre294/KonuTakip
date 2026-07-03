@@ -6,6 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as Notifications from "expo-notifications";
 import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
@@ -46,6 +47,26 @@ function AppContent() {
 
   useEffect(() => {
     setupNotifications().catch(() => {});
+
+    // Handle tap on a notification — navigate to the relevant screen
+    function handleResponse(response: Notifications.NotificationResponse) {
+      const data = response.notification.request.content.data as Record<string, unknown>;
+      if (data?.type === "topic_reminder") {
+        router.push("/(tabs)/subjects");
+      } else if (data?.type === "question_reminder") {
+        router.push("/(tabs)");
+      }
+    }
+
+    // Listener for when the app is open / in foreground
+    const sub = Notifications.addNotificationResponseReceivedListener(handleResponse);
+
+    // Cold-start: app opened by tapping a notification while closed
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => { if (response) handleResponse(response); })
+      .catch(() => {});
+
+    return () => sub.remove();
   }, []);
 
   return (

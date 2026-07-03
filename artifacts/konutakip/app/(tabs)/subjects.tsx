@@ -2,10 +2,13 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useState } from "react";
 import {
+  Alert,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -23,10 +26,99 @@ import { useApp } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, FIELD_LABELS, Subject, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
-function TopicRow({ topicId, topicName, completed, onToggle, colors }: {
-  topicId: string; topicName: string; completed: boolean;
-  onToggle: () => void; colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}) {
+// ─── Reminder modal ────────────────────────────────────────────────────────────
+
+interface ReminderModalProps {
+  visible: boolean;
+  topicName: string;
+  subjectName: string;
+  currentInterval: 3 | 5 | 7 | null;
+  onSelect: (interval: 3 | 5 | 7) => void;
+  onRemove: () => void;
+  onClose: () => void;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}
+
+function ReminderModal({
+  visible, topicName, subjectName, currentInterval,
+  onSelect, onRemove, onClose, colors,
+}: ReminderModalProps) {
+  const intervals: (3 | 5 | 7)[] = [3, 5, 7];
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={rStyles.overlay} activeOpacity={1} onPress={onClose} />
+      <View style={[rStyles.sheet, { backgroundColor: colors.card }]}>
+        <View style={[rStyles.header, { borderBottomColor: colors.border }]}>
+          <View style={[rStyles.bellCircle, { backgroundColor: colors.warning + "20" }]}>
+            <Feather name="bell" size={20} color={colors.warning} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[rStyles.title, { color: colors.foreground }]}>Konu Hatırlatması</Text>
+            <Text style={[rStyles.subtitle, { color: colors.mutedForeground }]} numberOfLines={1}>
+              {subjectName} › {topicName}
+            </Text>
+          </View>
+          <TouchableOpacity onPress={onClose}>
+            <Feather name="x" size={20} color={colors.mutedForeground} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[rStyles.prompt, { color: colors.mutedForeground }]}>
+          Kaç günde bir hatırlatılsın?
+        </Text>
+
+        {intervals.map((interval) => {
+          const active = currentInterval === interval;
+          return (
+            <TouchableOpacity
+              key={interval}
+              onPress={() => { onSelect(interval); onClose(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
+              style={[
+                rStyles.option,
+                { backgroundColor: active ? colors.warning + "15" : colors.secondary, borderColor: active ? colors.warning : "transparent" },
+              ]}
+            >
+              <Feather name="clock" size={16} color={active ? colors.warning : colors.mutedForeground} />
+              <Text style={[rStyles.optionText, { color: active ? colors.warning : colors.foreground }]}>
+                Her {interval} günde bir hatırlat
+              </Text>
+              {active && <Feather name="check" size={16} color={colors.warning} />}
+            </TouchableOpacity>
+          );
+        })}
+
+        {currentInterval && (
+          <TouchableOpacity
+            onPress={() => { onRemove(); onClose(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+            style={[rStyles.removeBtn, { borderColor: colors.destructive + "60" }]}
+          >
+            <Feather name="bell-off" size={15} color={colors.destructive} />
+            <Text style={[rStyles.removeBtnText, { color: colors.destructive }]}>Hatırlatmayı kaldır</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </Modal>
+  );
+}
+
+// ─── Topic row ─────────────────────────────────────────────────────────────────
+
+interface TopicRowProps {
+  topicId: string;
+  topicName: string;
+  completed: boolean;
+  solvedCount: number;
+  hasReminder: boolean;
+  onToggle: () => void;
+  onSetSolved: (count: number) => void;
+  onBellPress: () => void;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}
+
+function TopicRow({
+  topicId, topicName, completed, solvedCount, hasReminder,
+  onToggle, onSetSolved, onBellPress, colors,
+}: TopicRowProps) {
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -38,29 +130,70 @@ function TopicRow({ topicId, topicName, completed, onToggle, colors }: {
 
   return (
     <Animated.View style={animStyle}>
-      <TouchableOpacity
-        onPress={handlePress}
-        style={[styles.topicRow, { borderBottomColor: colors.border }]}
-        activeOpacity={0.7}
-      >
-        <View style={[
-          styles.topicCheck,
-          { borderColor: completed ? colors.success : colors.border, backgroundColor: completed ? colors.success : "transparent" }
-        ]}>
-          {completed && <Feather name="check" size={12} color="#fff" />}
-        </View>
-        <Text style={[styles.topicName, { color: completed ? colors.mutedForeground : colors.foreground, textDecorationLine: completed ? "line-through" : "none" }]}>
+      <View style={[styles.topicRow, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={handlePress} activeOpacity={0.7} style={styles.topicCheckBtn}>
+          <View style={[
+            styles.topicCheck,
+            { borderColor: completed ? colors.success : colors.border, backgroundColor: completed ? colors.success : "transparent" },
+          ]}>
+            {completed && <Feather name="check" size={11} color="#fff" />}
+          </View>
+        </TouchableOpacity>
+
+        <Text
+          style={[styles.topicName, { color: completed ? colors.mutedForeground : colors.foreground, textDecorationLine: completed ? "line-through" : "none" }]}
+          numberOfLines={2}
+        >
           {topicName}
         </Text>
-      </TouchableOpacity>
+
+        <View style={styles.topicRight}>
+          <TextInput
+            style={[styles.solvedInput, { backgroundColor: colors.secondary, color: colors.foreground, borderColor: colors.border }]}
+            value={solvedCount > 0 ? String(solvedCount) : ""}
+            onChangeText={(v) => {
+              const n = parseInt(v.replace(/[^0-9]/g, "")) || 0;
+              onSetSolved(n);
+            }}
+            keyboardType="number-pad"
+            placeholder="0"
+            placeholderTextColor={colors.mutedForeground}
+            maxLength={5}
+            selectTextOnFocus
+          />
+          <Text style={[styles.soruLabel, { color: colors.mutedForeground }]}>soru</Text>
+          <TouchableOpacity onPress={onBellPress} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Feather
+              name={hasReminder ? "bell" : "bell-off"}
+              size={14}
+              color={hasReminder ? colors.warning : colors.border}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
     </Animated.View>
   );
 }
 
-function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
-  subject: Subject; topicCompletion: Record<string, boolean>;
-  onToggle: (id: string) => void; colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}) {
+// ─── Subject card ──────────────────────────────────────────────────────────────
+
+interface SubjectCardProps {
+  subject: Subject;
+  topicCompletion: Record<string, boolean>;
+  topicSolvedQuestions: Record<string, number>;
+  topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+  onToggle: (id: string) => void;
+  onSetSolved: (topicId: string, count: number) => void;
+  onBellPress: (topicId: string, topicName: string, subjectName: string) => void;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}
+
+const TOPIC_ROW_HEIGHT = 52;
+
+function SubjectCard({
+  subject, topicCompletion, topicSolvedQuestions, topicReminders,
+  onToggle, onSetSolved, onBellPress, colors,
+}: SubjectCardProps) {
   const [expanded, setExpanded] = useState(false);
   const completed = subject.topics.filter((t) => topicCompletion[t.id]).length;
   const remaining = subject.topics.length - completed;
@@ -79,7 +212,7 @@ function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
       height.value = withTiming(0, { duration: 250 });
       opacity.value = withTiming(0, { duration: 200 });
     } else {
-      height.value = withSpring(subject.topics.length * 52, { damping: 20 });
+      height.value = withSpring(subject.topics.length * TOPIC_ROW_HEIGHT + 2, { damping: 20 });
       opacity.value = withTiming(1, { duration: 300 });
     }
     setExpanded((e) => !e);
@@ -115,11 +248,7 @@ function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
             )}
           </View>
         </View>
-        <Ionicons
-          name={expanded ? "chevron-up" : "chevron-down"}
-          size={18}
-          color={colors.mutedForeground}
-        />
+        <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
@@ -130,7 +259,11 @@ function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
               topicId={t.id}
               topicName={t.name}
               completed={!!topicCompletion[t.id]}
+              solvedCount={topicSolvedQuestions[t.id] ?? 0}
+              hasReminder={!!topicReminders[t.id]}
               onToggle={() => onToggle(t.id)}
+              onSetSolved={(count) => onSetSolved(t.id, count)}
+              onBellPress={() => onBellPress(t.id, t.name, subject.name)}
               colors={colors}
             />
           ))}
@@ -140,10 +273,25 @@ function SubjectCard({ subject, topicCompletion, onToggle, colors }: {
   );
 }
 
-function ExamSection({ title, subjects, topicCompletion, onToggle, accentColor, colors }: {
-  title: string; subjects: Subject[]; topicCompletion: Record<string, boolean>;
-  onToggle: (id: string) => void; accentColor: string; colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}) {
+// ─── Exam section ──────────────────────────────────────────────────────────────
+
+interface ExamSectionProps {
+  title: string;
+  subjects: Subject[];
+  topicCompletion: Record<string, boolean>;
+  topicSolvedQuestions: Record<string, number>;
+  topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+  onToggle: (id: string) => void;
+  onSetSolved: (topicId: string, count: number) => void;
+  onBellPress: (topicId: string, topicName: string, subjectName: string) => void;
+  accentColor: string;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}
+
+function ExamSection({
+  title, subjects, topicCompletion, topicSolvedQuestions, topicReminders,
+  onToggle, onSetSolved, onBellPress, accentColor, colors,
+}: ExamSectionProps) {
   const [open, setOpen] = useState(true);
   const allTopics = subjects.flatMap((s) => s.topics);
   const done = allTopics.filter((t) => topicCompletion[t.id]).length;
@@ -176,7 +324,17 @@ function ExamSection({ title, subjects, topicCompletion, onToggle, accentColor, 
       {open && (
         <View style={styles.subjectsContainer}>
           {subjects.map((s) => (
-            <SubjectCard key={s.id} subject={s} topicCompletion={topicCompletion} onToggle={onToggle} colors={colors} />
+            <SubjectCard
+              key={s.id}
+              subject={s}
+              topicCompletion={topicCompletion}
+              topicSolvedQuestions={topicSolvedQuestions}
+              topicReminders={topicReminders}
+              onToggle={onToggle}
+              onSetSolved={onSetSolved}
+              onBellPress={onBellPress}
+              colors={colors}
+            />
           ))}
         </View>
       )}
@@ -184,53 +342,107 @@ function ExamSection({ title, subjects, topicCompletion, onToggle, accentColor, 
   );
 }
 
+// ─── Screen ────────────────────────────────────────────────────────────────────
+
 export default function SubjectsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { profile, topicCompletion, toggleTopic } = useApp();
+  const {
+    profile, topicCompletion, toggleTopic,
+    topicSolvedQuestions, setTopicSolvedQuestion,
+    topicReminders, setTopicReminder, removeTopicReminder,
+  } = useApp();
 
   const aytSubjects = profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [];
   const fieldLabel = profile ? FIELD_LABELS[profile.studyField] : "AYT";
 
+  const [reminderModal, setReminderModal] = useState<{
+    topicId: string; topicName: string; subjectName: string;
+  } | null>(null);
+
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
 
+  const handleBellPress = useCallback((topicId: string, topicName: string, subjectName: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setReminderModal({ topicId, topicName, subjectName });
+  }, []);
+
+  const handleReminderSelect = useCallback(async (interval: 3 | 5 | 7) => {
+    if (!reminderModal) return;
+    try {
+      await setTopicReminder(reminderModal.topicId, reminderModal.topicName, reminderModal.subjectName, interval);
+    } catch (err) {
+      Alert.alert("Hata", "Hatırlatma ayarlanamadı. Bildirim izinlerini kontrol edin.");
+    }
+  }, [reminderModal, setTopicReminder]);
+
+  const handleReminderRemove = useCallback(async () => {
+    if (!reminderModal) return;
+    await removeTopicReminder(reminderModal.topicId);
+  }, [reminderModal, removeTopicReminder]);
+
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: botPad, paddingHorizontal: 20 }}
-      showsVerticalScrollIndicator={false}
-    >
-      <Animated.View entering={FadeIn.duration(400)}>
-        <Text style={[styles.pageTitle, { color: colors.foreground }]}>Konular</Text>
-        <Text style={[styles.pageSubtitle, { color: colors.mutedForeground }]}>Tamamladığın konuları işaretle</Text>
-      </Animated.View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: botPad, paddingHorizontal: 20 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Animated.View entering={FadeIn.duration(400)}>
+          <Text style={[styles.pageTitle, { color: colors.foreground }]}>Konular</Text>
+          <Text style={[styles.pageSubtitle, { color: colors.mutedForeground }]}>Tamamladığın konuları işaretle ve çözdüğün soru sayısını gir</Text>
+        </Animated.View>
 
-      <ExamSection
-        title="TYT — Temel Yeterlilik"
-        subjects={TYT_SUBJECTS}
-        topicCompletion={topicCompletion}
-        onToggle={toggleTopic}
-        accentColor="#2563EB"
-        colors={colors}
-      />
+        <ExamSection
+          title="TYT — Temel Yeterlilik"
+          subjects={TYT_SUBJECTS}
+          topicCompletion={topicCompletion}
+          topicSolvedQuestions={topicSolvedQuestions}
+          topicReminders={topicReminders}
+          onToggle={toggleTopic}
+          onSetSolved={setTopicSolvedQuestion}
+          onBellPress={handleBellPress}
+          accentColor="#2563EB"
+          colors={colors}
+        />
 
-      <ExamSection
-        title={`AYT — ${fieldLabel}`}
-        subjects={aytSubjects}
-        topicCompletion={topicCompletion}
-        onToggle={toggleTopic}
-        accentColor="#7C3AED"
-        colors={colors}
-      />
-    </ScrollView>
+        <ExamSection
+          title={`AYT — ${fieldLabel}`}
+          subjects={aytSubjects}
+          topicCompletion={topicCompletion}
+          topicSolvedQuestions={topicSolvedQuestions}
+          topicReminders={topicReminders}
+          onToggle={toggleTopic}
+          onSetSolved={setTopicSolvedQuestion}
+          onBellPress={handleBellPress}
+          accentColor="#7C3AED"
+          colors={colors}
+        />
+      </ScrollView>
+
+      {reminderModal && (
+        <ReminderModal
+          visible={!!reminderModal}
+          topicName={reminderModal.topicName}
+          subjectName={reminderModal.subjectName}
+          currentInterval={topicReminders[reminderModal.topicId]?.interval ?? null}
+          onSelect={handleReminderSelect}
+          onRemove={handleReminderRemove}
+          onClose={() => setReminderModal(null)}
+          colors={colors}
+        />
+      )}
+    </View>
   );
 }
+
+// ─── Styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   pageTitle: { fontSize: 28, fontFamily: "Inter_700Bold", marginBottom: 4 },
-  pageSubtitle: { fontSize: 14, fontFamily: "Inter_400Regular", marginBottom: 24 },
+  pageSubtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 24 },
   examSection: { marginBottom: 24 },
   examHeader: {
     borderRadius: 20, padding: 20, flexDirection: "row",
@@ -260,7 +472,44 @@ const styles = StyleSheet.create({
   subjectStatSep: { fontSize: 10 },
   pctText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   topicsContainer: { borderTopWidth: 1 },
-  topicRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderBottomWidth: 1 },
+  topicRow: {
+    flexDirection: "row", alignItems: "center",
+    paddingHorizontal: 12, paddingVertical: 10,
+    gap: 10, borderBottomWidth: 1, minHeight: TOPIC_ROW_HEIGHT,
+  },
+  topicCheckBtn: { padding: 2 },
   topicCheck: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
-  topicName: { fontSize: 14, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 20 },
+  topicName: { fontSize: 13, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
+  topicRight: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0 },
+  solvedInput: {
+    width: 44, height: 30, borderRadius: 8, borderWidth: 1,
+    fontSize: 12, fontFamily: "Inter_500Medium",
+    textAlign: "center", paddingHorizontal: 4,
+  },
+  soruLabel: { fontSize: 11, fontFamily: "Inter_400Regular" },
+});
+
+const rStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)" },
+  sheet: {
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    padding: 20, paddingBottom: 36,
+    shadowColor: "#000", shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12, shadowRadius: 16, elevation: 12,
+  },
+  header: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottomWidth: 1 },
+  bellCircle: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  title: { fontSize: 16, fontFamily: "Inter_700Bold" },
+  subtitle: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 2 },
+  prompt: { fontSize: 12, fontFamily: "Inter_500Medium", marginBottom: 10 },
+  option: {
+    flexDirection: "row", alignItems: "center", gap: 10,
+    borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1.5,
+  },
+  optionText: { flex: 1, fontSize: 15, fontFamily: "Inter_500Medium" },
+  removeBtn: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    borderRadius: 12, padding: 12, marginTop: 4, borderWidth: 1,
+  },
+  removeBtnText: { fontSize: 14, fontFamily: "Inter_500Medium" },
 });

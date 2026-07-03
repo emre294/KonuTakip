@@ -1,0 +1,131 @@
+Implement the following improvements without changing the existing design language or breaking any functionality.
+
+==================================================
+1. SUBJECT NAMES
+==================================================
+
+Simplify subject names throughout the application.
+
+Remove unnecessary category prefixes such as:
+
+- Social Sciences →
+- Science →
+
+Display only the actual lesson name.
+
+Examples:
+
+- Mathematics
+- Turkish
+- History
+- Geography
+- Philosophy
+- Religious Culture
+- Physics
+- Chemistry
+- Biology
+- English
+
+Do not change any data or functionality.
+
+==================================================
+2. DATE INPUT
+==================================================
+
+The date field should no longer allow free text.
+
+Requirements:
+
+- Open the native date picker when tapped.
+- Automatically format the selected date.
+- Prevent invalid dates.
+- Users must not be able to type random characters.
+- Keep the current design.
+
+==================================================
+3. TIME INPUT
+==================================================
+
+The time field should no longer allow free text.
+
+Requirements:
+
+- Open the native time picker when tapped.
+- Automatically format time as HH:MM (24-hour format).
+- Automatically insert the ":" separator.
+- Do not allow letters.
+- Do not allow invalid times.
+- Prevent malformed input completely.
+- Keep the current design.
+
+==================================================
+4. SOLVED QUESTION COUNT
+==================================================
+
+Add a solved question field for every topic.
+
+Requirements:
+
+- Each topic must have a field where the student can enter the number of solved questions.
+- Allow only numeric input.
+- Do not allow letters, symbols or special characters.
+- Automatically open the numeric keyboard on mobile devices.
+- The entered value must be editable at any time.
+- If the field is left empty, automatically treat it as 0.
+- Save the value permanently.
+
+Automatically calculate:
+
+- Total solved questions.
+- Solved questions for each lesson.
+
+Display these statistics on the Home page.
+
+Example:
+
+Completed Topics: 142
+Remaining Topics: 38
+Solved Questions: 8,420
+
+==================================================
+5. NOTIFICATION SYSTEM
+==================================================
+
+The notification system must be completely reliable.
+
+Notifications are currently not working correctly and must be fixed.
+
+Requirements:
+
+- Every topic must support its own reminder.
+- Users must be able to choose reminder intervals of 3, 5 or 7 days.
+- Schedule the notification immediately after the interval is selected.
+- Deliver notifications exactly on the selected reminder day.
+- Notifications must work even if the application is in the background or completely closed.
+- Request notification permission automatically when needed.
+- If permission is denied, inform the user clearly.
+- Store all scheduled notifications permanently so they survive app restarts and device reboots whenever supported.
+- Never create duplicate notifications.
+- Cancel the notification automatically if the topic is marked as completed or the reminder is removed.
+- Tapping a notification must open the application directly to the related topic.
+- Configure Android notification channels correctly.
+- Follow Expo Notifications best practices.
+- Add proper validation, error handling and logging so notification scheduling failures can be detected and fixed.
+- Verify that notifications are actually scheduled and delivered successfully.
+
+Example notifications:
+
+📚 Time to review "Functions". Keep your knowledge fresh!
+
+📖 It's been 5 days since your last review of "Cell Division". Let's practice again!
+
+🎯 Don't lose your progress! Review "Probability" today.
+
+==================================================
+GENERAL
+==================================================
+
+- Do not redesign the application.
+- Keep the existing colors, spacing, animations and visual style.
+- Do not remove or modify existing features unless required for these improvements.
+- Ensure every feature is production-ready, stable and thoroughly tested before considering the implementation complete.

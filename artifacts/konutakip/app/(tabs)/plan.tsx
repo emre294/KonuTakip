@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp, DailySession } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
+import { DatePickerField, TimePickerField } from "@/components/pickers";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + "T12:00:00");
@@ -178,23 +179,11 @@ export default function PlanScreen() {
           </View>
 
           <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
-            <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih (YYYY-AA-GG)</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
-              value={date}
-              onChangeText={setDate}
-              placeholder="2026-07-01"
-              placeholderTextColor={colors.mutedForeground}
-            />
+            <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih</Text>
+            <DatePickerField value={date} onChange={setDate} colors={colors} />
 
-            <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Saat (SS:DD)</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
-              value={time}
-              onChangeText={setTime}
-              placeholder="09:00"
-              placeholderTextColor={colors.mutedForeground}
-            />
+            <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Saat</Text>
+            <TimePickerField value={time} onChange={setTime} colors={colors} />
 
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Ders</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectPicker}>
