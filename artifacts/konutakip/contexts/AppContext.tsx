@@ -168,6 +168,7 @@ interface AppContextValue {
   questions: Question[];
   addQuestion: (q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => void;
   updateQuestion: (id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => void;
+  updateQuestionReminder: (id: string, interval: 3 | 5 | 7) => void;
   deleteQuestion: (id: string) => void;
   markQuestionUnderstood: (id: string) => void;
   mockExamResults: MockExamResult[];
@@ -704,6 +705,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  /**
+   * Change the reminder interval for an existing question.
+   * Cancels the old scheduled notification, computes a new nextReviewDate from
+   * today + interval, schedules the new notification, and persists both changes.
+   * No-op if the question is already marked as understood.
+   */
+  const updateQuestionReminder = useCallback((id: string, interval: 3 | 5 | 7) => {
+    setQuestions(prev => {
+      const question = prev.find(q => q.id === id);
+      if (!question || question.understood) return prev;
+
+      const nextReviewDate = getNextReviewDate(new Date(), interval);
+      // safeSchedule inside scheduleQuestionReminder cancels the old notification first
+      scheduleQuestionReminder(id, nextReviewDate, question.subjectName).catch(() => {});
+
+      const next = prev.map(q =>
+        q.id === id ? { ...q, reminderInterval: interval, nextReviewDate } : q
+      );
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
   const deleteQuestion = useCallback((id: string) => {
     cancelQuestionReminder(id).catch(() => {});
     setQuestions(prev => {
@@ -793,7 +817,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profile, setProfile,
     topicCompletion, toggleTopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
-    questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,
@@ -809,7 +833,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profile, setProfile,
     topicCompletion, toggleTopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
-    questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,

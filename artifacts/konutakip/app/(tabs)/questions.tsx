@@ -542,29 +542,25 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
             numberOfLines={4}
           />
 
-          {!editingQuestion && (
-            <>
-              <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tekrar Aralığı</Text>
-              <View style={styles.intervalRow}>
-                {REMINDER_OPTIONS.map((opt) => {
-                  const active = reminderInterval === opt.value;
-                  return (
-                    <TouchableOpacity
-                      key={opt.value}
-                      onPress={() => { setReminderInterval(opt.value); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                      style={[styles.intervalBtn, {
-                        backgroundColor: active ? colors.primary : colors.card,
-                        borderColor: active ? colors.primary : colors.border,
-                      }]}
-                    >
-                      <Text style={[styles.intervalBtnLabel, { color: active ? "#fff" : colors.foreground }]}>{opt.label}</Text>
-                      <Text style={[styles.intervalBtnDesc, { color: active ? "rgba(255,255,255,0.8)" : colors.mutedForeground }]}>{opt.desc}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </>
-          )}
+          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tekrar Aralığı</Text>
+          <View style={styles.intervalRow}>
+            {REMINDER_OPTIONS.map((opt) => {
+              const active = reminderInterval === opt.value;
+              return (
+                <TouchableOpacity
+                  key={opt.value}
+                  onPress={() => { setReminderInterval(opt.value); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                  style={[styles.intervalBtn, {
+                    backgroundColor: active ? colors.primary : colors.card,
+                    borderColor: active ? colors.primary : colors.border,
+                  }]}
+                >
+                  <Text style={[styles.intervalBtnLabel, { color: active ? "#fff" : colors.foreground }]}>{opt.label}</Text>
+                  <Text style={[styles.intervalBtnDesc, { color: active ? "rgba(255,255,255,0.8)" : colors.mutedForeground }]}>{opt.desc}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Fotoğraf / Dosya</Text>
           <View style={styles.uploadButtons}>
@@ -593,9 +589,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
           <View style={[styles.infoBox, { backgroundColor: colors.accent }]}>
             <Ionicons name="information-circle-outline" size={15} color={colors.primary} />
             <Text style={[styles.infoText, { color: colors.foreground }]}>
-              {!editingQuestion
-                ? `${reminderInterval} gün sonra tekrar hatırlatması alacaksın.`
-                : "Notunu ve eklerini güncelleyebilirsin."}
+              {`${reminderInterval} gün sonra tekrar hatırlatması alacaksın.`}
             </Text>
           </View>
 
@@ -615,7 +609,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
 export default function QuestionsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { profile, questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood } = useApp();
+  const { profile, questions, addQuestion, updateQuestion, updateQuestionReminder, deleteQuestion, markQuestionUnderstood } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
@@ -644,6 +638,9 @@ export default function QuestionsScreen() {
   ) {
     if (editingQuestion) {
       updateQuestion(editingQuestion.id, { notes, attachments });
+      if (reminderInterval !== editingQuestion.reminderInterval) {
+        updateQuestionReminder(editingQuestion.id, reminderInterval);
+      }
     } else {
       addQuestion({ subjectId, subjectName, notes, attachments, reminderInterval });
     }

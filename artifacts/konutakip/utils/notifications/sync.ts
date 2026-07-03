@@ -16,7 +16,6 @@ import { NotificationId } from "./constants";
 import { getScheduledIds, safeCancel } from "./core";
 import { notifLog } from "./logger";
 import {
-  cancelDailyStudyReminder,
   rescheduleTopicReminder,
   scheduleDailyStudyReminder,
   scheduleQuestionReminder,
