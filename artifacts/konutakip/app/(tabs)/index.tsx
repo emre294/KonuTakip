@@ -12,12 +12,14 @@ import {
 } from "react-native";
 import Animated, {
   FadeInDown,
+  useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import Svg, { Circle } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "@/contexts/AppContext";
@@ -58,25 +60,67 @@ function CountdownCard({ title, date, color, colors }: {
   );
 }
 
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 function CircleProgress({ pct, color, size }: { pct: number; color: string; size: number }) {
+  const safePct = Math.max(0, Math.min(100, pct));
+  const strokeWidth = 7;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  const progress = useSharedValue(0);
+  useEffect(() => {
+    progress.value = withTiming(safePct, { duration: 900 });
+  }, [safePct]);
+
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: circumference * (1 - progress.value / 100),
+  }));
+
+  // Fit "100%" comfortably: 4-char labels get a smaller font size
+  const label = safePct > 0 ? `${safePct}%` : "0%";
+  const fontSize = label.length >= 4 ? 14 : 17;
+
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
-      <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 4, borderColor: color + "25", position: "absolute" }} />
-      {pct > 0 && <View style={{
-        width: size, height: size, borderRadius: size / 2, borderWidth: 4,
-        borderColor: color, position: "absolute",
-        borderRightColor: pct < 25 ? "transparent" : color,
-        borderBottomColor: pct < 50 ? "transparent" : color,
-        borderLeftColor: pct < 75 ? "transparent" : color,
-        transform: [{ rotate: `${Math.min((pct / 100) * 360, 360) - 90}deg` }],
-      }} />}
-      {pct > 0 ? (
-        <Text style={{ fontFamily: "Inter_700Bold", fontSize: size > 70 ? 20 : 15, color }}>
-          {pct}%
-        </Text>
-      ) : (
-        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: color + "60" }}>0</Text>
-      )}
+      <Svg width={size} height={size} style={{ position: "absolute" }}>
+        {/* Background track */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color + "22"}
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        {/* Colored progress arc — dashoffset=circumference at 0% so nothing is visible */}
+        <AnimatedCircle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          animatedProps={animatedProps}
+          strokeLinecap="round"
+          rotation="-90"
+          origin={`${size / 2}, ${size / 2}`}
+        />
+      </Svg>
+      <Text
+        style={{
+          fontFamily: "Inter_700Bold",
+          fontSize,
+          color: safePct > 0 ? color : color + "50",
+          textAlign: "center",
+          includeFontPadding: false,
+        }}
+        adjustsFontSizeToFit
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -84,7 +128,7 @@ function CircleProgress({ pct, color, size }: { pct: number; color: string; size
 function ProgressCard({ title, pct, color, colors }: { title: string; pct: number; color: string; colors: ReturnType<typeof import("@/hooks/useColors").useColors> }) {
   return (
     <View style={[styles.progressCard, { backgroundColor: colors.card, flex: 1 }]}>
-      <CircleProgress pct={pct} color={color} size={72} />
+      <CircleProgress pct={pct} color={color} size={84} />
       <Text style={[styles.progressTitle, { color: colors.foreground }]}>{title}</Text>
       <Text style={[styles.progressSub, { color: colors.mutedForeground }]}>tamamlandı</Text>
     </View>
