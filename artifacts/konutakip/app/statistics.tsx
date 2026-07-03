@@ -39,7 +39,12 @@ function BarChart({ data, colors }: {
               ]}
             />
           </View>
-          <Text style={[styles.barLabel, { color: colors.mutedForeground }]} numberOfLines={2}>{d.label}</Text>
+          <Text
+            style={[styles.barLabel, { color: colors.mutedForeground }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >{d.label}</Text>
         </View>
       ))}
     </View>
@@ -202,7 +207,9 @@ const styles = StyleSheet.create({
   barValue: { fontSize: 10, fontFamily: "Inter_500Medium" },
   barBg: { width: "60%", height: BAR_MAX_H, borderRadius: 6, justifyContent: "flex-end", overflow: "hidden" },
   barFill: { borderRadius: 6, minHeight: 4 },
-  barLabel: { fontSize: 9, fontFamily: "Inter_500Medium", textAlign: "center" },
+  // Fixed height keeps all bar groups the same size so bars stay aligned
+  // even when one label is longer than the others (e.g. "Matematik").
+  barLabel: { fontSize: 9, fontFamily: "Inter_500Medium", textAlign: "center", height: 14 },
   insightsRow: { flexDirection: "row", gap: 12, marginBottom: 8 },
   insightCard: { borderRadius: 16, padding: 16, gap: 6 },
   insightLabel: { fontSize: 12, fontFamily: "Inter_500Medium" },

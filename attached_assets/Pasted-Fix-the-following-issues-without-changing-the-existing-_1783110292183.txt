@@ -1,0 +1,65 @@
+Fix the following issues without changing the existing design, colors, fonts, animations or functionality.
+
+1. Mock Exam Net Limits
+
+Add validation so users cannot enter impossible net values.
+
+TYT maximum net limits:
+- Turkish: 40
+- Mathematics: 40
+- Social Sciences: 20
+- Science: 20
+
+AYT maximum net limits (according to official ÖSYM question counts):
+- Mathematics: 40
+- Physics: 14
+- Chemistry: 13
+- Biology: 13
+- Turkish Language & Literature: 24
+- History-1: 10
+- Geography-1: 6
+- History-2: 11
+- Geography-2: 11
+- Philosophy Group: 12
+- Religious Culture: 6
+
+Requirements:
+- Users must not be able to enter values above these limits.
+- Validate while typing and before saving.
+- Show a friendly validation message if the entered value exceeds the maximum.
+- Do not allow saving invalid exam results.
+
+IMPORTANT:
+Mention in your final response that the official ÖSYM maximum net limits for every TYT and AYT lesson have been implemented.
+
+2. Mock Exam Date Restriction
+
+Improve the exam date picker.
+
+Requirements:
+- Users can only add exam results from today or up to 7 days in the past.
+- Example:
+  - Today = July 3
+  - Allowed dates: June 26 → July 3
+  - July 4 or any future date must NOT be selectable.
+- Future dates must be disabled in the date picker.
+- Validation must also prevent saving if an invalid date somehow gets selected.
+
+3. Statistics Screen
+
+Fix the subject chart labels.
+
+Currently "Matematik" wraps into two lines and becomes vertically misaligned.
+
+Requirements:
+- Every subject label must stay aligned on the same baseline.
+- Prevent awkward wrapping.
+- If necessary, reduce font size slightly or abbreviate long labels while keeping the design unchanged.
+- Keep all chart bars perfectly aligned.
+- Make the chart responsive on Android, iOS and Web.
+
+Do not redesign the UI.
+Do not change colors, spacing, fonts or animations.
+Only fix these issues.
+
+After finishing, show every modified file with the exact code changes and explicitly state that the official ÖSYM lesson limits have been added.

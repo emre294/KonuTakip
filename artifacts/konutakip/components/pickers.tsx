@@ -91,9 +91,13 @@ interface DatePickerFieldProps {
   colors: Colors;
   /** Only used on Android/iOS: called when the user taps the field to request the overlay open. */
   onOpen?: () => void;
+  /** ISO "YYYY-MM-DD" — earliest selectable date (inclusive). Web: sets min on <input>. */
+  minDate?: string;
+  /** ISO "YYYY-MM-DD" — latest selectable date (inclusive). Web: sets max on <input>. */
+  maxDate?: string;
 }
 
-export function DatePickerField({ value, onChange, colors, onOpen }: DatePickerFieldProps) {
+export function DatePickerField({ value, onChange, colors, onOpen, minDate, maxDate }: DatePickerFieldProps) {
   const display = toDDMMYYYY(value); // always shown as DD.MM.YYYY
 
   // ── Web: show the styled button, overlay a transparent <input type="date">
@@ -114,6 +118,8 @@ export function DatePickerField({ value, onChange, colors, onOpen }: DatePickerF
         {React.createElement("input", {
           type: "date",
           value: value,
+          min: minDate,
+          max: maxDate,
           onChange: (e: any) => onChange(e.target.value),
           style: {
             position: "absolute",
@@ -282,6 +288,10 @@ interface PickerOverlayProps {
   onChangeTime: (v: string) => void;
   onClose: () => void;
   colors: Colors;
+  /** ISO "YYYY-MM-DD" — earliest selectable date (inclusive). */
+  minDate?: string;
+  /** ISO "YYYY-MM-DD" — latest selectable date (inclusive). */
+  maxDate?: string;
 }
 
 export function PickerOverlay({
@@ -292,12 +302,14 @@ export function PickerOverlay({
   onChangeTime,
   onClose,
   colors,
+  minDate,
+  maxDate,
 }: PickerOverlayProps) {
   return (
     <View style={styles.overlayRoot} pointerEvents="box-none">
       <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose} />
       {activePicker === "date" ? (
-        <DateCalendar value={dateValue} onChange={(v) => { onChangeDate(v); onClose(); }} onClose={onClose} colors={colors} />
+        <DateCalendar value={dateValue} onChange={(v) => { onChangeDate(v); onClose(); }} onClose={onClose} colors={colors} minDate={minDate} maxDate={maxDate} />
       ) : (
         <TimeWheelPicker value={timeValue} onChange={(v) => { onChangeTime(v); onClose(); }} onClose={onClose} colors={colors} />
       )}
@@ -309,22 +321,40 @@ function DateCalendar({
   value,
   onChange,
   colors,
+  minDate,
+  maxDate,
 }: {
   value: string;
   onChange: (v: string) => void;
   onClose: () => void;
   colors: Colors;
+  minDate?: string;
+  maxDate?: string;
 }) {
   const initial = value ? new Date(value + "T12:00:00") : new Date();
   const [viewYear, setViewYear] = useState(initial.getFullYear());
   const [viewMonth, setViewMonth] = useState(initial.getMonth());
 
+  // ── Compute nav-button disabled states ───────────────────────────────────
+  const prevMonthIdx = viewMonth === 0 ? 11 : viewMonth - 1;
+  const prevMonthYear = viewMonth === 0 ? viewYear - 1 : viewYear;
+  const prevMonthLastDay = daysInMonth(prevMonthYear, prevMonthIdx);
+  const prevMonthEnd = `${prevMonthYear}-${pad2(prevMonthIdx + 1)}-${pad2(prevMonthLastDay)}`;
+  const isPrevDisabled = !!minDate && prevMonthEnd < minDate;
+
+  const nextMonthIdx = viewMonth === 11 ? 0 : viewMonth + 1;
+  const nextMonthYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+  const nextMonthStart = `${nextMonthYear}-${pad2(nextMonthIdx + 1)}-01`;
+  const isNextDisabled = !!maxDate && nextMonthStart > maxDate;
+
   function goPrevMonth() {
+    if (isPrevDisabled) return;
     if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
     else setViewMonth((m) => m - 1);
   }
 
   function goNextMonth() {
+    if (isNextDisabled) return;
     if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
     else setViewMonth((m) => m + 1);
   }
@@ -335,19 +365,33 @@ function DateCalendar({
     ...Array(leadingBlanks).fill(null),
     ...Array.from({ length: totalDays }, (_, i) => i + 1),
   ];
-  const todayISO = new Date().toISOString().split("T")[0];
+  const _today = new Date();
+  const todayISO = `${_today.getFullYear()}-${pad2(_today.getMonth() + 1)}-${pad2(_today.getDate())}`;
+
+  // "Bugün" button is only shown when today is within the allowed window
+  const todaySelectable = (!minDate || todayISO >= minDate) && (!maxDate || todayISO <= maxDate);
 
   return (
     <View style={styles.modalCenterWrap} pointerEvents="box-none">
       <View style={[styles.calendarCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.calendarHeader}>
-          <TouchableOpacity onPress={goPrevMonth} style={styles.calendarNavBtn} hitSlop={8}>
+          <TouchableOpacity
+            onPress={goPrevMonth}
+            style={[styles.calendarNavBtn, isPrevDisabled && { opacity: 0.3 }]}
+            hitSlop={8}
+            disabled={isPrevDisabled}
+          >
             <Feather name="chevron-left" size={20} color={colors.foreground} />
           </TouchableOpacity>
           <Text style={[styles.calendarTitle, { color: colors.foreground }]}>
             {MONTH_NAMES[viewMonth]} {viewYear}
           </Text>
-          <TouchableOpacity onPress={goNextMonth} style={styles.calendarNavBtn} hitSlop={8}>
+          <TouchableOpacity
+            onPress={goNextMonth}
+            style={[styles.calendarNavBtn, isNextDisabled && { opacity: 0.3 }]}
+            hitSlop={8}
+            disabled={isNextDisabled}
+          >
             <Feather name="chevron-right" size={20} color={colors.foreground} />
           </TouchableOpacity>
         </View>
@@ -366,6 +410,18 @@ function DateCalendar({
             const iso = toISODate(viewYear, viewMonth, day);
             const isSelected = iso === value;
             const isToday = iso === todayISO;
+            const isDisabled = (!!minDate && iso < minDate) || (!!maxDate && iso > maxDate);
+
+            if (isDisabled) {
+              return (
+                <View key={iso} style={[styles.dayCell, { opacity: 0.25 }]}>
+                  <View style={styles.dayCircle}>
+                    <Text style={[styles.dayText, { color: colors.foreground }]}>{day}</Text>
+                  </View>
+                </View>
+              );
+            }
+
             return (
               <TouchableOpacity
                 key={iso}
@@ -394,15 +450,17 @@ function DateCalendar({
           })}
         </View>
 
-        <TouchableOpacity
-          onPress={() => {
-            const now = new Date();
-            onChange(toISODate(now.getFullYear(), now.getMonth(), now.getDate()));
-          }}
-          style={[styles.todayBtn, { borderColor: colors.border }]}
-        >
-          <Text style={[styles.todayBtnText, { color: colors.primary }]}>Bugün</Text>
-        </TouchableOpacity>
+        {todaySelectable && (
+          <TouchableOpacity
+            onPress={() => {
+              const now = new Date();
+              onChange(toISODate(now.getFullYear(), now.getMonth(), now.getDate()));
+            }}
+            style={[styles.todayBtn, { borderColor: colors.border }]}
+          >
+            <Text style={[styles.todayBtnText, { color: colors.primary }]}>Bugün</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

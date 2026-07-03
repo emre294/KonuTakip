@@ -19,7 +19,40 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp, MockExamResult } from "@/contexts/AppContext";
 import { FIELD_LABELS, StudyField } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
-import { DatePickerField } from "@/components/pickers";
+import { ActivePicker, DatePickerField, PickerOverlay } from "@/components/pickers";
+
+// ─── Local date helper (avoids UTC ↔ local midnight shift) ───────────────────
+
+function localDateISO(daysOffset = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + daysOffset);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+// ─── Official ÖSYM maximum net limits ──────────────────────────────────────────
+
+const TYT_NET_LIMITS: Record<string, number> = {
+  turkish: 40,   // Türkçe
+  math:    40,   // Temel Matematik
+  science: 20,   // Fen Bilimleri
+  social:  20,   // Sosyal Bilimler
+};
+
+const AYT_NET_LIMITS: Record<string, number> = {
+  aytMath:    40, // AYT Matematik
+  physics:    14, // Fizik
+  chemistry:  13, // Kimya
+  biology:    13, // Biyoloji
+  literature: 24, // Türk Dili ve Edebiyatı
+  history1:   10, // Tarih 1
+  geography1:  6, // Coğrafya 1
+  history2:   11, // Tarih 2
+  geography2:  11, // Coğrafya 2
+  philosophy:  12, // Felsefe Grubu
+  religion:    6, // Din Kültürü
+};
 
 const AYT_FIELD_SUBJECTS: Record<StudyField, { key: string; label: string }[]> = {
   sayisal: [
@@ -45,19 +78,28 @@ const AYT_FIELD_SUBJECTS: Record<StudyField, { key: string; label: string }[]> =
   ],
 };
 
-function NetInput({ label, value, onChange, colors }: {
+function NetInput({ label, value, onChange, maxNet, colors }: {
   label: string; value: string; onChange: (v: string) => void;
+  maxNet?: number;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
+  function handleChange(v: string) {
+    // Clamp at input time so users cannot enter impossible net values
+    if (maxNet !== undefined) {
+      const num = parseFloat(v.replace(/[^0-9.]/g, "")) || 0;
+      if (num > maxNet) { onChange(String(maxNet)); return; }
+    }
+    onChange(v);
+  }
   return (
     <View style={styles.netInputRow}>
       <Text style={[styles.netLabel, { color: colors.foreground }]}>{label}</Text>
       <TextInput
         style={[styles.netInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.foreground }]}
         value={value}
-        onChangeText={onChange}
+        onChangeText={handleChange}
         keyboardType="decimal-pad"
-        placeholder="0.00"
+        placeholder={maxNet !== undefined ? `0–${maxNet}` : "0.00"}
         placeholderTextColor={colors.mutedForeground}
       />
     </View>
@@ -134,7 +176,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
 }) {
   const [examName, setExamName] = useState("");
   const [examType, setExamType] = useState<"TYT" | "AYT">("TYT");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(() => localDateISO(0));
   const [turkish, setTurkish] = useState("");
   const [math, setMath] = useState("");
   const [science, setScience] = useState("");
@@ -142,6 +184,11 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
   const [fieldNets, setFieldNets] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
   const [nameError, setNameError] = useState(false);
+  const [activePicker, setActivePicker] = useState<ActivePicker>(null);
+
+  // Date window: today and the previous 7 days (local time, avoids UTC midnight drift)
+  const todayISO = localDateISO(0);
+  const minDateISO = localDateISO(-7);
 
   const aytSubjects = profile ? AYT_FIELD_SUBJECTS[profile.studyField] : AYT_FIELD_SUBJECTS.sayisal;
 
@@ -154,8 +201,38 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
       setNameError(true);
       return;
     }
-    setNameError(false);
+
+    // ── Date validation ──────────────────────────────────────────────────────
+    if (date > todayISO || date < minDateISO) {
+      Alert.alert("Geçersiz Tarih", "Lütfen bugün veya son 7 gün içindeki bir tarih seçin.");
+      return;
+    }
+
+    // ── Net limit validation ─────────────────────────────────────────────────
     const p = (v: string) => parseFloat(v) || 0;
+    if (examType === "TYT") {
+      if (p(turkish) > TYT_NET_LIMITS.turkish) {
+        Alert.alert("Geçersiz Net", `Türkçe için maksimum net ${TYT_NET_LIMITS.turkish}'dir.`); return;
+      }
+      if (p(math) > TYT_NET_LIMITS.math) {
+        Alert.alert("Geçersiz Net", `Temel Matematik için maksimum net ${TYT_NET_LIMITS.math}'dir.`); return;
+      }
+      if (p(science) > TYT_NET_LIMITS.science) {
+        Alert.alert("Geçersiz Net", `Fen Bilimleri için maksimum net ${TYT_NET_LIMITS.science}'dir.`); return;
+      }
+      if (p(social) > TYT_NET_LIMITS.social) {
+        Alert.alert("Geçersiz Net", `Sosyal Bilimler için maksimum net ${TYT_NET_LIMITS.social}'dir.`); return;
+      }
+    } else {
+      for (const s of aytSubjects) {
+        const limit = AYT_NET_LIMITS[s.key];
+        if (limit !== undefined && p(fieldNets[s.key] ?? "0") > limit) {
+          Alert.alert("Geçersiz Net", `${s.label} için maksimum net ${limit}'dir.`); return;
+        }
+      }
+    }
+
+    setNameError(false);
 
     if (examType === "TYT") {
       const total = p(turkish) + p(math) + p(science) + p(social);
@@ -189,6 +266,21 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="formSheet">
       <View style={[styles.modal, { backgroundColor: colors.background }]}>
+        {/* Date picker overlay — rendered here so it sits above the modal content
+            without nesting a second Modal (which is unreliable on Android). */}
+        {activePicker && (
+          <PickerOverlay
+            activePicker={activePicker}
+            dateValue={date}
+            timeValue=""
+            onChangeDate={setDate}
+            onChangeTime={() => {}}
+            onClose={() => setActivePicker(null)}
+            colors={colors}
+            minDate={minDateISO}
+            maxDate={todayISO}
+          />
+        )}
         <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
           <Text style={[styles.modalTitle, { color: colors.foreground }]}>Deneme Ekle</Text>
           <TouchableOpacity onPress={onClose}>
@@ -224,16 +316,23 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
           </View>
 
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih</Text>
-          <DatePickerField value={date} onChange={setDate} colors={colors} />
+          <DatePickerField
+            value={date}
+            onChange={setDate}
+            colors={colors}
+            onOpen={() => setActivePicker("date")}
+            minDate={minDateISO}
+            maxDate={todayISO}
+          />
 
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Net Sayıları</Text>
           <View style={[styles.netsCard, { backgroundColor: colors.card }]}>
             {examType === "TYT" ? (
               <>
-                <NetInput label="Türkçe" value={turkish} onChange={setTurkish} colors={colors} />
-                <NetInput label="Temel Matematik" value={math} onChange={setMath} colors={colors} />
-                <NetInput label="Fen Bilimleri" value={science} onChange={setScience} colors={colors} />
-                <NetInput label="Sosyal Bilimler" value={social} onChange={setSocial} colors={colors} />
+                <NetInput label="Türkçe" value={turkish} onChange={setTurkish} maxNet={TYT_NET_LIMITS.turkish} colors={colors} />
+                <NetInput label="Temel Matematik" value={math} onChange={setMath} maxNet={TYT_NET_LIMITS.math} colors={colors} />
+                <NetInput label="Fen Bilimleri" value={science} onChange={setScience} maxNet={TYT_NET_LIMITS.science} colors={colors} />
+                <NetInput label="Sosyal Bilimler" value={social} onChange={setSocial} maxNet={TYT_NET_LIMITS.social} colors={colors} />
                 <View style={[styles.totalRow, { borderTopColor: colors.border }]}>
                   <Text style={[styles.totalLabel, { color: colors.foreground }]}>Toplam Net</Text>
                   <Text style={[styles.totalValue, { color: colors.primary }]}>
@@ -244,7 +343,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
             ) : (
               <>
                 {aytSubjects.map((s) => (
-                  <NetInput key={s.key} label={s.label} value={fieldNets[s.key] ?? ""} onChange={(v) => updateFieldNet(s.key, v)} colors={colors} />
+                  <NetInput key={s.key} label={s.label} value={fieldNets[s.key] ?? ""} onChange={(v) => updateFieldNet(s.key, v)} maxNet={AYT_NET_LIMITS[s.key]} colors={colors} />
                 ))}
                 <View style={[styles.totalRow, { borderTopColor: colors.border }]}>
                   <Text style={[styles.totalLabel, { color: colors.foreground }]}>Toplam Net</Text>
