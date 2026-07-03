@@ -62,15 +62,14 @@ function CircleProgress({ pct, color, size }: { pct: number; color: string; size
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
       <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 4, borderColor: color + "25", position: "absolute" }} />
-      <View style={{
+      {pct > 0 && <View style={{
         width: size, height: size, borderRadius: size / 2, borderWidth: 4,
         borderColor: color, position: "absolute",
-        borderTopColor: pct === 0 ? "transparent" : color,
         borderRightColor: pct < 25 ? "transparent" : color,
         borderBottomColor: pct < 50 ? "transparent" : color,
         borderLeftColor: pct < 75 ? "transparent" : color,
         transform: [{ rotate: `${Math.min((pct / 100) * 360, 360) - 90}deg` }],
-      }} />
+      }} />}
       {pct > 0 ? (
         <Text style={{ fontFamily: "Inter_700Bold", fontSize: size > 70 ? 20 : 15, color }}>
           {pct}%
