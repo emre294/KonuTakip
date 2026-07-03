@@ -1,3 +1,12 @@
+/**
+ * High-level per-type schedule / cancel functions.
+ *
+ * Every public function follows the same contract:
+ * - Calls safeSchedule (which cancels first, then schedules).
+ * - Never throws — scheduling failure returns false.
+ * - Logs every outcome in development.
+ */
+
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import {
@@ -9,6 +18,7 @@ import {
   type ReminderInterval,
 } from "./constants";
 import { safeCancel, safeSchedule } from "./core";
+import { notifLog } from "./logger";
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -17,11 +27,11 @@ function androidChannel(channelId: string): Record<string, string> {
 }
 
 /**
- * Build a future Date at 09:00 that is `days` days from now.
- * If the computed time is already in the past (e.g. called very late in the day
- * and days=0), bumps to the next valid slot.
+ * Build a Date `days` days from now at the specified hour:minute.
+ * If the computed time is already in the past (edge case near midnight),
+ * bumps forward one more day.
  */
-function futureDate(days: number, hour = 9, minute = 0): Date {
+function futureDateFromNow(days: number, hour = 9, minute = 0): Date {
   const d = new Date();
   d.setDate(d.getDate() + days);
   d.setHours(hour, minute, 0, 0);
@@ -34,16 +44,15 @@ function futureDate(days: number, hour = 9, minute = 0): Date {
 
 // ─── Topic reminders ──────────────────────────────────────────────────────────
 
-const TOPIC_BODIES = [
-  (name: string) => `📚 "${name}" konusunu tekrar etme zamanı. Bilgilerini taze tut!`,
-  (name: string) => `📖 "${name}" konusuna bir göz at. Tekrar etmek başarının anahtarı!`,
-  (name: string) => `🎯 İlerlemenizi kaybetme! Bugün "${name}" konusunu tekrar et.`,
+const TOPIC_BODIES: ((name: string) => string)[] = [
+  (name) => `📚 "${name}" konusunu tekrar etme zamanı. Bilgilerini taze tut!`,
+  (name) => `📖 "${name}" konusuna bir göz at. Tekrar etmek başarının anahtarı!`,
+  (name) => `🎯 İlerlemenizi kaybetme! Bugün "${name}" konusunu tekrar et.`,
 ];
 
 /**
  * Schedule a one-time topic reminder `intervalDays` days from now at 09:00.
- * Cancels any existing reminder for the same topic first.
- * Returns true on success.
+ * Always replaces any existing reminder for the same topic.
  */
 export async function scheduleTopicReminder(
   topicId: string,
@@ -52,7 +61,7 @@ export async function scheduleTopicReminder(
   intervalDays: ReminderInterval
 ): Promise<boolean> {
   const identifier = NotificationId.topic(topicId);
-  const triggerDate = futureDate(intervalDays);
+  const triggerDate = futureDateFromNow(intervalDays);
   const body = TOPIC_BODIES[Math.floor(Math.random() * TOPIC_BODIES.length)](topicName);
 
   return safeSchedule(
@@ -72,9 +81,9 @@ export async function scheduleTopicReminder(
 }
 
 /**
- * Reschedule a topic reminder using a pre-computed target date string (YYYY-MM-DD).
- * Used by the app-start sync to restore a reminder that was lost.
- * Returns true on success.
+ * Restore a topic reminder using a previously stored target date string (YYYY-MM-DD).
+ * Used exclusively by the app-start sync to rebuild notifications after a reboot.
+ * Returns false (and does nothing) if the date has already passed.
  */
 export async function rescheduleTopicReminder(
   topicId: string,
@@ -83,12 +92,16 @@ export async function rescheduleTopicReminder(
   nextDateStr: string
 ): Promise<boolean> {
   const triggerDate = new Date(`${nextDateStr}T09:00:00`);
-  if (triggerDate <= new Date()) return false; // Already passed — do not restore
+
+  if (triggerDate <= new Date()) {
+    notifLog.skipped(NotificationId.topic(topicId), "date already passed");
+    return false;
+  }
 
   const identifier = NotificationId.topic(topicId);
   const body = TOPIC_BODIES[0](topicName);
 
-  return safeSchedule(
+  const ok = await safeSchedule(
     identifier,
     {
       title: `${subjectName} Hatırlatması 📚`,
@@ -102,6 +115,9 @@ export async function rescheduleTopicReminder(
       date: triggerDate,
     }
   );
+
+  if (ok) notifLog.restored(identifier, triggerDate);
+  return ok;
 }
 
 export async function cancelTopicReminder(topicId: string): Promise<void> {
@@ -112,8 +128,8 @@ export async function cancelTopicReminder(topicId: string): Promise<void> {
 
 /**
  * Schedule a one-time question reminder at 09:00 on `nextReviewDateStr`.
- * If the date is today or in the past, schedules for the next calendar day.
- * Cancels any existing reminder for the same question first.
+ * If the date is today or in the past, bumps to tomorrow.
+ * Always replaces any existing reminder for the same question.
  */
 export async function scheduleQuestionReminder(
   questionId: string,
@@ -121,8 +137,8 @@ export async function scheduleQuestionReminder(
   subjectName: string
 ): Promise<boolean> {
   const identifier = NotificationId.question(questionId);
-
   const triggerDate = new Date(`${nextReviewDateStr}T09:00:00`);
+
   if (triggerDate <= new Date()) {
     triggerDate.setDate(triggerDate.getDate() + 1);
     triggerDate.setHours(9, 0, 0, 0);
@@ -152,8 +168,8 @@ export async function cancelQuestionReminder(questionId: string): Promise<void> 
 
 /**
  * Schedule (or replace) the daily repeating study reminder.
- * Uses a DAILY trigger so it fires every day at the given hour:minute.
- * There is exactly one daily reminder — identified by a fixed key.
+ * Uses a DAILY trigger — fires at `hour:minute` every day indefinitely.
+ * There is always exactly one daily reminder, identified by a fixed key.
  */
 export async function scheduleDailyStudyReminder(
   hour: number = DEFAULT_DAILY_HOUR,
@@ -180,12 +196,12 @@ export async function cancelDailyStudyReminder(): Promise<void> {
   await safeCancel(NotificationId.daily());
 }
 
-// ─── Session (lesson) reminders ───────────────────────────────────────────────
+// ─── Session (study plan) reminders ──────────────────────────────────────────
 
 /**
- * Schedule a one-time session reminder at the session's start time.
- * Cancels any existing reminder for the same session first.
+ * Schedule a one-time session reminder at the session's exact start time.
  * Sessions in the past are silently skipped (returns false).
+ * Always replaces any existing reminder for the same session ID.
  */
 export async function scheduleSessionReminder(
   sessionId: string,
@@ -195,12 +211,11 @@ export async function scheduleSessionReminder(
   topic: string
 ): Promise<boolean> {
   const identifier = NotificationId.session(sessionId);
-
-  const [hour, minute] = time.split(":").map(Number);
   const triggerDate = new Date(`${date}T${time}:00`);
 
   if (isNaN(triggerDate.getTime()) || triggerDate <= new Date()) {
-    return false; // Past or invalid — skip
+    notifLog.skipped(identifier, "session is in the past");
+    return false;
   }
 
   return safeSchedule(

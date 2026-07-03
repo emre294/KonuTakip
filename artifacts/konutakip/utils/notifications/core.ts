@@ -1,8 +1,21 @@
+/**
+ * Low-level notification primitives:
+ * - Notification handler (must be set before any notification fires)
+ * - Android channel setup
+ * - Atomic cancel-then-schedule helper
+ * - Scheduled notification query
+ *
+ * Permission logic lives in permissions.ts.
+ */
+
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { Channel } from "./constants";
+import { notifLog } from "./logger";
+import { ensurePermission } from "./permissions";
 
-// ─── Notification handler (must run before any notification fires) ─────────────
+// ─── Foreground notification handler ─────────────────────────────────────────
+// Must be set at module-load time, before any notification can be received.
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -64,46 +77,7 @@ export async function setupAndroidChannels(): Promise<void> {
   });
 }
 
-// ─── Permission management ────────────────────────────────────────────────────
-
-let _permissionGranted: boolean | null = null;
-
-/**
- * Check (and optionally request) notification permission.
- * Caches the result so we don't hit the OS on every scheduling call.
- * Pass `forceRequest = true` to re-request after denial (e.g. from settings UI).
- */
-export async function ensurePermission(forceRequest = false): Promise<boolean> {
-  if (_permissionGranted === true && !forceRequest) return true;
-
-  try {
-    const { status: existing } = await Notifications.getPermissionsAsync();
-    if (existing === "granted") {
-      _permissionGranted = true;
-      return true;
-    }
-    if (existing === "denied" && !forceRequest) {
-      _permissionGranted = false;
-      return false;
-    }
-
-    const { status } = await Notifications.requestPermissionsAsync({
-      ios: { allowAlert: true, allowBadge: true, allowSound: true },
-    });
-
-    _permissionGranted = status === "granted";
-    return _permissionGranted;
-  } catch {
-    return false;
-  }
-}
-
-/** Invalidate the permission cache (call after app foregrounding or settings change). */
-export function invalidatePermissionCache(): void {
-  _permissionGranted = null;
-}
-
-// ─── Core schedule / cancel primitives ───────────────────────────────────────
+// ─── Atomic cancel + schedule primitives ─────────────────────────────────────
 
 /**
  * Cancel a scheduled notification by identifier.
@@ -112,15 +86,22 @@ export function invalidatePermissionCache(): void {
 export async function safeCancel(identifier: string): Promise<void> {
   try {
     await Notifications.cancelScheduledNotificationAsync(identifier);
+    notifLog.cancelled(identifier);
   } catch {
-    // Notification may not exist — that's fine.
+    // Notification did not exist — that is fine.
   }
 }
 
 /**
- * Cancel-then-schedule pattern.
- * Always cancels the old notification first to guarantee no duplicates.
+ * Atomic cancel-then-schedule.
+ *
+ * Steps:
+ * 1. Check / request permission (cached after first call).
+ * 2. Cancel any existing notification with the same identifier.
+ * 3. Schedule the new notification.
+ *
  * Returns true on success, false if permission is denied or scheduling fails.
+ * Never throws.
  */
 export async function safeSchedule(
   identifier: string,
@@ -128,36 +109,49 @@ export async function safeSchedule(
   trigger: Notifications.NotificationTriggerInput
 ): Promise<boolean> {
   const granted = await ensurePermission();
-  if (!granted) return false;
+  if (!granted) {
+    notifLog.skipped(identifier, "permission not granted");
+    return false;
+  }
 
-  // Always cancel first to prevent duplicates
+  // Always cancel first — guarantees no duplicate can exist
   await safeCancel(identifier);
 
   try {
     await Notifications.scheduleNotificationAsync({ identifier, content, trigger });
+    // Compute a human-readable fire time for the log (trigger may be null for immediate)
+    let fireAt: Date | string = "RECURRING";
+    if (trigger !== null && typeof trigger === "object" && "date" in trigger) {
+      const d = (trigger as { date: unknown }).date;
+      fireAt = d instanceof Date ? d : typeof d === "number" ? new Date(d) : "RECURRING";
+    }
+    notifLog.scheduled(identifier, fireAt instanceof Date ? fireAt : String(fireAt));
     return true;
-  } catch {
+  } catch (err) {
+    notifLog.error(`safeSchedule(${identifier})`, err);
     return false;
   }
 }
 
-// ─── Scheduled notification query ────────────────────────────────────────────
+// ─── OS notification inspection ───────────────────────────────────────────────
 
 /** Returns a Set of all currently scheduled notification identifiers. */
 export async function getScheduledIds(): Promise<Set<string>> {
   try {
     const all = await Notifications.getAllScheduledNotificationsAsync();
     return new Set(all.map((n) => n.identifier));
-  } catch {
+  } catch (err) {
+    notifLog.error("getScheduledIds", err);
     return new Set();
   }
 }
 
-/** Cancel all scheduled notifications. Use with caution. */
+/** Cancel every scheduled notification. Use with care. */
 export async function cancelAll(): Promise<void> {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
-  } catch {
-    // Ignore
+    notifLog.cancelled("ALL");
+  } catch (err) {
+    notifLog.error("cancelAll", err);
   }
 }

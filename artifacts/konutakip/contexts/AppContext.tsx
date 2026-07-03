@@ -162,6 +162,7 @@ interface AppContextValue {
   toggleTopic: (topicId: string) => void;
   sessions: DailySession[];
   addSession: (s: Omit<DailySession, "id">) => void;
+  updateSession: (id: string, updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>) => void;
   completeSession: (id: string) => void;
   deleteSession: (id: string) => void;
   questions: Question[];
@@ -614,6 +615,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [topicCompletion, studyDays]);
 
+  const updateSession = useCallback((
+    id: string,
+    updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>
+  ) => {
+    setSessions(prev => {
+      const next = prev.map(s => {
+        if (s.id !== id) return s;
+        const updated = { ...s, ...updates };
+        // If date or time changed and session is not completed, replace the notification
+        if ((updates.date !== undefined || updates.time !== undefined) && !s.completed) {
+          scheduleSessionReminder(
+            updated.id,
+            updated.date,
+            updated.time,
+            updated.subjectName,
+            updated.topic
+          ).catch(() => {});
+        }
+        return updated;
+      });
+      saveData({ sessions: next });
+      return next;
+    });
+  }, []);
+
   const completeSession = useCallback((id: string) => {
     // Cancel session notification when session is marked complete
     cancelSessionReminder(id).catch(() => {});
@@ -766,7 +792,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AppContextValue>(() => ({
     profile, setProfile,
     topicCompletion, toggleTopic,
-    sessions, addSession, completeSession, deleteSession,
+    sessions, addSession, updateSession, completeSession, deleteSession,
     questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
@@ -782,7 +808,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }), [
     profile, setProfile,
     topicCompletion, toggleTopic,
-    sessions, addSession, completeSession, deleteSession,
+    sessions, addSession, updateSession, completeSession, deleteSession,
     questions, addQuestion, updateQuestion, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,

@@ -1,25 +1,38 @@
-import { NotificationId, NotificationType } from "./constants";
+/**
+ * App-start notification synchronization.
+ *
+ * Every time the app launches, this module:
+ * 1. Reads the live set of OS-scheduled notification identifiers.
+ * 2. For each stored entity that should have a future notification:
+ *    - Present in OS  → leave it alone (avoid duplicate scheduling).
+ *    - Missing from OS → restore it (e.g. after device reboot).
+ * 3. For any OS-scheduled notification that belongs to our namespace but has
+ *    no matching stored entity → cancel it (orphan cleanup).
+ *
+ * This function is idempotent — running it multiple times produces the same result.
+ */
+
+import { NotificationId } from "./constants";
 import { getScheduledIds, safeCancel } from "./core";
+import { notifLog } from "./logger";
 import {
-  cancelQuestionReminder,
-  cancelSessionReminder,
-  cancelTopicReminder,
+  cancelDailyStudyReminder,
   rescheduleTopicReminder,
   scheduleDailyStudyReminder,
   scheduleQuestionReminder,
   scheduleSessionReminder,
 } from "./scheduler";
 
-// ─── Types mirrored from AppContext to avoid circular imports ─────────────────
+// ─── Input types (mirrored from AppContext to avoid circular imports) ─────────
 
-interface StoredTopicReminder {
+export interface SyncTopicReminder {
   interval: 3 | 5 | 7;
   nextDate: string; // YYYY-MM-DD
   topicName?: string;
   subjectName?: string;
 }
 
-interface StoredQuestion {
+export interface SyncQuestion {
   id: string;
   subjectName: string;
   nextReviewDate: string; // YYYY-MM-DD
@@ -27,7 +40,7 @@ interface StoredQuestion {
   reminderInterval: 3 | 5 | 7;
 }
 
-interface StoredSession {
+export interface SyncSession {
   id: string;
   date: string; // YYYY-MM-DD
   time: string; // HH:mm
@@ -36,102 +49,91 @@ interface StoredSession {
   completed: boolean;
 }
 
-interface StoredDailyReminder {
+export interface SyncDailyReminder {
   hour: number;
   minute: number;
   enabled: boolean;
 }
 
 export interface NotificationSyncInput {
-  topicReminders: Record<string, StoredTopicReminder>;
-  questions: StoredQuestion[];
-  sessions: StoredSession[];
-  dailyReminder: StoredDailyReminder | null;
+  topicReminders: Record<string, SyncTopicReminder>;
+  questions: SyncQuestion[];
+  sessions: SyncSession[];
+  dailyReminder: SyncDailyReminder | null;
 }
 
-// ─── Main sync function ───────────────────────────────────────────────────────
+// ─── Main sync ────────────────────────────────────────────────────────────────
 
-/**
- * Called once after AppContext finishes loading persisted data.
- *
- * What it does:
- * 1. Fetches the live set of scheduled notification IDs from the OS.
- * 2. For each stored entity that SHOULD have a notification:
- *    - If the notification is present → leave it alone (no duplicate scheduling).
- *    - If it is missing → reschedule it (e.g. after device restart).
- * 3. For any OS-scheduled notification that has NO matching stored entity → cancel it (orphan).
- *
- * This is intentionally idempotent — running it multiple times is safe.
- */
 export async function syncNotifications(input: NotificationSyncInput): Promise<void> {
   try {
-    const scheduledIds = await getScheduledIds();
     const today = new Date().toISOString().split("T")[0];
 
-    // Track which IDs are legitimately expected so we can find orphans.
+    notifLog.syncStart({
+      topics: Object.keys(input.topicReminders).length,
+      questions: input.questions.length,
+      sessions: input.sessions.length,
+    });
+
+    const scheduledIds = await getScheduledIds();
     const expectedIds = new Set<string>();
+    let rebuilt = 0;
+    let cancelled = 0;
 
     // ── 1. Topic reminders ──────────────────────────────────────────────────
     for (const [topicId, reminder] of Object.entries(input.topicReminders)) {
+      if (reminder.nextDate <= today) continue; // Already fired — skip
+
       const id = NotificationId.topic(topicId);
-      const isFuture = reminder.nextDate > today;
-
-      if (!isFuture) continue; // Already fired or expired — ignore
-
       expectedIds.add(id);
 
       if (!scheduledIds.has(id)) {
-        // Missing after device restart or app kill — restore it
         if (reminder.topicName && reminder.subjectName) {
-          await rescheduleTopicReminder(
+          const ok = await rescheduleTopicReminder(
             topicId,
             reminder.topicName,
             reminder.subjectName,
             reminder.nextDate
           );
+          if (ok) rebuilt++;
         }
       }
     }
 
     // ── 2. Question reminders ───────────────────────────────────────────────
     for (const question of input.questions) {
-      if (question.understood) continue; // Understood — no reminder needed
+      if (question.understood) continue;
+      if (question.nextReviewDate <= today) continue; // Already fired — skip
 
       const id = NotificationId.question(question.id);
-      const isFuture = question.nextReviewDate > today;
-
-      if (!isFuture) continue; // Already past — notification has fired
-
       expectedIds.add(id);
 
       if (!scheduledIds.has(id)) {
-        await scheduleQuestionReminder(
+        const ok = await scheduleQuestionReminder(
           question.id,
           question.nextReviewDate,
           question.subjectName
         );
+        if (ok) rebuilt++;
       }
     }
 
     // ── 3. Session reminders ────────────────────────────────────────────────
     for (const session of input.sessions) {
       if (session.completed) continue;
+      if (session.date < today) continue; // Past session — skip
 
       const id = NotificationId.session(session.id);
-      const isFuture = session.date >= today;
-
-      if (!isFuture) continue; // Past session — skip
-
       expectedIds.add(id);
 
       if (!scheduledIds.has(id)) {
-        await scheduleSessionReminder(
+        const ok = await scheduleSessionReminder(
           session.id,
           session.date,
           session.time,
           session.subjectName,
           session.topic
         );
+        if (ok) rebuilt++;
       }
     }
 
@@ -141,24 +143,30 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
       expectedIds.add(id);
 
       if (!scheduledIds.has(id)) {
-        await scheduleDailyStudyReminder(
+        const ok = await scheduleDailyStudyReminder(
           input.dailyReminder.hour,
           input.dailyReminder.minute
         );
+        if (ok) rebuilt++;
       }
     }
 
     // ── 5. Orphan cleanup ────────────────────────────────────────────────────
-    // Cancel any OS-scheduled notification that is not in our expected set
-    // and that belongs to our namespace (identified by the "::" separator pattern).
+    // Cancel any OS notification that belongs to our namespace but has no
+    // matching stored entity. Identified by the "::" separator convention.
     for (const scheduledId of scheduledIds) {
       const parsed = NotificationId.parse(scheduledId);
-      if (parsed === null) continue; // Not ours — leave it alone
+      if (parsed === null) continue; // Not our namespace — leave alone
+
       if (!expectedIds.has(scheduledId)) {
         await safeCancel(scheduledId);
+        cancelled++;
       }
     }
-  } catch {
+
+    notifLog.syncComplete(rebuilt, cancelled);
+  } catch (err) {
     // Sync failure must never crash the app
+    notifLog.error("syncNotifications", err);
   }
 }
