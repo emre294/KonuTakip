@@ -156,6 +156,9 @@ function TopicRow({
               { backgroundColor: colors.secondary, color: colors.foreground, borderColor: colors.border },
               // Shrink font slightly so 5-digit numbers fit without reflowing the row
               solvedCount >= 10000 ? { fontSize: 10 } : solvedCount >= 1000 ? { fontSize: 11 } : null,
+              // Android: strip implicit font padding so the input sits on the
+              // same optical baseline as the "soru" label and bell icon.
+              Platform.OS === "android" && { textAlignVertical: "center", includeFontPadding: false, paddingVertical: 0 },
             ]}
             value={solvedCount > 0 ? String(solvedCount) : ""}
             onChangeText={(v) => {

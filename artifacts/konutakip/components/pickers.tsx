@@ -233,7 +233,7 @@ function Wheel({
   }
 
   return (
-    <View style={{ height: WHEEL_HEIGHT, width: 80 }}>
+    <View style={{ height: WHEEL_HEIGHT, width: 80, overflow: "hidden" }}>
       <View pointerEvents="none" style={[styles.wheelHighlight, { borderColor: colors.primary, top: ITEM_HEIGHT * 2 }]} />
       <FlatList
         ref={listRef}
@@ -438,7 +438,11 @@ function TimeWheelPicker({
       </View>
       <View style={styles.wheelRow}>
         <Wheel data={HOURS} selectedIndex={tempHour} onSelect={setTempHour} colors={colors} />
-        <Text style={[styles.wheelColon, { color: colors.foreground }]}>:</Text>
+        {/* Wrap the colon in a fixed-height View matching WHEEL_HEIGHT so it
+            is always centred against both wheels on every platform. */}
+        <View style={styles.wheelColonWrapper}>
+          <Text style={[styles.wheelColon, { color: colors.foreground }]}>:</Text>
+        </View>
         <Wheel data={MINUTES} selectedIndex={tempMinute} onSelect={setTempMinute} colors={colors} />
       </View>
     </View>
@@ -593,9 +597,20 @@ const styles = StyleSheet.create({
   },
   wheelRow: {
     flexDirection: "row",
-    alignItems: "center",
+    // flex-start so both Wheel Views (same WHEEL_HEIGHT) share the same top
+    // edge — this is what makes them pixel-perfect on Android where "center"
+    // can introduce sub-pixel differences caused by FlatList intrinsic sizing.
+    alignItems: "flex-start",
     justifyContent: "center",
     paddingVertical: 16,
+  },
+  wheelColonWrapper: {
+    // Same height as the wheels so the ":" is always vertically centred
+    // relative to the wheel content on every platform without magic numbers.
+    height: WHEEL_HEIGHT,
+    marginHorizontal: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
   wheelHighlight: {
     position: "absolute",
@@ -621,6 +636,5 @@ const styles = StyleSheet.create({
   wheelColon: {
     fontSize: 22,
     fontFamily: "Inter_600SemiBold",
-    marginHorizontal: 8,
   },
 });
