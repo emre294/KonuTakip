@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp, DailySession } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
-import { DatePickerField, TimePickerField } from "@/components/pickers";
+import { ActivePicker, DatePickerField, PickerOverlay, TimePickerField } from "@/components/pickers";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + "T12:00:00");
@@ -87,6 +87,7 @@ export default function PlanScreen() {
   const [topic, setTopic] = useState("");
   const [targetQ, setTargetQ] = useState("20");
   const [notes, setNotes] = useState("");
+  const [activePicker, setActivePicker] = useState<ActivePicker>(null);
 
   const allSubjects = [
     ...TYT_SUBJECTS,
@@ -188,10 +189,10 @@ export default function PlanScreen() {
 
           <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih</Text>
-            <DatePickerField value={date} onChange={setDate} colors={colors} />
+            <DatePickerField value={date} onChange={setDate} colors={colors} onOpen={() => setActivePicker("date")} />
 
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Saat</Text>
-            <TimePickerField value={time} onChange={setTime} colors={colors} />
+            <TimePickerField value={time} onChange={setTime} colors={colors} onOpen={() => setActivePicker("time")} />
 
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Ders</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectPicker}>
@@ -240,6 +241,18 @@ export default function PlanScreen() {
               <Text style={[styles.saveBtnText, { color: "#fff" }]}>Kaydet</Text>
             </TouchableOpacity>
           </ScrollView>
+
+          {activePicker && (
+            <PickerOverlay
+              activePicker={activePicker}
+              dateValue={date}
+              timeValue={time}
+              onChangeDate={setDate}
+              onChangeTime={setTime}
+              onClose={() => setActivePicker(null)}
+              colors={colors}
+            />
+          )}
         </View>
       </Modal>
     </View>

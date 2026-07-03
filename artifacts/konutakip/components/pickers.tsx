@@ -10,6 +10,15 @@
  * modules) that works everywhere Expo Go runs. On web we keep the native
  * `<input type="date"|"time">` overlay since browsers always support it.
  *
+ * IMPORTANT #2: the calendar/wheel overlay is rendered as a plain absolutely
+ * positioned View — NOT as a second <Modal>. Nesting a React Native <Modal>
+ * inside another already-visible <Modal> is unreliable on Android (the
+ * platform's native Dialog window stacking can swallow or hide the inner
+ * modal, so the field looks like it "does nothing" when tapped even though
+ * the state changes correctly). The parent screen (e.g. plan.tsx) owns a
+ * single `activePicker` state and renders <PickerOverlay> once, as a direct
+ * sibling inside its one real <Modal>, covering the full screen.
+ *
  * Either way: no free-text entry is ever possible, only tap-to-select.
  *
  * Display format:  date → DD.MM.YYYY   time → HH:MM (24-hour)
@@ -19,7 +28,6 @@ import { Feather } from "@expo/vector-icons";
 import React, { useMemo, useRef, useState } from "react";
 import {
   FlatList,
-  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -37,6 +45,8 @@ type Colors = {
   primary: string;
   background: string;
 };
+
+export type ActivePicker = "date" | "time" | null;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -72,43 +82,19 @@ const MONTH_NAMES = [
 ];
 const WEEKDAY_LABELS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
-// ─── Date picker ──────────────────────────────────────────────────────────────
+// ─── Date field (button) ───────────────────────────────────────────────────────
 
 interface DatePickerFieldProps {
   /** ISO date string "YYYY-MM-DD" — stored internally, never shown raw to the user */
   value: string;
   onChange: (v: string) => void;
   colors: Colors;
+  /** Only used on Android/iOS: called when the user taps the field to request the overlay open. */
+  onOpen?: () => void;
 }
 
-export function DatePickerField({ value, onChange, colors }: DatePickerFieldProps) {
-  const [show, setShow] = useState(false);
-  const selected = value ? new Date(value + "T12:00:00") : new Date();
-  const [viewYear, setViewYear] = useState(selected.getFullYear());
-  const [viewMonth, setViewMonth] = useState(selected.getMonth());
+export function DatePickerField({ value, onChange, colors, onOpen }: DatePickerFieldProps) {
   const display = toDDMMYYYY(value); // always shown as DD.MM.YYYY
-
-  function open() {
-    const base = value ? new Date(value + "T12:00:00") : new Date();
-    setViewYear(base.getFullYear());
-    setViewMonth(base.getMonth());
-    setShow(true);
-  }
-
-  function goPrevMonth() {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
-    else setViewMonth((m) => m - 1);
-  }
-
-  function goNextMonth() {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
-    else setViewMonth((m) => m + 1);
-  }
-
-  function pickDay(day: number) {
-    onChange(toISODate(viewYear, viewMonth, day));
-    setShow(false);
-  }
 
   // ── Web: show the styled button, overlay a transparent <input type="date">
   //    so the browser's native date picker fires on tap — no text entry possible.
@@ -143,113 +129,83 @@ export function DatePickerField({ value, onChange, colors }: DatePickerFieldProp
     );
   }
 
-  // ── Android / iOS: custom pure-JS calendar modal (no native module needed,
-  //    works inside Expo Go where @react-native-community/datetimepicker does not).
-  const totalDays = daysInMonth(viewYear, viewMonth);
-  const leadingBlanks = mondayFirstWeekday(viewYear, viewMonth, 1);
-  const cells: (number | null)[] = [
-    ...Array(leadingBlanks).fill(null),
-    ...Array.from({ length: totalDays }, (_, i) => i + 1),
-  ];
-  const todayISO = new Date().toISOString().split("T")[0];
-
+  // ── Android / iOS: button only. Tapping requests the parent to show
+  //    <PickerOverlay activePicker="date" .../> — see note at top of file.
   return (
-    <>
-      <TouchableOpacity
-        onPress={open}
-        style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
-        activeOpacity={0.7}
-      >
-        <Text style={[styles.pickerText, { color: display ? colors.foreground : colors.mutedForeground }]}>
-          {display || "Tarih seç..."}
-        </Text>
-        <Feather name="calendar" size={16} color={colors.mutedForeground} />
-      </TouchableOpacity>
-
-      <Modal visible={show} transparent animationType="fade" onRequestClose={() => setShow(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShow(false)} />
-        <View style={styles.modalCenterWrap} pointerEvents="box-none">
-          <View style={[styles.calendarCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={styles.calendarHeader}>
-              <TouchableOpacity onPress={goPrevMonth} style={styles.calendarNavBtn} hitSlop={8}>
-                <Feather name="chevron-left" size={20} color={colors.foreground} />
-              </TouchableOpacity>
-              <Text style={[styles.calendarTitle, { color: colors.foreground }]}>
-                {MONTH_NAMES[viewMonth]} {viewYear}
-              </Text>
-              <TouchableOpacity onPress={goNextMonth} style={styles.calendarNavBtn} hitSlop={8}>
-                <Feather name="chevron-right" size={20} color={colors.foreground} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.weekRow}>
-              {WEEKDAY_LABELS.map((w) => (
-                <View key={w} style={styles.dayCell}>
-                  <Text style={[styles.weekdayLabel, { color: colors.mutedForeground }]}>{w}</Text>
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.calendarGrid}>
-              {cells.map((day, idx) => {
-                if (day === null) return <View key={`b-${idx}`} style={styles.dayCell} />;
-                const iso = toISODate(viewYear, viewMonth, day);
-                const isSelected = iso === value;
-                const isToday = iso === todayISO;
-                return (
-                  <TouchableOpacity
-                    key={iso}
-                    style={styles.dayCell}
-                    onPress={() => pickDay(day)}
-                    activeOpacity={0.6}
-                  >
-                    <View
-                      style={[
-                        styles.dayCircle,
-                        isSelected && { backgroundColor: colors.primary },
-                        !isSelected && isToday && { borderWidth: 1.5, borderColor: colors.primary },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.dayText,
-                          { color: isSelected ? "#fff" : colors.foreground },
-                        ]}
-                      >
-                        {day}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <TouchableOpacity
-              onPress={() => {
-                const now = new Date();
-                setViewYear(now.getFullYear());
-                setViewMonth(now.getMonth());
-                pickDay(now.getDate());
-              }}
-              style={[styles.todayBtn, { borderColor: colors.border }]}
-            >
-              <Text style={[styles.todayBtnText, { color: colors.primary }]}>Bugün</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </>
+    <TouchableOpacity
+      onPress={onOpen}
+      style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
+      activeOpacity={0.7}
+    >
+      <Text style={[styles.pickerText, { color: display ? colors.foreground : colors.mutedForeground }]}>
+        {display || "Tarih seç..."}
+      </Text>
+      <Feather name="calendar" size={16} color={colors.mutedForeground} />
+    </TouchableOpacity>
   );
 }
 
-// ─── Time picker ──────────────────────────────────────────────────────────────
+// ─── Time field (button) ───────────────────────────────────────────────────────
 
 interface TimePickerFieldProps {
   /** "HH:MM" 24-hour format */
   value: string;
   onChange: (v: string) => void;
   colors: Colors;
+  /** Only used on Android/iOS: called when the user taps the field to request the overlay open. */
+  onOpen?: () => void;
 }
+
+export function TimePickerField({ value, onChange, colors, onOpen }: TimePickerFieldProps) {
+  // ── Web: transparent <input type="time"> overlay
+  if (Platform.OS === "web") {
+    return (
+      <View
+        style={[
+          styles.input,
+          styles.pickerTouchable,
+          { backgroundColor: colors.card, borderColor: colors.border, position: "relative" },
+        ]}
+      >
+        <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
+          {value || "Saat seç..."}
+        </Text>
+        <Feather name="clock" size={16} color={colors.mutedForeground} />
+        {React.createElement("input", {
+          type: "time",
+          value: value,
+          onChange: (e: any) => onChange(e.target.value),
+          style: {
+            position: "absolute",
+            inset: 0,
+            opacity: 0,
+            cursor: "pointer",
+            width: "100%",
+            height: "100%",
+            zIndex: 2,
+          },
+        })}
+      </View>
+    );
+  }
+
+  // ── Android / iOS: button only. Tapping requests the parent to show
+  //    <PickerOverlay activePicker="time" .../> — see note at top of file.
+  return (
+    <TouchableOpacity
+      onPress={onOpen}
+      style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
+      activeOpacity={0.7}
+    >
+      <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
+        {value || "Saat seç..."}
+      </Text>
+      <Feather name="clock" size={16} color={colors.mutedForeground} />
+    </TouchableOpacity>
+  );
+}
+
+// ─── Wheel (used by the time overlay) ──────────────────────────────────────────
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
@@ -315,8 +271,153 @@ function Wheel({
   );
 }
 
-export function TimePickerField({ value, onChange, colors }: TimePickerFieldProps) {
-  const [show, setShow] = useState(false);
+// ─── Shared overlay — rendered ONCE by the parent screen, never nested in a Modal ──
+
+interface PickerOverlayProps {
+  /** Which picker to show. Render nothing at all when null. */
+  activePicker: "date" | "time";
+  dateValue: string;
+  timeValue: string;
+  onChangeDate: (v: string) => void;
+  onChangeTime: (v: string) => void;
+  onClose: () => void;
+  colors: Colors;
+}
+
+export function PickerOverlay({
+  activePicker,
+  dateValue,
+  timeValue,
+  onChangeDate,
+  onChangeTime,
+  onClose,
+  colors,
+}: PickerOverlayProps) {
+  return (
+    <View style={styles.overlayRoot} pointerEvents="box-none">
+      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose} />
+      {activePicker === "date" ? (
+        <DateCalendar value={dateValue} onChange={(v) => { onChangeDate(v); onClose(); }} onClose={onClose} colors={colors} />
+      ) : (
+        <TimeWheelPicker value={timeValue} onChange={(v) => { onChangeTime(v); onClose(); }} onClose={onClose} colors={colors} />
+      )}
+    </View>
+  );
+}
+
+function DateCalendar({
+  value,
+  onChange,
+  colors,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onClose: () => void;
+  colors: Colors;
+}) {
+  const initial = value ? new Date(value + "T12:00:00") : new Date();
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initial.getMonth());
+
+  function goPrevMonth() {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
+    else setViewMonth((m) => m - 1);
+  }
+
+  function goNextMonth() {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
+    else setViewMonth((m) => m + 1);
+  }
+
+  const totalDays = daysInMonth(viewYear, viewMonth);
+  const leadingBlanks = mondayFirstWeekday(viewYear, viewMonth, 1);
+  const cells: (number | null)[] = [
+    ...Array(leadingBlanks).fill(null),
+    ...Array.from({ length: totalDays }, (_, i) => i + 1),
+  ];
+  const todayISO = new Date().toISOString().split("T")[0];
+
+  return (
+    <View style={styles.modalCenterWrap} pointerEvents="box-none">
+      <View style={[styles.calendarCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={styles.calendarHeader}>
+          <TouchableOpacity onPress={goPrevMonth} style={styles.calendarNavBtn} hitSlop={8}>
+            <Feather name="chevron-left" size={20} color={colors.foreground} />
+          </TouchableOpacity>
+          <Text style={[styles.calendarTitle, { color: colors.foreground }]}>
+            {MONTH_NAMES[viewMonth]} {viewYear}
+          </Text>
+          <TouchableOpacity onPress={goNextMonth} style={styles.calendarNavBtn} hitSlop={8}>
+            <Feather name="chevron-right" size={20} color={colors.foreground} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.weekRow}>
+          {WEEKDAY_LABELS.map((w) => (
+            <View key={w} style={styles.dayCell}>
+              <Text style={[styles.weekdayLabel, { color: colors.mutedForeground }]}>{w}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.calendarGrid}>
+          {cells.map((day, idx) => {
+            if (day === null) return <View key={`b-${idx}`} style={styles.dayCell} />;
+            const iso = toISODate(viewYear, viewMonth, day);
+            const isSelected = iso === value;
+            const isToday = iso === todayISO;
+            return (
+              <TouchableOpacity
+                key={iso}
+                style={styles.dayCell}
+                onPress={() => onChange(iso)}
+                activeOpacity={0.6}
+              >
+                <View
+                  style={[
+                    styles.dayCircle,
+                    isSelected && { backgroundColor: colors.primary },
+                    !isSelected && isToday && { borderWidth: 1.5, borderColor: colors.primary },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.dayText,
+                      { color: isSelected ? "#fff" : colors.foreground },
+                    ]}
+                  >
+                    {day}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <TouchableOpacity
+          onPress={() => {
+            const now = new Date();
+            onChange(toISODate(now.getFullYear(), now.getMonth(), now.getDate()));
+          }}
+          style={[styles.todayBtn, { borderColor: colors.border }]}
+        >
+          <Text style={[styles.todayBtnText, { color: colors.primary }]}>Bugün</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+function TimeWheelPicker({
+  value,
+  onChange,
+  colors,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onClose: () => void;
+  colors: Colors;
+}) {
   const [hour, minute] = useMemo(() => {
     const [h = 9, m = 0] = value.split(":").map(Number);
     return [h, m];
@@ -324,81 +425,23 @@ export function TimePickerField({ value, onChange, colors }: TimePickerFieldProp
   const [tempHour, setTempHour] = useState(hour);
   const [tempMinute, setTempMinute] = useState(minute);
 
-  function open() {
-    setTempHour(hour);
-    setTempMinute(minute);
-    setShow(true);
-  }
-
-  function confirm() {
-    onChange(`${pad2(tempHour)}:${pad2(tempMinute)}`);
-    setShow(false);
-  }
-
-  // ── Web: transparent <input type="time"> overlay
-  if (Platform.OS === "web") {
-    return (
-      <View
-        style={[
-          styles.input,
-          styles.pickerTouchable,
-          { backgroundColor: colors.card, borderColor: colors.border, position: "relative" },
-        ]}
-      >
-        <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
-          {value || "Saat seç..."}
-        </Text>
-        <Feather name="clock" size={16} color={colors.mutedForeground} />
-        {React.createElement("input", {
-          type: "time",
-          value: value,
-          onChange: (e: any) => onChange(e.target.value),
-          style: {
-            position: "absolute",
-            inset: 0,
-            opacity: 0,
-            cursor: "pointer",
-            width: "100%",
-            height: "100%",
-            zIndex: 2,
-          },
-        })}
-      </View>
-    );
-  }
-
-  // ── Android / iOS: custom pure-JS wheel picker (no native module needed,
-  //    works inside Expo Go where @react-native-community/datetimepicker does not).
   return (
-    <>
-      <TouchableOpacity
-        onPress={open}
-        style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
-        activeOpacity={0.7}
-      >
-        <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
-          {value || "Saat seç..."}
-        </Text>
-        <Feather name="clock" size={16} color={colors.mutedForeground} />
-      </TouchableOpacity>
-
-      <Modal visible={show} transparent animationType="slide" onRequestClose={() => setShow(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShow(false)} />
-        <View style={[styles.iosSheet, { backgroundColor: colors.card }]}>
-          <View style={[styles.iosHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.iosTitle, { color: colors.foreground }]}>Saat Seç</Text>
-            <TouchableOpacity onPress={confirm} style={[styles.doneBtn, { backgroundColor: colors.primary }]}>
-              <Text style={styles.doneBtnText}>Tamam</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.wheelRow}>
-            <Wheel data={HOURS} selectedIndex={tempHour} onSelect={setTempHour} colors={colors} />
-            <Text style={[styles.wheelColon, { color: colors.foreground }]}>:</Text>
-            <Wheel data={MINUTES} selectedIndex={tempMinute} onSelect={setTempMinute} colors={colors} />
-          </View>
-        </View>
-      </Modal>
-    </>
+    <View style={[styles.iosSheet, { backgroundColor: colors.card }]}>
+      <View style={[styles.iosHeader, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.iosTitle, { color: colors.foreground }]}>Saat Seç</Text>
+        <TouchableOpacity
+          onPress={() => onChange(`${pad2(tempHour)}:${pad2(tempMinute)}`)}
+          style={[styles.doneBtn, { backgroundColor: colors.primary }]}
+        >
+          <Text style={styles.doneBtnText}>Tamam</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.wheelRow}>
+        <Wheel data={HOURS} selectedIndex={tempHour} onSelect={setTempHour} colors={colors} />
+        <Text style={[styles.wheelColon, { color: colors.foreground }]}>:</Text>
+        <Wheel data={MINUTES} selectedIndex={tempMinute} onSelect={setTempMinute} colors={colors} />
+      </View>
+    </View>
   );
 }
 
@@ -421,8 +464,21 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Inter_400Regular",
   },
+  overlayRoot: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 50,
+    elevation: 50,
+  },
   modalOverlay: {
-    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.35)",
   },
   modalCenterWrap: {
@@ -500,6 +556,10 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
   },
   iosSheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 36,
