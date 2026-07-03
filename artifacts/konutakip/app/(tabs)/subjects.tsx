@@ -151,7 +151,12 @@ function TopicRow({
 
         <View style={styles.topicRight}>
           <TextInput
-            style={[styles.solvedInput, { backgroundColor: colors.secondary, color: colors.foreground, borderColor: colors.border }]}
+            style={[
+              styles.solvedInput,
+              { backgroundColor: colors.secondary, color: colors.foreground, borderColor: colors.border },
+              // Shrink font slightly so 5-digit numbers fit without reflowing the row
+              solvedCount >= 10000 ? { fontSize: 10 } : solvedCount >= 1000 ? { fontSize: 11 } : null,
+            ]}
             value={solvedCount > 0 ? String(solvedCount) : ""}
             onChangeText={(v) => {
               const n = parseInt(v.replace(/[^0-9]/g, "")) || 0;
@@ -487,13 +492,15 @@ const styles = StyleSheet.create({
   topicCheckBtn: { padding: 2 },
   topicCheck: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
   topicName: { fontSize: 13, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
-  topicRight: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0 },
+  // flexGrow: 0 ensures the right cluster never expands and displaces topicName
+  topicRight: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0, flexGrow: 0 },
   solvedInput: {
-    width: 44, height: 30, borderRadius: 8, borderWidth: 1,
+    // Fixed dimensions — wide enough for 5 digits at the smallest font, never grows
+    width: 54, height: 30, borderRadius: 8, borderWidth: 1,
     fontSize: 12, fontFamily: "Inter_500Medium",
-    textAlign: "center", paddingHorizontal: 4,
+    textAlign: "center", paddingHorizontal: 2,
   },
-  soruLabel: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  soruLabel: { fontSize: 11, fontFamily: "Inter_400Regular", flexShrink: 0 },
 });
 
 const rStyles = StyleSheet.create({
