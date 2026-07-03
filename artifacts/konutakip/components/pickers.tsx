@@ -27,9 +27,10 @@
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  ScrollView,
+  useWindowDimensions,
   Platform,
   StyleSheet,
   Text,
@@ -216,22 +217,48 @@ export function TimePickerField({ value, onChange, colors, onOpen }: TimePickerF
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
 const WHEEL_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
-const WHEEL_WIDTH = 80; // extracted so FlatList gets the same explicit value
+// Fixed width for the colon separator zone between the two wheels.
+// Both wheels receive (screenWidth - COLON_AREA) / 2, computed at runtime,
+// so they are guaranteed to be identical in width with no centering needed.
+const COLON_AREA = 40;
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
+
+// ── Wheel ─────────────────────────────────────────────────────────────────────
+// Uses a plain ScrollView instead of FlatList so we never touch RecyclerView's
+// internal item-layout logic, which is the source of the per-OEM horizontal
+// offset bugs seen on Samsung One UI.  With only 24 or 60 items the total
+// content height (≤ 2640 px) is trivial to render without virtualisation.
+//
+// The `width` prop comes from the parent (TimeWheelPicker) which measures the
+// screen via useWindowDimensions and divides it exactly in two.  That means
+// this View IS the column — no centering-within-a-larger-box is needed, and
+// therefore no centering error can accumulate.
 
 function Wheel({
   data,
   selectedIndex,
   onSelect,
   colors,
+  width,
 }: {
   data: number[];
   selectedIndex: number;
   onSelect: (index: number) => void;
   colors: Colors;
+  width: number;
 }) {
-  const listRef = useRef<FlatList<number>>(null);
+  const scrollRef = useRef<ScrollView>(null);
+
+  // Scroll to the correct item after every selectedIndex change (including
+  // the initial mount).  requestAnimationFrame defers until after layout so
+  // the ScrollView's content has a measurable height before we call scrollTo.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ y: selectedIndex * ITEM_HEIGHT, animated: false });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [selectedIndex]);
 
   function handleMomentumEnd(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const offsetY = e.nativeEvent.contentOffset.y;
@@ -240,36 +267,31 @@ function Wheel({
   }
 
   return (
-    // Explicit WHEEL_WIDTH on both the container and the FlatList prevents
-    // Samsung One UI from injecting internal ScrollView left-padding that
-    // shifts content off-centre. overflow:"hidden" clips items outside the
-    // visible window without affecting the width calculation.
-    <View style={{ height: WHEEL_HEIGHT, width: WHEEL_WIDTH, overflow: "hidden" }}>
-      <View pointerEvents="none" style={[styles.wheelHighlight, { borderColor: colors.primary, top: ITEM_HEIGHT * 2 }]} />
-      <FlatList
-        ref={listRef}
-        data={data}
-        keyExtractor={(n) => String(n)}
+    <View style={{ height: WHEEL_HEIGHT, width, overflow: "hidden" }}>
+      {/* Selection highlight — spans full container width via left:0/right:0 */}
+      <View
+        pointerEvents="none"
+        style={[styles.wheelHighlight, { borderColor: colors.primary, top: ITEM_HEIGHT * 2 }]}
+      />
+      <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
-        getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
-        initialScrollIndex={selectedIndex}
-        // Explicit width: FlatList must know its own width to centre items.
-        // Without this, some Android WebView renders measure it as 0 or full-screen,
-        // creating the right-shift symptom visible on Samsung devices.
-        style={{ width: WHEEL_WIDTH }}
+        // contentOffset positions iOS immediately on mount (no first-frame flash).
+        // Android ignores this prop but the requestAnimationFrame + scrollTo covers it.
+        contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
         contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
         onMomentumScrollEnd={handleMomentumEnd}
-        // Prevent Samsung's clipping optimisation from repositioning list items
-        removeClippedSubviews={false}
-        renderItem={({ item, index }) => (
+      >
+        {data.map((item, index) => (
           <TouchableOpacity
+            key={item}
             style={styles.wheelItem}
             activeOpacity={0.6}
             onPress={() => {
               onSelect(index);
-              listRef.current?.scrollToIndex({ index, animated: true });
+              scrollRef.current?.scrollTo({ y: index * ITEM_HEIGHT, animated: true });
             }}
           >
             <Text
@@ -282,8 +304,8 @@ function Wheel({
               {pad2(item)}
             </Text>
           </TouchableOpacity>
-        )}
-      />
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -487,6 +509,12 @@ function TimeWheelPicker({
   onClose: () => void;
   colors: Colors;
 }) {
+  // Each wheel takes exactly half the screen width minus the colon zone.
+  // Math.floor keeps the value an integer so the ScrollView never has a
+  // sub-pixel width that Android rounds differently per column.
+  const { width: screenWidth } = useWindowDimensions();
+  const wheelWidth = Math.floor((screenWidth - COLON_AREA) / 2);
+
   const [hour, minute] = useMemo(() => {
     const [h = 9, m = 0] = value.split(":").map(Number);
     return [h, m];
@@ -511,20 +539,27 @@ function TimeWheelPicker({
           <Text style={styles.doneBtnText}>Tamam</Text>
         </TouchableOpacity>
       </View>
-      {/* wheelCol (flex:1) gives each side an equal share of the sheet width.
-          Flexbox computes the split, so it is immune to font-metric differences
-          that caused the minute wheel to drift right on Samsung devices when the
-          layout depended on the colon's intrinsic text width + margins. */}
+      {/* Both wheels receive an identical computed width so no centering
+          within a larger container is required — the wheel IS the column.
+          The colon sits in a fixed-width zone between them. */}
       <View style={styles.wheelRow}>
-        <View style={styles.wheelCol}>
-          <Wheel data={HOURS} selectedIndex={tempHour} onSelect={setTempHour} colors={colors} />
-        </View>
+        <Wheel
+          data={HOURS}
+          selectedIndex={tempHour}
+          onSelect={setTempHour}
+          colors={colors}
+          width={wheelWidth}
+        />
         <View style={styles.wheelColonWrapper}>
           <Text style={[styles.wheelColon, { color: colors.foreground }]}>:</Text>
         </View>
-        <View style={styles.wheelCol}>
-          <Wheel data={MINUTES} selectedIndex={tempMinute} onSelect={setTempMinute} colors={colors} />
-        </View>
+        <Wheel
+          data={MINUTES}
+          selectedIndex={tempMinute}
+          onSelect={setTempMinute}
+          colors={colors}
+          width={wheelWidth}
+        />
       </View>
     </View>
   );
@@ -677,28 +712,17 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   wheelRow: {
+    // Simple flex row — no justifyContent needed because each wheel is sized
+    // to exactly (screenWidth - COLON_AREA) / 2, filling the row perfectly.
+    // alignItems:"center" vertically centres both wheels and the colon zone.
     flexDirection: "row",
-    // "center" is correct because both wheelCol children are the same height
-    // (they expand to contain WHEEL_HEIGHT wheels). No sub-pixel drift risk
-    // because sizing is now driven by flex:1 columns, not text metrics.
     alignItems: "center",
-    // No justifyContent needed — flex:1 columns fill the full row width.
     paddingVertical: 16,
   },
-  // Each column takes exactly half the available width (minus the colon),
-  // computed by flexbox rather than by margin arithmetic or text metrics.
-  // This is the primary fix for the Samsung horizontal drift: symmetry is
-  // guaranteed by the layout engine, not by counting pixels.
-  wheelCol: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   wheelColonWrapper: {
-    // Fixed width (wider than any ":" glyph on any device) so the colon
-    // area never varies by font metrics. This keeps both wheelCol sides
-    // exactly symmetric regardless of platform or font loading order.
-    width: 40,
+    // Fixed-width zone between the two wheels.  Must equal COLON_AREA so the
+    // arithmetic in TimeWheelPicker (screenWidth - COLON_AREA) stays correct.
+    width: COLON_AREA,
     height: WHEEL_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
@@ -723,6 +747,10 @@ const styles = StyleSheet.create({
   wheelItemText: {
     fontSize: 18,
     fontFamily: "Inter_400Regular",
+    // Belt-and-suspenders: ensures the digit is centred within the Text node's
+    // bounding box on every platform, independent of the parent's alignItems.
+    textAlign: "center",
+    width: "100%",
   },
   wheelItemTextSelected: {
     fontFamily: "Inter_600SemiBold",
