@@ -22,7 +22,7 @@ function NativeTabLayout() {
         <Label>Konular</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="plan">
-        <Icon sf={{ default: "calendar", selected: "calendar.fill" }} />
+        <Icon sf={{ default: "calendar", selected: "calendar.fill" as any }} />
         <Label>Günlük Plan</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="questions">
