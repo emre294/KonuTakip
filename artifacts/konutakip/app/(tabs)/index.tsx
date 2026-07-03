@@ -198,17 +198,38 @@ function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSo
 
       <View style={styles.remainingRow}>
         <View style={styles.remainingItem}>
-          <Text style={[styles.remainingValue, { color: colors.success }]}>{totalDone}</Text>
+          <Text
+            style={[styles.remainingValue, { color: colors.success }]}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.5}
+          >
+            {totalDone}
+          </Text>
           <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Tamamlanan</Text>
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
-          <Text style={[styles.remainingValue, { color: colors.warning }]}>{totalRemaining}</Text>
+          <Text
+            style={[styles.remainingValue, { color: colors.warning }]}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.5}
+          >
+            {totalRemaining}
+          </Text>
           <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Kalan</Text>
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
-          <Text style={[styles.remainingValue, { color: colors.primary }]}>{totalSolvedQuestions.toLocaleString("tr-TR")}</Text>
+          <Text
+            style={[styles.remainingValue, { color: colors.primary }]}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.4}
+          >
+            {totalSolvedQuestions.toLocaleString("tr-TR")}
+          </Text>
           <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Çözülen Soru</Text>
         </View>
       </View>
@@ -342,17 +363,38 @@ export default function HomeScreen() {
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="checkbox-outline" size={21} color={colors.success} />
-            <Text style={[styles.statValue, { color: colors.foreground }]}>{totalTopicsCompleted}</Text>
+            <Text
+              style={[styles.statValue, { color: colors.foreground }]}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              minimumFontScale={0.5}
+            >
+              {totalTopicsCompleted}
+            </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Konu</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="flame" size={21} color={colors.warning} />
-            <Text style={[styles.statValue, { color: colors.foreground }]}>{studyStreak}</Text>
+            <Text
+              style={[styles.statValue, { color: colors.foreground }]}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              minimumFontScale={0.5}
+            >
+              {studyStreak}
+            </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Gün Serisi</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="calendar-outline" size={21} color={colors.primary} />
-            <Text style={[styles.statValue, { color: colors.foreground }]}>{sessions.filter((s) => s.completed).length}</Text>
+            <Text
+              style={[styles.statValue, { color: colors.foreground }]}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              minimumFontScale={0.5}
+            >
+              {sessions.filter((s) => s.completed).length}
+            </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Oturum</Text>
           </View>
         </View>
@@ -461,9 +503,12 @@ const styles = StyleSheet.create({
   remainingLink: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
   remainingLinkText: { fontSize: 11, fontFamily: "Inter_600SemiBold" },
   remainingRow: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
-  remainingItem: { flex: 1, alignItems: "center", gap: 4 },
-  remainingValue: { fontSize: 24, fontFamily: "Inter_700Bold" },
-  remainingLabel: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  remainingValue: {
+    fontSize: 24, fontFamily: "Inter_700Bold",
+    alignSelf: "stretch", textAlign: "center",
+  },
+  remainingLabel: { fontSize: 11, fontFamily: "Inter_400Regular", textAlign: "center" },
+  remainingItem: { flex: 1, alignItems: "center", gap: 2 },
   remainingDivider: { width: 1, height: 36 },
   totalProgressBar: { height: 6, borderRadius: 3, overflow: "hidden", marginBottom: 6 },
   totalProgressFill: { height: "100%", borderRadius: 3 },
@@ -473,8 +518,11 @@ const styles = StyleSheet.create({
     flex: 1, borderRadius: 16, padding: 14, alignItems: "center", gap: 3,
     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
   },
-  statValue: { fontSize: 20, fontFamily: "Inter_700Bold" },
-  statLabel: { fontSize: 10, fontFamily: "Inter_500Medium" },
+  statValue: {
+    fontSize: 20, fontFamily: "Inter_700Bold",
+    alignSelf: "stretch", textAlign: "center",
+  },
+  statLabel: { fontSize: 10, fontFamily: "Inter_500Medium", textAlign: "center" },
   warningBanner: {
     flexDirection: "row", alignItems: "center", gap: 8, padding: 11,
     borderRadius: 12, borderWidth: 1, marginBottom: 10,
