@@ -1,7 +1,14 @@
 /**
  * Native date and time picker fields.
- * iOS/Android: opens the system picker on tap.
- * Web: falls back to a plain text input (no native picker available).
+ *
+ * Android : system calendar / clock dialog — no text input at all.
+ * iOS     : spinner DateTimePicker inside a slide-up modal.
+ * Web     : styled button with an *invisible* <input type="date|time"> overlaid
+ *           on top. The user taps the button → the browser's native picker opens.
+ *           No text field is ever exposed; arbitrary text input is impossible.
+ *
+ * Display format:  date → DD.MM.YYYY   time → HH:MM (24-hour)
+ * Internal format: date → YYYY-MM-DD   time → HH:MM
  */
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -13,7 +20,6 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -27,59 +33,88 @@ type Colors = {
   background: string;
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** "2026-07-03" → "03.07.2026" */
+function toDDMMYYYY(iso: string): string {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return iso;
+  return `${d}.${m}.${y}`;
+}
+
+function timeStrToDate(t: string): Date {
+  const now = new Date();
+  const [h = 9, m = 0] = t.split(":").map(Number);
+  now.setHours(h, m, 0, 0);
+  return now;
+}
+
+function dateToTimeStr(d: Date): string {
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
 // ─── Date picker ──────────────────────────────────────────────────────────────
 
 interface DatePickerFieldProps {
-  value: string; // "YYYY-MM-DD"
+  /** ISO date string "YYYY-MM-DD" — stored internally, never shown raw to the user */
+  value: string;
   onChange: (v: string) => void;
   colors: Colors;
-  style?: object;
 }
 
-export function DatePickerField({
-  value,
-  onChange,
-  colors,
-  style,
-}: DatePickerFieldProps) {
+export function DatePickerField({ value, onChange, colors }: DatePickerFieldProps) {
   const [show, setShow] = useState(false);
 
-  const date = value ? new Date(value + "T12:00:00") : new Date();
-
-  const display = value
-    ? new Date(value + "T12:00:00").toLocaleDateString("tr-TR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : "";
+  const dateObj = value ? new Date(value + "T12:00:00") : new Date();
+  const display = toDDMMYYYY(value); // always shown as DD.MM.YYYY
 
   function handleChange(_: DateTimePickerEvent, selected?: Date) {
     if (Platform.OS === "android") setShow(false);
-    if (selected) {
-      onChange(selected.toISOString().split("T")[0]);
-    }
+    if (selected) onChange(selected.toISOString().split("T")[0]);
   }
 
+  // ── Web: show the styled button, overlay a transparent <input type="date">
+  //    so the browser's native date picker fires on tap — no text entry possible.
   if (Platform.OS === "web") {
     return (
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }, style]}
-        value={value}
-        onChangeText={onChange}
-        placeholder="YYYY-AA-GG"
-        placeholderTextColor={colors.mutedForeground}
-        keyboardType="numeric"
-      />
+      <View
+        style={[
+          styles.input,
+          styles.pickerTouchable,
+          { backgroundColor: colors.card, borderColor: colors.border, position: "relative" },
+        ]}
+      >
+        <Text style={[styles.pickerText, { color: display ? colors.foreground : colors.mutedForeground }]}>
+          {display || "Tarih seç..."}
+        </Text>
+        <Feather name="calendar" size={16} color={colors.mutedForeground} />
+        {React.createElement("input", {
+          type: "date",
+          value: value,
+          onChange: (e: any) => onChange(e.target.value),
+          // Invisible overlay that fills the button and captures the tap
+          style: {
+            position: "absolute",
+            inset: 0,
+            opacity: 0,
+            cursor: "pointer",
+            width: "100%",
+            height: "100%",
+            zIndex: 2,
+          },
+        })}
+      </View>
     );
   }
 
+  // ── Android: native calendar dialog — TouchableOpacity opens the picker
   if (Platform.OS === "android") {
     return (
       <>
         <TouchableOpacity
           onPress={() => setShow(true)}
-          style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }, style]}
+          style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
           activeOpacity={0.7}
         >
           <Text style={[styles.pickerText, { color: display ? colors.foreground : colors.mutedForeground }]}>
@@ -89,7 +124,7 @@ export function DatePickerField({
         </TouchableOpacity>
         {show && (
           <DateTimePicker
-            value={date}
+            value={dateObj}
             mode="date"
             display="calendar"
             onChange={handleChange}
@@ -99,12 +134,12 @@ export function DatePickerField({
     );
   }
 
-  // iOS — show picker in a modal with a "Done" button
+  // ── iOS: spinner inside a slide-up modal
   return (
     <>
       <TouchableOpacity
         onPress={() => setShow(true)}
-        style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }, style]}
+        style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
         activeOpacity={0.7}
       >
         <Text style={[styles.pickerText, { color: display ? colors.foreground : colors.mutedForeground }]}>
@@ -113,22 +148,17 @@ export function DatePickerField({
         <Feather name="calendar" size={16} color={colors.mutedForeground} />
       </TouchableOpacity>
 
-      <Modal
-        visible={show}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShow(false)}
-      >
+      <Modal visible={show} transparent animationType="slide" onRequestClose={() => setShow(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShow(false)} />
-        <View style={[styles.iosPickerSheet, { backgroundColor: colors.card }]}>
-          <View style={[styles.iosPickerHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.iosPickerTitle, { color: colors.foreground }]}>Tarih Seç</Text>
+        <View style={[styles.iosSheet, { backgroundColor: colors.card }]}>
+          <View style={[styles.iosHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.iosTitle, { color: colors.foreground }]}>Tarih Seç</Text>
             <TouchableOpacity onPress={() => setShow(false)} style={[styles.doneBtn, { backgroundColor: colors.primary }]}>
               <Text style={styles.doneBtnText}>Tamam</Text>
             </TouchableOpacity>
           </View>
           <DateTimePicker
-            value={date}
+            value={dateObj}
             mode="date"
             display="spinner"
             onChange={handleChange}
@@ -143,62 +173,61 @@ export function DatePickerField({
 // ─── Time picker ──────────────────────────────────────────────────────────────
 
 interface TimePickerFieldProps {
-  value: string; // "HH:MM"
+  /** "HH:MM" 24-hour format */
+  value: string;
   onChange: (v: string) => void;
   colors: Colors;
-  style?: object;
 }
 
-function timeStrToDate(timeStr: string): Date {
-  const d = new Date();
-  const [h = 9, m = 0] = timeStr.split(":").map(Number);
-  d.setHours(h, m, 0, 0);
-  return d;
-}
-
-function dateToTimeStr(d: Date): string {
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
-}
-
-export function TimePickerField({
-  value,
-  onChange,
-  colors,
-  style,
-}: TimePickerFieldProps) {
+export function TimePickerField({ value, onChange, colors }: TimePickerFieldProps) {
   const [show, setShow] = useState(false);
 
-  const date = timeStrToDate(value);
+  const dateObj = timeStrToDate(value);
 
   function handleChange(_: DateTimePickerEvent, selected?: Date) {
     if (Platform.OS === "android") setShow(false);
-    if (selected) {
-      onChange(dateToTimeStr(selected));
-    }
+    if (selected) onChange(dateToTimeStr(selected));
   }
 
+  // ── Web: transparent <input type="time"> overlay
   if (Platform.OS === "web") {
     return (
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }, style]}
-        value={value}
-        onChangeText={onChange}
-        placeholder="SS:DD"
-        placeholderTextColor={colors.mutedForeground}
-        keyboardType="numeric"
-        maxLength={5}
-      />
+      <View
+        style={[
+          styles.input,
+          styles.pickerTouchable,
+          { backgroundColor: colors.card, borderColor: colors.border, position: "relative" },
+        ]}
+      >
+        <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
+          {value || "Saat seç..."}
+        </Text>
+        <Feather name="clock" size={16} color={colors.mutedForeground} />
+        {React.createElement("input", {
+          type: "time",
+          value: value,
+          onChange: (e: any) => onChange(e.target.value),
+          style: {
+            position: "absolute",
+            inset: 0,
+            opacity: 0,
+            cursor: "pointer",
+            width: "100%",
+            height: "100%",
+            zIndex: 2,
+          },
+        })}
+      </View>
     );
   }
 
+  // ── Android: native clock dialog
   if (Platform.OS === "android") {
     return (
       <>
         <TouchableOpacity
           onPress={() => setShow(true)}
-          style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }, style]}
+          style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
           activeOpacity={0.7}
         >
           <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
@@ -208,7 +237,7 @@ export function TimePickerField({
         </TouchableOpacity>
         {show && (
           <DateTimePicker
-            value={date}
+            value={dateObj}
             mode="time"
             display="clock"
             onChange={handleChange}
@@ -219,12 +248,12 @@ export function TimePickerField({
     );
   }
 
-  // iOS — modal
+  // ── iOS: spinner modal
   return (
     <>
       <TouchableOpacity
         onPress={() => setShow(true)}
-        style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }, style]}
+        style={[styles.input, styles.pickerTouchable, { backgroundColor: colors.card, borderColor: colors.border }]}
         activeOpacity={0.7}
       >
         <Text style={[styles.pickerText, { color: value ? colors.foreground : colors.mutedForeground }]}>
@@ -233,22 +262,17 @@ export function TimePickerField({
         <Feather name="clock" size={16} color={colors.mutedForeground} />
       </TouchableOpacity>
 
-      <Modal
-        visible={show}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShow(false)}
-      >
+      <Modal visible={show} transparent animationType="slide" onRequestClose={() => setShow(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShow(false)} />
-        <View style={[styles.iosPickerSheet, { backgroundColor: colors.card }]}>
-          <View style={[styles.iosPickerHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.iosPickerTitle, { color: colors.foreground }]}>Saat Seç</Text>
+        <View style={[styles.iosSheet, { backgroundColor: colors.card }]}>
+          <View style={[styles.iosHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.iosTitle, { color: colors.foreground }]}>Saat Seç</Text>
             <TouchableOpacity onPress={() => setShow(false)} style={[styles.doneBtn, { backgroundColor: colors.primary }]}>
               <Text style={styles.doneBtnText}>Tamam</Text>
             </TouchableOpacity>
           </View>
           <DateTimePicker
-            value={date}
+            value={dateObj}
             mode="time"
             display="spinner"
             onChange={handleChange}
@@ -261,14 +285,14 @@ export function TimePickerField({
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   input: {
     borderWidth: 1.5,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
-    fontFamily: "Inter_400Regular",
   },
   pickerTouchable: {
     flexDirection: "row",
@@ -276,6 +300,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   pickerText: {
+    flex: 1,
     fontSize: 15,
     fontFamily: "Inter_400Regular",
   },
@@ -283,17 +308,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.35)",
   },
-  iosPickerSheet: {
+  iosSheet: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: 32,
+    paddingBottom: 36,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 10,
   },
-  iosPickerHeader: {
+  iosHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -301,7 +326,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderBottomWidth: 1,
   },
-  iosPickerTitle: {
+  iosTitle: {
     fontSize: 17,
     fontFamily: "Inter_600SemiBold",
   },

@@ -101,6 +101,14 @@ export default function PlanScreen() {
       Alert.alert("Hata", "Lütfen ders ve konu seçin.");
       return;
     }
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      Alert.alert("Hata", "Lütfen geçerli bir tarih seçin.");
+      return;
+    }
+    if (!time || !/^\d{2}:\d{2}$/.test(time)) {
+      Alert.alert("Hata", "Lütfen geçerli bir saat seçin.");
+      return;
+    }
     addSession({
       date,
       time,
