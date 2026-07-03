@@ -27,6 +27,23 @@ import { AYT_EXAM_DATE, AYT_SUBJECTS_BY_FIELD, TYT_EXAM_DATE, TYT_SUBJECTS } fro
 import { getRandomQuote, Quote } from "@/data/quotes";
 import { useColors } from "@/hooks/useColors";
 
+/**
+ * Compute a font size that guarantees the formatted number fits in its cell
+ * without truncation. Steps down in fixed tiers so siblings stay visually
+ * consistent regardless of which value triggered the change.
+ *
+ * baseSize   4 chars   5-6 chars   7-9 chars   10+ chars
+ *    24        24          20          15          12
+ *    20        20          17          13          10
+ */
+function responsiveFontSize(displayStr: string, baseSize: number): number {
+  const len = displayStr.length;
+  if (len <= 4) return baseSize;
+  if (len <= 6) return Math.round(baseSize * 0.82);
+  if (len <= 9) return Math.round(baseSize * 0.63);
+  return Math.round(baseSize * 0.50);
+}
+
 function useCountdown(targetDate: Date) {
   const [diff, setDiff] = useState(targetDate.getTime() - Date.now());
   useEffect(() => {
@@ -198,36 +215,21 @@ function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSo
 
       <View style={styles.remainingRow}>
         <View style={styles.remainingItem}>
-          <Text
-            style={[styles.remainingValue, { color: colors.success }]}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.5}
-          >
+          <Text style={[styles.remainingValue, { color: colors.success, fontSize: responsiveFontSize(String(totalDone), 24) }]}>
             {totalDone}
           </Text>
           <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Tamamlanan</Text>
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
-          <Text
-            style={[styles.remainingValue, { color: colors.warning }]}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.5}
-          >
+          <Text style={[styles.remainingValue, { color: colors.warning, fontSize: responsiveFontSize(String(totalRemaining), 24) }]}>
             {totalRemaining}
           </Text>
           <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Kalan</Text>
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
-          <Text
-            style={[styles.remainingValue, { color: colors.primary }]}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.4}
-          >
+          <Text style={[styles.remainingValue, { color: colors.primary, fontSize: responsiveFontSize(totalSolvedQuestions.toLocaleString("tr-TR"), 24) }]}>
             {totalSolvedQuestions.toLocaleString("tr-TR")}
           </Text>
           <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Çözülen Soru</Text>
@@ -363,36 +365,21 @@ export default function HomeScreen() {
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="checkbox-outline" size={21} color={colors.success} />
-            <Text
-              style={[styles.statValue, { color: colors.foreground }]}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.5}
-            >
+            <Text style={[styles.statValue, { color: colors.foreground, fontSize: responsiveFontSize(String(totalTopicsCompleted), 20) }]}>
               {totalTopicsCompleted}
             </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Konu</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="flame" size={21} color={colors.warning} />
-            <Text
-              style={[styles.statValue, { color: colors.foreground }]}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.5}
-            >
+            <Text style={[styles.statValue, { color: colors.foreground, fontSize: responsiveFontSize(String(studyStreak), 20) }]}>
               {studyStreak}
             </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Gün Serisi</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="calendar-outline" size={21} color={colors.primary} />
-            <Text
-              style={[styles.statValue, { color: colors.foreground }]}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.5}
-            >
+            <Text style={[styles.statValue, { color: colors.foreground, fontSize: responsiveFontSize(String(sessions.filter((s) => s.completed).length), 20) }]}>
               {sessions.filter((s) => s.completed).length}
             </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Oturum</Text>
@@ -503,10 +490,7 @@ const styles = StyleSheet.create({
   remainingLink: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
   remainingLinkText: { fontSize: 11, fontFamily: "Inter_600SemiBold" },
   remainingRow: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
-  remainingValue: {
-    fontSize: 24, fontFamily: "Inter_700Bold",
-    alignSelf: "stretch", textAlign: "center",
-  },
+  remainingValue: { fontFamily: "Inter_700Bold", textAlign: "center" },
   remainingLabel: { fontSize: 11, fontFamily: "Inter_400Regular", textAlign: "center" },
   remainingItem: { flex: 1, alignItems: "center", gap: 2 },
   remainingDivider: { width: 1, height: 36 },
@@ -518,10 +502,7 @@ const styles = StyleSheet.create({
     flex: 1, borderRadius: 16, padding: 14, alignItems: "center", gap: 3,
     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
   },
-  statValue: {
-    fontSize: 20, fontFamily: "Inter_700Bold",
-    alignSelf: "stretch", textAlign: "center",
-  },
+  statValue: { fontFamily: "Inter_700Bold", textAlign: "center" },
   statLabel: { fontSize: 10, fontFamily: "Inter_500Medium", textAlign: "center" },
   warningBanner: {
     flexDirection: "row", alignItems: "center", gap: 8, padding: 11,
