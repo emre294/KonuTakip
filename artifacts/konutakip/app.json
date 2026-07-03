@@ -51,8 +51,7 @@
           "defaultChannel": "konutakip_default",
           "sounds": []
         }
-      ],
-      "@react-native-community/datetimepicker"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
