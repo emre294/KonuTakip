@@ -1,0 +1,97 @@
+The current validation works, but the user experience is not good.
+
+Currently, when the Topic field is empty, an Alert appears saying:
+
+"Please enter the topic you will study."
+
+I do NOT want an Alert for this.
+
+==================================================
+NEW BEHAVIOR
+==================================================
+
+Display the validation message directly under the Topic input field.
+
+Exactly below the input.
+
+Not at the top of the screen.
+
+Not inside an Alert.
+
+Not inside a Toast.
+
+==================================================
+Example
+==================================================
+
+Topic
+
+[_____________________]
+
+Lütfen çalışacağınız konuyu girin.
+
+(The message should appear immediately under the Topic field.)
+
+==================================================
+STYLE
+==================================================
+
+• Small text (around 12–13px)
+• Red color (#EF4444 or existing error color)
+• Left aligned
+• Small top margin (4px)
+• Same horizontal alignment as the input field
+• Match the application's existing design
+
+==================================================
+BEHAVIOR
+==================================================
+
+• The message only appears after the user presses Save.
+• As soon as the user starts typing a valid topic, the message disappears automatically.
+• Do not clear any other form fields.
+• Do not close the modal.
+• Do not use Alert.alert() for this validation anymore.
+
+==================================================
+APPLY THE SAME UX TO ALL REQUIRED FIELDS
+==================================================
+
+Show inline validation messages under the corresponding field:
+
+Subject
+→ Lütfen bir ders seçin.
+
+Topic
+→ Lütfen çalışacağınız konuyu girin.
+
+Question Count
+→ Lütfen çözeceğiniz soru sayısını girin.
+
+Date
+→ Lütfen bir tarih seçin.
+
+Time
+→ Lütfen bir saat seçin.
+
+Each message should appear only under its own field.
+
+==================================================
+IMPORTANT
+==================================================
+
+Do not redesign the form.
+
+Do not change spacing except what is necessary for the error text.
+
+Use inline validation instead of popup alerts.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end explain:
+
+• Which file was modified.
+• How inline validation was implemented.
+• Confirm that each error message now appears directly under its corresponding input field.

@@ -1,0 +1,144 @@
+The Automatic Daily Question Tracking feature has already been implemented, but it appears to be only partially integrated.
+
+The code exists in the project, but the feature is NOT fully wired into the application.
+
+Do NOT rewrite the feature.
+
+Do NOT create duplicate logic.
+
+Instead, connect the existing implementation so it is actually used by the application.
+
+==================================================
+ACTIVATE THE EXISTING IMPLEMENTATION
+==================================================
+
+Search the project for every file related to:
+
+• dailySolvedQuestions
+• countedInStatistics
+• totalSolvedQuestions
+• completeSession
+• updateSession
+• deleteSession
+• Statistics
+• AppContext
+
+Verify that every existing implementation is actually connected.
+
+==================================================
+CHECK ALL CONNECTIONS
+==================================================
+
+Verify that:
+
+✓ completeSession() updates dailySolvedQuestions.
+
+✓ dailySolvedQuestions is stored in AsyncStorage.
+
+✓ loadData() restores it correctly.
+
+✓ saveData() persists it.
+
+✓ AppContext exposes it through Context.
+
+✓ useApp() returns it.
+
+✓ Statistics screen reads it from AppContext.
+
+✓ Statistics screen re-renders when it changes.
+
+✓ Total Solved Questions is calculated from:
+
+topicSolvedQuestions
++
+dailySolvedQuestions
+
+✓ deleteSession updates the total.
+
+✓ updateSession updates the total.
+
+✓ countedInStatistics prevents duplicates but DOES NOT block the first increment.
+
+==================================================
+REMOVE DEAD CODE
+==================================================
+
+If there are unused functions, duplicated implementations or disconnected state variables,
+
+remove them.
+
+There must be only ONE source of truth.
+
+==================================================
+VERIFY THE FLOW
+==================================================
+
+Complete this scenario:
+
+Create session
+
+↓
+
+40 questions
+
+↓
+
+Complete session
+
+↓
+
+dailySolvedQuestions = 40
+
+↓
+
+Statistics updates immediately
+
+↓
+
+Restart app
+
+↓
+
+Still 40
+
+↓
+
+Delete session
+
+↓
+
+Statistics becomes 0
+
+↓
+
+Create new session with 70 questions
+
+↓
+
+Statistics becomes 70
+
+==================================================
+IMPORTANT
+==================================================
+
+Do NOT leave the implementation only inside files.
+
+Make sure it is actually connected to the UI and the application lifecycle.
+
+Do not create new implementations if one already exists.
+
+Wire the existing code into the application.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end tell me:
+
+• Which files already contained the implementation.
+
+• Which files were not connected.
+
+• Which connections you added.
+
+• Confirm that the feature is now fully active instead of only existing in the codebase.

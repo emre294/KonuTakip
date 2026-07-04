@@ -217,7 +217,13 @@ export default function PlanScreen() {
   const [targetQ, setTargetQ] = useState("20");
   const [notes, setNotes] = useState("");
   const [activePicker, setActivePicker] = useState<ActivePicker>(null);
-  const [formError, setFormError] = useState("");
+
+  // ── Per-field inline validation errors ────────────────────────────────────
+  const [errSubject,  setErrSubject]  = useState("");
+  const [errTopic,    setErrTopic]    = useState("");
+  const [errTargetQ,  setErrTargetQ]  = useState("");
+  const [errDate,     setErrDate]     = useState("");
+  const [errTime,     setErrTime]     = useState("");
 
   const allSubjects = [
     ...TYT_SUBJECTS,
@@ -232,37 +238,33 @@ export default function PlanScreen() {
 
   // ── Save session ─────────────────────────────────────────────────────────────
   function saveSession() {
-    // Note: Alert.alert() is suppressed inside cross-origin iframes (e.g. the
-    // Replit web preview). All validation errors are shown via an in-app banner
-    // so they are visible on both web and native without relying on the browser
-    // dialog API.
+    // Clear all errors first, then set only the first failing field's error.
+    setErrSubject(""); setErrTopic(""); setErrTargetQ(""); setErrDate(""); setErrTime("");
+
     if (!selectedSubjectId) {
-      setFormError("Missing Information: Please select a lesson.");
+      setErrSubject("Lütfen bir ders seçin.");
       return;
     }
     if (!topic.trim()) {
-      setFormError("Missing Information: Please enter the topic you will study.");
+      setErrTopic("Lütfen çalışacağınız konuyu girin.");
       return;
     }
     if (!targetQ.trim() || isNaN(Number(targetQ)) || Number(targetQ) <= 0) {
-      setFormError("Missing Information: Please enter the number of questions you plan to solve.");
+      setErrTargetQ("Lütfen çözeceğiniz soru sayısını girin.");
       return;
     }
-    if (repeatType === "one_time") {
-      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        setFormError("Missing Information: Please select a study date.");
-        return;
-      }
+    if (repeatType === "one_time" && (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
+      setErrDate("Lütfen bir tarih seçin.");
+      return;
     }
     if (!time || !/^\d{2}:\d{2}$/.test(time)) {
-      setFormError("Missing Information: Please select a study time.");
+      setErrTime("Lütfen bir saat seçin.");
       return;
     }
     if (repeatType === "every_week" && selectedWeekdays.length === 0) {
-      setFormError("Missing Information: Please select at least one day.");
+      Alert.alert("Hata", "Lütfen en az bir gün seçin.");
       return;
     }
-    setFormError("");
     addSession({
       date: repeatType === "one_time" ? date : new Date().toISOString().split("T")[0],
       time,
@@ -281,7 +283,7 @@ export default function PlanScreen() {
 
   function closeModal() {
     setShowModal(false);
-    setFormError("");
+    setErrSubject(""); setErrTopic(""); setErrTargetQ(""); setErrDate(""); setErrTime("");
     setRepeatType("one_time");
     setSelectedWeekdays([]);
     setTopic("");
@@ -397,13 +399,15 @@ export default function PlanScreen() {
             {repeatType === "one_time" && (
               <>
                 <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tarih</Text>
-                <DatePickerField value={date} onChange={setDate} colors={colors} onOpen={() => setActivePicker("date")} />
+                <DatePickerField value={date} onChange={v => { setDate(v); setErrDate(""); }} colors={colors} onOpen={() => setActivePicker("date")} />
+                {errDate ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errDate}</Text> : null}
               </>
             )}
 
             {/* Time — always */}
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Saat</Text>
-            <TimePickerField value={time} onChange={setTime} colors={colors} onOpen={() => setActivePicker("time")} />
+            <TimePickerField value={time} onChange={v => { setTime(v); setErrTime(""); }} colors={colors} onOpen={() => setActivePicker("time")} />
+            {errTime ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errTime}</Text> : null}
 
             {/* Weekday picker — only for every_week */}
             {repeatType === "every_week" && (
@@ -419,7 +423,7 @@ export default function PlanScreen() {
               {allSubjects.map(s => (
                 <TouchableOpacity
                   key={s.id}
-                  onPress={() => { setSelectedSubjectId(s.id); setSelectedSubjectName(s.name); }}
+                  onPress={() => { setSelectedSubjectId(s.id); setSelectedSubjectName(s.name); setErrSubject(""); }}
                   style={[
                     styles.subjectChip,
                     { backgroundColor: selectedSubjectId === s.id ? s.color : colors.card, borderColor: s.color },
@@ -434,27 +438,30 @@ export default function PlanScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
+            {errSubject ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errSubject}</Text> : null}
 
             {/* Topic */}
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Konu</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: errTopic ? colors.destructive : colors.border, color: colors.foreground }]}
               value={topic}
-              onChangeText={setTopic}
+              onChangeText={v => { setTopic(v); if (v.trim()) setErrTopic(""); }}
               placeholder="Konu adı..."
               placeholderTextColor={colors.mutedForeground}
             />
+            {errTopic ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errTopic}</Text> : null}
 
             {/* Target questions */}
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Hedef Soru Sayısı</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: errTargetQ ? colors.destructive : colors.border, color: colors.foreground }]}
               value={targetQ}
-              onChangeText={setTargetQ}
+              onChangeText={v => { setTargetQ(v); if (v.trim() && !isNaN(Number(v)) && Number(v) > 0) setErrTargetQ(""); }}
               keyboardType="numeric"
               placeholder="20"
               placeholderTextColor={colors.mutedForeground}
             />
+            {errTargetQ ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errTargetQ}</Text> : null}
 
             {/* Notes */}
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Notlar (opsiyonel)</Text>
@@ -468,13 +475,6 @@ export default function PlanScreen() {
               numberOfLines={3}
             />
 
-            {formError ? (
-              <View style={[styles.errorBanner, { backgroundColor: colors.destructive + "18", borderColor: colors.destructive }]}>
-                <Feather name="alert-circle" size={15} color={colors.destructive} />
-                <Text style={[styles.errorBannerText, { color: colors.destructive }]}>{formError}</Text>
-              </View>
-            ) : null}
-
             <TouchableOpacity onPress={saveSession} style={[styles.saveBtn, { backgroundColor: colors.primary }]}>
               <Text style={[styles.saveBtnText, { color: "#fff" }]}>Kaydet</Text>
             </TouchableOpacity>
@@ -485,8 +485,8 @@ export default function PlanScreen() {
               activePicker={activePicker}
               dateValue={date}
               timeValue={time}
-              onChangeDate={setDate}
-              onChangeTime={setTime}
+              onChangeDate={v => { setDate(v); setErrDate(""); }}
+              onChangeTime={v => { setTime(v); setErrTime(""); }}
               onClose={() => setActivePicker(null)}
               colors={colors}
             />
@@ -560,8 +560,7 @@ const styles = StyleSheet.create({
   subjectPicker: { marginBottom: 4 },
   subjectChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5, marginRight: 8, maxWidth: 140 },
   subjectChipText: { fontSize: 13, fontFamily: "Inter_500Medium" },
-  errorBanner: { flexDirection: "row", alignItems: "center", gap: 8, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginTop: 16 },
-  errorBannerText: { flex: 1, fontSize: 13, fontFamily: "Inter_500Medium" },
+  fieldError: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 4 },
   saveBtn: { borderRadius: 14, paddingVertical: 15, alignItems: "center", marginTop: 20 },
   saveBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
 });
