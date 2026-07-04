@@ -10,14 +10,16 @@ import React, {
 
 import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
 import {
+  cancelAllSessionReminders,
   cancelDailyStudyReminder,
   cancelQuestionReminder,
-  cancelSessionReminder,
   cancelTopicReminder,
   scheduleDailyStudyReminder,
+  scheduleEveryDaySessionReminder,
   scheduleQuestionReminder,
   scheduleSessionReminder,
   scheduleTopicReminder,
+  scheduleWeeklySessionReminder,
   syncNotifications,
 } from "@/utils/notifications";
 
@@ -32,16 +34,20 @@ export interface UserProfile {
   studyField: StudyField;
 }
 
+export type RepeatType = "one_time" | "every_day" | "every_week";
+
 export interface DailySession {
   id: string;
-  date: string;
-  time: string;
+  date: string;          // YYYY-MM-DD — only meaningful for one_time
+  time: string;          // HH:mm
   subjectId: string;
   subjectName: string;
   topic: string;
   targetQuestions: number;
   notes: string;
-  completed: boolean;
+  completed: boolean;    // only used for one_time sessions
+  repeatType: RepeatType;
+  weekdays?: number[];   // JS: 0=Sun … 6=Sat; only for every_week
 }
 
 export interface QuestionAttachment {
@@ -261,7 +267,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           const old = JSON.parse(oldRaw);
           if (old.profile) setProfileState(old.profile);
           if (old.topicCompletion) setTopicCompletion(old.topicCompletion);
-          if (old.sessions) setSessions(old.sessions);
+          if (old.sessions) setSessions(
+            (old.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
+          );
           if (old.questions) setQuestions((old.questions as Question[]).map(q => ({
             ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
           })));
@@ -272,7 +280,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const data = JSON.parse(raw);
         if (data.profile) setProfileState(data.profile);
         if (data.topicCompletion) setTopicCompletion(data.topicCompletion);
-        if (data.sessions) setSessions(data.sessions);
+        if (data.sessions) setSessions(
+          (data.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
+        );
         if (data.questions) setQuestions((data.questions as Question[]).map(q => ({
           ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
         })));
@@ -287,7 +297,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         // ── App-start sync: validate & restore notifications ────────────────
         // Run asynchronously so it never blocks the UI from appearing.
-        const loadedSessions: DailySession[] = data.sessions ?? [];
+        const loadedSessions: DailySession[] = (data.sessions ?? []).map((s: DailySession) => ({
+          ...s, repeatType: s.repeatType ?? "one_time",
+        }));
         const loadedQuestions: Question[] = (data.questions ?? []).map((q: Question) => ({
           ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
         }));
@@ -584,14 +596,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addSession = useCallback((s: Omit<DailySession, "id">) => {
     const session: DailySession = { ...s, id: generateId() };
 
-    // Schedule a notification at the session's start time
-    scheduleSessionReminder(
-      session.id,
-      session.date,
-      session.time,
-      session.subjectName,
-      session.topic
-    ).catch(() => {});
+    // Schedule notification(s) based on repeat type
+    if (session.repeatType === "every_day") {
+      scheduleEveryDaySessionReminder(
+        session.id, session.time, session.subjectName, session.topic
+      ).catch(() => {});
+    } else if (session.repeatType === "every_week") {
+      for (const wd of session.weekdays ?? []) {
+        scheduleWeeklySessionReminder(
+          session.id, wd, session.time, session.subjectName, session.topic
+        ).catch(() => {});
+      }
+    } else {
+      scheduleSessionReminder(
+        session.id, session.date, session.time, session.subjectName, session.topic
+      ).catch(() => {});
+    }
 
     setSessions(prev => {
       const next = [...prev, session];
@@ -619,21 +639,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const updateSession = useCallback((
     id: string,
-    updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>
+    updates: Partial<Pick<DailySession,
+      "date" | "time" | "topic" | "notes" | "targetQuestions" | "repeatType" | "weekdays">>
   ) => {
     setSessions(prev => {
       const next = prev.map(s => {
         if (s.id !== id) return s;
         const updated = { ...s, ...updates };
-        // If date or time changed and session is not completed, replace the notification
-        if ((updates.date !== undefined || updates.time !== undefined) && !s.completed) {
-          scheduleSessionReminder(
-            updated.id,
-            updated.date,
-            updated.time,
-            updated.subjectName,
-            updated.topic
-          ).catch(() => {});
+        // Reschedule whenever a notification-relevant field changes
+        const notifChanged =
+          updates.date !== undefined ||
+          updates.time !== undefined ||
+          updates.topic !== undefined ||
+          updates.repeatType !== undefined ||
+          updates.weekdays !== undefined;
+        if (notifChanged) {
+          // Cancel all variants first, then schedule new ones in sequence
+          cancelAllSessionReminders(id)
+            .then(() => {
+              if (updated.repeatType === "every_day") {
+                scheduleEveryDaySessionReminder(
+                  updated.id, updated.time, updated.subjectName, updated.topic
+                ).catch(() => {});
+              } else if (updated.repeatType === "every_week") {
+                for (const wd of updated.weekdays ?? []) {
+                  scheduleWeeklySessionReminder(
+                    updated.id, wd, updated.time, updated.subjectName, updated.topic
+                  ).catch(() => {});
+                }
+              } else if (!updated.completed) {
+                scheduleSessionReminder(
+                  updated.id, updated.date, updated.time, updated.subjectName, updated.topic
+                ).catch(() => {});
+              }
+            })
+            .catch(() => {});
         }
         return updated;
       });
@@ -643,8 +683,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const completeSession = useCallback((id: string) => {
-    // Cancel session notification when session is marked complete
-    cancelSessionReminder(id).catch(() => {});
+    // Only one-time sessions can be marked complete
+    cancelAllSessionReminders(id).catch(() => {});
     setSessions(prev => {
       const next = prev.map(s => s.id === id ? { ...s, completed: true } : s);
       saveData({ sessions: next });
@@ -654,8 +694,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [markStudyDay]);
 
   const deleteSession = useCallback((id: string) => {
-    // Cancel notification when session is deleted
-    cancelSessionReminder(id).catch(() => {});
+    // Cancel all notification variants (one-time, daily, weekly) for this session
+    cancelAllSessionReminders(id).catch(() => {});
     setSessions(prev => {
       const next = prev.filter(s => s.id !== id);
       saveData({ sessions: next });

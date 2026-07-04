@@ -1,0 +1,181 @@
+I want to significantly improve the Study Planner system.
+
+The current planner only supports one-time study sessions.
+
+This is not practical for students who follow a weekly routine.
+
+I want to redesign the planner to support recurring schedules while keeping the existing one-time behavior.
+
+==================================================
+CURRENT BEHAVIOR
+==================================================
+
+Study sessions are currently one-time only.
+
+This behavior should remain available.
+
+==================================================
+NEW FEATURE
+==================================================
+
+Add a new "Repeat" option when creating or editing a study session.
+
+Repeat options:
+
+• One Time (default)
+
+• Every Day
+
+• Every Week
+
+==================================================
+EVERY WEEK
+==================================================
+
+If "Every Week" is selected,
+
+allow the user to choose one or multiple weekdays.
+
+Example:
+
+☑ Monday
+
+☑ Tuesday
+
+☐ Wednesday
+
+☑ Thursday
+
+☐ Friday
+
+☑ Saturday
+
+☐ Sunday
+
+The selected time is shared by all selected days.
+
+Example:
+
+20:00
+
+Notifications should repeat every week on the selected weekdays.
+
+==================================================
+EVERY DAY
+==================================================
+
+Repeat every day at the selected time.
+
+==================================================
+ONE TIME
+==================================================
+
+Keep the existing behavior.
+
+A notification fires once and is automatically removed.
+
+==================================================
+EDITING
+==================================================
+
+Editing a recurring study session should:
+
+Cancel previous notifications.
+
+Generate the new schedule.
+
+==================================================
+DELETING
+==================================================
+
+Deleting a study session must cancel every scheduled notification related to that session.
+
+==================================================
+NOTIFICATION LOGIC
+==================================================
+
+Each recurring session must use deterministic identifiers.
+
+Examples:
+
+session::<sessionId>::monday
+
+session::<sessionId>::tuesday
+
+session::<sessionId>::daily
+
+Never allow duplicate notifications.
+
+==================================================
+SYNC
+==================================================
+
+App startup synchronization must restore missing recurring notifications.
+
+Device reboot must also restore them.
+
+==================================================
+IMPORTANT
+==================================================
+
+This recurring planner is completely independent from the Wrong Question reminder system.
+
+Wrong Question reminders continue every 3, 5 or 7 days until "Understood".
+
+Study Sessions only repeat if the user explicitly selects Every Day or Every Week.
+
+If the user selects One Time,
+
+the notification must remain one-time exactly as it works today.
+
+==================================================
+UI
+==================================================
+
+Keep the interface simple.
+
+Repeat selector:
+
+○ One Time
+
+○ Every Day
+
+○ Every Week
+
+If "Every Week" is selected,
+
+show weekday chips/buttons.
+
+The UI should match the application's existing design.
+
+==================================================
+FINAL RESULT
+==================================================
+
+Students should be able to build a complete weekly study schedule only once.
+
+Example:
+
+Monday 20:00 → Mathematics
+
+Tuesday 19:00 → Physics
+
+Wednesday 20:00 → Mathematics
+
+Thursday 19:00 → Chemistry
+
+Friday 20:00 → Biology
+
+The schedule should automatically repeat every week until edited or deleted.
+
+At the end explain:
+
+• Files modified
+
+• Database/storage changes
+
+• Notification scheduling logic
+
+• Synchronization logic
+
+• Duplicate prevention strategy

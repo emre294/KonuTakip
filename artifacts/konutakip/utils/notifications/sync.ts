@@ -18,8 +18,10 @@ import { notifLog } from "./logger";
 import {
   rescheduleTopicReminder,
   scheduleDailyStudyReminder,
+  scheduleEveryDaySessionReminder,
   scheduleQuestionReminder,
   scheduleSessionReminder,
+  scheduleWeeklySessionReminder,
 } from "./scheduler";
 
 // ─── Input types (mirrored from AppContext to avoid circular imports) ─────────
@@ -41,11 +43,13 @@ export interface SyncQuestion {
 
 export interface SyncSession {
   id: string;
-  date: string; // YYYY-MM-DD
+  date: string; // YYYY-MM-DD — only meaningful for one_time
   time: string; // HH:mm
   subjectName: string;
   topic: string;
   completed: boolean;
+  repeatType: "one_time" | "every_day" | "every_week";
+  weekdays?: number[]; // JS convention: 0=Sun … 6=Sat; only for every_week
 }
 
 export interface SyncDailyReminder {
@@ -122,21 +126,40 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
 
     // ── 3. Session reminders ────────────────────────────────────────────────
     for (const session of input.sessions) {
-      if (session.completed) continue;
-      if (session.date < today) continue; // Past session — skip
-
-      const id = NotificationId.session(session.id);
-      expectedIds.add(id);
-
-      if (!scheduledIds.has(id)) {
-        const ok = await scheduleSessionReminder(
-          session.id,
-          session.date,
-          session.time,
-          session.subjectName,
-          session.topic
-        );
-        if (ok) rebuilt++;
+      if (session.repeatType === "every_day") {
+        // DAILY: always active — rebuild if missing (handles device reboot)
+        const id = NotificationId.sessionDaily(session.id);
+        expectedIds.add(id);
+        if (!scheduledIds.has(id)) {
+          const ok = await scheduleEveryDaySessionReminder(
+            session.id, session.time, session.subjectName, session.topic
+          );
+          if (ok) rebuilt++;
+        }
+      } else if (session.repeatType === "every_week") {
+        // WEEKLY: one notification per selected weekday
+        for (const wd of session.weekdays ?? []) {
+          const id = NotificationId.sessionWeekday(session.id, wd);
+          expectedIds.add(id);
+          if (!scheduledIds.has(id)) {
+            const ok = await scheduleWeeklySessionReminder(
+              session.id, wd, session.time, session.subjectName, session.topic
+            );
+            if (ok) rebuilt++;
+          }
+        }
+      } else {
+        // ONE TIME: skip if already completed or in the past
+        if (session.completed) continue;
+        if (session.date < today) continue;
+        const id = NotificationId.session(session.id);
+        expectedIds.add(id);
+        if (!scheduledIds.has(id)) {
+          const ok = await scheduleSessionReminder(
+            session.id, session.date, session.time, session.subjectName, session.topic
+          );
+          if (ok) rebuilt++;
+        }
       }
     }
 

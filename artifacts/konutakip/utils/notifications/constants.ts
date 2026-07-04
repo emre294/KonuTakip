@@ -30,6 +30,18 @@ export const NotificationId = {
   question: (questionId: string) => `${NotificationType.QUESTION_REMINDER}${SEP}${questionId}`,
   daily: () => `${NotificationType.DAILY_REMINDER}${SEP}study`,
   session: (sessionId: string) => `${NotificationType.SESSION_REMINDER}${SEP}${sessionId}`,
+  sessionDaily: (sessionId: string) =>
+    `${NotificationType.SESSION_REMINDER}${SEP}${sessionId}${SEP}daily`,
+  sessionWeekday: (sessionId: string, weekday: number) =>
+    `${NotificationType.SESSION_REMINDER}${SEP}${sessionId}${SEP}wd${weekday}`,
+  /** Returns every possible notification identifier for a session — used for bulk cancel. */
+  sessionAll: (sessionId: string): string[] => [
+    `${NotificationType.SESSION_REMINDER}${SEP}${sessionId}`,
+    `${NotificationType.SESSION_REMINDER}${SEP}${sessionId}${SEP}daily`,
+    ...[0, 1, 2, 3, 4, 5, 6].map(
+      (d) => `${NotificationType.SESSION_REMINDER}${SEP}${sessionId}${SEP}wd${d}`
+    ),
+  ],
 
   /** Parse a raw identifier back to { type, id }. Returns null if unknown format. */
   parse(identifier: string): { type: NotificationTypeValue; id: string } | null {

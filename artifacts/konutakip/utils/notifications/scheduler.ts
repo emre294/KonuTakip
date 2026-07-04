@@ -247,3 +247,86 @@ export async function scheduleSessionReminder(
 export async function cancelSessionReminder(sessionId: string): Promise<void> {
   await safeCancel(NotificationId.session(sessionId));
 }
+
+// ─── Recurring session reminders ──────────────────────────────────────────────
+
+/**
+ * Schedule a DAILY repeating session reminder at the given time.
+ * Fires every day at `hour:minute` until explicitly cancelled.
+ * Identifier: `session_reminder::<id>::daily`
+ */
+export async function scheduleEveryDaySessionReminder(
+  sessionId: string,
+  time: string,
+  subjectName: string,
+  topic: string
+): Promise<boolean> {
+  const [hour, minute] = time.split(":").map(Number);
+  if (isNaN(hour) || isNaN(minute)) {
+    notifLog.skipped(NotificationId.sessionDaily(sessionId), "invalid time format");
+    return false;
+  }
+  return safeSchedule(
+    NotificationId.sessionDaily(sessionId),
+    {
+      title: `Çalışma Zamanı: ${subjectName} 📖`,
+      body: `"${topic}" konusunu çalışma vakti geldi.`,
+      sound: "default",
+      data: { type: NotificationType.SESSION_REMINDER, sessionId, subjectName, topic },
+      ...androidChannel(Channel.SESSION),
+    },
+    {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour,
+      minute,
+    }
+  );
+}
+
+/**
+ * Schedule a WEEKLY repeating session reminder.
+ * Fires every week on `weekday` (JS convention: 0=Sun … 6=Sat) at the given time.
+ * Identifier: `session_reminder::<id>::wd<weekday>`
+ */
+export async function scheduleWeeklySessionReminder(
+  sessionId: string,
+  weekday: number,
+  time: string,
+  subjectName: string,
+  topic: string
+): Promise<boolean> {
+  const [hour, minute] = time.split(":").map(Number);
+  if (isNaN(hour) || isNaN(minute)) {
+    notifLog.skipped(NotificationId.sessionWeekday(sessionId, weekday), "invalid time format");
+    return false;
+  }
+  // Expo WEEKLY weekday convention: 1=Sun, 2=Mon, …, 7=Sat
+  const expoWeekday = weekday + 1;
+  return safeSchedule(
+    NotificationId.sessionWeekday(sessionId, weekday),
+    {
+      title: `Çalışma Zamanı: ${subjectName} 📖`,
+      body: `"${topic}" konusunu çalışma vakti geldi.`,
+      sound: "default",
+      data: { type: NotificationType.SESSION_REMINDER, sessionId, subjectName, topic },
+      ...androidChannel(Channel.SESSION),
+    },
+    {
+      type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+      weekday: expoWeekday,
+      hour,
+      minute,
+    }
+  );
+}
+
+/**
+ * Cancel every notification associated with a session regardless of its repeat type.
+ * Cancels the one-time ID, the daily ID, and all 7 weekday IDs.
+ * safeCancel is a no-op for IDs that are not scheduled — safe to call unconditionally.
+ */
+export async function cancelAllSessionReminders(sessionId: string): Promise<void> {
+  await Promise.all(
+    NotificationId.sessionAll(sessionId).map((id) => safeCancel(id))
+  );
+}

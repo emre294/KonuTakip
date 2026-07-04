@@ -54,6 +54,8 @@ session_reminder::{sessionId}
 
 **Question edit modal** — interval picker now shown in both new and edit modes. `handleSave` checks `reminderInterval !== editingQuestion.reminderInterval` before calling `updateQuestionReminder` (avoids no-op reschedule).
 
+**Recurring study sessions** — `DailySession` has `repeatType: "one_time" | "every_day" | "every_week"` and optional `weekdays?: number[]` (JS: 0=Sun). Expo WEEKLY trigger uses 1=Sun…7=Sat so Expo weekday = JS weekday + 1. Notification IDs: `session_reminder::<id>` (one-time), `session_reminder::<id>::daily`, `session_reminder::<id>::wd<0-6>`. `cancelAllSessionReminders` cancels all 9 possible IDs unconditionally. Old sessions default to `repeatType: "one_time"` in both v2 migration and v3 load. `completeSession` only applies to one-time (no-op guard in place). `plan.tsx` splits display into Recurring section + date-grouped one-time section.
+
 **Persistent question reminder cycle** — question reminders are NOT truly recurring (Expo has no custom-interval repeating trigger). The cycle is maintained at the app level:
 1. `scheduleQuestionReminder` stores `reminderInterval` in the notification payload.
 2. `addNotificationReceivedListener` in `_layout.tsx` fires when the notification arrives while the app is foreground → immediately schedules next occurrence + calls `updateQuestionNextReviewDate` to persist the new date.

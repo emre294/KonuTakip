@@ -54,6 +54,9 @@ export {
   cancelDailyStudyReminder,
   scheduleSessionReminder,
   cancelSessionReminder,
+  scheduleEveryDaySessionReminder,
+  scheduleWeeklySessionReminder,
+  cancelAllSessionReminders,
 } from "./scheduler";
 
 // ── Sync ──────────────────────────────────────────────────────────────────────
