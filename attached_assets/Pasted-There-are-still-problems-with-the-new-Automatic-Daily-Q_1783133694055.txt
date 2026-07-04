@@ -1,0 +1,212 @@
+There are still problems with the new Automatic Daily Question Tracking system.
+
+Do NOT rewrite the feature.
+
+Do NOT redesign unrelated parts of the application.
+
+Only fix the implementation bugs and finish the statistics screen properly.
+
+==================================================
+BUG 1
+==================================================
+
+Current behavior:
+
+• I create a Daily Study Session.
+• Example:
+  TYT Mathematics
+  40 questions
+
+• I tap "Complete Session".
+
+The success message appears.
+
+However:
+
+Daily Plan Solved Questions
+
+still shows
+
+0
+
+Total Solved Questions
+
+also remains unchanged.
+
+This means the automatic counter is not actually updating.
+
+==================================================
+PLEASE DEBUG THE IMPLEMENTATION
+==================================================
+
+Check every step.
+
+1.
+
+Verify completeSession()
+
+actually increments
+
+dailySolvedQuestions.
+
+2.
+
+Verify the new value is saved into AsyncStorage.
+
+3.
+
+Verify AppContext updates the state immediately.
+
+4.
+
+Verify useMemo dependencies include dailySolvedQuestions.
+
+5.
+
+Verify Statistics reads the new state instead of stale values.
+
+6.
+
+Verify totalSolvedQuestions is now calculated as
+
+topicSolvedQuestions
++
+dailySolvedQuestions
+
+7.
+
+Verify countedInStatistics is not preventing the first increment.
+
+8.
+
+Verify the state is not overwritten by loadData() after saving.
+
+9.
+
+Verify React re-render happens immediately after completing a session.
+
+10.
+
+Statistics should update instantly without restarting the application.
+
+==================================================
+BUG 2
+==================================================
+
+The Statistics screen is not displaying the information in the intended layout.
+
+I do NOT want only three unrelated statistic cards.
+
+Instead, I want a proper hierarchy.
+
+==================================================
+STATISTICS DESIGN
+==================================================
+
+Display one main statistic:
+
+========================
+
+Toplam Çözülen Soru
+
+4520
+
+========================
+
+Under it show the breakdown.
+
+Example:
+
+Konu Bazlı
+
+3900
+
+Günlük Plan
+
+620
+
+==================================================
+
+The total must always be:
+
+Topic Questions
+
++
+
+Daily Plan Questions
+
+==================================================
+LIVE UPDATE
+==================================================
+
+Immediately after completing a study session:
+
+The Daily Plan value must increase.
+
+The Total value must also increase.
+
+No restart.
+
+No refresh.
+
+No reopening the screen.
+
+==================================================
+DELETE / EDIT
+==================================================
+
+If a counted session is deleted:
+
+Subtract its question count.
+
+If its planned question count is edited:
+
+Update the total using the difference.
+
+Example
+
+Old:
+
+40
+
+Edited:
+
+70
+
+Automatically remove 40
+
+Automatically add 70
+
+Final total:
+
+70
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT modify:
+
+• Topic Question Tracking
+• Notifications
+• Achievements
+• Study Plan UI
+• Session workflow
+
+Only fix the counter and statistics implementation.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end explain:
+
+• What caused the counter to stay at zero.
+• Which file contained the bug.
+• What was fixed.
+• Confirm that Daily Plan statistics now update instantly.
+• Confirm that Total Solved Questions always equals:
+
+Topic Solved Questions
++
+Daily Plan Solved Questions.
