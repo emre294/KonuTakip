@@ -1,0 +1,72 @@
+There is a bug in the new Automatic Daily Question Tracking system.
+
+Current behavior:
+
+- I created a Daily Study Session.
+- I entered 40 planned questions.
+- I marked the session as completed.
+- The completion dialog appears.
+- However, "Daily Plan Solved Questions" is still 0.
+- "Total Solved Questions" is also unchanged.
+- The statistics are not updating.
+
+This means the automatic counting logic is not actually persisting or updating correctly.
+
+==================================================
+Please debug the implementation instead of rewriting it.
+==================================================
+
+Check the following carefully:
+
+1. Verify that completeSession() actually increments dailySolvedQuestions.
+
+2. Verify that dailySolvedQuestions is saved to AsyncStorage immediately.
+
+3. Verify that AppContext updates the state after saving.
+
+4. Verify that Statistics screen reads dailySolvedQuestions from AppContext instead of an old value.
+
+5. Verify that totalSolvedQuestions is recalculated using:
+
+topicSolvedQuestions
++
+dailySolvedQuestions
+
+6. Verify that React state updates trigger a re-render.
+
+7. Verify that useMemo dependencies include dailySolvedQuestions.
+
+8. Verify that the completion logic isn't returning before updating statistics.
+
+9. Verify that countedInStatistics isn't preventing the first increment.
+
+10. Verify that loading existing storage doesn't overwrite the new value after completion.
+
+==================================================
+Statistics Screen
+==================================================
+
+The Statistics page should display three independent values:
+
+• Topic Solved Questions
+• Daily Plan Solved Questions
+• Total Solved Questions
+
+These values must update immediately after completing a study session without restarting the app.
+
+==================================================
+IMPORTANT
+==================================================
+
+Do NOT rewrite the feature.
+
+Do NOT redesign anything.
+
+Only fix the bug preventing the automatic counter from updating.
+
+At the end explain:
+
+• What caused the bug.
+• Which file contained the bug.
+• What you changed.
+• Why the statistics were staying at zero.

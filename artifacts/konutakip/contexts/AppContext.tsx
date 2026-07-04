@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -272,6 +273,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [dailySolvedQuestions, setDailySolvedQuestions] = useState<number>(0);
   const [topicReminders, setTopicRemindersState] = useState<Record<string, TopicReminderRecord>>({});
   const [dailyReminder, setDailyReminderState] = useState<DailyReminderSetting | null>(null);
+  // Guard against double-counting if completeSession is called twice for the
+  // same id before the first setSessions updater has had a chance to run and
+  // re-render (e.g. rapid double-tap). A Set of in-flight session ids is stored
+  // in a ref so it is shared across renders without causing re-renders itself.
+  const completingSessionIds = useRef(new Set<string>());
 
   useEffect(() => { loadData(); }, []);
 
@@ -730,17 +736,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [sessions]);
 
   const completeSession = useCallback((id: string): number => {
-    // Only one-time sessions can be marked complete
+    // Only one-time sessions can be marked complete.
+    // Guard: if already in-flight (e.g. rapid double-tap before re-render), skip.
+    if (completingSessionIds.current.has(id)) return 0;
+    // Compute addedAmount synchronously from current sessions state BEFORE
+    // calling setSessions. The setState updater runs asynchronously, so any
+    // mutation inside it (e.g. addedAmount = s.targetQuestions) would not be
+    // visible to code that runs after the setSessions call in the same tick.
+    const target = sessions.find(s => s.id === id);
+    const addedAmount =
+      target && !(target.completed && target.countedInStatistics)
+        ? target.targetQuestions
+        : 0;
+    if (addedAmount > 0) completingSessionIds.current.add(id);
     cancelAllSessionReminders(id).catch(() => {});
-    let addedAmount = 0;
     setSessions(prev => {
       const next = prev.map(s => {
         if (s.id !== id) return s;
         if (s.completed && s.countedInStatistics) return s; // already counted — guard against double-add
-        addedAmount = s.targetQuestions;
         return { ...s, completed: true, countedInStatistics: true };
       });
       saveData({ sessions: next });
+      completingSessionIds.current.delete(id);
       return next;
     });
     if (addedAmount > 0) {
@@ -752,7 +769,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
     markStudyDay();
     return addedAmount;
-  }, [markStudyDay]);
+  }, [markStudyDay, sessions]);
 
   const deleteSession = useCallback((id: string) => {
     // Cancel all notification variants (one-time, daily, weekly) for this session
