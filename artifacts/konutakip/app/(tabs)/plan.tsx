@@ -1,6 +1,7 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -19,6 +20,11 @@ import { useApp, DailySession, RepeatType } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 import { ActivePicker, DatePickerField, PickerOverlay, TimePickerField } from "@/components/pickers";
+
+// ─── One-time info card session guard ────────────────────────────────────────
+// Module-level flag: once dismissed in a session, never re-show even if the
+// AsyncStorage write fails. Storage is still attempted for cross-session persistence.
+let _infoCardDismissedThisSession = false;
 
 // ─── Turkish weekday labels (0=Sun … 6=Sat) ───────────────────────────────────
 
@@ -218,6 +224,26 @@ export default function PlanScreen() {
   const [notes, setNotes] = useState("");
   const [activePicker, setActivePicker] = useState<ActivePicker>(null);
 
+  // ── One-time info card ───────────────────────────────────────────────────
+  const INFO_KEY = "plan_daily_tracking_info_seen";
+  const [showInfoCard, setShowInfoCard] = useState(false);
+
+  useEffect(() => {
+    if (_infoCardDismissedThisSession) return;
+    AsyncStorage.getItem(INFO_KEY).then(val => {
+      if (!val) setShowInfoCard(true);
+    }).catch(() => {});
+  }, []);
+
+  function dismissInfoCard() {
+    _infoCardDismissedThisSession = true; // session-level guard — no reshow even if storage fails
+    setShowInfoCard(false);
+    AsyncStorage.setItem(INFO_KEY, "1").catch(() => {
+      // Storage write failed; the session guard already prevents reshow this session.
+      // On next launch the card will reappear and try again.
+    });
+  }
+
   // ── Per-field inline validation errors ────────────────────────────────────
   const [errSubject,  setErrSubject]  = useState("");
   const [errTopic,    setErrTopic]    = useState("");
@@ -317,6 +343,27 @@ export default function PlanScreen() {
             </TouchableOpacity>
           </View>
         </Animated.View>
+
+        {/* ── One-time Daily Tracking info card ──────────────────────────── */}
+        {showInfoCard && (
+          <Animated.View entering={FadeInDown.duration(400)} style={[styles.infoCard, { backgroundColor: colors.primary + "12", borderColor: colors.primary + "30" }]}>
+            <View style={styles.infoCardTop}>
+              <View style={styles.infoCardTitleRow}>
+                <Ionicons name="stats-chart" size={16} color={colors.primary} />
+                <Text style={[styles.infoCardTitle, { color: colors.primary }]}>📊 Günlük Soru Takibi</Text>
+              </View>
+              <TouchableOpacity onPress={dismissInfoCard} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Feather name="x" size={16} color={colors.mutedForeground} />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.infoCardBody, { color: colors.foreground }]}>
+              {"Günlük planını tamamladığında, belirlediğin soru sayısı otomatik olarak istatistiklerine eklenir. Böylece aynı soru sayısını tekrar manuel olarak girmen gerekmez."}
+            </Text>
+            <Text style={[styles.infoCardSub, { color: colors.mutedForeground }]}>
+              {"Bu özellik yalnızca Günlük Plan üzerinden tamamlanan oturumlar için geçerlidir."}
+            </Text>
+          </Animated.View>
+        )}
 
         {!hasAnySessions ? (
           <Animated.View entering={FadeInDown.duration(400)} style={[styles.empty, { backgroundColor: colors.card }]}>
@@ -560,6 +607,12 @@ const styles = StyleSheet.create({
   subjectPicker: { marginBottom: 4 },
   subjectChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5, marginRight: 8, maxWidth: 140 },
   subjectChipText: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  infoCard: { borderWidth: 1, borderRadius: 16, padding: 16, marginBottom: 20, gap: 8 },
+  infoCardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  infoCardTitleRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  infoCardTitle: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  infoCardBody: { fontSize: 13, fontFamily: "Inter_400Regular", lineHeight: 20 },
+  infoCardSub: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 18 },
   fieldError: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 4 },
   saveBtn: { borderRadius: 14, paddingVertical: 15, alignItems: "center", marginTop: 20 },
   saveBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },

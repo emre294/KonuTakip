@@ -1,0 +1,73 @@
+Add a one-time informational message for first-time users about the new Automatic Daily Question Tracking feature.
+
+==================================================
+WHEN TO SHOW
+==================================================
+
+Show this message only ONCE for each user.
+
+It should appear the first time the user opens the Daily Study Plan screen after installing or updating the app.
+
+After the user closes it, never show it again.
+
+Store this state in AsyncStorage.
+
+==================================================
+DESIGN
+==================================================
+
+Do NOT use an Alert popup.
+
+Instead, display a beautiful informational card that matches the application's design.
+
+The card should have:
+
+• A small info icon (ℹ️ or the existing info icon)
+• Rounded corners
+• Subtle background color
+• Proper padding
+• A close ("X") button
+• Smooth fade-in animation (if available)
+
+==================================================
+TEXT
+==================================================
+
+Başlık:
+
+📊 Günlük Soru Takibi
+
+Açıklama:
+
+"Günlük planını tamamladığında, belirlediğin soru sayısı otomatik olarak istatistiklerine eklenir. Böylece aynı soru sayısını tekrar manuel olarak girmen gerekmez."
+
+Alt satır:
+
+"Bu özellik yalnızca Günlük Plan üzerinden tamamlanan oturumlar için geçerlidir."
+
+==================================================
+BEHAVIOR
+==================================================
+
+• Show only once.
+• Closing the card permanently hides it.
+• Never show it again unless the app data is cleared.
+• Do not interrupt the user's workflow.
+
+==================================================
+IMPORTANT
+==================================================
+
+Do not change any existing Daily Plan functionality.
+
+Only add this one-time informational card.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end tell me:
+
+• Which file was modified.
+• Where the one-time state is stored.
+• Confirm that the information card is shown only once per installation.
