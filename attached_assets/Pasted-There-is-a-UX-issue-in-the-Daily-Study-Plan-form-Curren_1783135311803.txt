@@ -1,0 +1,107 @@
+There is a UX issue in the Daily Study Plan form.
+
+Currently, if the user leaves the "Topic" field empty and tries to save the study session, nothing happens.
+
+The session is not created, but there is also no explanation.
+
+This is confusing.
+
+==================================================
+REQUIRED FIX
+==================================================
+
+Before creating a study session, validate all required fields.
+
+If any required field is missing, show a clear and user-friendly warning.
+
+Never fail silently.
+
+==================================================
+VALIDATION
+==================================================
+
+If Topic is empty:
+
+Show an Alert.
+
+Title:
+
+Missing Information
+
+Message:
+
+Please enter the topic you will study before saving the session.
+
+Do not close the form.
+
+Do not create the session.
+
+==================================================
+VALIDATE ALL REQUIRED FIELDS
+==================================================
+
+Also validate:
+
+• Subject
+• Topic
+• Planned Question Count
+• Date
+• Time
+
+Each missing field should have its own clear message.
+
+Examples:
+
+Subject
+
+"Please select a lesson."
+
+Topic
+
+"Please enter the topic you will study."
+
+Question Count
+
+"Please enter the number of questions you plan to solve."
+
+Date
+
+"Please select a study date."
+
+Time
+
+"Please select a study time."
+
+==================================================
+USER EXPERIENCE
+==================================================
+
+Show the first missing field only.
+
+Do not display multiple alerts.
+
+Keep the user's entered data.
+
+Do not reset the form.
+
+==================================================
+IMPORTANT
+==================================================
+
+Do not change the design.
+
+Do not change the layout.
+
+Do not modify the study session logic.
+
+Only improve validation and display proper warning messages before saving.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end tell me:
+
+• Which file was modified.
+• Where validation was added.
+• Confirm that users now receive clear warnings instead of the form silently failing.
