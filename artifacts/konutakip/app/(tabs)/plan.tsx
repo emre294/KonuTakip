@@ -231,22 +231,30 @@ export default function PlanScreen() {
 
   // ── Save session ─────────────────────────────────────────────────────────────
   function saveSession() {
-    if (!selectedSubjectId || !topic.trim()) {
-      Alert.alert("Hata", "Lütfen ders ve konu seçin.");
+    if (!selectedSubjectId) {
+      Alert.alert("Missing Information", "Please select a lesson.");
+      return;
+    }
+    if (!topic.trim()) {
+      Alert.alert("Missing Information", "Please enter the topic you will study.");
+      return;
+    }
+    if (!targetQ.trim() || isNaN(Number(targetQ)) || Number(targetQ) <= 0) {
+      Alert.alert("Missing Information", "Please enter the number of questions you plan to solve.");
       return;
     }
     if (repeatType === "one_time") {
       if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        Alert.alert("Hata", "Lütfen geçerli bir tarih seçin.");
+        Alert.alert("Missing Information", "Please select a study date.");
         return;
       }
     }
-    if (repeatType === "every_week" && selectedWeekdays.length === 0) {
-      Alert.alert("Hata", "Lütfen en az bir gün seçin.");
+    if (!time || !/^\d{2}:\d{2}$/.test(time)) {
+      Alert.alert("Missing Information", "Please select a study time.");
       return;
     }
-    if (!time || !/^\d{2}:\d{2}$/.test(time)) {
-      Alert.alert("Hata", "Lütfen geçerli bir saat seçin.");
+    if (repeatType === "every_week" && selectedWeekdays.length === 0) {
+      Alert.alert("Hata", "Lütfen en az bir gün seçin.");
       return;
     }
     addSession({
