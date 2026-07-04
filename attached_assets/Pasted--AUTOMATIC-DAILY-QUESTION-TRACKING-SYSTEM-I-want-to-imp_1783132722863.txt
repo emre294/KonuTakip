@@ -1,0 +1,280 @@
+# AUTOMATIC DAILY QUESTION TRACKING SYSTEM
+
+I want to improve the Daily Study Plan by introducing an automatic solved question tracking system.
+
+IMPORTANT:
+
+Do NOT remove any existing functionality.
+
+Do NOT change the current Topic Question Tracking system.
+
+Do NOT merge the two systems.
+
+Instead, create a separate daily solved question tracking system that works alongside the existing topic-based system.
+
+==================================================
+GOAL
+==================================================
+
+Currently, when a user creates a daily study session, they enter:
+
+• Lesson
+• Topic
+• Planned question count
+• Date
+• Time
+
+When the user marks that study session as completed, the entered question count should automatically be recorded as solved questions.
+
+The user should NOT have to manually enter those same questions again anywhere else.
+
+==================================================
+NEW DAILY SOLVED QUESTIONS STORAGE
+==================================================
+
+Create a completely separate storage for Daily Study questions.
+
+Example:
+
+dailySolvedQuestions
+
+This must be independent from:
+
+topicSolvedQuestions
+
+Never merge them.
+
+Never overwrite one another.
+
+==================================================
+WHEN A SESSION IS COMPLETED
+==================================================
+
+When the user taps:
+
+"Complete Session"
+
+Automatically:
+
+• Read the planned question count.
+• Add that amount into dailySolvedQuestions.
+• Mark the session as already counted.
+• Never count the same session twice.
+
+If the user taps Complete multiple times, the question count must only be added once.
+
+==================================================
+SESSION COUNT PROTECTION
+==================================================
+
+Every study session must have an internal flag.
+
+Example:
+
+countedInStatistics
+
+Default:
+
+false
+
+After automatic counting:
+
+true
+
+If already true:
+
+Do not add questions again.
+
+==================================================
+DELETING A SESSION
+==================================================
+
+If a completed session that has already been counted is deleted:
+
+Automatically subtract its question count from dailySolvedQuestions.
+
+Statistics must always remain correct.
+
+==================================================
+EDITING A SESSION
+==================================================
+
+If a session is edited BEFORE completion:
+
+Use the updated question count.
+
+If a completed session is edited:
+
+Update statistics correctly.
+
+Example:
+
+Old:
+
+40 questions
+
+Edited:
+
+60 questions
+
+Automatically:
+
+Remove 40
+
+Add 60
+
+Final total:
+
++60 only
+
+==================================================
+TOPIC QUESTION SYSTEM
+==================================================
+
+Do NOT modify the existing Topic Question Tracking.
+
+Users must still be able to manually record solved questions for topics.
+
+Those values remain stored in:
+
+topicSolvedQuestions
+
+==================================================
+SEPARATE STATISTICS
+==================================================
+
+Statistics must now contain two independent counters.
+
+1.
+
+Topic Solved Questions
+
+(example)
+
+3,250
+
+2.
+
+Daily Plan Solved Questions
+
+(example)
+
+1,180
+
+==================================================
+TOTAL SOLVED QUESTIONS
+==================================================
+
+Total Solved Questions should become:
+
+topicSolvedQuestions
+
++
+
+dailySolvedQuestions
+
+Display all three values:
+
+Topic Questions
+
+Daily Plan Questions
+
+Total Solved Questions
+
+==================================================
+DOUBLE COUNT WARNING
+==================================================
+
+To prevent accidental double counting:
+
+If the user completes a Daily Study Session for a lesson,
+
+and later manually records solved questions for the same lesson/topic on the same day,
+
+show a small informational dialog.
+
+Example:
+
+"This lesson has already contributed solved questions from today's Daily Study Plan.
+
+If you enter the same questions again, your statistics may become inaccurate."
+
+This is only a warning.
+
+Do NOT block the user.
+
+==================================================
+COMPLETION FEEDBACK
+==================================================
+
+When a study session is completed,
+
+show a success message.
+
+Example:
+
+✅ Session completed
+
+80 questions have automatically been added to your Daily Solved Questions statistics.
+
+==================================================
+PERSISTENCE
+==================================================
+
+dailySolvedQuestions must be stored in AsyncStorage.
+
+Load automatically on startup.
+
+Persist after restart.
+
+Persist after app updates.
+
+==================================================
+BACKWARD COMPATIBILITY
+==================================================
+
+Existing users must not lose data.
+
+If dailySolvedQuestions does not exist:
+
+Initialize it automatically.
+
+No migration errors.
+
+==================================================
+PERFORMANCE
+==================================================
+
+Avoid unnecessary AsyncStorage writes.
+
+Avoid unnecessary context re-renders.
+
+Update only the affected statistics.
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT redesign the UI.
+
+Do NOT remove any existing feature.
+
+Do NOT modify achievements.
+
+Do NOT modify notifications.
+
+Do NOT modify topic tracking logic.
+
+Do NOT change study session behavior except for the automatic solved question recording.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end tell me:
+
+• Which files were modified.
+• How dailySolvedQuestions is stored.
+• How duplicate counting is prevented.
+• How deletion/editing synchronization works.
+• Confirm that the existing topic question tracking system remains completely independent.

@@ -48,6 +48,10 @@ export interface DailySession {
   completed: boolean;    // only used for one_time sessions
   repeatType: RepeatType;
   weekdays?: number[];   // JS: 0=Sun … 6=Sat; only for every_week
+  // Guards against double-counting this session's targetQuestions into
+  // dailySolvedQuestions. Set true the moment completeSession() adds its
+  // count; checked again on edit/delete so the running total stays correct.
+  countedInStatistics?: boolean;
 }
 
 export interface QuestionAttachment {
@@ -169,7 +173,10 @@ interface AppContextValue {
   sessions: DailySession[];
   addSession: (s: Omit<DailySession, "id">) => void;
   updateSession: (id: string, updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>) => void;
-  completeSession: (id: string) => void;
+  /** Marks the session complete and, unless already counted, adds its targetQuestions
+   *  into dailySolvedQuestions. Returns the number of questions just auto-added (0 if
+   *  the session was already counted, so callers can decide whether to show feedback). */
+  completeSession: (id: string) => number;
   deleteSession: (id: string) => void;
   questions: Question[];
   addQuestion: (q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => void;
@@ -194,6 +201,14 @@ interface AppContextValue {
   topicSolvedQuestions: Record<string, number>;
   setTopicSolvedQuestion: (topicId: string, count: number) => void;
   totalSolvedQuestions: number;
+  // ── Automatic Daily Study Plan question counter ─────────────────────────────
+  // Fully independent from topicSolvedQuestions above: only ever written to by
+  // completeSession/updateSession/deleteSession, never by manual topic entry.
+  dailySolvedQuestions: number;
+  totalQuestionsSolved: number; // topic + daily plan combined
+  /** True if there is a completed & counted session today for this subjectId —
+   *  used to surface the informational double-count warning on manual topic entry. */
+  hasCompletedSessionTodayForSubject: (subjectId: string) => boolean;
   topicReminders: Record<string, TopicReminderRecord>;
   setTopicReminder: (topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7) => Promise<void>;
   removeTopicReminder: (topicId: string) => Promise<void>;
@@ -251,6 +266,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [studyDays, setStudyDays] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [topicSolvedQuestions, setTopicSolvedQuestionsState] = useState<Record<string, number>>({});
+  // Independent running total of questions auto-counted from completed Daily
+  // Study Plan sessions. Never read or written by the Topic Question Tracking
+  // system (topicSolvedQuestions) above.
+  const [dailySolvedQuestions, setDailySolvedQuestions] = useState<number>(0);
   const [topicReminders, setTopicRemindersState] = useState<Record<string, TopicReminderRecord>>({});
   const [dailyReminder, setDailyReminderState] = useState<DailyReminderSetting | null>(null);
 
@@ -292,6 +311,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (data.achievements) setAchievements(mergeAchievements(data.achievements, ACHIEVEMENTS_TEMPLATE));
         if (data.studyDays) setStudyDays(data.studyDays);
         if (data.topicSolvedQuestions) setTopicSolvedQuestionsState(data.topicSolvedQuestions);
+        if (typeof data.dailySolvedQuestions === "number") setDailySolvedQuestions(data.dailySolvedQuestions);
         if (data.topicReminders) setTopicRemindersState(data.topicReminders);
         if (data.dailyReminder) setDailyReminderState(data.dailyReminder);
 
@@ -327,6 +347,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     achievements: Achievement[];
     studyDays: string[];
     topicSolvedQuestions: Record<string, number>;
+    dailySolvedQuestions: number;
     topicReminders: Record<string, TopicReminderRecord>;
     dailyReminder: DailyReminderSetting | null;
   }>) {
@@ -366,6 +387,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     () => Object.values(topicSolvedQuestions).reduce((sum, n) => sum + (n || 0), 0),
     [topicSolvedQuestions]
   );
+
+  const totalQuestionsSolved = useMemo(
+    () => totalSolvedQuestions + dailySolvedQuestions,
+    [totalSolvedQuestions, dailySolvedQuestions]
+  );
+
+  const hasCompletedSessionTodayForSubject = useCallback((subjectId: string): boolean => {
+    const today = new Date().toISOString().split("T")[0];
+    return sessions.some(s =>
+      s.subjectId === subjectId && s.completed && s.countedInStatistics && s.date === today
+    );
+  }, [sessions]);
 
   function checkAchievements(
     comp: Record<string, boolean>,
@@ -594,7 +627,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // ── Session management ────────────────────────────────────────────────────────
 
   const addSession = useCallback((s: Omit<DailySession, "id">) => {
-    const session: DailySession = { ...s, id: generateId() };
+    const session: DailySession = { ...s, id: generateId(), countedInStatistics: false };
 
     // Schedule notification(s) based on repeat type
     if (session.repeatType === "every_day") {
@@ -642,6 +675,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     updates: Partial<Pick<DailySession,
       "date" | "time" | "topic" | "notes" | "targetQuestions" | "repeatType" | "weekdays">>
   ) => {
+    // If this session's targetQuestions changed and it was already counted into
+    // dailySolvedQuestions, adjust the running total by the delta (old amount
+    // removed, new amount added) so the auto-counter stays in sync with the edit.
+    if (updates.targetQuestions !== undefined) {
+      const existing = sessions.find(s => s.id === id);
+      if (existing && existing.countedInStatistics && existing.targetQuestions !== updates.targetQuestions) {
+        const delta = updates.targetQuestions - existing.targetQuestions;
+        setDailySolvedQuestions(prevTotal => {
+          const next = Math.max(0, prevTotal + delta);
+          saveData({ dailySolvedQuestions: next });
+          return next;
+        });
+      }
+    }
     setSessions(prev => {
       const next = prev.map(s => {
         if (s.id !== id) return s;
@@ -680,28 +727,50 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       saveData({ sessions: next });
       return next;
     });
-  }, []);
+  }, [sessions]);
 
-  const completeSession = useCallback((id: string) => {
+  const completeSession = useCallback((id: string): number => {
     // Only one-time sessions can be marked complete
     cancelAllSessionReminders(id).catch(() => {});
+    let addedAmount = 0;
     setSessions(prev => {
-      const next = prev.map(s => s.id === id ? { ...s, completed: true } : s);
+      const next = prev.map(s => {
+        if (s.id !== id) return s;
+        if (s.completed && s.countedInStatistics) return s; // already counted — guard against double-add
+        addedAmount = s.targetQuestions;
+        return { ...s, completed: true, countedInStatistics: true };
+      });
       saveData({ sessions: next });
       return next;
     });
+    if (addedAmount > 0) {
+      setDailySolvedQuestions(prevTotal => {
+        const next = prevTotal + addedAmount;
+        saveData({ dailySolvedQuestions: next });
+        return next;
+      });
+    }
     markStudyDay();
+    return addedAmount;
   }, [markStudyDay]);
 
   const deleteSession = useCallback((id: string) => {
     // Cancel all notification variants (one-time, daily, weekly) for this session
     cancelAllSessionReminders(id).catch(() => {});
+    const target = sessions.find(s => s.id === id);
+    if (target && target.completed && target.countedInStatistics) {
+      setDailySolvedQuestions(prevTotal => {
+        const next = Math.max(0, prevTotal - target.targetQuestions);
+        saveData({ dailySolvedQuestions: next });
+        return next;
+      });
+    }
     setSessions(prev => {
       const next = prev.filter(s => s.id !== id);
       saveData({ sessions: next });
       return next;
     });
-  }, []);
+  }, [sessions]);
 
   // ── Question management ───────────────────────────────────────────────────────
 
@@ -880,6 +949,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     tytProgress, aytProgress, totalTopicsCompleted,
     studyStreak, studyDays, markStudyDay, isLoaded,
     topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+    dailySolvedQuestions, totalQuestionsSolved, hasCompletedSessionTodayForSubject,
     topicReminders,
     setTopicReminder: setTopicReminderCtx,
     removeTopicReminder: removeTopicReminderCtx,
@@ -896,6 +966,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     tytProgress, aytProgress, totalTopicsCompleted,
     studyStreak, studyDays, markStudyDay, isLoaded,
     topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+    dailySolvedQuestions, totalQuestionsSolved, hasCompletedSessionTodayForSubject,
     topicReminders, setTopicReminderCtx, removeTopicReminderCtx,
     dailyReminder, setDailyReminderCtx, removeDailyReminderCtx,
   ]);

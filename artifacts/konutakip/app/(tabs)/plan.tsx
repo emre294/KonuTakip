@@ -341,7 +341,16 @@ export default function PlanScreen() {
                     <SessionCard
                       key={s.id}
                       session={s}
-                      onComplete={() => { completeSession(s.id); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); }}
+                      onComplete={() => {
+                        const added = completeSession(s.id);
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                        if (added > 0) {
+                          Alert.alert(
+                            "Oturum tamamlandı ✅",
+                            `${added} soru otomatik olarak Günlük Plan istatistiklerine eklendi.`
+                          );
+                        }
+                      }}
                       onDelete={() => deleteSession(s.id)}
                       colors={colors}
                     />

@@ -70,7 +70,10 @@ function StatCard({ title, value, sub, icon, color, colors }: {
 export default function StatisticsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { profile, topicCompletion, sessions, questions, studyStreak, studyDays, tytProgress, aytProgress, totalTopicsCompleted } = useApp();
+  const {
+    profile, topicCompletion, sessions, questions, studyStreak, studyDays, tytProgress, aytProgress, totalTopicsCompleted,
+    totalSolvedQuestions, dailySolvedQuestions, totalQuestionsSolved,
+  } = useApp();
 
   const completedSessions = sessions.filter((s) => s.completed);
 
@@ -136,6 +139,27 @@ export default function StatisticsScreen() {
             title="Anlaşılan Sorular"
             value={questions.filter((q) => q.understood).length}
             icon="checkmark-circle-outline"
+            color={colors.success}
+            colors={colors}
+          />
+          <StatCard
+            title="Konu Bazlı Çözülen Soru"
+            value={totalSolvedQuestions}
+            icon="list-outline"
+            color={colors.primary}
+            colors={colors}
+          />
+          <StatCard
+            title="Günlük Plan Çözülen Soru"
+            value={dailySolvedQuestions}
+            icon="calendar-outline"
+            color="#7C3AED"
+            colors={colors}
+          />
+          <StatCard
+            title="Toplam Çözülen Soru"
+            value={totalQuestionsSolved}
+            icon="stats-chart-outline"
             color={colors.success}
             colors={colors}
           />

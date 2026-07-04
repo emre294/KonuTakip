@@ -202,7 +202,23 @@ function SubjectCard({
   subject, topicCompletion, topicSolvedQuestions, topicReminders,
   onToggle, onSetSolved, onBellPress, colors,
 }: SubjectCardProps) {
+  const { hasCompletedSessionTodayForSubject } = useApp();
   const [expanded, setExpanded] = useState(false);
+
+  // Informational, non-blocking warning: if a Daily Study Plan session for this
+  // subject was already completed (and counted) today, manually logging solved
+  // questions here too may double-count the same questions across the two
+  // independent counters (topicSolvedQuestions vs dailySolvedQuestions).
+  function handleSetSolved(topicId: string, count: number) {
+    if (count > 0 && hasCompletedSessionTodayForSubject(subject.id)) {
+      Alert.alert(
+        "Bilgi",
+        `${subject.name} için bugün Günlük Plan'dan tamamlanmış bir oturum zaten var. Bu soruları da manuel girersen aynı sorular iki istatistikte sayılabilir.`
+      );
+    }
+    onSetSolved(topicId, count);
+  }
+
   const completed = subject.topics.filter((t) => topicCompletion[t.id]).length;
   const remaining = subject.topics.length - completed;
   const pct = subject.topics.length > 0 ? Math.round((completed / subject.topics.length) * 100) : 0;
@@ -289,7 +305,7 @@ function SubjectCard({
               solvedCount={topicSolvedQuestions[t.id] ?? 0}
               hasReminder={!!topicReminders[t.id]}
               onToggle={() => onToggle(t.id)}
-              onSetSolved={(count) => onSetSolved(t.id, count)}
+              onSetSolved={(count) => handleSetSolved(t.id, count)}
               onBellPress={() => onBellPress(t.id, t.name, subject.name)}
               colors={colors}
             />
