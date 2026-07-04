@@ -1,0 +1,194 @@
+The wrong question reminder system still has one critical issue that must be fixed.
+
+Current behavior:
+
+• A reminder is scheduled.
+• The notification fires once.
+• Expo removes the scheduled notification.
+• Even if the user has NOT marked the question as "Understood", no future reminder exists.
+
+This is incorrect.
+
+I want the wrong question reminder system to behave like a persistent reminder that continues until the user marks the question as understood.
+
+==================================================
+REQUIRED BEHAVIOR
+==================================================
+
+Each question already has a reminder interval selected by the user.
+
+Possible intervals are:
+
+• 3 days
+• 5 days
+• 7 days
+
+The system MUST always respect the interval selected for that specific question.
+
+Examples:
+
+Interval = 3 days
+
+Day 3
+Day 6
+Day 9
+Day 12
+...
+
+Interval = 5 days
+
+Day 5
+Day 10
+Day 15
+...
+
+Interval = 7 days
+
+Day 7
+Day 14
+Day 21
+...
+
+The next reminder must always use the SAME interval selected by the user.
+
+==================================================
+SCHEDULING LOGIC
+==================================================
+
+Do NOT rely on one-time notifications.
+
+Instead:
+
+When a notification is delivered,
+
+automatically calculate the next reminder date using the stored interval.
+
+Immediately schedule the next notification.
+
+If Expo limitations prevent true recurring custom intervals, automatically create the next reminder after each notification is delivered and also rebuild missing reminders during synchronization.
+
+The reminder should continue forever until the user marks the question as "Understood" or deletes the question.
+
+==================================================
+STOP CONDITIONS
+==================================================
+
+Only stop reminders when:
+
+• Question is marked as "Understood"
+
+OR
+
+• Question is deleted
+
+Immediately cancel every future reminder.
+
+==================================================
+EDITING
+==================================================
+
+If the reminder interval changes:
+
+Example
+
+7 days
+
+↓
+
+3 days
+
+Immediately:
+
+• Cancel existing reminder
+
+• Calculate new next reminder
+
+• Schedule using the new interval
+
+Never keep the previous schedule.
+
+==================================================
+APP RESTART
+==================================================
+
+When the application starts:
+
+Restore every active question reminder.
+
+==================================================
+DEVICE REBOOT
+==================================================
+
+If the device reboots:
+
+Opening the application must automatically restore every future reminder.
+
+==================================================
+SYNC
+==================================================
+
+syncNotifications() must verify every stored question reminder.
+
+If missing:
+
+Restore it.
+
+If duplicated:
+
+Keep only one.
+
+==================================================
+DUPLICATE PREVENTION
+==================================================
+
+Each question reminder must use one deterministic identifier.
+
+question::<questionId>
+
+Always:
+
+Cancel existing reminder
+
+↓
+
+Schedule new reminder
+
+Never allow duplicate reminders.
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT modify:
+
+• UI
+• Reminder selection screen
+• Existing intervals
+
+Only rebuild scheduling logic.
+
+IMPORTANT:
+
+Do NOT apply this recurring reminder logic to Daily Study reminders or Study Session reminders.
+
+Only Wrong Question reminders should repeat automatically.
+
+==================================================
+FINAL RESULT
+==================================================
+
+Question reminders must continue every 3, 5 or 7 days until the user explicitly marks the question as "Understood" or deletes it.
+
+The system must survive:
+
+• Notification delivery
+• App restart
+• Device reboot
+• Synchronization
+
+At the end explain:
+
+• Files modified
+• Scheduling flow
+• How duplicate prevention works
+• How persistence is guaranteed

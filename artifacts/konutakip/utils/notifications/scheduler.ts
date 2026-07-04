@@ -127,14 +127,19 @@ export async function cancelTopicReminder(topicId: string): Promise<void> {
 // ─── Question reminders ───────────────────────────────────────────────────────
 
 /**
- * Schedule a one-time question reminder at 09:00 on `nextReviewDateStr`.
- * If the date is today or in the past, bumps to tomorrow.
- * Always replaces any existing reminder for the same question.
+ * Schedule the next question reminder at 09:00 on `nextReviewDateStr`.
+ * If the date is today or in the past, bumps to tomorrow at 09:00.
+ * Always replaces any existing reminder for the same question (cancel-first).
+ *
+ * `reminderInterval` is stored in the notification payload so the foreground
+ * delivery listener can immediately schedule the following occurrence without
+ * needing to read AsyncStorage.
  */
 export async function scheduleQuestionReminder(
   questionId: string,
   nextReviewDateStr: string,
-  subjectName: string
+  subjectName: string,
+  reminderInterval: ReminderInterval = 7
 ): Promise<boolean> {
   const identifier = NotificationId.question(questionId);
   const triggerDate = new Date(`${nextReviewDateStr}T09:00:00`);
@@ -150,7 +155,12 @@ export async function scheduleQuestionReminder(
       title: "Tekrar Zamanı! 📚",
       body: `${subjectName} dersinden bir soruyu tekrar etme zamanı geldi.`,
       sound: "default",
-      data: { type: NotificationType.QUESTION_REMINDER, questionId, subjectName },
+      data: {
+        type: NotificationType.QUESTION_REMINDER,
+        questionId,
+        subjectName,
+        reminderInterval,
+      },
       ...androidChannel(Channel.QUESTION),
     },
     {

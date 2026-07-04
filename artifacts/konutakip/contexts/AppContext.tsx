@@ -169,6 +169,7 @@ interface AppContextValue {
   addQuestion: (q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => void;
   updateQuestion: (id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => void;
   updateQuestionReminder: (id: string, interval: 3 | 5 | 7) => void;
+  updateQuestionNextReviewDate: (id: string, nextDate: string) => void;
   deleteQuestion: (id: string) => void;
   markQuestionUnderstood: (id: string) => void;
   mockExamResults: MockExamResult[];
@@ -675,7 +676,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       nextReviewDate,
       reminderInterval: interval,
     };
-    scheduleQuestionReminder(question.id, nextReviewDate, q.subjectName).catch(() => {});
+    scheduleQuestionReminder(question.id, nextReviewDate, q.subjectName, interval).catch(() => {});
     setQuestions(prev => {
       const next = [...prev, question];
       saveData({ questions: next });
@@ -718,11 +719,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const nextReviewDate = getNextReviewDate(new Date(), interval);
       // safeSchedule inside scheduleQuestionReminder cancels the old notification first
-      scheduleQuestionReminder(id, nextReviewDate, question.subjectName).catch(() => {});
+      scheduleQuestionReminder(id, nextReviewDate, question.subjectName, interval).catch(() => {});
 
       const next = prev.map(q =>
         q.id === id ? { ...q, reminderInterval: interval, nextReviewDate } : q
       );
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
+  /**
+   * Update the stored nextReviewDate for a question after a reminder fires.
+   * Called by the foreground notification received listener in _layout.tsx so
+   * syncNotifications stays consistent with what is actually scheduled in the OS.
+   * No-op if the question is already marked as understood.
+   */
+  const updateQuestionNextReviewDate = useCallback((id: string, nextDate: string) => {
+    setQuestions(prev => {
+      const question = prev.find(q => q.id === id);
+      if (!question || question.understood) return prev;
+      const next = prev.map(q => q.id === id ? { ...q, nextReviewDate: nextDate } : q);
       saveData({ questions: next });
       return next;
     });
@@ -817,7 +834,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profile, setProfile,
     topicCompletion, toggleTopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
-    questions, addQuestion, updateQuestion, updateQuestionReminder, deleteQuestion, markQuestionUnderstood,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,
@@ -833,7 +850,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profile, setProfile,
     topicCompletion, toggleTopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
-    questions, addQuestion, updateQuestion, updateQuestionReminder, deleteQuestion, markQuestionUnderstood,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate, deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,

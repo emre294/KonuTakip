@@ -99,9 +99,12 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
     }
 
     // ── 2. Question reminders ───────────────────────────────────────────────
+    // Overdue questions (nextReviewDate in the past) are NOT skipped — they
+    // represent notifications that fired while the app was closed or the device
+    // was rebooted without the foreground listener running. scheduleQuestionReminder
+    // automatically bumps past dates to tomorrow, restoring the reminder cycle.
     for (const question of input.questions) {
       if (question.understood) continue;
-      if (question.nextReviewDate <= today) continue; // Already fired — skip
 
       const id = NotificationId.question(question.id);
       expectedIds.add(id);
@@ -110,7 +113,8 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
         const ok = await scheduleQuestionReminder(
           question.id,
           question.nextReviewDate,
-          question.subjectName
+          question.subjectName,
+          question.reminderInterval
         );
         if (ok) rebuilt++;
       }

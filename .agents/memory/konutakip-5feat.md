@@ -54,6 +54,12 @@ session_reminder::{sessionId}
 
 **Question edit modal** — interval picker now shown in both new and edit modes. `handleSave` checks `reminderInterval !== editingQuestion.reminderInterval` before calling `updateQuestionReminder` (avoids no-op reschedule).
 
+**Persistent question reminder cycle** — question reminders are NOT truly recurring (Expo has no custom-interval repeating trigger). The cycle is maintained at the app level:
+1. `scheduleQuestionReminder` stores `reminderInterval` in the notification payload.
+2. `addNotificationReceivedListener` in `_layout.tsx` fires when the notification arrives while the app is foreground → immediately schedules next occurrence + calls `updateQuestionNextReviewDate` to persist the new date.
+3. For background/closed delivery: `syncNotifications` no longer skips overdue questions (removed the `nextReviewDate <= today` guard) — so the next cold start always rebuilds the cycle by bumping past dates to tomorrow.
+4. `updateQuestionNextReviewDate(id, nextDate)` — thin AppContext callback that only persists the new date; never reschedules (caller handles scheduling).
+
 **`saveData` typing** — Partial type must include any new persisted field or TS rejects the call in strict mode.
 
 **iOS permissions** — `allowAnnouncements` is not a valid field in `requestPermissionsAsync`; omit it.

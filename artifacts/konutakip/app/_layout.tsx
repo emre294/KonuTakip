@@ -24,6 +24,9 @@ import {
   handleNotificationTap,
   initNotifications,
   invalidatePermissionCache,
+  NotificationType,
+  scheduleQuestionReminder,
+  type ReminderInterval,
 } from "@/utils/notifications";
 
 SplashScreen.preventAutoHideAsync();
@@ -52,9 +55,15 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 // ─── App content (inside providers) ──────────────────────────────────────────
 
 function AppContent() {
-  const { newAchievement, clearNewAchievement } = useApp();
+  const { newAchievement, clearNewAchievement, updateQuestionNextReviewDate } = useApp();
   const responseListenerRef = useRef<Notifications.EventSubscription | null>(null);
+  const receivedListenerRef = useRef<Notifications.EventSubscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+
+  // Stable ref so the effect closure always calls the latest function instance
+  // without needing to re-register listeners when the reference changes.
+  const updateQNRDRef = useRef(updateQuestionNextReviewDate);
+  updateQNRDRef.current = updateQuestionNextReviewDate;
 
   useEffect(() => {
     // 1. Init channels + request permission (non-blocking)
@@ -64,10 +73,47 @@ function AppContent() {
     responseListenerRef.current =
       Notifications.addNotificationResponseReceivedListener(handleNotificationTap);
 
-    // 3. Handle cold-start (app launched by tapping a notification)
+    // 3. Persistent question reminder cycle — foreground delivery handler
+    //
+    //    When a question reminder fires while the app is in the foreground,
+    //    Expo removes the one-time scheduled notification. This listener
+    //    immediately schedules the next occurrence (interval days from today)
+    //    and updates the stored nextReviewDate so syncNotifications stays
+    //    consistent.
+    //
+    //    For background / closed delivery the foreground listener does not
+    //    fire — those reminders are rebuilt by syncNotifications on the next
+    //    cold start (see AppContext loadData + sync.ts).
+    receivedListenerRef.current = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        const data = notification.request.content.data as Record<string, unknown>;
+        if (data?.type !== NotificationType.QUESTION_REMINDER) return;
+
+        const questionId = data.questionId as string | undefined;
+        const subjectName = data.subjectName as string | undefined;
+        const raw = data.reminderInterval;
+        const interval: ReminderInterval =
+          raw === 3 || raw === 5 || raw === 7 ? raw : 7;
+
+        if (!questionId || !subjectName) return;
+
+        // Compute the next review date (interval days from today)
+        const nextDay = new Date();
+        nextDay.setDate(nextDay.getDate() + interval);
+        const nextDate = nextDay.toISOString().split("T")[0];
+
+        // Schedule next occurrence (safeSchedule cancels any existing first)
+        scheduleQuestionReminder(questionId, nextDate, subjectName, interval).catch(() => {});
+
+        // Persist the updated nextReviewDate so sync can verify on next launch
+        updateQNRDRef.current(questionId, nextDate);
+      }
+    );
+
+    // 4. Handle cold-start (app launched by tapping a notification)
     handleColdStartNotification();
 
-    // 4. Invalidate permission cache when app returns to foreground
+    // 5. Invalidate permission cache when app returns to foreground
     //    (user may have toggled permission in OS settings)
     const appStateSub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
       if (appStateRef.current.match(/inactive|background/) && nextState === "active") {
@@ -78,6 +124,7 @@ function AppContent() {
 
     return () => {
       responseListenerRef.current?.remove();
+      receivedListenerRef.current?.remove();
       appStateSub.remove();
     };
   }, []);
