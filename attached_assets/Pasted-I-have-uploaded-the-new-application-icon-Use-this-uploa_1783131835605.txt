@@ -1,0 +1,112 @@
+I have uploaded the new application icon.
+
+Use this uploaded image as the ONLY official app icon.
+
+Do not redesign it.
+Do not recreate it.
+Do not generate a new icon.
+Use exactly the uploaded image.
+
+==================================================
+APP ICON SETUP
+==================================================
+
+Configure the application so this image is used everywhere.
+
+Update all required configuration files.
+
+Examples:
+
+- app.json
+- app.config.ts (if used)
+- eas.json (if needed)
+- Android adaptive icon configuration
+- iOS icon configuration
+
+==================================================
+ANDROID
+==================================================
+
+Generate a proper Android adaptive icon.
+
+Requirements:
+
+• Foreground must use the uploaded image.
+• Background should match the application's primary color if required.
+• The icon must not be cropped.
+• Keep equal padding on all sides.
+• Ensure it looks correct on all Android launchers.
+• Avoid the icon touching the edges.
+
+==================================================
+iOS
+==================================================
+
+Generate the required iOS app icon sizes.
+
+Requirements:
+
+• No clipping.
+• No stretching.
+• No added borders.
+• No added shadows.
+• Preserve the original design.
+
+==================================================
+SPLASH ICON
+==================================================
+
+If the project uses Expo Splash Screen,
+
+use the same uploaded icon on the splash screen.
+
+Do not distort the image.
+
+Keep it centered.
+
+==================================================
+IMAGE QUALITY
+==================================================
+
+If necessary:
+
+• Remove transparent edge artifacts.
+• Center the icon perfectly.
+• Preserve sharpness.
+• Export in high resolution.
+• Do not compress unnecessarily.
+
+==================================================
+EXPO CONFIGURATION
+==================================================
+
+Update every required Expo configuration so future APK/AAB builds automatically use this icon.
+
+Ensure the icon is used in:
+
+• Development build
+• Preview build
+• Production APK
+• Production AAB
+
+==================================================
+VALIDATION
+==================================================
+
+Verify:
+
+• No missing icon warnings
+• No Expo configuration errors
+• No EAS build errors
+• Android adaptive icon is valid
+• iOS icon assets are valid
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end tell me:
+
+• Which files were modified
+• Which icon assets were generated
+• Confirm that future APK/AAB builds will use the uploaded icon automatically.

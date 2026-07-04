@@ -169,7 +169,7 @@ const AYT_MATEMATIK_TOPICS = makeTopics("ayt-matematik", [
 
 const AYT_FIZIK: Subject = {
   id: "ayt-fizik",
-  name: "Fizik",
+  name: "AYT Fizik",
   color: "#0891B2",
   topics: makeTopics("ayt-fizik", [
     "Vektörler",
@@ -189,7 +189,7 @@ const AYT_FIZIK: Subject = {
 
 const AYT_KIMYA: Subject = {
   id: "ayt-kimya",
-  name: "Kimya",
+  name: "AYT Kimya",
   color: "#0D9488",
   topics: makeTopics("ayt-kimya", [
     "Kimyasal Türler ve Tepkimeler",
@@ -209,7 +209,7 @@ const AYT_KIMYA: Subject = {
 
 const AYT_BIYOLOJI: Subject = {
   id: "ayt-biyoloji",
-  name: "Biyoloji",
+  name: "AYT Biyoloji",
   color: "#16A34A",
   topics: makeTopics("ayt-biyoloji", [
     "Hücre Biyolojisi",
@@ -229,7 +229,7 @@ const AYT_BIYOLOJI: Subject = {
 
 const AYT_EDEBIYAT: Subject = {
   id: "ayt-edebiyat",
-  name: "Türk Dili ve Edebiyatı",
+  name: "AYT Türk Dili ve Edebiyatı",
   color: "#8B5CF6",
   topics: makeTopics("ayt-edebiyat", [
     "Divan Edebiyatı",
@@ -249,7 +249,7 @@ const AYT_EDEBIYAT: Subject = {
 
 const AYT_TARIH1: Subject = {
   id: "ayt-tarih1",
-  name: "Tarih 1",
+  name: "AYT Tarih 1",
   color: "#B45309",
   topics: makeTopics("ayt-tarih1", [
     "Osmanlı Devleti'nin Kuruluşu",
@@ -265,7 +265,7 @@ const AYT_TARIH1: Subject = {
 
 const AYT_COGRAFYA1: Subject = {
   id: "ayt-cografya1",
-  name: "Coğrafya 1",
+  name: "AYT Coğrafya 1",
   color: "#9333EA",
   topics: makeTopics("ayt-cografya1", [
     "Nüfus ve Yerleşme",
@@ -281,7 +281,7 @@ const AYT_COGRAFYA1: Subject = {
 
 const AYT_TARIH2: Subject = {
   id: "ayt-tarih2",
-  name: "Tarih 2",
+  name: "AYT Tarih 2",
   color: "#DC2626",
   topics: makeTopics("ayt-tarih2", [
     "Fransız Devrimi",
@@ -297,7 +297,7 @@ const AYT_TARIH2: Subject = {
 
 const AYT_COGRAFYA2: Subject = {
   id: "ayt-cografya2",
-  name: "Coğrafya 2",
+  name: "AYT Coğrafya 2",
   color: "#0891B2",
   topics: makeTopics("ayt-cografya2", [
     "Ülkeler ve Bölgeler",
@@ -313,7 +313,7 @@ const AYT_COGRAFYA2: Subject = {
 
 const AYT_FELSEFE: Subject = {
   id: "ayt-felsefe",
-  name: "Felsefe Grubu",
+  name: "AYT Felsefe Grubu",
   color: "#DB2777",
   topics: makeTopics("ayt-felsefe", [
     "Psikolojiye Giriş",
@@ -329,7 +329,7 @@ const AYT_FELSEFE: Subject = {
 
 const AYT_DIN: Subject = {
   id: "ayt-din",
-  name: "Din Kültürü",
+  name: "AYT Din Kültürü",
   color: "#EA580C",
   topics: makeTopics("ayt-din", [
     "İslam'ın Temel Kaynakları",
@@ -345,13 +345,13 @@ const AYT_DIN: Subject = {
 
 export const AYT_SUBJECTS_BY_FIELD: Record<StudyField, Subject[]> = {
   sayisal: [
-    { id: "ayt-matematik", name: "Matematik", color: "#2563EB", topics: AYT_MATEMATIK_TOPICS },
+    { id: "ayt-matematik", name: "AYT Matematik", color: "#2563EB", topics: AYT_MATEMATIK_TOPICS },
     AYT_FIZIK,
     AYT_KIMYA,
     AYT_BIYOLOJI,
   ],
   esitAgirlik: [
-    { id: "ayt-matematik", name: "Matematik", color: "#2563EB", topics: AYT_MATEMATIK_TOPICS },
+    { id: "ayt-matematik", name: "AYT Matematik", color: "#2563EB", topics: AYT_MATEMATIK_TOPICS },
     AYT_EDEBIYAT,
     AYT_TARIH1,
     AYT_COGRAFYA1,
