@@ -217,6 +217,7 @@ export default function PlanScreen() {
   const [targetQ, setTargetQ] = useState("20");
   const [notes, setNotes] = useState("");
   const [activePicker, setActivePicker] = useState<ActivePicker>(null);
+  const [formError, setFormError] = useState("");
 
   const allSubjects = [
     ...TYT_SUBJECTS,
@@ -231,32 +232,37 @@ export default function PlanScreen() {
 
   // ── Save session ─────────────────────────────────────────────────────────────
   function saveSession() {
+    // Note: Alert.alert() is suppressed inside cross-origin iframes (e.g. the
+    // Replit web preview). All validation errors are shown via an in-app banner
+    // so they are visible on both web and native without relying on the browser
+    // dialog API.
     if (!selectedSubjectId) {
-      Alert.alert("Missing Information", "Please select a lesson.");
+      setFormError("Missing Information: Please select a lesson.");
       return;
     }
     if (!topic.trim()) {
-      Alert.alert("Missing Information", "Please enter the topic you will study.");
+      setFormError("Missing Information: Please enter the topic you will study.");
       return;
     }
     if (!targetQ.trim() || isNaN(Number(targetQ)) || Number(targetQ) <= 0) {
-      Alert.alert("Missing Information", "Please enter the number of questions you plan to solve.");
+      setFormError("Missing Information: Please enter the number of questions you plan to solve.");
       return;
     }
     if (repeatType === "one_time") {
       if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        Alert.alert("Missing Information", "Please select a study date.");
+        setFormError("Missing Information: Please select a study date.");
         return;
       }
     }
     if (!time || !/^\d{2}:\d{2}$/.test(time)) {
-      Alert.alert("Missing Information", "Please select a study time.");
+      setFormError("Missing Information: Please select a study time.");
       return;
     }
     if (repeatType === "every_week" && selectedWeekdays.length === 0) {
-      Alert.alert("Hata", "Lütfen en az bir gün seçin.");
+      setFormError("Missing Information: Please select at least one day.");
       return;
     }
+    setFormError("");
     addSession({
       date: repeatType === "one_time" ? date : new Date().toISOString().split("T")[0],
       time,
@@ -275,6 +281,7 @@ export default function PlanScreen() {
 
   function closeModal() {
     setShowModal(false);
+    setFormError("");
     setRepeatType("one_time");
     setSelectedWeekdays([]);
     setTopic("");
@@ -461,6 +468,13 @@ export default function PlanScreen() {
               numberOfLines={3}
             />
 
+            {formError ? (
+              <View style={[styles.errorBanner, { backgroundColor: colors.destructive + "18", borderColor: colors.destructive }]}>
+                <Feather name="alert-circle" size={15} color={colors.destructive} />
+                <Text style={[styles.errorBannerText, { color: colors.destructive }]}>{formError}</Text>
+              </View>
+            ) : null}
+
             <TouchableOpacity onPress={saveSession} style={[styles.saveBtn, { backgroundColor: colors.primary }]}>
               <Text style={[styles.saveBtnText, { color: "#fff" }]}>Kaydet</Text>
             </TouchableOpacity>
@@ -546,6 +560,8 @@ const styles = StyleSheet.create({
   subjectPicker: { marginBottom: 4 },
   subjectChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5, marginRight: 8, maxWidth: 140 },
   subjectChipText: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  errorBanner: { flexDirection: "row", alignItems: "center", gap: 8, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginTop: 16 },
+  errorBannerText: { flex: 1, fontSize: 13, fontFamily: "Inter_500Medium" },
   saveBtn: { borderRadius: 14, paddingVertical: 15, alignItems: "center", marginTop: 20 },
   saveBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
 });
