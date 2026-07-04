@@ -1,0 +1,301 @@
+# COMPLETE PRODUCTION PERFORMANCE OPTIMIZATION
+
+The application is fully functional, but after building and installing the APK I noticed UI lag, occasional frame drops, small stutters while scrolling, slower screen transitions, and overall performance that is not as smooth as expected.
+
+I want you to perform a complete production-level performance optimization across the entire application.
+
+IMPORTANT:
+
+Do NOT redesign the UI.
+Do NOT remove any existing features.
+Do NOT change the application's behavior.
+Do NOT modify business logic.
+Do NOT change notification functionality.
+Only optimize performance.
+
+==================================================
+MAIN OBJECTIVES
+==================================================
+
+Optimize the application for:
+
+• Faster startup
+• Faster navigation
+• Smoother scrolling
+• Lower CPU usage
+• Lower memory usage
+• Fewer unnecessary renders
+• Better battery efficiency
+• Better APK performance
+• Stable 60 FPS animations
+• Excellent performance on mid-range Android devices
+
+==================================================
+REACT OPTIMIZATION
+==================================================
+
+Review every screen and every component.
+
+Optimize using:
+
+• React.memo where beneficial
+• useMemo only when expensive computations exist
+• useCallback only when it prevents unnecessary child renders
+
+Remove:
+
+• unnecessary renders
+• unnecessary object recreation
+• unnecessary array recreation
+• unnecessary inline functions
+• unnecessary inline style objects
+
+Avoid overusing memoization.
+
+==================================================
+CONTEXT OPTIMIZATION
+==================================================
+
+Review the entire AppContext.
+
+Prevent global context updates from re-rendering unrelated screens.
+
+Split context if necessary.
+
+Ensure only components depending on changed values re-render.
+
+Review:
+
+• useState
+• useReducer
+• useMemo
+• useCallback
+
+==================================================
+ASYNC STORAGE
+==================================================
+
+Optimize AsyncStorage usage.
+
+Avoid writing to storage after every small change.
+
+Batch writes whenever possible.
+
+Prevent multiple sequential writes.
+
+Never block the UI thread.
+
+Reduce unnecessary reads.
+
+==================================================
+FLATLIST OPTIMIZATION
+==================================================
+
+Review every FlatList.
+
+Optimize:
+
+• initialNumToRender
+• maxToRenderPerBatch
+• updateCellsBatchingPeriod
+• windowSize
+• removeClippedSubviews
+• keyExtractor
+• getItemLayout (where applicable)
+
+Avoid rendering items outside the viewport.
+
+Optimize renderItem callbacks.
+
+==================================================
+FLASHLIST
+==================================================
+
+Review all large lists.
+
+Where measurable performance improvements exist, migrate FlatList to FlashList.
+
+Examples:
+
+• Wrong Questions
+• Mock Exams
+• Achievements
+• Statistics lists
+• Any long scrolling list
+
+Only migrate when beneficial.
+
+==================================================
+NAVIGATION
+==================================================
+
+Optimize Expo Router / React Navigation.
+
+Prevent unnecessary screen re-renders.
+
+Enable lazy loading where appropriate.
+
+Keep navigation lightweight.
+
+Reduce navigation overhead.
+
+==================================================
+SCREEN RENDERING
+==================================================
+
+Review every screen.
+
+Remove expensive calculations from render.
+
+Cache expensive operations.
+
+Avoid repeated filtering.
+
+Avoid repeated sorting.
+
+Avoid repeated mapping.
+
+Move expensive work outside render.
+
+==================================================
+ANIMATION
+==================================================
+
+Review every animation.
+
+Ensure smooth 60 FPS.
+
+Avoid JS thread blocking.
+
+Avoid layout thrashing.
+
+Use native-driven animations whenever possible.
+
+==================================================
+NOTIFICATIONS
+==================================================
+
+Review notification synchronization.
+
+Ensure:
+
+• no duplicate scans
+• no unnecessary scheduling
+• no repeated synchronization
+• efficient startup restoration
+
+Notification system must remain functionally identical.
+
+==================================================
+IMAGE OPTIMIZATION
+==================================================
+
+Optimize images.
+
+Optimize icons.
+
+Prevent unnecessary re-rendering.
+
+Lazy load when appropriate.
+
+==================================================
+MEMORY MANAGEMENT
+==================================================
+
+Check for memory leaks.
+
+Remove unnecessary references.
+
+Clean:
+
+• notification listeners
+• event listeners
+• timers
+• intervals
+• subscriptions
+
+Ensure everything is properly cleaned up.
+
+==================================================
+CODE QUALITY
+==================================================
+
+Remove duplicated computations.
+
+Reduce nested loops.
+
+Avoid O(n²) algorithms when unnecessary.
+
+Cache repeated calculations.
+
+Simplify expensive logic without changing behavior.
+
+==================================================
+STARTUP PERFORMANCE
+==================================================
+
+Reduce application startup work.
+
+Move non-critical initialization to background after first render.
+
+Avoid expensive synchronous initialization.
+
+Only initialize what is required for the first screen.
+
+==================================================
+ADVANCED PERFORMANCE AUDIT
+==================================================
+
+Perform a complete production performance audit.
+
+Specifically verify:
+
+• Hermes JavaScript Engine is enabled for Android Release builds.
+• Release builds are properly optimized.
+• Development-only code is excluded from production.
+• Remove all unnecessary console.log, console.warn and debug logging in production.
+• Remove unused imports.
+• Remove dead code.
+• Remove unnecessary state updates.
+• Prevent excessive bridge communication between JavaScript and native modules.
+• Ensure notification listeners are registered only once.
+• Ensure AsyncStorage never blocks rendering.
+• Ensure there are no unnecessary synchronous operations.
+• Profile the application and optimize the slowest screens first.
+• Optimize only where measurable improvements exist.
+• Avoid premature optimization.
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT redesign the UI.
+
+Do NOT change colors.
+
+Do NOT change typography.
+
+Do NOT change spacing.
+
+Do NOT change navigation flow.
+
+Do NOT change notification behavior.
+
+Do NOT remove features.
+
+Do NOT change storage structure unless absolutely required for optimization.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end provide a detailed report including:
+
+• Every file modified
+• Every optimization applied
+• Why each optimization improves performance
+• Any measurable improvements
+• Any remaining bottlenecks
+• Confirmation that no existing functionality was changed
+
+The final application should feel significantly smoother, faster and more responsive in the production APK while preserving all existing functionality.
