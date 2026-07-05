@@ -345,10 +345,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           // had already fired while the app was closed (background delivery).
           // Without this update the next sync would see the same stale past date
           // and compute the wrong next trigger time, breaking the reminder chain.
+          //
+          // IMPORTANT: use `loadedQuestions` (the local variable read from
+          // AsyncStorage just above) — NOT a React state updater (`prev =>`)
+          // — because React may not have committed setQuestions(loadedQuestions)
+          // yet when this .then() runs. Using `prev` here risks seeing the
+          // initial empty [] state, causing saveData({ questions: [] }) to
+          // silently wipe the entire Question Bank.
           if (result.rescheduledQuestions.length > 0) {
             const updates = new Map(result.rescheduledQuestions.map(r => [r.id, r.newNextDate]));
             setQuestions(prev => {
-              const next = prev.map(q =>
+              // Guard against the startup race: if React hasn't committed
+              // setQuestions(loadedQuestions) yet, prev is still the initial
+              // empty [] — use loadedQuestions as the base in that case so we
+              // never call saveData({ questions: [] }) and wipe the bank.
+              // When prev has data it already includes any questions the user
+              // may have added since launch, so we prefer it to keep those.
+              const base =
+                prev.length === 0 && loadedQuestions.length > 0 ? loadedQuestions : prev;
+              const next = base.map(q =>
                 updates.has(q.id) && !q.understood
                   ? { ...q, nextReviewDate: updates.get(q.id)! }
                   : q

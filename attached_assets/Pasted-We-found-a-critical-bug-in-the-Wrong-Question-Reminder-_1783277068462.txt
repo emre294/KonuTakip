@@ -1,0 +1,132 @@
+We found a critical bug in the Wrong Question Reminder system.
+
+Do NOT redesign the notification system.
+
+Do NOT rewrite unrelated code.
+
+Only investigate and fix the bug.
+
+==================================================
+BUG
+==================================================
+
+During testing, after the first Wrong Question notification is delivered:
+
+The reminder stops.
+
+In one test, the Wrong Question itself appeared to disappear from the Question Bank.
+
+This must NEVER happen.
+
+==================================================
+REQUIREMENTS
+==================================================
+
+A notification must NEVER:
+
+• delete a question
+• modify a question
+• mark a question as understood
+• remove reminder settings
+• overwrite AsyncStorage
+• remove any user data
+
+Notifications are read-only events.
+
+Their only job is to notify the user.
+
+==================================================
+PLEASE AUDIT THE ENTIRE FLOW
+==================================================
+
+Inspect every function involved:
+
+• scheduleQuestionReminder
+• rescheduleQuestionReminder
+• cancelQuestionReminder
+• notification listeners
+• notification tap handlers
+• background listeners
+• syncNotifications
+• AppContext question functions
+• AsyncStorage save/load
+• notification routing
+
+Verify that none of them modify Question data.
+
+==================================================
+VERIFY
+==================================================
+
+Check whether any notification callback accidentally calls:
+
+deleteQuestion()
+
+removeQuestion()
+
+updateQuestion()
+
+setQuestions()
+
+loadData()
+
+saveData()
+
+markQuestionUnderstood()
+
+or any function that modifies the Question Bank.
+
+==================================================
+ASYNC STORAGE
+==================================================
+
+Verify that notification delivery never overwrites AsyncStorage.
+
+Verify that storage writes only happen when the user performs an action.
+
+==================================================
+RECURRING REMINDER
+==================================================
+
+After a Wrong Question notification is delivered:
+
+The question must remain unchanged.
+
+Immediately schedule the next reminder using the selected interval.
+
+Do NOT remove the question.
+
+Do NOT remove the reminder.
+
+Do NOT modify any statistics.
+
+==================================================
+TEST SCENARIOS
+==================================================
+
+Verify all of these:
+
+✓ First reminder delivered
+✓ Question still exists
+✓ Reminder still enabled
+✓ Next reminder scheduled
+✓ App restart
+✓ Device restart
+✓ Notification tap
+✓ Ignore notification
+✓ Delete question
+✓ Mark as understood
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end explain:
+
+• Whether any function was modifying Question data.
+• Whether notification delivery could delete questions.
+• Which file contained the bug (if any).
+• What was fixed.
+• Confirm that notifications are now completely read-only.
+• Confirm that questions can never disappear because of a notification.
+• Confirm that recurring reminders continue until the user taps "Anladım".
