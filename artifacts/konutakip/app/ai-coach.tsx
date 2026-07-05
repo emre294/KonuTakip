@@ -14,7 +14,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "@/contexts/AppContext";
-import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS } from "@/data/subjects";
+import { AYT_SUBJECTS_BY_FIELD, TYT_EXAM_DATE, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
 interface Recommendation {
@@ -71,7 +71,7 @@ export default function AICoachScreen() {
     const tytRemaining = allTYT.length - completedTYT;
 
     if (tytRemaining > 0 && tytProgress < 80) {
-      const daysToExam = Math.max(0, Math.floor((new Date("2027-06-14").getTime() - Date.now()) / 86400000));
+      const daysToExam = Math.max(0, Math.floor((TYT_EXAM_DATE.getTime() - Date.now()) / 86400000));
       const topicsPerDay = daysToExam > 0 ? Math.ceil(tytRemaining / daysToExam) : tytRemaining;
       recs.push({
         type: "info",

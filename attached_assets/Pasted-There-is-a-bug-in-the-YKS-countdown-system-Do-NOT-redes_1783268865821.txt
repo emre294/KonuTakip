@@ -1,0 +1,93 @@
+There is a bug in the YKS countdown system.
+
+Do NOT redesign the countdown screen.
+
+Only fix the countdown calculation logic.
+
+--------------------------------------------------
+BUG
+--------------------------------------------------
+
+The TYT countdown is showing fewer days than the actual remaining days.
+
+Example:
+
+Current remaining days until YKS:
+348
+
+But the application shows:
+
+TYT: 343 days
+
+This is incorrect.
+
+--------------------------------------------------
+EXPECTED BEHAVIOR
+--------------------------------------------------
+
+Both TYT and AYT countdowns must always be calculated using the official YKS exam dates.
+
+Use the official exam schedule for the selected exam year.
+
+For example, if the application is currently configured for the 2027 YKS:
+
+• TYT countdown = days remaining until the official 2027 TYT exam date.
+• AYT countdown = days remaining until the official 2027 AYT exam date.
+
+Do NOT hardcode incorrect offsets.
+
+Do NOT subtract arbitrary values.
+
+Always calculate using the actual exam dates.
+
+--------------------------------------------------
+IMPORTANT
+--------------------------------------------------
+
+If both exams belong to the same examination weekend:
+
+TYT countdown should use the official TYT date.
+
+AYT countdown should use the official AYT date.
+
+The difference between them should only be the real calendar difference (usually 1 day).
+
+It should NEVER differ by 4–5 days or any arbitrary number.
+
+--------------------------------------------------
+YEAR HANDLING
+--------------------------------------------------
+
+The countdown must automatically use the configured exam year.
+
+If the app targets YKS 2027:
+
+Use the official 2027 TYT and AYT dates.
+
+In the future, changing the target year should automatically update both countdowns.
+
+--------------------------------------------------
+DO NOT CHANGE
+--------------------------------------------------
+
+Do NOT modify:
+
+• UI
+• Colors
+• Cards
+• Animations
+• Statistics
+• Notifications
+
+Only fix the countdown calculation logic.
+
+--------------------------------------------------
+FINAL REPORT
+--------------------------------------------------
+
+At the end explain:
+
+• Which file contained the countdown calculation.
+• What caused the incorrect TYT value.
+• How the calculation was corrected.
+• Confirm that both TYT and AYT now always use the official exam dates for the configured year.

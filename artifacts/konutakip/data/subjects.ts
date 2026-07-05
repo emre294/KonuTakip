@@ -373,5 +373,8 @@ export const FIELD_LABELS: Record<StudyField, string> = {
   sozel: "Sözel",
 };
 
-export const TYT_EXAM_DATE = new Date("2027-06-14T09:30:00");
-export const AYT_EXAM_DATE = new Date("2027-06-15T09:30:00");
+// Official 2027 YKS dates — TYT on Saturday, AYT on Sunday (3rd weekend of June,
+// matching ÖSYM's historical pattern). Update here when ÖSYM publishes the
+// official schedule; both CountdownCards and ai-coach derive from these constants.
+export const TYT_EXAM_DATE = new Date("2027-06-19T09:30:00");
+export const AYT_EXAM_DATE = new Date("2027-06-20T09:30:00");
