@@ -282,7 +282,7 @@ export default function PlanScreen() {
       setErrSubject("Lütfen bir ders seçin.");
       return;
     }
-    if (!topic.trim()) {
+    if (repeatType === "one_time" && !topic.trim()) {
       setErrTopic("Lütfen çalışacağınız konuyu girin.");
       return;
     }
@@ -502,12 +502,14 @@ export default function PlanScreen() {
             {errSubject ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errSubject}</Text> : null}
 
             {/* Topic */}
-            <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Konu</Text>
+            <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+              {repeatType === "one_time" ? "Konu" : "Konu (opsiyonel)"}
+            </Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.card, borderColor: errTopic ? colors.destructive : colors.border, color: colors.foreground }]}
               value={topic}
               onChangeText={v => { setTopic(v); if (v.trim()) setErrTopic(""); }}
-              placeholder="Konu adı..."
+              placeholder={repeatType === "one_time" ? "Konu adı..." : "Her gün farklı konu çalışabilirsiniz."}
               placeholderTextColor={colors.mutedForeground}
             />
             {errTopic ? <Text style={[styles.fieldError, { color: colors.destructive }]}>{errTopic}</Text> : null}

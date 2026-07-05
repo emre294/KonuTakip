@@ -1,0 +1,107 @@
+There is a UX improvement needed in the Daily Study Plan.
+
+Do NOT redesign the Study Plan.
+
+Do NOT change notifications.
+
+Do NOT change statistics.
+
+Only adjust the validation rules for the Topic field.
+
+==================================================
+CURRENT BEHAVIOR
+==================================================
+
+The Topic field is always required.
+
+This includes recurring study sessions ("Repeat Every Day").
+
+This is inconvenient because students usually study different topics each day while keeping the same recurring study habit.
+
+==================================================
+EXPECTED BEHAVIOR
+==================================================
+
+Validation should depend on the session type.
+
+--------------------------------------------------
+One-time Study Session
+--------------------------------------------------
+
+Topic field remains REQUIRED.
+
+The student must enter a topic.
+
+Example:
+
+"Functions"
+
+--------------------------------------------------
+Recurring Daily Study Session
+--------------------------------------------------
+
+Topic field becomes OPTIONAL.
+
+The student may leave it empty.
+
+Example:
+
+Subject:
+
+TYT Mathematics
+
+Topic:
+
+(empty)
+
+Questions:
+
+40
+
+Repeat:
+
+Every Day
+
+This should save successfully.
+
+==================================================
+UI
+==================================================
+
+Do not remove the Topic field.
+
+Keep it visible.
+
+Simply make it optional for recurring sessions.
+
+If left empty, display a subtle placeholder such as:
+
+"Optional for recurring study plans"
+
+or
+
+"You can study different topics each day."
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT modify:
+
+• Statistics
+• Notifications
+• Session completion
+• Reminder system
+• One-time study sessions
+
+Only update the validation logic for recurring sessions.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Explain:
+
+• Which validation was changed.
+• Confirm that one-time sessions still require a topic.
+• Confirm that recurring sessions can now be saved without entering a topic.
