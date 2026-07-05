@@ -249,11 +249,15 @@ function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSo
   );
 }
 
-function TaskItem({ session, onComplete, colors }: {
+function TaskItem({ session, onComplete, colors, isCompletedToday }: {
   session: import("@/contexts/AppContext").DailySession;
   onComplete: () => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  isCompletedToday?: boolean;
 }) {
+  // For one-time sessions use session.completed; for recurring use per-day flag.
+  const effectiveCompleted = session.completed || (isCompletedToday ?? false);
+
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -264,17 +268,17 @@ function TaskItem({ session, onComplete, colors }: {
   }
 
   return (
-    <Animated.View style={[animStyle, styles.taskItem, { backgroundColor: session.completed ? colors.muted : colors.card }]}>
+    <Animated.View style={[animStyle, styles.taskItem, { backgroundColor: effectiveCompleted ? colors.muted : colors.card }]}>
       <View style={styles.taskLeft}>
         <TouchableOpacity
           onPress={handleComplete}
-          disabled={session.completed}
-          style={[styles.taskCheck, { borderColor: session.completed ? colors.success : colors.border, backgroundColor: session.completed ? colors.success : "transparent" }]}
+          disabled={effectiveCompleted}
+          style={[styles.taskCheck, { borderColor: effectiveCompleted ? colors.success : colors.border, backgroundColor: effectiveCompleted ? colors.success : "transparent" }]}
         >
-          {session.completed && <Feather name="check" size={13} color="#fff" />}
+          {effectiveCompleted && <Feather name="check" size={13} color="#fff" />}
         </TouchableOpacity>
         <View style={styles.taskInfo}>
-          <Text style={[styles.taskSubject, { color: session.completed ? colors.mutedForeground : colors.foreground, textDecorationLine: session.completed ? "line-through" : "none" }]}>
+          <Text style={[styles.taskSubject, { color: effectiveCompleted ? colors.mutedForeground : colors.foreground, textDecorationLine: effectiveCompleted ? "line-through" : "none" }]}>
             {session.subjectName}
           </Text>
           <Text style={[styles.taskTopic, { color: colors.mutedForeground }]} numberOfLines={1}>{session.topic}</Text>
@@ -295,7 +299,16 @@ export default function HomeScreen() {
   const [quote] = useState<Quote>(getRandomQuote);
 
   const today = new Date().toISOString().split("T")[0];
-  const todaySessions = useMemo(() => sessions.filter((s) => s.date === today), [sessions, today]);
+  const todayWd = new Date().getDay(); // 0=Sun … 6=Sat
+
+  // Include one-time sessions for today AND recurring sessions active today.
+  const todaySessions = useMemo(() => sessions.filter(s => {
+    if (s.repeatType === "one_time") return s.date === today;
+    if (s.repeatType === "every_day") return true;
+    if (s.repeatType === "every_week") return s.weekdays?.includes(todayWd) ?? false;
+    return false;
+  }), [sessions, today, todayWd]);
+
   const pendingSessions = useMemo(() => sessions.filter((s) => s.date < today && !s.completed), [sessions, today]);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
@@ -413,7 +426,13 @@ export default function HomeScreen() {
         ) : (
           <View style={styles.taskList}>
             {todaySessions.map((s) => (
-              <TaskItem key={s.id} session={s} onComplete={() => completeSession(s.id)} colors={colors} />
+              <TaskItem
+                key={s.id}
+                session={s}
+                onComplete={() => completeSession(s.id)}
+                colors={colors}
+                isCompletedToday={s.repeatType !== "one_time" && (s.completedDates?.includes(today) ?? false)}
+              />
             ))}
           </View>
         )}

@@ -1,0 +1,165 @@
+There is a bug in the Daily Study Plan system.
+
+Do NOT redesign the Study Plan.
+
+Do NOT change the UI.
+
+Only fix the logic for recurring ("Every Day") study sessions.
+
+==================================================
+BUG
+==================================================
+
+Currently, when a study session is created with:
+
+"Every Day"
+
+the "Complete Session" button does not appear.
+
+Because of this:
+
+• The student cannot mark the session as completed.
+• Daily Plan solved questions are never added to statistics.
+• The student cannot track completed recurring study sessions.
+
+This is incorrect.
+
+==================================================
+EXPECTED BEHAVIOR
+==================================================
+
+Recurring study sessions must behave exactly like one-time study sessions.
+
+Every day the student must be able to:
+
+• See the session.
+• Tap "Complete Session".
+• Automatically add the planned question count to Daily Plan statistics.
+• Update Total Solved Questions immediately.
+
+==================================================
+IMPORTANT
+==================================================
+
+The recurring session itself must NOT be deleted after completion.
+
+Instead:
+
+Each calendar day has its own completion state.
+
+Example:
+
+Monday
+Completed ✅
+
+Tuesday
+Not completed
+
+Wednesday
+Completed ✅
+
+Thursday
+Not completed
+
+Friday
+Completed ✅
+
+The same recurring plan remains visible every day.
+
+Only the completion status resets when a new day begins.
+
+==================================================
+QUESTION COUNT
+==================================================
+
+The planned question count must only be added ONCE per calendar day.
+
+Example:
+
+Recurring plan:
+
+TYT Mathematics
+
+40 Questions
+
+Monday:
+Complete Session
+→ +40
+
+Trying to complete again Monday:
+→ Do NOT add another +40.
+
+Tuesday:
+Complete Session
+→ +40
+
+Wednesday:
+Complete Session
+→ +40
+
+Never allow duplicate counting on the same day.
+
+==================================================
+STATISTICS
+==================================================
+
+Daily Plan Solved Questions must increase every day after completion.
+
+Total Solved Questions must also increase.
+
+The update must happen immediately.
+
+No restart.
+
+No refresh.
+
+==================================================
+HISTORY
+==================================================
+
+Store the completion date.
+
+Example:
+
+completedDates:
+
+[
+"2026-07-05",
+"2026-07-06",
+"2026-07-08"
+]
+
+Use today's date to determine whether today's session has already been completed.
+
+==================================================
+NOTIFICATIONS
+==================================================
+
+Do NOT change the notification system.
+
+Recurring reminders must continue working exactly as before.
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT modify:
+
+• Topic Tracking
+• Wrong Question Tracking
+• Statistics UI
+• Notification System
+• One-time study sessions
+
+Only fix recurring session completion logic.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end explain:
+
+• Which file contained the bug.
+• Why the Complete Session button was hidden.
+• How recurring sessions now track completion separately for each day.
+• Confirm that recurring sessions can now add Daily Plan solved questions once per day without duplicates.

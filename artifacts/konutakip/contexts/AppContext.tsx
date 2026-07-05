@@ -53,6 +53,9 @@ export interface DailySession {
   // dailySolvedQuestions. Set true the moment completeSession() adds its
   // count; checked again on edit/delete so the running total stays correct.
   countedInStatistics?: boolean;
+  // Recurring sessions only: ISO date strings (YYYY-MM-DD) for each calendar
+  // day the session was completed. One entry per day — never duplicated.
+  completedDates?: string[];
 }
 
 export interface QuestionAttachment {
@@ -736,16 +739,43 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [sessions]);
 
   const completeSession = useCallback((id: string): number => {
-    // Only one-time sessions can be marked complete.
     // Guard: if already in-flight (e.g. rapid double-tap before re-render), skip.
     if (completingSessionIds.current.has(id)) return 0;
+    const target = sessions.find(s => s.id === id);
+    if (!target) return 0;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // ── Recurring session (every_day / every_week) ─────────────────────────
+    if (target.repeatType !== "one_time") {
+      // One completion per calendar day — never duplicate.
+      if (target.completedDates?.includes(today)) return 0;
+      completingSessionIds.current.add(id);
+      const addedAmount = target.targetQuestions;
+      setSessions(prev => {
+        const next = prev.map(s => {
+          if (s.id !== id) return s;
+          return { ...s, completedDates: [...(s.completedDates ?? []), today] };
+        });
+        saveData({ sessions: next });
+        completingSessionIds.current.delete(id);
+        return next;
+      });
+      setDailySolvedQuestions(prevTotal => {
+        const next = prevTotal + addedAmount;
+        saveData({ dailySolvedQuestions: next });
+        return next;
+      });
+      markStudyDay();
+      return addedAmount;
+    }
+
+    // ── One-time session ───────────────────────────────────────────────────
     // Compute addedAmount synchronously from current sessions state BEFORE
     // calling setSessions. The setState updater runs asynchronously, so any
-    // mutation inside it (e.g. addedAmount = s.targetQuestions) would not be
-    // visible to code that runs after the setSessions call in the same tick.
-    const target = sessions.find(s => s.id === id);
+    // mutation inside it would not be visible to code in the same tick.
     const addedAmount =
-      target && !(target.completed && target.countedInStatistics)
+      !(target.completed && target.countedInStatistics)
         ? target.targetQuestions
         : 0;
     if (addedAmount > 0) completingSessionIds.current.add(id);
@@ -753,7 +783,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setSessions(prev => {
       const next = prev.map(s => {
         if (s.id !== id) return s;
-        if (s.completed && s.countedInStatistics) return s; // already counted — guard against double-add
+        if (s.completed && s.countedInStatistics) return s; // guard against double-add
         return { ...s, completed: true, countedInStatistics: true };
       });
       saveData({ sessions: next });
@@ -775,12 +805,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Cancel all notification variants (one-time, daily, weekly) for this session
     cancelAllSessionReminders(id).catch(() => {});
     const target = sessions.find(s => s.id === id);
-    if (target && target.completed && target.countedInStatistics) {
-      setDailySolvedQuestions(prevTotal => {
-        const next = Math.max(0, prevTotal - target.targetQuestions);
-        saveData({ dailySolvedQuestions: next });
-        return next;
-      });
+    if (target) {
+      if (target.repeatType !== "one_time") {
+        // Recurring: each entry in completedDates contributed targetQuestions once
+        const daysCompleted = target.completedDates?.length ?? 0;
+        if (daysCompleted > 0) {
+          setDailySolvedQuestions(prevTotal => {
+            const next = Math.max(0, prevTotal - daysCompleted * target.targetQuestions);
+            saveData({ dailySolvedQuestions: next });
+            return next;
+          });
+        }
+      } else if (target.completed && target.countedInStatistics) {
+        setDailySolvedQuestions(prevTotal => {
+          const next = Math.max(0, prevTotal - target.targetQuestions);
+          saveData({ dailySolvedQuestions: next });
+          return next;
+        });
+      }
     }
     setSessions(prev => {
       const next = prev.filter(s => s.id !== id);

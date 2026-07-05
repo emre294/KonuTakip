@@ -146,8 +146,9 @@ function SessionCard({
 }) {
   const today = new Date().toISOString().split("T")[0];
   const isOneTime = session.repeatType === "one_time";
+  const completedToday = !isOneTime && (session.completedDates?.includes(today) ?? false);
   const isPast = isOneTime && session.date < today && !session.completed;
-  const borderColor = session.completed
+  const borderColor = (session.completed || completedToday)
     ? colors.success
     : isPast
     ? colors.warning
@@ -190,11 +191,21 @@ function SessionCard({
               <Text style={[styles.completedText, { color: colors.success }]}>Tamamlandı</Text>
             </View>
           )
-        ) : (
-          <View style={[styles.recurringBadge, { backgroundColor: colors.secondary }]}>
-            <Feather name="clock" size={12} color={colors.mutedForeground} />
-            <Text style={[styles.recurringBadgeText, { color: colors.mutedForeground }]}>Otomatik tekrar</Text>
+        ) : completedToday ? (
+          // Recurring — already completed today
+          <View style={[styles.completedBadge, { backgroundColor: colors.success + "20" }]}>
+            <Feather name="check-circle" size={14} color={colors.success} />
+            <Text style={[styles.completedText, { color: colors.success }]}>Bugün Tamamlandı</Text>
           </View>
+        ) : (
+          // Recurring — not yet completed today
+          <TouchableOpacity
+            onPress={onComplete}
+            style={[styles.completeBtn, { backgroundColor: colors.success + "20" }]}
+          >
+            <Feather name="check" size={14} color={colors.success} />
+            <Text style={[styles.completeBtnText, { color: colors.success }]}>Tamamlandı</Text>
+          </TouchableOpacity>
         )}
         <TouchableOpacity onPress={onDelete} style={styles.deleteBtn}>
           <Feather name="trash-2" size={16} color={colors.destructive} />
@@ -385,7 +396,10 @@ export default function PlanScreen() {
                     <SessionCard
                       key={s.id}
                       session={s}
-                      onComplete={() => {}}
+                      onComplete={() => {
+                        const added = completeSession(s.id);
+                        if (added > 0) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                      }}
                       onDelete={() => deleteSession(s.id)}
                       colors={colors}
                     />
