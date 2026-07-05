@@ -294,7 +294,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
             style={[styles.input, { backgroundColor: colors.card, borderColor: nameError ? colors.destructive : colors.border, color: colors.foreground }]}
             value={examName}
             onChangeText={(v) => { setExamName(v); if (v.trim()) setNameError(false); }}
-            placeholder="Örn: TYT 15, Özdebir AYT 3..."
+            placeholder="Örn: Özdebir TYT Denemesi, 3D AYT Denemesi..."
             placeholderTextColor={colors.mutedForeground}
             autoFocus
           />
