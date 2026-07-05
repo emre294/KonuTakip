@@ -39,6 +39,7 @@ export {
   setupAndroidChannels,
   safeCancel,
   safeSchedule,
+  getAllScheduledNotifications,
   getScheduledIds,
   cancelAll,
 } from "./core";

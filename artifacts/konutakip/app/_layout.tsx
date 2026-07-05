@@ -85,12 +85,14 @@ function AppContent() {
     //    Expo removes the one-time scheduled notification. This listener
     //    immediately schedules the next occurrence (interval days from today)
     //    and updates the stored nextReviewDate so the watchdog sync stays
-    //    consistent on the next foreground transition.
+    //    consistent on the next foreground transition or periodic check.
     //
-    //    For background / closed delivery the foreground listener does NOT fire
-    //    (Expo only calls it while the app is active). Those reminders are
-    //    repaired by the watchdog: on cold start via loadData → syncNotifications,
-    //    and on warm foreground return via the AppState listener below.
+    //    NOTE: On some Android versions/devices, addNotificationReceivedListener
+    //    does NOT reliably fire for local scheduled notifications even when the
+    //    app is in the foreground (documented Expo/Android behavior).  The
+    //    periodic watchdog (item 5 below) covers this gap — it runs every
+    //    10 minutes while the app is active, so the chain is always repaired
+    //    within one watchdog cycle even if this listener silently skips.
     receivedListenerRef.current = Notifications.addNotificationReceivedListener(
       (notification) => {
         const data = notification.request.content.data as Record<string, unknown>;
@@ -117,7 +119,7 @@ function AppContent() {
         scheduleQuestionReminder(questionId, nextDate, subjectName, interval).catch(() => {});
 
         // Persist the updated nextReviewDate so the watchdog can verify it
-        // on the next foreground transition or cold start.
+        // on the next foreground transition or periodic check.
         updateQNRDRef.current(questionId, nextDate);
       }
     );
@@ -125,9 +127,7 @@ function AppContent() {
     // 4. Handle cold-start (app launched by tapping a notification)
     handleColdStartNotification();
 
-    // 5. Watchdog + permission cache refresh on every foreground transition.
-    //
-    //    This is the critical fix for the "chain stops on ignore/dismiss" bug.
+    // 5. AppState watchdog — runs on every background→foreground transition.
     //
     //    When a question notification fires while the app is in the background:
     //      a) The OS removes the one-time scheduled notification.
@@ -136,9 +136,6 @@ function AppContent() {
     //      d) runWatchdogSync detects the missing OS notification, sees that
     //         nextReviewDate is in the past, reschedules for today+interval,
     //         and persists the new date — fully restoring the chain.
-    //
-    //    Without this watchdog call, the chain would silently die every time a
-    //    notification was delivered while the app was backgrounded.
     const appStateSub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
       if (appStateRef.current.match(/inactive|background/) && nextState === "active") {
         invalidatePermissionCache();
@@ -149,10 +146,34 @@ function AppContent() {
       appStateRef.current = nextState;
     });
 
+    // 6. Periodic foreground watchdog — runs every 10 minutes while the app
+    //    is active.
+    //
+    //    This is the critical safeguard for the most common failure mode: the
+    //    app stays open in the foreground continuously (e.g. left open on a
+    //    desk) and addNotificationReceivedListener fails to fire for a delivered
+    //    notification (documented Android behavior on many devices/OS versions).
+    //    Without this timer the chain could stay broken for the entire session
+    //    — potentially hours — until the user backgrounds and foregrounds the app.
+    //
+    //    The 10-minute interval is >> the 30-second runWatchdogSync cooldown,
+    //    so every periodic call results in an actual OS notification query.
+    //
+    //    Repair: if the OS queue is missing the notification (it fired while
+    //    the foreground listener was skipped), runWatchdogSync schedules a new
+    //    one immediately — restoring the chain within the next 10-minute window.
+    const periodicWatchdogInterval = setInterval(() => {
+      // Only run when the app is truly in the foreground.
+      if (AppState.currentState === "active") {
+        runWatchdogSyncRef.current().catch(() => {});
+      }
+    }, 10 * 60 * 1000); // 10 minutes
+
     return () => {
       responseListenerRef.current?.remove();
       receivedListenerRef.current?.remove();
       appStateSub.remove();
+      clearInterval(periodicWatchdogInterval);
     };
   }, []);
 

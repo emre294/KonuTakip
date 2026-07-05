@@ -1,25 +1,30 @@
 /**
- * App-start notification synchronization.
+ * App-start notification synchronization + Wrong Question watchdog.
  *
- * Every time the app launches or returns to the foreground, this module:
- * 1. Reads the live set of OS-scheduled notification identifiers.
- * 2. For each stored entity that should have a future notification:
- *    - Present in OS  → leave it alone (avoid duplicate scheduling).
- *    - Missing from OS → restore it (e.g. after device reboot or background delivery).
- * 3. For any OS-scheduled notification that belongs to our namespace but has
- *    no matching stored entity → cancel it (orphan cleanup).
+ * Called on every cold start AND every foreground transition. Guarantees that
+ * every active (non-understood) Wrong Question always has EXACTLY ONE future
+ * scheduled notification, regardless of:
+ *   - notification dismissal or swipe-away
+ *   - notification tap or ignore
+ *   - app kill / force-stop / device reboot
+ *   - Android skipping the foreground delivery callback
+ *   - the app staying open in the foreground for an extended period
+ *
+ * Two repair cases are handled:
+ *   MISSING  — the notification is absent from the OS queue (fired in background,
+ *              device rebooted, OS purged it).
+ *   WRONG_DATE — the notification exists in the OS queue but its embedded
+ *               `scheduledForDate` payload field doesn't match the stored
+ *               `nextReviewDate` (stale/incorrect schedule from a past bug or
+ *               device clock change).  Only triggers when the new payload format
+ *               is present; older notifications without the field are trusted.
  *
  * This function is idempotent — running it multiple times produces the same result.
- *
- * WRONG QUESTION WATCHDOG:
- * The watchdog guarantees exactly one future notification exists for every active
- * (non-understood) question. It runs on every cold start AND every foreground
- * transition. It never depends on notification delivery, dismissal, or tap to
- * advance the chain — the chain is driven entirely by stored state + this sync.
  */
 
-import { NotificationId } from "./constants";
-import { getScheduledIds, safeCancel } from "./core";
+import * as Notifications from "expo-notifications";
+import { NotificationId, NotificationType } from "./constants";
+import { getAllScheduledNotifications, safeCancel } from "./core";
 import { notifLog } from "./logger";
 import {
   rescheduleTopicReminder,
@@ -74,11 +79,13 @@ export interface NotificationSyncInput {
 // ─── Sync result ─────────────────────────────────────────────────────────────
 
 export interface SyncResult {
-  /** Questions whose stored nextReviewDate was in the past (notification already
-   *  fired while the app was closed or in the background). Each entry carries the
-   *  new scheduled date (today + reminderInterval) so the caller can persist it to
-   *  AsyncStorage. Without this update the next sync would see the same stale past
-   *  date and compute the wrong trigger time again. */
+  /**
+   * Questions whose stored nextReviewDate was in the past (notification already
+   * fired while the app was closed or in the background). Each entry carries the
+   * new scheduled date (today + reminderInterval) so the caller can persist it to
+   * AsyncStorage. Without this update the next sync would see the same stale past
+   * date and compute the wrong trigger time again.
+   */
   rescheduledQuestions: Array<{ id: string; newNextDate: string }>;
 }
 
@@ -102,7 +109,28 @@ export async function syncNotifications(
     });
     notifLog.watchdogRun(trigger, activeQuestions.length);
 
-    const scheduledIds = await getScheduledIds();
+    // ── Fetch full notification objects (not just IDs) ─────────────────────
+    // Full objects allow the watchdog to verify the embedded scheduledForDate
+    // payload, catching stale/wrong-date notifications in addition to missing ones.
+    const allScheduled: Notifications.NotificationRequest[] = await getAllScheduledNotifications();
+    const scheduledIds = new Set(allScheduled.map((n) => n.identifier));
+
+    // Build a map from question ID → the date stored in the notification payload.
+    // Present only for notifications scheduled after the scheduledForDate field
+    // was introduced.  Older notifications (without the field) are not flagged
+    // as wrong-date — backward compatible.
+    const questionScheduledDates = new Map<string, string>();
+    for (const notif of allScheduled) {
+      const data = notif.content.data as Record<string, unknown> | undefined;
+      if (
+        data?.type === NotificationType.QUESTION_REMINDER &&
+        typeof data.questionId === "string" &&
+        typeof data.scheduledForDate === "string"
+      ) {
+        questionScheduledDates.set(data.questionId, data.scheduledForDate);
+      }
+    }
+
     const expectedIds = new Set<string>();
     let rebuilt = 0;
     let cancelled = 0;
@@ -130,21 +158,25 @@ export async function syncNotifications(
     // ── 2. Wrong Question watchdog ───────────────────────────────────────────
     //
     // Guarantee: every active (non-understood) question has exactly ONE future
-    // OS notification. Two repair cases:
+    // OS notification pointing to the correct date.  Three repair cases:
     //
-    //   a) Notification fired while app was not in foreground (background/closed).
-    //      The trigger time (nextReviewDate at 09:00) is NOW in the past.
-    //      → Schedule for today + reminderInterval so the cadence is preserved.
-    //      → Return in rescheduledQuestions so caller persists the new date.
+    //   MISSING / past_date — notification fired while app was not in foreground.
+    //     triggerTime is NOW in the past → schedule for today + reminderInterval.
+    //     Return in rescheduledQuestions so caller persists the new date.
     //
-    //   b) Notification was lost without having fired (device reboot, OS purge).
-    //      The trigger time is still in the FUTURE but absent from the OS queue.
-    //      → Restore the original scheduled date.
+    //   MISSING / missing_os — notification was lost without having fired
+    //     (device reboot, OS purge, Android battery kill).
+    //     triggerTime is still in the FUTURE → restore the original date.
+    //
+    //   PRESENT / wrong_date — notification IS in the OS queue but its embedded
+    //     scheduledForDate doesn't match question.nextReviewDate.  This catches
+    //     stale schedules caused by device clock changes, DST, or prior bugs.
+    //     Only triggers when the scheduledForDate payload field is present;
+    //     older notifications without it are left untouched (backward compatible).
     //
     // IMPORTANT: alreadyFired compares the ACTUAL trigger timestamp (09:00 on
-    // nextReviewDate), NOT just the date string. A notification scheduled for
-    // today at 09:00 has already fired if the current time is past 09:00 today,
-    // even though nextReviewDate === today (strict date comparison would miss it).
+    // nextReviewDate), NOT just the date string.  A notification scheduled for
+    // today at 09:00 has already fired if the current time is past 09:00 today.
     for (const question of input.questions) {
       if (question.understood) continue;
 
@@ -155,14 +187,30 @@ export async function syncNotifications(
       const alreadyFired = triggerTime <= now;
       const hasOsNotification = scheduledIds.has(id);
 
-      // Log the state of every active question so it's visible in dev console.
-      notifLog.questionState(question.id, question.reminderInterval, question.nextReviewDate, hasOsNotification);
+      // Wrong-date detection: only fires if the notification has the new payload
+      // field AND the stored date doesn't match.  Absent field = trust the notification.
+      const storedPayloadDate = questionScheduledDates.get(question.id);
+      const hasWrongDate =
+        hasOsNotification &&
+        storedPayloadDate !== undefined &&
+        storedPayloadDate !== question.nextReviewDate;
 
-      if (!hasOsNotification) {
-        // Compute the correct next date based on whether it already fired:
-        //   - Already fired → schedule from now (today + interval)
-        //   - Not yet fired  → restore original future date
-        const targetDate = alreadyFired
+      notifLog.questionState(
+        question.id,
+        question.reminderInterval,
+        question.nextReviewDate,
+        hasOsNotification
+      );
+
+      const needsRepair = !hasOsNotification || hasWrongDate;
+
+      if (needsRepair) {
+        // Compute the correct target date:
+        //   - Already fired (or wrong-date on a past date)  → today + interval
+        //   - Not yet fired + missing                       → restore original date
+        //   - Wrong-date on a future date                   → use question.nextReviewDate
+        const effectiveAlreadyFired = alreadyFired || hasWrongDate;
+        const targetDate = effectiveAlreadyFired
           ? (() => {
               const d = new Date();
               d.setDate(d.getDate() + question.reminderInterval);
@@ -179,16 +227,26 @@ export async function syncNotifications(
 
         if (ok) {
           rebuilt++;
+
+          const repairReason =
+            hasWrongDate
+              ? "wrong_date"
+              : alreadyFired
+              ? "past_date"
+              : "missing_os";
+
           notifLog.questionRepaired(
             question.id,
             question.reminderInterval,
             question.nextReviewDate,
             targetDate,
-            alreadyFired ? "past_date" : "missing_os"
+            repairReason
           );
 
-          if (alreadyFired) {
-            // Caller must persist this so the next sync uses the correct date.
+          // Only return in rescheduledQuestions when the date actually changed.
+          // wrong_date repairs always reset to today+interval, so they must be
+          // persisted so the next sync uses the new date.
+          if (alreadyFired || hasWrongDate) {
             rescheduledQuestions.push({ id: question.id, newNextDate: targetDate });
           }
         }
@@ -250,7 +308,7 @@ export async function syncNotifications(
 
     // ── 5. Orphan cleanup ────────────────────────────────────────────────────
     // Cancel any OS notification that belongs to our namespace but has no
-    // matching stored entity. Identified by the "::" separator convention.
+    // matching stored entity.  Identified by the "::" separator convention.
     for (const scheduledId of scheduledIds) {
       const parsed = NotificationId.parse(scheduledId);
       if (parsed === null) continue; // Not our namespace — leave alone

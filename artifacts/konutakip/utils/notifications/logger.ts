@@ -95,7 +95,7 @@ export const notifLog = {
     interval: number,
     oldDate: string,
     newDate: string,
-    reason: "past_date" | "missing_os"
+    reason: "past_date" | "missing_os" | "wrong_date"
   ): void {
     if (!IS_DEV) return;
     console.log(

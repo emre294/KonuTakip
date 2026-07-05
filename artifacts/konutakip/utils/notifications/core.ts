@@ -135,6 +135,21 @@ export async function safeSchedule(
 
 // ─── OS notification inspection ───────────────────────────────────────────────
 
+/**
+ * Returns ALL currently pending scheduled notifications with full content and
+ * trigger information. Use this instead of getScheduledIds when the watchdog
+ * needs to verify trigger dates, not just notification presence.
+ * Never throws — returns [] on error.
+ */
+export async function getAllScheduledNotifications(): Promise<Notifications.NotificationRequest[]> {
+  try {
+    return await Notifications.getAllScheduledNotificationsAsync();
+  } catch (err) {
+    notifLog.error("getAllScheduledNotifications", err);
+    return [];
+  }
+}
+
 /** Returns a Set of all currently scheduled notification identifiers. */
 export async function getScheduledIds(): Promise<Set<string>> {
   try {

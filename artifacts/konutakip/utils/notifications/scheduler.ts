@@ -128,12 +128,14 @@ export async function cancelTopicReminder(topicId: string): Promise<void> {
 
 /**
  * Schedule the next question reminder at 09:00 on `nextReviewDateStr`.
- * If the date is today or in the past, bumps to tomorrow at 09:00.
+ * If the date is today or in the past, bumps `reminderInterval` days from NOW
+ * so the original cadence is preserved even after background delivery.
  * Always replaces any existing reminder for the same question (cancel-first).
  *
- * `reminderInterval` is stored in the notification payload so the foreground
- * delivery listener can immediately schedule the following occurrence without
- * needing to read AsyncStorage.
+ * Payload fields stored for watchdog verification:
+ *   reminderInterval  — so the foreground listener can re-schedule without reading AsyncStorage
+ *   scheduledForDate  — the actual YYYY-MM-DD the notification will fire; lets the watchdog
+ *                       detect stale/wrong-date notifications (not just missing ones)
  */
 export async function scheduleQuestionReminder(
   questionId: string,
@@ -144,15 +146,19 @@ export async function scheduleQuestionReminder(
   const identifier = NotificationId.question(questionId);
   const triggerDate = new Date(`${nextReviewDateStr}T09:00:00`);
 
+  // Track the date we actually schedule for (may differ from nextReviewDateStr
+  // when the stored date is in the past and we bump forward).
+  let scheduledForDate = nextReviewDateStr;
+
   if (triggerDate <= new Date()) {
-    // The stored date is today or in the past — this means the notification
-    // already fired while the app was closed / the device was rebooted.
-    // Preserve the original interval by scheduling `reminderInterval` days
-    // from NOW (not storedDate + 1, which may still be in the past).
+    // The stored date is today or in the past — notification already fired while
+    // the app was closed / the device was rebooted.  Schedule from NOW instead so
+    // the interval is preserved rather than stacking up missed occurrences.
     const next = new Date();
     next.setDate(next.getDate() + reminderInterval);
     next.setHours(9, 0, 0, 0);
     triggerDate.setTime(next.getTime());
+    scheduledForDate = next.toISOString().split("T")[0];
   }
 
   return safeSchedule(
@@ -166,6 +172,10 @@ export async function scheduleQuestionReminder(
         questionId,
         subjectName,
         reminderInterval,
+        // The watchdog reads this on every sync to detect wrong-date notifications.
+        // If scheduledForDate !== question.nextReviewDate, the notification is stale
+        // and will be rescheduled even though it technically "exists" in the OS queue.
+        scheduledForDate,
       },
       ...androidChannel(Channel.QUESTION),
     },

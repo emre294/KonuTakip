@@ -1,0 +1,247 @@
+You did NOT fix the requested bug.
+
+You optimized React rendering and AsyncStorage performance, but you never fixed the Wrong Question Reminder reliability issue.
+
+Do NOT optimize anything else.
+
+Do NOT touch UI.
+
+Do NOT touch statistics.
+
+Do NOT touch Daily Plan.
+
+Do NOT touch Topic Tracking.
+
+Do NOT touch performance.
+
+Only fix the Wrong Question Reminder notification engine.
+
+==================================================
+CRITICAL BUG
+==================================================
+
+The reminder chain is still unreliable.
+
+Sometimes:
+
+• the first notification is delivered
+
+then
+
+• the reminder chain silently stops.
+
+Sometimes:
+
+• the notification disappears
+
+• no next notification is scheduled
+
+• reminders never continue.
+
+This is a RELEASE BLOCKER.
+
+==================================================
+ROOT REQUIREMENT
+==================================================
+
+The reminder chain must continue FOREVER until the user explicitly:
+
+✓ taps "Anladım"
+
+or
+
+✓ deletes the Wrong Question.
+
+Nothing else may stop the chain.
+
+==================================================
+DO NOT DEPEND ON
+==================================================
+
+The reminder chain MUST NOT depend on:
+
+• notification delivery
+
+• notification dismissal
+
+• notification tap
+
+• opening the app
+
+• keeping the app alive
+
+• Android background state
+
+• Expo notification callback timing
+
+If Android skips a callback, the reminder chain must still recover automatically.
+
+==================================================
+AUDIT THESE FILES
+==================================================
+
+Perform a complete audit of ONLY these files:
+
+utils/notifications/core.ts
+
+utils/notifications/scheduler.ts
+
+utils/notifications/sync.ts
+
+utils/notifications/routing.ts
+
+utils/notifications/index.ts
+
+Do NOT modify unrelated files.
+
+==================================================
+SELF-HEALING SYSTEM
+==================================================
+
+Every application launch must verify every active Wrong Question.
+
+For every active reminder:
+
+1.
+
+Calculate the expected next reminder.
+
+2.
+
+Read AsyncStorage.
+
+3.
+
+Read all scheduled OS notifications.
+
+4.
+
+If the notification is missing:
+
+Automatically recreate it.
+
+==================================================
+FOREGROUND CHECK
+==================================================
+
+Whenever the app returns to foreground:
+
+Run the same verification.
+
+Repair any missing reminder automatically.
+
+==================================================
+SINGLE FUTURE NOTIFICATION
+==================================================
+
+Every active Wrong Question must always have exactly ONE future scheduled notification.
+
+Never:
+
+0 notifications.
+
+Never:
+
+2 notifications.
+
+Exactly one.
+
+==================================================
+NEVER STOP THE CHAIN
+==================================================
+
+When a notification fires:
+
+The next notification must already be guaranteed.
+
+If Android loses the callback,
+
+the watchdog must recreate it.
+
+==================================================
+WATCHDOG
+==================================================
+
+Implement a watchdog that periodically verifies the notification chain.
+
+If any active Wrong Question has no future notification:
+
+Immediately recreate it.
+
+==================================================
+LOGGING (__DEV__ ONLY)
+==================================================
+
+Log:
+
+Question ID
+
+Current interval
+
+Expected next reminder
+
+Existing notification ID
+
+Notification recreated
+
+Notification repaired
+
+Notification cancelled
+
+Notification delivered
+
+Notification skipped
+
+==================================================
+VERIFY THESE SCENARIOS
+==================================================
+
+✓ Ignore notification
+
+✓ Swipe notification away
+
+✓ Kill the app
+
+✓ Force stop and reopen
+
+✓ Device reboot
+
+✓ App closed
+
+✓ App background
+
+✓ App foreground
+
+✓ Notification delivered
+
+✓ Notification not delivered
+
+✓ Wait multiple intervals
+
+The reminder chain must NEVER stop.
+
+==================================================
+DO NOT FINISH UNTIL
+==================================================
+
+Actually test the scheduling logic.
+
+Trace the complete lifecycle.
+
+Verify that every active Wrong Question always has one future notification scheduled.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Explain:
+
+• The exact root cause.
+
+• Which notification files were modified.
+
+• Why reminders previously stopped.
+
+• How the watchdog repairs missing notifications.
+
+• Why the reminder chain can no longer stop unless the user presses "Anladım" or deletes the Wrong Question.
