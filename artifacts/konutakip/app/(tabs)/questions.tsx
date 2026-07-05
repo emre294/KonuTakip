@@ -3,7 +3,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -284,7 +284,7 @@ function AttachmentThumb({ att, onRemove, onOpenViewer, colors }: {
 
 // ─── Question card ────────────────────────────────────────────────────────────
 
-function QuestionCard({ question, onUnderstood, onEdit, onDelete, onOpenImage, colors }: {
+const QuestionCard = React.memo(function QuestionCard({ question, onUnderstood, onEdit, onDelete, onOpenImage, colors }: {
   question: Question;
   onUnderstood: () => void;
   onEdit: () => void;
@@ -372,7 +372,7 @@ function QuestionCard({ question, onUnderstood, onEdit, onDelete, onOpenImage, c
       )}
     </View>
   );
-}
+});
 
 // ─── Subject section ──────────────────────────────────────────────────────────
 
@@ -617,10 +617,23 @@ export default function QuestionsScreen() {
   const [viewerImages, setViewerImages] = useState<string[]>([]);
   const [viewerStartIndex, setViewerStartIndex] = useState(0);
 
-  const allSubjects: Subject[] = [
+  // Stable derived values — recomputed only when profile or questions change.
+  const allSubjects = useMemo<Subject[]>(() => [
     ...TYT_SUBJECTS,
     ...(profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : []),
-  ];
+  ], [profile]);
+
+  // Pre-group questions by subjectId so each SubjectSection doesn't re-filter
+  // the full questions array on every render of QuestionsScreen.
+  const questionsBySubject = useMemo(() => {
+    const map = new Map<string, Question[]>();
+    for (const q of questions) {
+      const bucket = map.get(q.subjectId);
+      if (bucket) bucket.push(q);
+      else map.set(q.subjectId, [q]);
+    }
+    return map;
+  }, [questions]);
 
   function handleOpenImage(images: string[], startIndex: number) {
     setViewerImages(images);
@@ -663,7 +676,7 @@ export default function QuestionsScreen() {
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
-  const totalPending = questions.filter((q) => !q.understood).length;
+  const totalPending = useMemo(() => questions.filter((q) => !q.understood).length, [questions]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -699,7 +712,7 @@ export default function QuestionsScreen() {
               <SubjectSection
                 key={s.id}
                 subject={s}
-                questions={questions.filter((q) => q.subjectId === s.id)}
+                questions={questionsBySubject.get(s.id) ?? []}
                 onUnderstood={markQuestionUnderstood}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

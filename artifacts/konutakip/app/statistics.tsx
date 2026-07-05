@@ -75,7 +75,7 @@ export default function StatisticsScreen() {
     totalSolvedQuestions, dailySolvedQuestions, totalQuestionsSolved,
   } = useApp();
 
-  const completedSessions = sessions.filter((s) => s.completed);
+  const completedSessions = useMemo(() => sessions.filter((s) => s.completed), [sessions]);
 
   const subjectTopicCounts = useMemo(() => {
     const allSubjects = [...TYT_SUBJECTS, ...(profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [])];

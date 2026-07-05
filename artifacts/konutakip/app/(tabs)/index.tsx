@@ -249,7 +249,7 @@ function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSo
   );
 }
 
-function TaskItem({ session, onComplete, colors, isCompletedToday }: {
+const TaskItem = React.memo(function TaskItem({ session, onComplete, colors, isCompletedToday }: {
   session: import("@/contexts/AppContext").DailySession;
   onComplete: () => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
@@ -290,7 +290,7 @@ function TaskItem({ session, onComplete, colors, isCompletedToday }: {
       </View>
     </Animated.View>
   );
-}
+});
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -310,6 +310,13 @@ export default function HomeScreen() {
   }), [sessions, today, todayWd]);
 
   const pendingSessions = useMemo(() => sessions.filter((s) => s.date < today && !s.completed), [sessions, today]);
+
+  // Memoize the completed session count used in the stats row so the filter
+  // runs only when the sessions array changes, not on every render.
+  const completedSessionCount = useMemo(
+    () => sessions.filter((s) => s.completed).length,
+    [sessions]
+  );
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
@@ -392,8 +399,8 @@ export default function HomeScreen() {
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Ionicons name="calendar-outline" size={21} color={colors.primary} />
-            <Text style={[styles.statValue, { color: colors.foreground, fontSize: responsiveFontSize(String(sessions.filter((s) => s.completed).length), 20) }]}>
-              {sessions.filter((s) => s.completed).length}
+            <Text style={[styles.statValue, { color: colors.foreground, fontSize: responsiveFontSize(String(completedSessionCount), 20) }]}>
+              {completedSessionCount}
             </Text>
             <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Oturum</Text>
           </View>

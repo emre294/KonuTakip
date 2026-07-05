@@ -290,6 +290,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // in a ref so it is shared across renders without causing re-renders itself.
   const completingSessionIds = useRef(new Set<string>());
 
+  // ── Persisted-data shadow ref ─────────────────────────────────────────────
+  // Mirrors the last value written to AsyncStorage so saveData can merge and
+  // write in a single operation without an async disk read on every call.
+  // Populated from the parsed object in loadData; updated on every saveData call.
+  const persistedDataRef = useRef<Record<string, unknown>>({});
+
   // ── Watchdog refs ─────────────────────────────────────────────────────────
   // These refs always hold the latest committed state values so runWatchdogSync
   // can read them without a stale closure, regardless of when it is called.
@@ -320,6 +326,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const oldRaw = await AsyncStorage.getItem("konutakip_v2");
         if (oldRaw) {
           const old = JSON.parse(oldRaw);
+          // persistedDataRef starts as {} — first user action will start writing v3
           if (old.profile) setProfileState(old.profile);
           if (old.topicCompletion) setTopicCompletion(old.topicCompletion);
           if (old.sessions) setSessions(
@@ -333,6 +340,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         const data = JSON.parse(raw);
+        // Seed the shadow ref so saveData never needs to read from disk again.
+        persistedDataRef.current = data;
         if (data.profile) setProfileState(data.profile);
         if (data.topicCompletion) setTopicCompletion(data.topicCompletion);
         if (data.sessions) setSessions(
@@ -410,7 +419,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function saveData(updates: Partial<{
+  function saveData(updates: Partial<{
     profile: UserProfile | null;
     topicCompletion: Record<string, boolean>;
     sessions: DailySession[];
@@ -423,11 +432,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     topicReminders: Record<string, TopicReminderRecord>;
     dailyReminder: DailyReminderSetting | null;
   }>) {
-    try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      const existing = raw ? JSON.parse(raw) : {};
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...updates }));
-    } catch { /* ignore */ }
+    // Merge into the in-memory shadow and write once — no AsyncStorage.getItem needed.
+    // persistedDataRef is seeded from the parsed storage object in loadData, so this
+    // is always a complete merge even when only a single key changes.
+    persistedDataRef.current = { ...persistedDataRef.current, ...updates };
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(persistedDataRef.current)).catch(() => {});
   }
 
   const setProfile = useCallback((p: UserProfile) => {

@@ -1,2 +1,3 @@
 - [KonuTakip Architecture](konutakip-arch.md) — Expo mobile YKS study tracker; all state AsyncStorage-only, no backend needed.
 - [KonuTakip 5-Feature Implementation](konutakip-5feat.md) — subject renames, pickers, solved questions, topic reminders, notification deep-link; notes on saveData typing and reminder reliability.
+- [KonuTakip Performance Optimizations](konutakip-perf.md) — saveData shadow-ref pattern, screen memoization rules, React.memo components.

@@ -1,7 +1,7 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Modal,
@@ -262,16 +262,16 @@ export default function PlanScreen() {
   const [errDate,     setErrDate]     = useState("");
   const [errTime,     setErrTime]     = useState("");
 
-  const allSubjects = [
+  const allSubjects = useMemo(() => [
     ...TYT_SUBJECTS,
     ...(profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : []),
-  ];
+  ], [profile]);
 
-  // ── Split sessions into recurring vs one-time ────────────────────────────────
-  const recurringSessions = sessions.filter(s => s.repeatType !== "one_time");
-  const oneTimeSessions   = sessions.filter(s => s.repeatType === "one_time");
-  const grouped    = groupByDate([...oneTimeSessions].sort((a, b) => a.date.localeCompare(b.date)));
-  const sortedDates = Object.keys(grouped).sort();
+  // ── Derived session lists — memoized so they only recompute when sessions changes ─
+  const recurringSessions = useMemo(() => sessions.filter(s => s.repeatType !== "one_time"), [sessions]);
+  const oneTimeSessions   = useMemo(() => sessions.filter(s => s.repeatType === "one_time"), [sessions]);
+  const grouped    = useMemo(() => groupByDate([...oneTimeSessions].sort((a, b) => a.date.localeCompare(b.date))), [oneTimeSessions]);
+  const sortedDates = useMemo(() => Object.keys(grouped).sort(), [grouped]);
 
   // ── Save session ─────────────────────────────────────────────────────────────
   function saveSession() {

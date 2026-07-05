@@ -1,6 +1,6 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Alert,
   Modal,
@@ -396,8 +396,8 @@ export default function SubjectsScreen() {
     topicReminders, setTopicReminder, removeTopicReminder,
   } = useApp();
 
-  const aytSubjects = profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [];
-  const fieldLabel = profile ? FIELD_LABELS[profile.studyField] : "AYT";
+  const aytSubjects = useMemo(() => profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [], [profile]);
+  const fieldLabel = useMemo(() => profile ? FIELD_LABELS[profile.studyField] : "AYT", [profile]);
 
   const [reminderModal, setReminderModal] = useState<{
     topicId: string; topicName: string; subjectName: string;

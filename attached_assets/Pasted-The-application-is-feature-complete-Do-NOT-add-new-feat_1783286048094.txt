@@ -1,0 +1,199 @@
+The application is feature-complete.
+
+Do NOT add new features.
+
+Do NOT redesign the UI.
+
+Do NOT modify business logic.
+
+Do NOT change notifications.
+
+Do NOT change statistics.
+
+Only optimize the application for the first production release.
+
+==================================================
+GOAL
+==================================================
+
+Improve performance, smoothness and stability.
+
+Remove unnecessary re-renders.
+
+Reduce startup lag.
+
+Improve scrolling performance.
+
+Keep all existing functionality exactly the same.
+
+==================================================
+PERFORMANCE AUDIT
+==================================================
+
+Inspect the entire application and optimize:
+
+• unnecessary React re-renders
+• unnecessary state updates
+• unnecessary AsyncStorage writes
+• expensive useEffects
+• repeated calculations
+• repeated filtering
+• repeated sorting
+• repeated object creation
+• unnecessary component mounting
+• unnecessary FlatList re-renders
+
+==================================================
+REACT OPTIMIZATION
+==================================================
+
+Use React best practices where appropriate.
+
+Examples:
+
+• React.memo
+• useMemo
+• useCallback
+
+Only where they actually improve performance.
+
+Do NOT overuse memoization.
+
+==================================================
+FLATLIST
+==================================================
+
+Audit every FlatList.
+
+Ensure:
+
+• stable keyExtractor
+• remove anonymous renderItem functions
+• avoid unnecessary extraData updates
+• optimize initialNumToRender
+• optimize windowSize
+• optimize maxToRenderPerBatch
+• optimize updateCellsBatchingPeriod
+
+Do NOT change the UI.
+
+==================================================
+ASYNC STORAGE
+==================================================
+
+Avoid writing to AsyncStorage unless data actually changed.
+
+Prevent duplicate saves.
+
+Prevent repeated writes during a single action.
+
+==================================================
+STARTUP
+==================================================
+
+Reduce work executed during application startup.
+
+Only load what is required immediately.
+
+Delay non-critical synchronization until after the initial render if possible.
+
+==================================================
+NOTIFICATIONS
+==================================================
+
+Keep notification behavior exactly the same.
+
+Do NOT change logic.
+
+Only ensure initialization is lightweight.
+
+==================================================
+LIST SCREENS
+==================================================
+
+Optimize:
+
+• Subjects
+
+• Question Bank
+
+• Daily Plan
+
+• Mock Exams
+
+• Statistics
+
+Prevent unnecessary re-rendering when unrelated state changes.
+
+==================================================
+ANIMATIONS
+==================================================
+
+Keep all existing animations.
+
+Remove dropped frames.
+
+Avoid layout recalculations during animation.
+
+==================================================
+MEMORY
+==================================================
+
+Remove memory leaks.
+
+Ensure every listener is cleaned up.
+
+Ensure notification listeners are unsubscribed correctly.
+
+==================================================
+DEVELOPMENT LOGS
+==================================================
+
+Remove or disable unnecessary console.log statements in production.
+
+Keep development logging behind __DEV__ only.
+
+==================================================
+TYPESCRIPT
+==================================================
+
+Maintain zero TypeScript errors.
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT modify:
+
+• Features
+• Navigation
+• Notifications
+• Statistics
+• Study logic
+• Question tracking
+• Topic tracking
+• Daily Plan behavior
+• Mock Exams
+• UI design
+
+Only optimize performance and stability.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Explain:
+
+• Which files were optimized.
+
+• Which unnecessary re-renders were removed.
+
+• Which AsyncStorage writes were reduced.
+
+• Which components now render less often.
+
+• Which startup optimizations were applied.
+
+• Confirm that all existing functionality remains unchanged.
+
+• Confirm that the application is production-ready for Play Store.
