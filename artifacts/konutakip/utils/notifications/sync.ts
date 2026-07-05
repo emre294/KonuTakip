@@ -65,9 +65,21 @@ export interface NotificationSyncInput {
   dailyReminder: SyncDailyReminder | null;
 }
 
+// ─── Sync result ─────────────────────────────────────────────────────────────
+
+export interface SyncResult {
+  /** Questions whose stored nextReviewDate was in the past (notification already
+   *  fired while the app was closed). Each entry carries the new scheduled date
+   *  (today + reminderInterval) so the caller can persist it to AsyncStorage.
+   *  Without this update the next sync would see the same stale past date and
+   *  compute the wrong trigger time again. */
+  rescheduledQuestions: Array<{ id: string; newNextDate: string }>;
+}
+
 // ─── Main sync ────────────────────────────────────────────────────────────────
 
-export async function syncNotifications(input: NotificationSyncInput): Promise<void> {
+export async function syncNotifications(input: NotificationSyncInput): Promise<SyncResult> {
+  const rescheduledQuestions: Array<{ id: string; newNextDate: string }> = [];
   try {
     const today = new Date().toISOString().split("T")[0];
 
@@ -103,10 +115,15 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
     }
 
     // ── 2. Question reminders ───────────────────────────────────────────────
-    // Overdue questions (nextReviewDate in the past) are NOT skipped — they
-    // represent notifications that fired while the app was closed or the device
-    // was rebooted without the foreground listener running. scheduleQuestionReminder
-    // automatically bumps past dates to tomorrow, restoring the reminder cycle.
+    // Two cases when a question notification is missing from the OS:
+    //   a) nextReviewDate is in the FUTURE → notification lost (device reboot).
+    //      Restore the original scheduled date.
+    //   b) nextReviewDate is in the PAST   → notification already fired while
+    //      the app was closed or the foreground listener wasn't running.
+    //      Schedule for today + reminderInterval so the cadence is preserved,
+    //      then record in rescheduledQuestions so the caller can persist the
+    //      new date — without this step the next sync would see the same stale
+    //      date and compute the wrong trigger time again.
     for (const question of input.questions) {
       if (question.understood) continue;
 
@@ -114,13 +131,31 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
       expectedIds.add(id);
 
       if (!scheduledIds.has(id)) {
+        const alreadyFired = question.nextReviewDate < today;
+
+        // For already-fired reminders compute the correct next date now so we
+        // can both schedule it and return it for storage update.
+        const targetDate = alreadyFired
+          ? (() => {
+              const d = new Date();
+              d.setDate(d.getDate() + question.reminderInterval);
+              return d.toISOString().split("T")[0];
+            })()
+          : question.nextReviewDate;
+
         const ok = await scheduleQuestionReminder(
           question.id,
-          question.nextReviewDate,
+          targetDate,
           question.subjectName,
           question.reminderInterval
         );
-        if (ok) rebuilt++;
+        if (ok) {
+          rebuilt++;
+          if (alreadyFired) {
+            // Caller must persist this so the next sync uses the correct date.
+            rescheduledQuestions.push({ id: question.id, newNextDate: targetDate });
+          }
+        }
       }
     }
 
@@ -195,4 +230,5 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<v
     // Sync failure must never crash the app
     notifLog.error("syncNotifications", err);
   }
+  return { rescheduledQuestions };
 }

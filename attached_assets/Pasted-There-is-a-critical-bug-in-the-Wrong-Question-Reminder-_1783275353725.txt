@@ -1,0 +1,229 @@
+There is a critical bug in the Wrong Question Reminder system.
+
+Do NOT redesign the notification architecture.
+
+Do NOT modify the UI.
+
+Do NOT change Topic reminders, Daily reminders or Study Session reminders.
+
+Only fix the recurring reminder logic for Wrong Questions.
+
+==================================================
+CURRENT BUG
+==================================================
+
+Current behavior:
+
+A student adds a Wrong Question.
+
+Selects a reminder interval:
+
+• 3 Days
+• 5 Days
+• 7 Days
+
+The first notification is delivered correctly.
+
+After that notification is delivered, the reminder stops forever.
+
+Even though the student has NOT marked the question as "Understood".
+
+This is incorrect.
+
+==================================================
+EXPECTED BEHAVIOR
+==================================================
+
+Wrong Question reminders must continue indefinitely until the student explicitly marks the question as "Understood".
+
+Example:
+
+Reminder interval:
+
+7 Days
+
+Timeline:
+
+Day 7
+→ Notification sent
+
+Student ignores it.
+
+Immediately after the notification is delivered,
+the system automatically schedules the next reminder
+for Day 14.
+
+Day 14
+→ Notification sent
+
+Immediately schedule Day 21.
+
+Day 21
+→ Notification sent
+
+Immediately schedule Day 28.
+
+Continue forever.
+
+==================================================
+IMPORTANT
+==================================================
+
+The reminder must NEVER stop because:
+
+• the notification was delivered
+• the notification was opened
+• the app was opened
+• the app restarted
+• the phone rebooted
+• the app was updated
+
+The reminder chain must continue forever until the user explicitly ends it.
+
+==================================================
+STOP CONDITIONS
+==================================================
+
+Recurring reminders must stop ONLY when:
+
+• The student taps "Anladım"
+• The wrong question is deleted
+• The reminder is manually disabled (if supported)
+
+Nothing else should stop the reminder chain.
+
+==================================================
+INTERVAL
+==================================================
+
+Always preserve the originally selected interval.
+
+If the user selected:
+
+3 Days
+
+→ remind every 3 days.
+
+5 Days
+
+→ remind every 5 days.
+
+7 Days
+
+→ remind every 7 days.
+
+Never convert intervals.
+
+Never reset intervals.
+
+==================================================
+RESCHEDULING
+==================================================
+
+After EVERY notification is delivered:
+
+1. Cancel the expired scheduled notification.
+2. Calculate the next reminder date.
+3. Schedule the next notification.
+4. Save the new reminder date.
+5. Keep the same notification identifier.
+
+The user should always have exactly ONE pending notification for each wrong question.
+
+==================================================
+NO DUPLICATES
+==================================================
+
+Never create duplicate notifications.
+
+Use deterministic identifiers.
+
+Example:
+
+question::<questionId>
+
+Before scheduling:
+
+Cancel existing pending notification.
+
+Then create the next one.
+
+==================================================
+APP START SYNCHRONIZATION
+==================================================
+
+On every application launch:
+
+Read AsyncStorage.
+
+Compare stored reminder dates.
+
+Compare scheduled OS notifications.
+
+If a reminder should exist but does not:
+
+Automatically recreate it.
+
+If duplicate notifications exist:
+
+Remove duplicates.
+
+If orphan notifications exist:
+
+Remove them.
+
+==================================================
+NOTIFICATION TAP
+==================================================
+
+Notification tap must still navigate to:
+
+/(tabs)/questions
+
+Opening the notification MUST NOT stop recurring reminders.
+
+==================================================
+PERSISTENCE
+==================================================
+
+Store the next scheduled reminder date.
+
+After every notification fires:
+
+Update the stored next reminder date.
+
+This guarantees reminders continue correctly after:
+
+• App restart
+• Device reboot
+• App update
+
+==================================================
+DO NOT CHANGE
+==================================================
+
+Do NOT modify:
+
+• Topic Reminder system
+• Daily Reminder system
+• Study Session Reminder system
+• Statistics
+• UI
+• Navigation
+• Permission handling
+
+Only fix the recurring reminder logic for Wrong Questions.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end explain:
+
+• Why reminders stopped after the first notification.
+• Which file contained the bug.
+• How the recurring reminder chain now works.
+• How the next reminder is automatically scheduled after every delivery.
+• Confirm that reminders continue every 3/5/7 days until the student taps "Anladım".
+• Confirm that notification delivery, opening the app, restarting the app or rebooting the device no longer stops reminders.
+• Confirm that duplicate notifications are impossible.

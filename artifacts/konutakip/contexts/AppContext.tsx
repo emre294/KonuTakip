@@ -340,6 +340,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           questions: loadedQuestions,
           sessions: loadedSessions,
           dailyReminder: loadedDailyReminder,
+        }).then(result => {
+          // Persist the updated nextReviewDate for any question whose reminder
+          // had already fired while the app was closed (background delivery).
+          // Without this update the next sync would see the same stale past date
+          // and compute the wrong next trigger time, breaking the reminder chain.
+          if (result.rescheduledQuestions.length > 0) {
+            const updates = new Map(result.rescheduledQuestions.map(r => [r.id, r.newNextDate]));
+            setQuestions(prev => {
+              const next = prev.map(q =>
+                updates.has(q.id) && !q.understood
+                  ? { ...q, nextReviewDate: updates.get(q.id)! }
+                  : q
+              );
+              saveData({ questions: next });
+              return next;
+            });
+          }
         }).catch(() => {});
       }
     } catch { /* ignore */ } finally {

@@ -145,8 +145,14 @@ export async function scheduleQuestionReminder(
   const triggerDate = new Date(`${nextReviewDateStr}T09:00:00`);
 
   if (triggerDate <= new Date()) {
-    triggerDate.setDate(triggerDate.getDate() + 1);
-    triggerDate.setHours(9, 0, 0, 0);
+    // The stored date is today or in the past — this means the notification
+    // already fired while the app was closed / the device was rebooted.
+    // Preserve the original interval by scheduling `reminderInterval` days
+    // from NOW (not storedDate + 1, which may still be in the past).
+    const next = new Date();
+    next.setDate(next.getDate() + reminderInterval);
+    next.setHours(9, 0, 0, 0);
+    triggerDate.setTime(next.getTime());
   }
 
   return safeSchedule(
