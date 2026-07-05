@@ -1,0 +1,87 @@
+I uploaded the current app icon.
+
+Do NOT redesign the logo.
+
+Do NOT change the colors.
+
+Do NOT change the book.
+
+Do NOT change the green checkmark.
+
+Keep the overall visual identity exactly the same.
+
+Only improve the composition.
+
+==================================================
+GOAL
+==================================================
+
+The logo currently fills almost the entire icon.
+
+Because of this, it looks cramped and oversized on Android and Google Play.
+
+Reduce the size of the book + checkmark to approximately 65–70% of the available icon area.
+
+==================================================
+LAYOUT
+==================================================
+
+• Keep the icon perfectly centered.
+• Increase the empty padding around the logo.
+• Preserve equal spacing on all four sides.
+• Ensure the logo fits comfortably inside Android Adaptive Icon safe zones.
+• Nothing should feel cropped or too close to the edges.
+
+==================================================
+BACKGROUND
+==================================================
+
+Keep the existing dark navy rounded-square background exactly as it is.
+
+Do not replace it.
+
+Do not change its color.
+
+==================================================
+BOOK
+==================================================
+
+Keep the exact same book shape.
+
+Simply scale it down proportionally.
+
+Do not stretch or distort it.
+
+==================================================
+CHECKMARK
+==================================================
+
+Keep the exact same green checkmark.
+
+Scale it proportionally together with the book.
+
+Do not move it independently.
+
+==================================================
+QUALITY
+==================================================
+
+Export at 1024×1024.
+
+Maintain sharp edges.
+
+Maintain the current shadows.
+
+Maintain anti-aliasing.
+
+No pixelation.
+
+==================================================
+IMPORTANT
+==================================================
+
+This is NOT a redesign.
+
+It is only a spacing and composition improvement.
+
+The final icon should look identical to the original, but with more breathing room around the logo so it appears more professional on Android, iOS, and Google Play.
