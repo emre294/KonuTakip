@@ -1,15 +1,21 @@
 /**
  * App-start notification synchronization.
  *
- * Every time the app launches, this module:
+ * Every time the app launches or returns to the foreground, this module:
  * 1. Reads the live set of OS-scheduled notification identifiers.
  * 2. For each stored entity that should have a future notification:
  *    - Present in OS  → leave it alone (avoid duplicate scheduling).
- *    - Missing from OS → restore it (e.g. after device reboot).
+ *    - Missing from OS → restore it (e.g. after device reboot or background delivery).
  * 3. For any OS-scheduled notification that belongs to our namespace but has
  *    no matching stored entity → cancel it (orphan cleanup).
  *
  * This function is idempotent — running it multiple times produces the same result.
+ *
+ * WRONG QUESTION WATCHDOG:
+ * The watchdog guarantees exactly one future notification exists for every active
+ * (non-understood) question. It runs on every cold start AND every foreground
+ * transition. It never depends on notification delivery, dismissal, or tap to
+ * advance the chain — the chain is driven entirely by stored state + this sync.
  */
 
 import { NotificationId } from "./constants";
@@ -69,25 +75,32 @@ export interface NotificationSyncInput {
 
 export interface SyncResult {
   /** Questions whose stored nextReviewDate was in the past (notification already
-   *  fired while the app was closed). Each entry carries the new scheduled date
-   *  (today + reminderInterval) so the caller can persist it to AsyncStorage.
-   *  Without this update the next sync would see the same stale past date and
-   *  compute the wrong trigger time again. */
+   *  fired while the app was closed or in the background). Each entry carries the
+   *  new scheduled date (today + reminderInterval) so the caller can persist it to
+   *  AsyncStorage. Without this update the next sync would see the same stale past
+   *  date and compute the wrong trigger time again. */
   rescheduledQuestions: Array<{ id: string; newNextDate: string }>;
 }
 
 // ─── Main sync ────────────────────────────────────────────────────────────────
 
-export async function syncNotifications(input: NotificationSyncInput): Promise<SyncResult> {
+export async function syncNotifications(
+  input: NotificationSyncInput,
+  trigger: "launch" | "foreground" = "launch"
+): Promise<SyncResult> {
   const rescheduledQuestions: Array<{ id: string; newNextDate: string }> = [];
   try {
     const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+
+    const activeQuestions = input.questions.filter(q => !q.understood);
 
     notifLog.syncStart({
       topics: Object.keys(input.topicReminders).length,
       questions: input.questions.length,
       sessions: input.sessions.length,
     });
+    notifLog.watchdogRun(trigger, activeQuestions.length);
 
     const scheduledIds = await getScheduledIds();
     const expectedIds = new Set<string>();
@@ -114,27 +127,41 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<S
       }
     }
 
-    // ── 2. Question reminders ───────────────────────────────────────────────
-    // Two cases when a question notification is missing from the OS:
-    //   a) nextReviewDate is in the FUTURE → notification lost (device reboot).
-    //      Restore the original scheduled date.
-    //   b) nextReviewDate is in the PAST   → notification already fired while
-    //      the app was closed or the foreground listener wasn't running.
-    //      Schedule for today + reminderInterval so the cadence is preserved,
-    //      then record in rescheduledQuestions so the caller can persist the
-    //      new date — without this step the next sync would see the same stale
-    //      date and compute the wrong trigger time again.
+    // ── 2. Wrong Question watchdog ───────────────────────────────────────────
+    //
+    // Guarantee: every active (non-understood) question has exactly ONE future
+    // OS notification. Two repair cases:
+    //
+    //   a) Notification fired while app was not in foreground (background/closed).
+    //      The trigger time (nextReviewDate at 09:00) is NOW in the past.
+    //      → Schedule for today + reminderInterval so the cadence is preserved.
+    //      → Return in rescheduledQuestions so caller persists the new date.
+    //
+    //   b) Notification was lost without having fired (device reboot, OS purge).
+    //      The trigger time is still in the FUTURE but absent from the OS queue.
+    //      → Restore the original scheduled date.
+    //
+    // IMPORTANT: alreadyFired compares the ACTUAL trigger timestamp (09:00 on
+    // nextReviewDate), NOT just the date string. A notification scheduled for
+    // today at 09:00 has already fired if the current time is past 09:00 today,
+    // even though nextReviewDate === today (strict date comparison would miss it).
     for (const question of input.questions) {
       if (question.understood) continue;
 
       const id = NotificationId.question(question.id);
       expectedIds.add(id);
 
-      if (!scheduledIds.has(id)) {
-        const alreadyFired = question.nextReviewDate < today;
+      const triggerTime = new Date(`${question.nextReviewDate}T09:00:00`);
+      const alreadyFired = triggerTime <= now;
+      const hasOsNotification = scheduledIds.has(id);
 
-        // For already-fired reminders compute the correct next date now so we
-        // can both schedule it and return it for storage update.
+      // Log the state of every active question so it's visible in dev console.
+      notifLog.questionState(question.id, question.reminderInterval, question.nextReviewDate, hasOsNotification);
+
+      if (!hasOsNotification) {
+        // Compute the correct next date based on whether it already fired:
+        //   - Already fired → schedule from now (today + interval)
+        //   - Not yet fired  → restore original future date
         const targetDate = alreadyFired
           ? (() => {
               const d = new Date();
@@ -149,8 +176,17 @@ export async function syncNotifications(input: NotificationSyncInput): Promise<S
           question.subjectName,
           question.reminderInterval
         );
+
         if (ok) {
           rebuilt++;
+          notifLog.questionRepaired(
+            question.id,
+            question.reminderInterval,
+            question.nextReviewDate,
+            targetDate,
+            alreadyFired ? "past_date" : "missing_os"
+          );
+
           if (alreadyFired) {
             // Caller must persist this so the next sync uses the correct date.
             rescheduledQuestions.push({ id: question.id, newNextDate: targetDate });

@@ -24,6 +24,7 @@ import {
   handleNotificationTap,
   initNotifications,
   invalidatePermissionCache,
+  notifLog,
   NotificationType,
   scheduleQuestionReminder,
   type ReminderInterval,
@@ -55,15 +56,20 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 // ─── App content (inside providers) ──────────────────────────────────────────
 
 function AppContent() {
-  const { newAchievement, clearNewAchievement, updateQuestionNextReviewDate } = useApp();
+  const { newAchievement, clearNewAchievement, updateQuestionNextReviewDate, runWatchdogSync } = useApp();
   const responseListenerRef = useRef<Notifications.EventSubscription | null>(null);
   const receivedListenerRef = useRef<Notifications.EventSubscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
-  // Stable ref so the effect closure always calls the latest function instance
-  // without needing to re-register listeners when the reference changes.
+  // Stable refs so the effect closures always call the latest function instances
+  // without needing to re-register listeners when the references change.
   const updateQNRDRef = useRef(updateQuestionNextReviewDate);
   updateQNRDRef.current = updateQuestionNextReviewDate;
+
+  // Stable ref for the watchdog so the AppState listener (which is created once
+  // in the effect) always calls the latest runWatchdogSync without re-registering.
+  const runWatchdogSyncRef = useRef(runWatchdogSync);
+  runWatchdogSyncRef.current = runWatchdogSync;
 
   useEffect(() => {
     // 1. Init channels + request permission (non-blocking)
@@ -78,12 +84,13 @@ function AppContent() {
     //    When a question reminder fires while the app is in the foreground,
     //    Expo removes the one-time scheduled notification. This listener
     //    immediately schedules the next occurrence (interval days from today)
-    //    and updates the stored nextReviewDate so syncNotifications stays
-    //    consistent.
+    //    and updates the stored nextReviewDate so the watchdog sync stays
+    //    consistent on the next foreground transition.
     //
-    //    For background / closed delivery the foreground listener does not
-    //    fire — those reminders are rebuilt by syncNotifications on the next
-    //    cold start (see AppContext loadData + sync.ts).
+    //    For background / closed delivery the foreground listener does NOT fire
+    //    (Expo only calls it while the app is active). Those reminders are
+    //    repaired by the watchdog: on cold start via loadData → syncNotifications,
+    //    and on warm foreground return via the AppState listener below.
     receivedListenerRef.current = Notifications.addNotificationReceivedListener(
       (notification) => {
         const data = notification.request.content.data as Record<string, unknown>;
@@ -102,10 +109,15 @@ function AppContent() {
         nextDay.setDate(nextDay.getDate() + interval);
         const nextDate = nextDay.toISOString().split("T")[0];
 
-        // Schedule next occurrence (safeSchedule cancels any existing first)
+        // Log the foreground delivery so it's visible in the dev console.
+        notifLog.questionDelivered(questionId, interval, nextDate);
+
+        // Schedule next occurrence immediately (safeSchedule cancels any
+        // existing first, so no duplicate can arise).
         scheduleQuestionReminder(questionId, nextDate, subjectName, interval).catch(() => {});
 
-        // Persist the updated nextReviewDate so sync can verify on next launch
+        // Persist the updated nextReviewDate so the watchdog can verify it
+        // on the next foreground transition or cold start.
         updateQNRDRef.current(questionId, nextDate);
       }
     );
@@ -113,11 +125,26 @@ function AppContent() {
     // 4. Handle cold-start (app launched by tapping a notification)
     handleColdStartNotification();
 
-    // 5. Invalidate permission cache when app returns to foreground
-    //    (user may have toggled permission in OS settings)
+    // 5. Watchdog + permission cache refresh on every foreground transition.
+    //
+    //    This is the critical fix for the "chain stops on ignore/dismiss" bug.
+    //
+    //    When a question notification fires while the app is in the background:
+    //      a) The OS removes the one-time scheduled notification.
+    //      b) addNotificationReceivedListener does NOT fire (app not active).
+    //      c) The user brings the app to foreground — this handler runs.
+    //      d) runWatchdogSync detects the missing OS notification, sees that
+    //         nextReviewDate is in the past, reschedules for today+interval,
+    //         and persists the new date — fully restoring the chain.
+    //
+    //    Without this watchdog call, the chain would silently die every time a
+    //    notification was delivered while the app was backgrounded.
     const appStateSub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
       if (appStateRef.current.match(/inactive|background/) && nextState === "active") {
         invalidatePermissionCache();
+        // Run the watchdog — respects its own 30-second cooldown, so rapid
+        // foreground transitions don't cause redundant OS notification queries.
+        runWatchdogSyncRef.current().catch(() => {});
       }
       appStateRef.current = nextState;
     });

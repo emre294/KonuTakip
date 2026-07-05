@@ -189,6 +189,14 @@ interface AppContextValue {
   updateQuestionNextReviewDate: (id: string, nextDate: string) => void;
   deleteQuestion: (id: string) => void;
   markQuestionUnderstood: (id: string) => void;
+  /**
+   * Watchdog sync — verifies every active Wrong Question has exactly one future
+   * OS notification and repairs any that are missing or stale.
+   * Safe to call repeatedly; a 30-second cooldown prevents over-triggering.
+   * Called automatically on every cold-start (via loadData) and every foreground
+   * transition (via the AppState listener in _layout.tsx).
+   */
+  runWatchdogSync: () => Promise<void>;
   mockExamResults: MockExamResult[];
   addMockExamResult: (r: Omit<MockExamResult, "id">) => void;
   deleteMockExamResult: (id: string) => void;
@@ -282,6 +290,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // in a ref so it is shared across renders without causing re-renders itself.
   const completingSessionIds = useRef(new Set<string>());
 
+  // ── Watchdog refs ─────────────────────────────────────────────────────────
+  // These refs always hold the latest committed state values so runWatchdogSync
+  // can read them without a stale closure, regardless of when it is called.
+  const questionsRef = useRef(questions);
+  const sessionsRef = useRef(sessions);
+  const topicRemindersRef = useRef(topicReminders);
+  const dailyReminderRef = useRef(dailyReminder);
+  // Timestamp of the last completed watchdog sync. Prevents re-running the
+  // full OS notification check more than once every 30 seconds (e.g. rapid
+  // foreground transitions). Cold-start sync (via loadData) always sets this.
+  const lastWatchdogRef = useRef<number>(0);
+
+  // Keep refs in sync with latest state on every render (stable-ref pattern).
+  // This ensures runWatchdogSync always reads fresh data without stale closures.
+  questionsRef.current = questions;
+  sessionsRef.current = sessions;
+  topicRemindersRef.current = topicReminders;
+  dailyReminderRef.current = dailyReminder;
+
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
@@ -340,7 +367,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           questions: loadedQuestions,
           sessions: loadedSessions,
           dailyReminder: loadedDailyReminder,
-        }).then(result => {
+        }, "launch").then(result => {
+          // Mark the cold-start sync as complete so the foreground watchdog
+          // (runWatchdogSync) respects the cooldown and does not fire again
+          // immediately on the first foreground transition after launch.
+          lastWatchdogRef.current = Date.now();
           // Persist the updated nextReviewDate for any question whose reminder
           // had already fired while the app was closed (background delivery).
           // Without this update the next sync would see the same stale past date
@@ -945,6 +976,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  /**
+   * Wrong Question watchdog sync.
+   *
+   * Verifies every active (non-understood) question has exactly one future OS
+   * notification scheduled. Automatically repairs missing or stale notifications.
+   *
+   * Called on every app foreground transition (AppState "active") in _layout.tsx.
+   * Also called implicitly at cold start via loadData → syncNotifications.
+   *
+   * Cooldown: at most once every 30 seconds. The cold-start sync (loadData) stamps
+   * lastWatchdogRef so the first foreground transition after launch is skipped if
+   * it happens within the cooldown window, preventing a redundant double-sync.
+   *
+   * Uses refs (questionsRef, sessionsRef, etc.) so it always reads the latest
+   * committed state without depending on a stable closure over React state.
+   */
+  const runWatchdogSync = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastWatchdogRef.current < 30_000) return; // cooldown: max once per 30s
+    lastWatchdogRef.current = now;
+
+    try {
+      const result = await syncNotifications(
+        {
+          topicReminders: topicRemindersRef.current,
+          questions: questionsRef.current,
+          sessions: sessionsRef.current,
+          dailyReminder: dailyReminderRef.current,
+        },
+        "foreground"
+      );
+
+      // Persist updated nextReviewDate for questions whose notification had
+      // already fired while the app was in the background (background delivery).
+      // Without this the next watchdog call would see the same stale past date,
+      // computing today+interval again instead of the correct future date.
+      if (result.rescheduledQuestions.length > 0) {
+        const updates = new Map(result.rescheduledQuestions.map(r => [r.id, r.newNextDate]));
+        setQuestions(prev => {
+          const next = prev.map(q =>
+            updates.has(q.id) && !q.understood
+              ? { ...q, nextReviewDate: updates.get(q.id)! }
+              : q
+          );
+          saveData({ questions: next });
+          return next;
+        });
+      }
+    } catch {
+      // Watchdog failure must never crash or block the UI.
+    }
+  }, []);
+
   const deleteQuestion = useCallback((id: string) => {
     cancelQuestionReminder(id).catch(() => {});
     setQuestions(prev => {
@@ -1034,7 +1118,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profile, setProfile,
     topicCompletion, toggleTopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
-    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate, deleteQuestion, markQuestionUnderstood,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
+    runWatchdogSync,
+    deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,
@@ -1051,7 +1137,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profile, setProfile,
     topicCompletion, toggleTopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
-    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate, deleteQuestion, markQuestionUnderstood,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
+    runWatchdogSync,
+    deleteQuestion, markQuestionUnderstood,
     mockExamResults, addMockExamResult, deleteMockExamResult,
     achievements, newAchievement, clearNewAchievement,
     tytProgress, aytProgress, totalTopicsCompleted,
