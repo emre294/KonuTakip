@@ -309,7 +309,47 @@ export default function HomeScreen() {
     return false;
   }), [sessions, today, todayWd]);
 
-  const pendingSessions = useMemo(() => sessions.filter((s) => s.date < today && !s.completed), [sessions, today]);
+  const pendingSessions = useMemo(() => sessions.filter((s) => {
+    if (s.repeatType === "one_time") {
+      // One-time: overdue if the scheduled date is in the past and never completed.
+      return s.date < today && !s.completed;
+    }
+
+    if (s.repeatType === "every_day") {
+      // Daily recurring: the relevant occurrence is YESTERDAY, not the creation date.
+      // Overdue only when:
+      //   1. The session existed yesterday (creation date <= yesterday), AND
+      //   2. Yesterday's date is NOT recorded in completedDates.
+      const d = new Date(today);
+      d.setDate(d.getDate() - 1);
+      const yesterday = d.toISOString().split("T")[0];
+      if (yesterday < s.date) return false; // Session was created today — nothing overdue yet
+      return !(s.completedDates?.includes(yesterday) ?? false);
+    }
+
+    if (s.repeatType === "every_week") {
+      // Weekly recurring: for each selected weekday, find the most recent past
+      // occurrence. The session is overdue if ANY such occurrence was not completed
+      // AND that occurrence is on or after the session's creation date.
+      const weekdays = s.weekdays ?? [];
+      const todayDate = new Date(today);
+      const todayDay = todayDate.getDay(); // 0=Sun … 6=Sat
+      for (const wd of weekdays) {
+        // How many days ago was the most recent `wd` weekday?
+        // Always at least 1 (we never count "today" as overdue mid-day).
+        let daysAgo = todayDay - wd;
+        if (daysAgo <= 0) daysAgo += 7;
+        const occ = new Date(todayDate);
+        occ.setDate(occ.getDate() - daysAgo);
+        const occStr = occ.toISOString().split("T")[0];
+        if (occStr < s.date) continue; // Occurrence predates session creation — skip
+        if (!(s.completedDates?.includes(occStr) ?? false)) return true;
+      }
+      return false;
+    }
+
+    return false;
+  }), [sessions, today]);
 
   // Memoize the completed session count used in the stats row so the filter
   // runs only when the sessions array changes, not on every render.

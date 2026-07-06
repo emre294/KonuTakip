@@ -1,0 +1,116 @@
+There is one final critical bug in the Daily Study Plan.
+
+Do NOT redesign the feature.
+
+Do NOT modify notifications.
+
+Do NOT modify statistics.
+
+Do NOT modify recurring scheduling.
+
+Only fix the overdue calculation for recurring sessions.
+
+==================================================
+BUG
+==================================================
+
+Current behavior:
+
+A recurring daily study session is completed by pressing
+"Complete Session".
+
+The session is successfully completed.
+
+However, on the following day the application still reports:
+
+"You have 1 overdue study session."
+
+This is incorrect.
+
+==================================================
+ROOT CAUSE
+==================================================
+
+The overdue calculation is treating recurring sessions as permanently overdue based only on their original scheduled date.
+
+A recurring session must be evaluated PER OCCURRENCE (per day), not by its original creation date.
+
+==================================================
+EXPECTED BEHAVIOR
+==================================================
+
+Example:
+
+Recurring session
+Every day
+
+Monday:
+User completes it.
+
+Tuesday:
+Monday's occurrence must NEVER be considered overdue.
+
+Only Tuesday's occurrence exists now.
+
+No overdue warning.
+
+--------------------------------------------------
+
+Example:
+
+Monday:
+User does NOT complete it.
+
+Tuesday:
+Show 1 overdue session.
+
+==================================================
+IMPLEMENTATION
+==================================================
+
+Audit the overdue calculation.
+
+For recurring sessions:
+
+Do NOT compare today's date with the original session date.
+
+Instead determine whether the PREVIOUS OCCURRENCE was completed.
+
+If the previous occurrence was completed,
+exclude it from overdue results.
+
+Only unfinished occurrences may be counted as overdue.
+
+==================================================
+VERIFY
+==================================================
+
+✓ Complete recurring session
+→ Next day
+→ Overdue count = 0
+
+✓ Do not complete recurring session
+→ Next day
+→ Overdue count = 1
+
+✓ Statistics remain unchanged
+
+✓ Notifications remain unchanged
+
+✓ Daily question tracking remains unchanged
+
+==================================================
+FINAL REPORT
+==================================================
+
+Explain:
+
+1. Which file contained the overdue logic.
+
+2. Why recurring sessions stayed overdue after completion.
+
+3. What was changed.
+
+4. Confirm that recurring sessions are now evaluated per occurrence rather than their original creation date.
+
+5. Confirm that completed recurring sessions never appear as overdue on the following day.
