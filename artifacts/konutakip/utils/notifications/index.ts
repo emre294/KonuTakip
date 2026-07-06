@@ -71,18 +71,33 @@ export {
   handleColdStartNotification,
 } from "./routing";
 
-// ─── Top-level initializer ────────────────────────────────────────────────────
+// ─── Initializers ─────────────────────────────────────────────────────────────
 
 import { setupAndroidChannels } from "./core";
 import { ensurePermission } from "./permissions";
 
 /**
- * Initialize the notification system.
+ * Initialize Android notification channels only — NO permission request.
+ *
+ * Call this immediately at app mount so channels exist before any notification
+ * fires, without triggering the OS permission dialog prematurely.
+ * Safe to call on iOS (no-op for channels).
+ */
+export async function initNotificationChannels(): Promise<void> {
+  await setupAndroidChannels();
+}
+
+/**
+ * Initialize the notification system fully.
  * Call once at app mount, before any scheduling:
  *   1. Sets up Android notification channels.
  *   2. Requests permission from the user (cached after first call).
  *
  * Returns true if permission is currently granted.
+ *
+ * NOTE: Prefer calling initNotificationChannels() at mount and then
+ * ensurePermission() after the app is fully initialized (isLoaded = true)
+ * to avoid showing the permission dialog before the app is ready.
  */
 export async function initNotifications(): Promise<boolean> {
   await setupAndroidChannels();

@@ -195,8 +195,12 @@ interface AppContextValue {
    * Safe to call repeatedly; a 30-second cooldown prevents over-triggering.
    * Called automatically on every cold-start (via loadData) and every foreground
    * transition (via the AppState listener in _layout.tsx).
+   *
+   * Pass `force = true` to bypass the 30-second cooldown — used immediately
+   * after the user grants notification permission so scheduling happens without
+   * waiting for the next foreground transition or 10-minute periodic timer.
    */
-  runWatchdogSync: () => Promise<void>;
+  runWatchdogSync: (force?: boolean) => Promise<void>;
   mockExamResults: MockExamResult[];
   addMockExamResult: (r: Omit<MockExamResult, "id">) => void;
   deleteMockExamResult: (id: string) => void;
@@ -1001,9 +1005,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
    * Uses refs (questionsRef, sessionsRef, etc.) so it always reads the latest
    * committed state without depending on a stable closure over React state.
    */
-  const runWatchdogSync = useCallback(async () => {
+  const runWatchdogSync = useCallback(async (force = false) => {
     const now = Date.now();
-    if (now - lastWatchdogRef.current < 30_000) return; // cooldown: max once per 30s
+    if (!force && now - lastWatchdogRef.current < 30_000) return; // cooldown: max once per 30s
     lastWatchdogRef.current = now;
 
     try {

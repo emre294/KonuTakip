@@ -9,9 +9,18 @@ import { notifLog } from "./logger";
 // Cached result — null means "unknown / not yet checked"
 let _permissionGranted: boolean | null = null;
 
+// De-duplication: if a requestPermissionsAsync() call is already in flight,
+// subsequent callers piggyback on the same promise instead of triggering a
+// second OS dialog (which produces undefined behavior on Android).
+let _pendingRequest: Promise<boolean> | null = null;
+
 /**
  * Ensure notification permission is granted.
  * - Caches the result so subsequent calls skip the OS round-trip.
+ * - De-duplicates concurrent calls: if one call is already awaiting the OS
+ *   permission dialog, any concurrent call joins it instead of firing a second
+ *   requestPermissionsAsync() — which can silently return "denied" on Android
+ *   while the dialog is still visible.
  * - Pass `forceRequest = true` to prompt again after a previous denial
  *   (e.g. after the user manually re-enabled in OS settings).
  * - Returns true if permission is currently granted.
@@ -20,40 +29,54 @@ export async function ensurePermission(forceRequest = false): Promise<boolean> {
   // Fast path — already known to be granted
   if (_permissionGranted === true && !forceRequest) return true;
 
-  try {
-    const { status: existing } = await Notifications.getPermissionsAsync();
-
-    if (existing === "granted") {
-      _permissionGranted = true;
-      notifLog.permissionGranted();
-      return true;
-    }
-
-    // If already denied and we are not forcing a re-request, return false without prompting
-    if (existing === "denied" && !forceRequest) {
-      _permissionGranted = false;
-      notifLog.permissionDenied();
-      return false;
-    }
-
-    // Request from the user
-    const { status } = await Notifications.requestPermissionsAsync({
-      ios: { allowAlert: true, allowBadge: true, allowSound: true },
-    });
-
-    _permissionGranted = status === "granted";
-
-    if (_permissionGranted) {
-      notifLog.permissionGranted();
-    } else {
-      notifLog.permissionDenied();
-    }
-
-    return _permissionGranted;
-  } catch (err) {
-    notifLog.error("ensurePermission", err);
-    return false;
+  // If a request is already in flight and we are not forcing, wait for it.
+  // This prevents two concurrent requestPermissionsAsync() calls from racing.
+  if (_pendingRequest !== null && !forceRequest) {
+    return _pendingRequest;
   }
+
+  const doRequest = async (): Promise<boolean> => {
+    try {
+      const { status: existing } = await Notifications.getPermissionsAsync();
+
+      if (existing === "granted") {
+        _permissionGranted = true;
+        notifLog.permissionGranted();
+        return true;
+      }
+
+      // If already denied and we are not forcing a re-request, return false without prompting
+      if (existing === "denied" && !forceRequest) {
+        _permissionGranted = false;
+        notifLog.permissionDenied();
+        return false;
+      }
+
+      // Request from the user
+      const { status } = await Notifications.requestPermissionsAsync({
+        ios: { allowAlert: true, allowBadge: true, allowSound: true },
+      });
+
+      _permissionGranted = status === "granted";
+
+      if (_permissionGranted) {
+        notifLog.permissionGranted();
+      } else {
+        notifLog.permissionDenied();
+      }
+
+      return _permissionGranted;
+    } catch (err) {
+      notifLog.error("ensurePermission", err);
+      return false;
+    } finally {
+      // Clear the pending slot so the next call starts fresh
+      _pendingRequest = null;
+    }
+  };
+
+  _pendingRequest = doRequest();
+  return _pendingRequest;
 }
 
 /**

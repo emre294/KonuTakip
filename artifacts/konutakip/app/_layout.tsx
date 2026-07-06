@@ -20,9 +20,10 @@ import { AppProvider, useApp } from "@/contexts/AppContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AchievementToast } from "@/components/AchievementToast";
 import {
+  ensurePermission,
   handleColdStartNotification,
   handleNotificationTap,
-  initNotifications,
+  initNotificationChannels,
   invalidatePermissionCache,
   notifLog,
   NotificationType,
@@ -56,7 +57,7 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 // ─── App content (inside providers) ──────────────────────────────────────────
 
 function AppContent() {
-  const { newAchievement, clearNewAchievement, updateQuestionNextReviewDate, runWatchdogSync } = useApp();
+  const { newAchievement, clearNewAchievement, updateQuestionNextReviewDate, runWatchdogSync, isLoaded } = useApp();
   const responseListenerRef = useRef<Notifications.EventSubscription | null>(null);
   const receivedListenerRef = useRef<Notifications.EventSubscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -71,9 +72,14 @@ function AppContent() {
   const runWatchdogSyncRef = useRef(runWatchdogSync);
   runWatchdogSyncRef.current = runWatchdogSync;
 
+  // ── Effect 1: Channels + listeners + watchdog (NO permission request) ─────
+  //
+  // Android notification channels are set up here — they don't need permission.
+  // The permission request is intentionally deferred to Effect 2 (after isLoaded)
+  // so the OS dialog never appears before the app is fully initialized.
   useEffect(() => {
-    // 1. Init channels + request permission (non-blocking)
-    initNotifications().catch(() => {});
+    // 1. Set up Android channels immediately — no permission dialog triggered
+    initNotificationChannels().catch(() => {});
 
     // 2. Handle foreground/background notification taps
     responseListenerRef.current =
@@ -176,6 +182,39 @@ function AppContent() {
       clearInterval(periodicWatchdogInterval);
     };
   }, []);
+
+  // ── Effect 2: Permission request — deferred until app is initialized ───────
+  //
+  // This effect runs exactly once, when isLoaded transitions from false to true.
+  // Deferring the permission request until after initialization guarantees:
+  //
+  //   1. The OS dialog never appears before the app UI is ready.
+  //   2. No concurrent permission requests race with syncNotifications (which is
+  //      called from loadData and also calls ensurePermission internally via
+  //      safeSchedule). By the time this effect runs, loadData is complete and
+  //      syncNotifications has already finished its run, so the permission cache
+  //      (_permissionGranted) is in a stable known state.
+  //   3. If permission is granted here, runWatchdogSync(force=true) immediately
+  //      schedules all pending notifications — the user does NOT need to restart
+  //      the app or background/foreground it to make notifications work.
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    (async () => {
+      const granted = await ensurePermission();
+      if (granted) {
+        // Force a full sync regardless of the 30-second cooldown.
+        // This is critical for two scenarios:
+        //   a) First launch: the user just granted permission — schedule all
+        //      existing reminders immediately without waiting for next foreground
+        //      transition or 10-minute periodic timer.
+        //   b) Existing install where loadData's syncNotifications ran while
+        //      permission was in an intermediate state (undetermined → granted):
+        //      the forced sync repairs any notifications that failed to schedule.
+        await runWatchdogSyncRef.current(true);
+      }
+    })().catch(() => {});
+  }, [isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <View style={{ flex: 1 }}>

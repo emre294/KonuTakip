@@ -10,14 +10,22 @@
  *   - Android skipping the foreground delivery callback
  *   - the app staying open in the foreground for an extended period
  *
- * Two repair cases are handled:
- *   MISSING  — the notification is absent from the OS queue (fired in background,
- *              device rebooted, OS purged it).
- *   WRONG_DATE — the notification exists in the OS queue but its embedded
- *               `scheduledForDate` payload field doesn't match the stored
- *               `nextReviewDate` (stale/incorrect schedule from a past bug or
- *               device clock change).  Only triggers when the new payload format
- *               is present; older notifications without the field are trusted.
+ * Three repair cases are handled:
+ *   MISSING / past_date — notification fired while app was not in foreground.
+ *     triggerTime is NOW in the past → schedule for today + reminderInterval.
+ *     Return in rescheduledQuestions so caller persists the new date.
+ *
+ *   MISSING / missing_os — notification was lost without having fired
+ *     (device reboot, OS purge, Android battery kill).
+ *     triggerTime is still in the FUTURE → restore the original date.
+ *
+ *   PRESENT / wrong_date — notification IS in the OS queue but its embedded
+ *     scheduledForDate doesn't match question.nextReviewDate.  This catches
+ *     stale schedules caused by device clock changes, DST, or prior bugs.
+ *     When the original nextReviewDate is still in the future, we reschedule
+ *     for that date (not today+interval) so the student's expected cadence is
+ *     preserved.  When the date is already past, we treat it as past_date and
+ *     schedule for today+interval.
  *
  * This function is idempotent — running it multiple times produces the same result.
  */
@@ -85,6 +93,10 @@ export interface SyncResult {
    * new scheduled date (today + reminderInterval) so the caller can persist it to
    * AsyncStorage. Without this update the next sync would see the same stale past
    * date and compute the wrong trigger time again.
+   *
+   * NOTE: wrong_date repairs where the original nextReviewDate is still in the
+   * future are NOT included here — those reschedule for the stored date without
+   * changing it, so no persistence is needed.
    */
   rescheduledQuestions: Array<{ id: string; newNextDate: string }>;
 }
@@ -169,10 +181,14 @@ export async function syncNotifications(
     //     triggerTime is still in the FUTURE → restore the original date.
     //
     //   PRESENT / wrong_date — notification IS in the OS queue but its embedded
-    //     scheduledForDate doesn't match question.nextReviewDate.  This catches
-    //     stale schedules caused by device clock changes, DST, or prior bugs.
-    //     Only triggers when the scheduledForDate payload field is present;
-    //     older notifications without it are left untouched (backward compatible).
+    //     scheduledForDate doesn't match question.nextReviewDate.
+    //
+    //     Key distinction (BUG FIX): if the nextReviewDate is still in the
+    //     future, reschedule for question.nextReviewDate (not today+interval)
+    //     so the student's expected review cadence is preserved. Only treat as
+    //     past_date if nextReviewDate itself has already passed.
+    //     This also prevents the wrong-date / past-date alternation loop where
+    //     rescheduledQuestions kept returning today+interval on every sync.
     //
     // IMPORTANT: alreadyFired compares the ACTUAL trigger timestamp (09:00 on
     // nextReviewDate), NOT just the date string.  A notification scheduled for
@@ -205,18 +221,39 @@ export async function syncNotifications(
       const needsRepair = !hasOsNotification || hasWrongDate;
 
       if (needsRepair) {
-        // Compute the correct target date:
-        //   - Already fired (or wrong-date on a past date)  → today + interval
-        //   - Not yet fired + missing                       → restore original date
-        //   - Wrong-date on a future date                   → use question.nextReviewDate
-        const effectiveAlreadyFired = alreadyFired || hasWrongDate;
-        const targetDate = effectiveAlreadyFired
-          ? (() => {
-              const d = new Date();
-              d.setDate(d.getDate() + question.reminderInterval);
-              return d.toISOString().split("T")[0];
-            })()
-          : question.nextReviewDate;
+        // Compute the correct target date for the repair:
+        //
+        //   already fired (past date):
+        //     Reschedule for today + interval so the cadence is preserved.
+        //     This is the ONLY case where rescheduledQuestions must be returned
+        //     — the stored nextReviewDate is stale and must be persisted.
+        //
+        //   missing OS (future date, no notification):
+        //     Restore the original nextReviewDate.  No date change, no
+        //     rescheduledQuestions entry needed.
+        //
+        //   wrong_date with future nextReviewDate:
+        //     The student expects the review on question.nextReviewDate.
+        //     Use that date — not today+interval — to preserve the cadence.
+        //     No rescheduledQuestions entry needed (the stored date is correct).
+        //
+        //   wrong_date with past nextReviewDate:
+        //     Same as "already fired" — schedule today+interval and persist.
+        let targetDate: string;
+        let dateChanged: boolean;
+
+        if (alreadyFired) {
+          // Notification fired while app was in background / off — reschedule
+          const d = new Date();
+          d.setDate(d.getDate() + question.reminderInterval);
+          targetDate = d.toISOString().split("T")[0];
+          dateChanged = true;
+        } else {
+          // Notification is either missing (future) or has wrong payload date
+          // but nextReviewDate is still valid — restore the stored date.
+          targetDate = question.nextReviewDate;
+          dateChanged = false;
+        }
 
         const ok = await scheduleQuestionReminder(
           question.id,
@@ -230,7 +267,7 @@ export async function syncNotifications(
 
           const repairReason =
             hasWrongDate
-              ? "wrong_date"
+              ? alreadyFired ? "wrong_date" : "missing_os"
               : alreadyFired
               ? "past_date"
               : "missing_os";
@@ -240,13 +277,14 @@ export async function syncNotifications(
             question.reminderInterval,
             question.nextReviewDate,
             targetDate,
-            repairReason
+            repairReason as "past_date" | "missing_os" | "wrong_date"
           );
 
-          // Only return in rescheduledQuestions when the date actually changed.
-          // wrong_date repairs always reset to today+interval, so they must be
-          // persisted so the next sync uses the new date.
-          if (alreadyFired || hasWrongDate) {
+          // Only return in rescheduledQuestions when the date actually changed
+          // (i.e. the notification already fired and we bumped to today+interval).
+          // Missing-OS and future wrong_date repairs use the stored date, so the
+          // caller does not need to persist anything for those cases.
+          if (dateChanged) {
             rescheduledQuestions.push({ id: question.id, newNextDate: targetDate });
           }
         }
