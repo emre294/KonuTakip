@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { useApp, MockExamResult } from "@/contexts/AppContext";
 import { FIELD_LABELS, StudyField } from "@/data/subjects";
@@ -123,7 +124,7 @@ function ExamCard({ result, onDelete, colors }: {
           </View>
           <View style={styles.examCardMid}>
             {result.name ? (
-              <Text style={[styles.examCardName, { color: colors.foreground }]}>{result.name}</Text>
+              <Text style={[styles.examCardName, { color: colors.foreground }]} numberOfLines={1} ellipsizeMode="tail">{result.name}</Text>
             ) : null}
             <Text style={[styles.examCardDate, { color: result.name ? colors.mutedForeground : colors.foreground }]}>{result.date}</Text>
             <Text style={[styles.examCardTotal, { color: accentColor }]}>Toplam: {result.totalNet.toFixed(2)} net</Text>
@@ -288,7 +289,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Deneme Adı *</Text>
           <TextInput
             style={[styles.input, { backgroundColor: colors.card, borderColor: nameError ? colors.destructive : colors.border, color: colors.foreground }]}
@@ -369,7 +370,7 @@ function AddExamModal({ visible, onClose, onSave, profile, colors }: {
           <TouchableOpacity onPress={handleSave} style={[styles.saveBtn, { backgroundColor: colors.primary }]}>
             <Text style={styles.saveBtnText}>Kaydet</Text>
           </TouchableOpacity>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
     </Modal>
   );

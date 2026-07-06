@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -450,7 +451,7 @@ export default function PlanScreen() {
             </TouchableOpacity>
           </View>
 
-          <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
+          <KeyboardAwareScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
 
             {/* Repeat type */}
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Tekrar</Text>
@@ -541,7 +542,7 @@ export default function PlanScreen() {
             <TouchableOpacity onPress={saveSession} style={[styles.saveBtn, { backgroundColor: colors.primary }]}>
               <Text style={[styles.saveBtnText, { color: "#fff" }]}>Kaydet</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </KeyboardAwareScrollView>
 
           {activePicker && (
             <PickerOverlay

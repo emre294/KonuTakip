@@ -371,7 +371,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={[styles.greeting, { color: colors.mutedForeground }]}>Merhaba,</Text>
-            <Text style={[styles.userName, { color: colors.foreground }]}>{profile?.name ?? "Öğrenci"}</Text>
+            <Text style={[styles.userName, { color: colors.foreground }]} numberOfLines={1} ellipsizeMode="tail">{profile?.name ?? "Öğrenci"}</Text>
           </View>
           <TouchableOpacity onPress={() => router.push("/achievements")} style={[styles.streakBadge, { backgroundColor: colors.warning + "20" }]}>
             <Ionicons name="flame" size={16} color={colors.warning} />

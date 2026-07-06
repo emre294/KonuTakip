@@ -1,0 +1,191 @@
+The application is entering code freeze for the v1.0 Google Play release.
+
+DO NOT add new features.
+
+DO NOT refactor.
+
+DO NOT optimize unrelated code.
+
+DO NOT modify notifications.
+
+DO NOT modify statistics.
+
+DO NOT modify AppContext logic.
+
+DO NOT modify persistence.
+
+Only fix the three confirmed release issues below.
+
+==================================================
+ISSUE 1
+ANDROID KEYBOARD OVERLAPS INPUTS
+==================================================
+
+Affected screens:
+
+• Daily Plan creation/edit modal
+• Wrong Question creation/edit modal
+• Mock Exam creation/edit modal
+
+Current problem:
+
+When the Android keyboard opens,
+the bottom part of the form is covered.
+
+The user must manually fight the keyboard to reach the last inputs.
+
+Expected behavior:
+
+The focused input must always remain visible.
+
+The form must automatically move above the keyboard.
+
+Use the project's existing keyboard solution.
+
+If react-native-keyboard-controller is already installed,
+use KeyboardAwareScrollView.
+
+Otherwise use KeyboardAvoidingView correctly.
+
+Requirements:
+
+• Android works correctly
+• iOS remains unchanged
+• Smooth scrolling
+• No layout jumps
+• No broken modals
+• Save button always reachable
+• Last input always visible
+
+Do not redesign the UI.
+
+==================================================
+ISSUE 2
+TARGET SCORE VALIDATION
+==================================================
+
+Current behavior:
+
+The onboarding says:
+
+Target Score
+
+100–500
+
+But users can enter:
+
+9
+
+999
+
+9999
+
+Expected behavior:
+
+Only allow values between 100 and 500.
+
+Requirements:
+
+If value <100
+
+Automatically clamp to 100.
+
+If value >500
+
+Automatically clamp to 500.
+
+Empty input
+
+Use default value.
+
+Non-numeric input
+
+Ignore safely.
+
+Validation must be applied wherever target score is saved.
+
+Do not change UI.
+
+Only validate.
+
+==================================================
+ISSUE 3
+LONG TEXT OVERFLOW
+==================================================
+
+Current problem:
+
+Very long names break layouts.
+
+Examples:
+
+• User profile name
+• Mock exam name
+
+Expected behavior:
+
+Single line.
+
+Ellipsis at the end.
+
+Requirements:
+
+Use:
+
+numberOfLines={1}
+
+ellipsizeMode="tail"
+
+Do not reduce font size.
+
+Do not wrap to multiple lines.
+
+Only truncate visually.
+
+==================================================
+DO NOT TOUCH
+==================================================
+
+Notifications
+
+Watchdog
+
+Reminder scheduling
+
+AsyncStorage
+
+Statistics
+
+Recurring session logic
+
+Countdown
+
+Achievements
+
+AI Coach
+
+Navigation
+
+Business logic
+
+==================================================
+AFTER CHANGES
+==================================================
+
+Run a full TypeScript check.
+
+Verify no new errors.
+
+Verify no regressions.
+
+==================================================
+FINAL REPORT
+==================================================
+
+List:
+
+• Files modified
+• Exact changes
+• Confirmation that only these three issues were changed
+• Confirmation that no business logic was modified
+• Confirmation that the application remains production-ready

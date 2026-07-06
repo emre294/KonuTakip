@@ -30,6 +30,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { useApp, Question, QuestionAttachment } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, TYT_SUBJECTS, Subject } from "@/data/subjects";
@@ -513,7 +514,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
           {!editingQuestion && (
             <>
               <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Ders Seç</Text>
@@ -598,7 +599,7 @@ function QuestionFormModal({ visible, onClose, editingQuestion, onSave, allSubje
               {editingQuestion ? "Güncelle" : "Kaydet"}
             </Text>
           </TouchableOpacity>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
     </Modal>
   );

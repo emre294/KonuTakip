@@ -75,8 +75,8 @@ export default function OnboardingScreen() {
       grade,
       targetUniversity: university.trim() || "-",
       targetDepartment: department.trim() || "-",
-      tytTargetScore: parseInt(tytScore) || 300,
-      aytTargetScore: parseInt(aytScore) || 300,
+      tytTargetScore: Math.min(500, Math.max(100, parseInt(tytScore) || 300)),
+      aytTargetScore: Math.min(500, Math.max(100, parseInt(aytScore) || 300)),
       studyStartDate: new Date().toISOString().split("T")[0],
       studyField: field,
     };
