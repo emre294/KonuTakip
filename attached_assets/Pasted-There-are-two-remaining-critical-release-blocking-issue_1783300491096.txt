@@ -1,0 +1,150 @@
+There are two remaining critical release-blocking issues related to notifications.
+
+DO NOT redesign the notification system.
+
+DO NOT change Daily Plan logic.
+
+DO NOT change Statistics.
+
+DO NOT change Question Tracking.
+
+Only fix these two issues.
+
+==================================================
+BUG 1
+QUESTION BANK REMINDERS
+==================================================
+
+The Wrong Question reminder system must be fully audited.
+
+Current problem:
+
+Sometimes reminders work correctly.
+
+Sometimes no reminder is sent.
+
+This must NEVER happen.
+
+Perform a full end-to-end verification.
+
+Verify:
+
+• Reminder creation
+• AsyncStorage persistence
+• Notification scheduling
+• Notification rescheduling
+• Watchdog recovery
+• App restart
+• Device restart
+• Background state
+• Foreground state
+
+Confirm that every active Wrong Question always has exactly ONE future scheduled notification until the user taps "Anladım" or deletes the question.
+
+If any scheduling path can silently fail, fix it.
+
+==================================================
+BUG 2
+NOTIFICATION PERMISSION
+==================================================
+
+Current behavior:
+
+On first launch the application immediately asks for notification permission.
+
+Sometimes Android shows the permission dialog.
+
+After granting permission,
+notifications still do not work until the app is restarted.
+
+This creates unreliable notification behavior.
+
+==================================================
+EXPECTED BEHAVIOR
+==================================================
+
+Do NOT request notification permission immediately on app launch.
+
+Instead:
+
+1.
+
+Launch the application normally.
+
+2.
+
+Initialize the application.
+
+3.
+
+Wait until initialization is complete.
+
+4.
+
+Then check notification permission.
+
+5.
+
+If permission is not granted:
+
+Show the permission request once.
+
+6.
+
+After permission is granted:
+
+Immediately initialize the notification system.
+
+Immediately register notification listeners.
+
+Immediately synchronize notifications.
+
+Immediately schedule all required reminders.
+
+The user must NOT need to restart the application.
+
+==================================================
+VERIFY
+==================================================
+
+Fresh install
+
+↓
+
+Open app
+
+↓
+
+Permission dialog
+
+↓
+
+Allow
+
+↓
+
+Without restarting
+
+↓
+
+Create Wrong Question reminder
+
+↓
+
+Notification must work.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Explain:
+
+• What caused Wrong Question reminders to occasionally stop.
+
+• What caused notifications to fail after the first permission request.
+
+• Which files were modified.
+
+• Confirm that notifications now work immediately after granting permission without restarting the app.
+
+• Confirm that every active Wrong Question always maintains one future scheduled reminder until it is marked as understood.
