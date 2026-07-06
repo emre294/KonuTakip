@@ -1,0 +1,365 @@
+The application is entering the production release phase.
+
+DO NOT add new features.
+
+DO NOT redesign the UI.
+
+DO NOT refactor working code.
+
+DO NOT optimize code unless it fixes a real issue.
+
+Your only task is to perform a complete release audit of the entire application.
+
+==================================================
+GOAL
+==================================================
+
+Assume this application will be submitted to Google Play today.
+
+Audit every screen, every feature, every storage operation,
+every notification and every navigation flow.
+
+Find every possible bug, edge case, crash or inconsistency.
+
+Do not make assumptions.
+
+Inspect the implementation.
+
+==================================================
+CHECK EVERY SCREEN
+==================================================
+
+Home
+
+Subjects
+
+Daily Plan
+
+Wrong Questions
+
+Mock Exams
+
+Statistics
+
+Settings
+
+Profile
+
+Countdown
+
+==================================================
+CHECK EVERY FEATURE
+==================================================
+
+Topic Tracking
+
+Daily Study Sessions
+
+Recurring Sessions
+
+One-time Sessions
+
+Session Completion
+
+Session Editing
+
+Session Deletion
+
+Automatic Daily Question Tracking
+
+Wrong Question Tracking
+
+Wrong Question Reminder
+
+Reminder Watchdog
+
+Notification Scheduling
+
+Notification Restoration
+
+Notification Permissions
+
+Mock Exam Tracking
+
+Statistics
+
+Countdown
+
+Achievements
+
+AsyncStorage Persistence
+
+AppContext State
+
+==================================================
+VERIFY
+==================================================
+
+Create
+
+Read
+
+Update
+
+Delete
+
+for every data type.
+
+Verify every CRUD operation.
+
+==================================================
+CHECK PERSISTENCE
+==================================================
+
+Create data
+
+Restart app
+
+Verify persistence.
+
+Force close app
+
+Verify persistence.
+
+Reboot simulation
+
+Verify persistence.
+
+==================================================
+CHECK NOTIFICATIONS
+==================================================
+
+Permission granted
+
+Permission denied
+
+Permission revoked
+
+Foreground
+
+Background
+
+Killed app
+
+Device reboot
+
+Notification dismissal
+
+Notification tap
+
+Reminder restoration
+
+Watchdog
+
+Duplicate prevention
+
+Exactly one future reminder
+
+==================================================
+CHECK STATISTICS
+==================================================
+
+Topic solved questions
+
+Daily plan solved questions
+
+Total solved questions
+
+Automatic updates
+
+Deletion updates
+
+Edit updates
+
+Immediate React re-render
+
+==================================================
+CHECK RECURRING SESSIONS
+==================================================
+
+Daily
+
+Weekly
+
+Completion
+
+Skipping
+
+Overdue detection
+
+Editing
+
+Deletion
+
+Next occurrence calculation
+
+==================================================
+CHECK FORM VALIDATION
+==================================================
+
+Empty fields
+
+Negative numbers
+
+Zero values
+
+Large values
+
+Duplicate names
+
+Invalid dates
+
+Invalid reminder times
+
+==================================================
+CHECK UI
+==================================================
+
+Overflow
+
+Long text
+
+Small devices
+
+Dark mode (if supported)
+
+Keyboard overlap
+
+Loading states
+
+Empty states
+
+Error messages
+
+Success messages
+
+==================================================
+CHECK PERFORMANCE
+==================================================
+
+Unnecessary renders
+
+Infinite loops
+
+Missing useMemo
+
+Missing useCallback
+
+AsyncStorage bottlenecks
+
+Memory leaks
+
+Notification leaks
+
+Listener leaks
+
+==================================================
+CHECK ERROR HANDLING
+==================================================
+
+Every async operation
+
+Every notification call
+
+Every storage call
+
+Every parsing operation
+
+Every JSON conversion
+
+Every date conversion
+
+==================================================
+SEARCH FOR
+==================================================
+
+TODO
+
+FIXME
+
+console.log
+
+debug code
+
+dead code
+
+unused imports
+
+unused variables
+
+duplicate functions
+
+duplicate notifications
+
+duplicate listeners
+
+==================================================
+CHECK PLAY STORE READINESS
+==================================================
+
+No development-only code in production.
+
+No crashes.
+
+No blocking bugs.
+
+No broken navigation.
+
+No broken notifications.
+
+No inconsistent statistics.
+
+No missing validation.
+
+==================================================
+IMPORTANT
+==================================================
+
+If a feature already works correctly:
+
+DO NOT MODIFY IT.
+
+If you are not 100% certain a change is required:
+
+DO NOT CHANGE IT.
+
+Only fix confirmed bugs.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Provide a structured report.
+
+Critical Bugs
+(Must fix before release)
+
+Major Bugs
+(Should fix before release)
+
+Minor Bugs
+(Can wait for v1.1)
+
+Code Quality Issues
+
+Performance Issues
+
+UI Issues
+
+Notification Issues
+
+Storage Issues
+
+Statistics Issues
+
+Play Store Readiness
+
+Finally answer only one question:
+
+"Would you personally approve this application for Google Play release?"
+
+If the answer is NO,
+list every remaining blocker.
+
+If YES,
+confirm that the application is production-ready.
