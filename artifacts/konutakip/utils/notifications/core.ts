@@ -110,6 +110,9 @@ export async function safeSchedule(
 ): Promise<boolean> {
   const granted = await ensurePermission();
   if (!granted) {
+    // permissionState was already logged by ensurePermission with the raw OS status.
+    // Log the skip here so there is a direct association between the notifId and the denial.
+    notifLog.permissionState("denied", `safeSchedule:${identifier}`);
     notifLog.skipped(identifier, "permission not granted");
     return false;
   }

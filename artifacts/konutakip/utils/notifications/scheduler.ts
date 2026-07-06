@@ -161,7 +161,11 @@ export async function scheduleQuestionReminder(
     scheduledForDate = next.toISOString().split("T")[0];
   }
 
-  return safeSchedule(
+  // Log the attempt before touching the OS — captures questionId, both dates,
+  // and the notifId so every schedule operation is fully traceable in the dev console.
+  notifLog.questionScheduleAttempt(questionId, identifier, nextReviewDateStr, scheduledForDate);
+
+  const ok = await safeSchedule(
     identifier,
     {
       title: "Tekrar Zamanı! 📚",
@@ -184,6 +188,14 @@ export async function scheduleQuestionReminder(
       date: triggerDate,
     }
   );
+
+  if (ok) {
+    notifLog.questionScheduleSuccess(questionId, identifier, nextReviewDateStr, scheduledForDate);
+  } else {
+    notifLog.questionScheduleFail(questionId, identifier, nextReviewDateStr, "safeSchedule returned false");
+  }
+
+  return ok;
 }
 
 export async function cancelQuestionReminder(questionId: string): Promise<void> {

@@ -39,16 +39,17 @@ export async function ensurePermission(forceRequest = false): Promise<boolean> {
     try {
       const { status: existing } = await Notifications.getPermissionsAsync();
 
+      // Log the raw OS status every time we read it — this is the ground truth.
+      notifLog.permissionState(existing, "ensurePermission:check");
+
       if (existing === "granted") {
         _permissionGranted = true;
-        notifLog.permissionGranted();
         return true;
       }
 
       // If already denied and we are not forcing a re-request, return false without prompting
       if (existing === "denied" && !forceRequest) {
         _permissionGranted = false;
-        notifLog.permissionDenied();
         return false;
       }
 
@@ -57,14 +58,10 @@ export async function ensurePermission(forceRequest = false): Promise<boolean> {
         ios: { allowAlert: true, allowBadge: true, allowSound: true },
       });
 
+      // Log the result of the OS dialog
+      notifLog.permissionState(status, "ensurePermission:request");
+
       _permissionGranted = status === "granted";
-
-      if (_permissionGranted) {
-        notifLog.permissionGranted();
-      } else {
-        notifLog.permissionDenied();
-      }
-
       return _permissionGranted;
     } catch (err) {
       notifLog.error("ensurePermission", err);
