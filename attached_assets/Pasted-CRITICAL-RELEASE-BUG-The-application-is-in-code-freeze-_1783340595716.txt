@@ -1,0 +1,190 @@
+CRITICAL RELEASE BUG
+
+The application is in code freeze for the v1.0 Google Play release.
+
+DO NOT redesign the Subjects screen.
+
+DO NOT change the UI.
+
+DO NOT add features.
+
+DO NOT use forceUpdate, setTimeout or artificial delays.
+
+Only fix the root cause of the subject/topic expansion bug.
+
+==================================================
+CURRENT BUG
+==================================================
+
+When the user opens the Subjects screen,
+most subjects expand immediately.
+
+However, some subjects randomly fail to expand.
+
+Examples observed:
+
+• TYT Physics
+• TYT Geography
+• AYT Geography
+• AYT Religious Culture
+
+Sometimes they become expandable after waiting many seconds.
+
+Sometimes they never expand.
+
+This behavior may also exist in Numerical, Equal Weight and Language profiles.
+
+==================================================
+EXPECTED BEHAVIOR
+==================================================
+
+Every subject must expand immediately.
+
+Every topic list must already be available before the user taps the subject.
+
+No waiting.
+
+No random failures.
+
+No delayed rendering.
+
+Every subject must behave identically.
+
+==================================================
+DO A COMPLETE ROOT CAUSE ANALYSIS
+==================================================
+
+Trace the entire lifecycle of the Subjects screen.
+
+Investigate:
+
+• Profile loading
+• Subject generation
+• Topic generation
+• AsyncStorage hydration
+• AppContext
+• useEffect
+• useMemo
+• useCallback
+• React keys
+• FlatList / ScrollView virtualization
+• State updates
+• Lazy rendering
+• Filtering logic
+• Conditional rendering
+• Topic lookup
+• Subject lookup
+
+Verify that every subject receives its topic array correctly.
+
+==================================================
+CHECK FOR
+==================================================
+
+undefined topic arrays
+
+null topic arrays
+
+empty arrays
+
+late-generated arrays
+
+shared object references
+
+incorrect memo dependencies
+
+stale closures
+
+missing dependency arrays
+
+incorrect profile filtering
+
+race conditions
+
+async initialization order
+
+==================================================
+VERY IMPORTANT
+==================================================
+
+Do NOT only fix the subjects reported by the user.
+
+Audit EVERY subject in:
+
+• TYT
+• AYT
+
+for ALL profiles:
+
+• Numerical
+• Equal Weight
+• Verbal
+• Language
+
+Guarantee that every subject behaves exactly the same.
+
+No subject may randomly fail to expand.
+
+==================================================
+DO NOT HIDE THE BUG
+==================================================
+
+Do NOT solve this by:
+
+• forcing re-renders
+
+• delaying rendering
+
+• adding timeouts
+
+• refreshing state
+
+• retry loops
+
+Fix the real root cause.
+
+==================================================
+TEST
+==================================================
+
+Cold app launch
+
+Hot reload
+
+App restart
+
+Profile change
+
+Numerical profile
+
+Equal Weight profile
+
+Verbal profile
+
+Language profile
+
+Switch between TYT and AYT repeatedly.
+
+Expand every single subject.
+
+Every subject must expand instantly.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Explain:
+
+1. The exact root cause.
+
+2. Which file(s) contained the issue.
+
+3. Why only some subjects failed.
+
+4. Why waiting sometimes fixed the problem.
+
+5. What code was changed.
+
+6. Confirm that every TYT and AYT subject across every profile now expands instantly.
+
+7. Confirm that no business logic, statistics, notifications, persistence or AppContext behavior was modified.

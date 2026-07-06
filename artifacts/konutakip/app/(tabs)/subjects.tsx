@@ -293,7 +293,7 @@ function SubjectCard({
 
       <Animated.View style={contentStyle}>
         <View
-          style={[styles.topicsContainer, { borderTopColor: colors.border }]}
+          style={[styles.topicsContainer, { borderTopColor: colors.border, position: "absolute", width: "100%" }]}
           onLayout={(e) => handleContentLayout(e.nativeEvent.layout.height)}
         >
           {subject.topics.map((t) => (
