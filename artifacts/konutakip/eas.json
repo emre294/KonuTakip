@@ -14,9 +14,7 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "buildType": "app-bundle",
-        "enableProguardInReleaseBuilds": true,
-        "extraProguardRules": "-keepattributes SourceFile,LineNumberTable -renamesourcefileattribute SourceFile"
+        "buildType": "app-bundle"
       }
     }
   },
