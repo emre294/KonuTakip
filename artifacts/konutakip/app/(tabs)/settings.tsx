@@ -14,9 +14,11 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "@/contexts/AppContext";
+import { usePremium } from "@/contexts/PremiumContext";
 import { ThemePreference, useTheme } from "@/contexts/ThemeContext";
 import { FIELD_LABELS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
+import { PREMIUM_COLOR } from "@/components/PremiumBadge";
 
 function SettingRow({ icon, label, value, onPress, rightElement, colors, last }: {
   icon: string; label: string; value?: string; onPress?: () => void;
@@ -90,6 +92,7 @@ export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { profile, achievements, questions, sessions, mockExamResults } = useApp();
+  const { isPremium } = usePremium();
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
@@ -121,6 +124,40 @@ export default function SettingsScreen() {
           </View>
         </Animated.View>
       )}
+
+      {/* ── Premium card ──────────────────────────────────────────────────── */}
+      <Animated.View entering={FadeInDown.delay(100).duration(500)}>
+        <TouchableOpacity
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/premium"); }}
+          activeOpacity={0.85}
+          style={[
+            styles.premiumCard,
+            { backgroundColor: isPremium ? "#16A34A" : PREMIUM_COLOR },
+          ]}
+        >
+          <View style={styles.premiumCardLeft}>
+            <Text style={styles.premiumCardStar}>★</Text>
+            <View>
+              <Text style={styles.premiumCardTitle}>
+                {isPremium ? "Premium Üye" : "KonuTakip Premium"}
+              </Text>
+              <Text style={styles.premiumCardSub}>
+                {isPremium
+                  ? "AI özellikleri ve gelişmiş analitik aktif"
+                  : "AI özellikleri ve çok daha fazlası"}
+              </Text>
+            </View>
+          </View>
+          {!isPremium && (
+            <View style={styles.premiumCardBadge}>
+              <Text style={styles.premiumCardBadgeText}>Keşfet</Text>
+            </View>
+          )}
+          {isPremium && (
+            <Feather name="check-circle" size={20} color="rgba(255,255,255,0.9)" />
+          )}
+        </TouchableOpacity>
+      </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(120).duration(500)}>
         <Section title="HEDEFLER" colors={colors}>
@@ -220,6 +257,21 @@ const styles = StyleSheet.create({
     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2,
   },
   themeOptionText: { fontSize: 11, fontFamily: "Inter_600SemiBold" },
+  premiumCard: {
+    borderRadius: 20, padding: 18, flexDirection: "row", alignItems: "center",
+    justifyContent: "space-between", marginBottom: 22,
+    shadowColor: PREMIUM_COLOR, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28, shadowRadius: 12, elevation: 4,
+  },
+  premiumCardLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
+  premiumCardStar: { fontSize: 26, color: "#fff" },
+  premiumCardTitle: { fontSize: 15, fontFamily: "Inter_700Bold", color: "#fff" },
+  premiumCardSub: { fontSize: 11, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.82)", marginTop: 2 },
+  premiumCardBadge: {
+    backgroundColor: "rgba(255,255,255,0.22)", borderRadius: 10,
+    paddingHorizontal: 10, paddingVertical: 5,
+  },
+  premiumCardBadgeText: { fontSize: 12, fontFamily: "Inter_600SemiBold", color: "#fff" },
   statsGrid: { flexDirection: "row", gap: 10, marginBottom: 8 },
   statBox: {
     flex: 1, borderRadius: 14, padding: 14, alignItems: "center", gap: 4,

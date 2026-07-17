@@ -1,0 +1,414 @@
+/**
+ * Premium screen — presented as a modal from settings or any PremiumGate CTA.
+ *
+ * Currently a foundation screen:
+ *   ✓ Premium benefits list
+ *   ✓ Monthly subscription plan card (placeholder)
+ *   ✓ "Upgrade" button — shows a billing-not-ready notice
+ *   ✓ "Restore Purchases" button — shows a billing-not-ready notice
+ *
+ * When Google Play Billing is integrated:
+ *   • Replace the Alert in handleUpgrade() with PremiumManager.purchaseMonthlySubscription()
+ *   • Replace the Alert in handleRestore() with PremiumManager.restorePurchases()
+ *   • Populate planPrice from the fetched SKU
+ */
+
+import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import React from "react";
+import {
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { PREMIUM_COLOR } from "@/components/PremiumBadge";
+import { useColors } from "@/hooks/useColors";
+
+// ─── Benefits data ────────────────────────────────────────────────────────────
+
+interface Benefit {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const BENEFITS: Benefit[] = [
+  {
+    icon: "zap",
+    title: "AI Soru Üretici",
+    description: "Çalıştığın konulara özel AI destekli pratik sorular üret.",
+  },
+  {
+    icon: "book-open",
+    title: "AI Öğretmen",
+    description: "Anlamadığın konuları AI'ya sor, adım adım açıklama al.",
+  },
+  {
+    icon: "bar-chart-2",
+    title: "Gelişmiş Analitik",
+    description: "Derinlemesine çalışma istatistikleri ve kişisel performans grafikleri.",
+  },
+  {
+    icon: "cpu",
+    title: "AI Çalışma Koçu Pro",
+    description: "Sınav tarihine göre kişiselleştirilmiş AI çalışma planı.",
+  },
+  {
+    icon: "clipboard",
+    title: "AI Mini Sınavlar",
+    description: "Zayıf konularına göre AI tarafından hazırlanmış mini denemeler.",
+  },
+  {
+    icon: "star",
+    title: "Tüm Gelecek Özellikler",
+    description: "Premium üyeler tüm yeni özelliklere öncelikli erişim kazanır.",
+  },
+];
+
+// ─── Benefit card ─────────────────────────────────────────────────────────────
+
+function BenefitRow({
+  benefit,
+  colors,
+  index,
+}: {
+  benefit: Benefit;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  index: number;
+}) {
+  return (
+    <Animated.View entering={FadeInDown.delay(100 + index * 50).duration(400)}>
+      <View style={[styles.benefitRow, { borderBottomColor: colors.border }]}>
+        <View style={[styles.benefitIcon, { backgroundColor: PREMIUM_COLOR + "18" }]}>
+          <Feather name={benefit.icon as never} size={18} color={PREMIUM_COLOR} />
+        </View>
+        <View style={styles.benefitText}>
+          <Text style={[styles.benefitTitle, { color: colors.foreground }]}>
+            {benefit.title}
+          </Text>
+          <Text style={[styles.benefitDesc, { color: colors.mutedForeground }]}>
+            {benefit.description}
+          </Text>
+        </View>
+        <Feather name="check-circle" size={18} color={PREMIUM_COLOR} />
+      </View>
+    </Animated.View>
+  );
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
+
+export default function PremiumScreen() {
+  const colors = useColors();
+  const insets = useSafeAreaInsets();
+
+  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const botPad = insets.bottom + 32;
+
+  // ── Placeholder handlers ──────────────────────────────────────────────────
+  // Replace with real billing calls when Google Play Billing is integrated.
+
+  function handleUpgrade() {
+    Alert.alert(
+      "Yakında",
+      "Google Play Billing entegrasyonu ilerleyen güncellemelerde eklenecek.",
+      [{ text: "Tamam" }]
+    );
+  }
+
+  function handleRestore() {
+    Alert.alert(
+      "Yakında",
+      "Google Play Billing entegrasyonu ilerleyen güncellemelerde eklenecek.",
+      [{ text: "Tamam" }]
+    );
+  }
+
+  return (
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={{
+        paddingTop: topPad + 16,
+        paddingBottom: botPad,
+        paddingHorizontal: 20,
+      }}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header */}
+      <Animated.View entering={FadeIn.duration(400)}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[styles.backBtn, { backgroundColor: colors.card }]}
+          >
+            <Feather name="arrow-left" size={20} color={colors.foreground} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Premium</Text>
+          <View style={{ width: 40 }} />
+        </View>
+      </Animated.View>
+
+      {/* Hero card */}
+      <Animated.View entering={FadeInDown.delay(60).duration(500)}>
+        <View style={[styles.heroCard, { backgroundColor: PREMIUM_COLOR }]}>
+          <View style={styles.heroRow}>
+            <View>
+              <Text style={styles.heroTitle}>KonuTakip Premium</Text>
+              <Text style={styles.heroSub}>AI destekli çalışma deneyimi</Text>
+            </View>
+            <View style={[styles.heroIconWrap, { backgroundColor: "rgba(255,255,255,0.22)" }]}>
+              <Text style={styles.heroStar}>★</Text>
+            </View>
+          </View>
+          <Text style={styles.heroBody}>
+            Premium üyelikle AI özelliklerine, gelişmiş analitiğe ve çok daha fazlasına
+            erişerek sınav hazırlığını bir üst seviyeye taşı.
+          </Text>
+        </View>
+      </Animated.View>
+
+      {/* Plan card */}
+      <Animated.View entering={FadeInDown.delay(120).duration(500)}>
+        <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "50" }]}>
+          <View style={styles.planHeader}>
+            <View>
+              <Text style={[styles.planName, { color: colors.foreground }]}>Aylık Abonelik</Text>
+              <Text style={[styles.planBilling, { color: colors.mutedForeground }]}>
+                Her ay otomatik yenilenir · İstediğin zaman iptal et
+              </Text>
+            </View>
+            {/* Price is intentionally a placeholder until SKU is fetched from Play */}
+            <View style={styles.priceWrap}>
+              <Text style={[styles.priceCurrency, { color: PREMIUM_COLOR }]}>₺</Text>
+              <Text style={[styles.priceAmount, { color: PREMIUM_COLOR }]}>—</Text>
+            </View>
+          </View>
+          <View style={[styles.planDivider, { backgroundColor: colors.border }]} />
+          <View style={styles.planNote}>
+            <Feather name="info" size={13} color={colors.mutedForeground} />
+            <Text style={[styles.planNoteText, { color: colors.mutedForeground }]}>
+              Fiyat, Google Play Billing entegrasyonu tamamlandıktan sonra görüntülenecek.
+            </Text>
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Benefits list */}
+      <Animated.View entering={FadeInDown.delay(180).duration(500)}>
+        <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>
+          NELER DAHIL
+        </Text>
+        <View style={[styles.benefitsCard, { backgroundColor: colors.card }]}>
+          {BENEFITS.map((benefit, index) => (
+            <BenefitRow
+              key={benefit.title}
+              benefit={benefit}
+              colors={colors}
+              index={index}
+            />
+          ))}
+        </View>
+      </Animated.View>
+
+      {/* Upgrade button */}
+      <Animated.View entering={FadeInDown.delay(280).duration(500)}>
+        <TouchableOpacity
+          style={[styles.upgradeBtn, { backgroundColor: PREMIUM_COLOR }]}
+          activeOpacity={0.85}
+          onPress={handleUpgrade}
+        >
+          <Text style={styles.upgradeBtnText}>★  Premium'a Geç</Text>
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Restore button */}
+      <Animated.View entering={FadeInDown.delay(320).duration(500)}>
+        <TouchableOpacity
+          style={[styles.restoreBtn, { borderColor: colors.border }]}
+          activeOpacity={0.7}
+          onPress={handleRestore}
+        >
+          <Feather name="refresh-cw" size={15} color={colors.mutedForeground} />
+          <Text style={[styles.restoreBtnText, { color: colors.mutedForeground }]}>
+            Satın Alımları Geri Yükle
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Legal note */}
+      <Animated.View entering={FadeInDown.delay(360).duration(500)}>
+        <Text style={[styles.legalNote, { color: colors.mutedForeground }]}>
+          Abonelik Google Play üzerinden yönetilir. İptal için Google Play Abonelikler
+          sayfasını ziyaret et. Faturalama bir sonraki dönem başlamadan en az 24 saat önce
+          iptal edilmezse otomatik olarak yenilenir.
+        </Text>
+      </Animated.View>
+    </ScrollView>
+  );
+}
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+
+  // Header
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTitle: { fontSize: 20, fontFamily: "Inter_700Bold" },
+
+  // Hero
+  heroCard: {
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 16,
+    gap: 12,
+    shadowColor: PREMIUM_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  heroRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  heroTitle: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#fff" },
+  heroSub: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(255,255,255,0.82)",
+    marginTop: 2,
+  },
+  heroIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroStar: { fontSize: 26, color: "#fff" },
+  heroBody: {
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(255,255,255,0.9)",
+    lineHeight: 21,
+  },
+
+  // Plan card
+  planCard: {
+    borderRadius: 16,
+    borderWidth: 1.5,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  planHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  planName: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
+  planBilling: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 3 },
+  priceWrap: { flexDirection: "row", alignItems: "flex-start", gap: 2 },
+  priceCurrency: { fontSize: 16, fontFamily: "Inter_700Bold", marginTop: 4 },
+  priceAmount: { fontSize: 30, fontFamily: "Inter_700Bold" },
+  planDivider: { height: 1, marginVertical: 12 },
+  planNote: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
+  planNoteText: { fontSize: 12, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
+
+  // Benefits
+  sectionLabel: {
+    fontSize: 11,
+    fontFamily: "Inter_600SemiBold",
+    letterSpacing: 0.9,
+    marginBottom: 8,
+    paddingLeft: 4,
+  },
+  benefitsCard: {
+    borderRadius: 16,
+    marginBottom: 24,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  benefitRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  benefitIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  benefitText: { flex: 1, gap: 2 },
+  benefitTitle: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  benefitDesc: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 18 },
+
+  // Buttons
+  upgradeBtn: {
+    borderRadius: 16,
+    paddingVertical: 17,
+    alignItems: "center",
+    marginBottom: 12,
+    shadowColor: PREMIUM_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  upgradeBtnText: {
+    color: "#fff",
+    fontSize: 17,
+    fontFamily: "Inter_700Bold",
+    letterSpacing: 0.3,
+  },
+  restoreBtn: {
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    marginBottom: 20,
+  },
+  restoreBtnText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+
+  // Legal
+  legalNote: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    textAlign: "center",
+    lineHeight: 17,
+  },
+});

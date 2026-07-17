@@ -17,6 +17,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider, useApp } from "@/contexts/AppContext";
+import { PremiumProvider } from "@/contexts/PremiumContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AchievementToast } from "@/components/AchievementToast";
 import {
@@ -228,6 +229,7 @@ function AppContent() {
           <Stack.Screen name="faq" options={{ presentation: "modal" }} />
           <Stack.Screen name="mock-exams" options={{ presentation: "modal" }} />
           <Stack.Screen name="exam-analytics" options={{ presentation: "modal" }} />
+          <Stack.Screen name="premium" options={{ presentation: "modal" }} />
         </Stack>
       </OnboardingGuard>
       {newAchievement && (
@@ -261,11 +263,13 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <AppProvider>
+              <PremiumProvider>
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <KeyboardProvider>
                   <AppContent />
                 </KeyboardProvider>
               </GestureHandlerRootView>
+              </PremiumProvider>
             </AppProvider>
           </ThemeProvider>
         </QueryClientProvider>
