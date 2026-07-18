@@ -17,6 +17,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider, useApp } from "@/contexts/AppContext";
+import { BillingProvider } from "@/contexts/BillingContext";
 import { PremiumProvider } from "@/contexts/PremiumContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AchievementToast } from "@/components/AchievementToast";
@@ -264,11 +265,13 @@ export default function RootLayout() {
           <ThemeProvider>
             <AppProvider>
               <PremiumProvider>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <KeyboardProvider>
-                  <AppContent />
-                </KeyboardProvider>
-              </GestureHandlerRootView>
+                <BillingProvider>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <KeyboardProvider>
+                      <AppContent />
+                    </KeyboardProvider>
+                  </GestureHandlerRootView>
+                </BillingProvider>
               </PremiumProvider>
             </AppProvider>
           </ThemeProvider>

@@ -1,23 +1,21 @@
 /**
  * Premium screen — presented as a modal from settings or any PremiumGate CTA.
  *
- * Currently a foundation screen:
- *   ✓ Premium benefits list
- *   ✓ Monthly subscription plan card (placeholder)
- *   ✓ "Upgrade" button — shows a billing-not-ready notice
- *   ✓ "Restore Purchases" button — shows a billing-not-ready notice
- *
- * When Google Play Billing is integrated:
- *   • Replace the Alert in handleUpgrade() with PremiumManager.purchaseMonthlySubscription()
- *   • Replace the Alert in handleRestore() with PremiumManager.restorePurchases()
- *   • Populate planPrice from the fetched SKU
+ * Billing integration:
+ *   ✓ Reads products dynamically from Google Play via useBilling()
+ *   ✓ Shows real prices from Google Play (no hardcoded values)
+ *   ✓ Upgrade button triggers real purchase flow
+ *   ✓ Restore button triggers real restore flow
+ *   ✓ Graceful handling: no internet, billing unavailable, cancelled, pending, error
+ *   ✓ Loading skeleton while products are being fetched
+ *   ✓ Friendly placeholder when products are unavailable
  */
 
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
-  Alert,
+  ActivityIndicator,
   Platform,
   ScrollView,
   StyleSheet,
@@ -29,7 +27,9 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PREMIUM_COLOR } from "@/components/PremiumBadge";
+import { useBilling } from "@/contexts/BillingContext";
 import { useColors } from "@/hooks/useColors";
+import { PRODUCT_IDS } from "@/utils/billing";
 import { FEATURE_REGISTRY } from "@/utils/premium/FeatureRegistry";
 
 // ─── Benefits data ────────────────────────────────────────────────────────────
@@ -40,7 +40,6 @@ interface Benefit {
   description: string;
 }
 
-// Derive benefits from the Feature Registry so the list stays in sync automatically.
 const BENEFITS: Benefit[] = [
   ...FEATURE_REGISTRY.map((f) => ({
     icon: f.icon,
@@ -72,16 +71,74 @@ function BenefitRow({
           <Feather name={benefit.icon as never} size={18} color={PREMIUM_COLOR} />
         </View>
         <View style={styles.benefitText}>
-          <Text style={[styles.benefitTitle, { color: colors.foreground }]} numberOfLines={2}>
+          <Text
+            style={[styles.benefitTitle, { color: colors.foreground }]}
+            numberOfLines={2}
+          >
             {benefit.title}
           </Text>
-          <Text style={[styles.benefitDesc, { color: colors.mutedForeground }]}>
+          <Text
+            style={[styles.benefitDesc, { color: colors.mutedForeground }]}
+          >
             {benefit.description}
           </Text>
         </View>
-        <Feather name="check-circle" size={18} color={PREMIUM_COLOR} style={styles.benefitCheck} />
+        <Feather
+          name="check-circle"
+          size={18}
+          color={PREMIUM_COLOR}
+          style={styles.benefitCheck}
+        />
       </View>
     </Animated.View>
+  );
+}
+
+// ─── Price display ────────────────────────────────────────────────────────────
+
+function PriceDisplay({
+  price,
+  isLoading,
+  isAvailable,
+  colors,
+}: {
+  price: string | null;
+  isLoading: boolean;
+  isAvailable: boolean;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}) {
+  if (isLoading) {
+    return (
+      <View style={styles.priceLoadingWrap}>
+        <ActivityIndicator size="small" color={PREMIUM_COLOR} />
+      </View>
+    );
+  }
+  if (!isAvailable || !price) {
+    return (
+      <View style={styles.priceUnavailableWrap}>
+        <Text style={[styles.priceUnavailableText, { color: colors.mutedForeground }]}>
+          —
+        </Text>
+      </View>
+    );
+  }
+  // Split the price into currency symbol and amount for visual hierarchy.
+  // If the price string starts with a currency symbol, display them separately.
+  // Otherwise display the whole string as the amount.
+  const match = price.match(/^([^\d\s,.]*)(.+)$/);
+  const symbol = match?.[1] ?? "";
+  const amount = match?.[2] ?? price;
+
+  return (
+    <View style={styles.priceWrap}>
+      {symbol ? (
+        <Text style={[styles.priceCurrency, { color: PREMIUM_COLOR }]}>{symbol}</Text>
+      ) : null}
+      <Text style={[styles.priceAmount, { color: PREMIUM_COLOR }]} numberOfLines={1}>
+        {amount}
+      </Text>
+    </View>
   );
 }
 
@@ -90,28 +147,72 @@ function BenefitRow({
 export default function PremiumScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const {
+    products,
+    purchase,
+    restore,
+    isLoading: billingLoading,
+    isConnected,
+    error: billingError,
+    clearError,
+  } = useBilling();
+
+  const [purchaseLoading, setPurchaseLoading] = useState(false);
+  const [restoreLoading, setRestoreLoading] = useState(false);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = Math.max(insets.bottom, 16) + 24;
 
-  // ── Placeholder handlers ──────────────────────────────────────────────────
-  // Replace with real billing calls when Google Play Billing is integrated.
+  // Google Play Billing only works on Android. On other platforms show a
+  // graceful unavailability note instead of broken purchase buttons.
+  const isBillingPlatform = Platform.OS === "android";
 
-  function handleUpgrade() {
-    Alert.alert(
-      "Yakında",
-      "Google Play Billing entegrasyonu ilerleyen güncellemelerde eklenecek.",
-      [{ text: "Tamam" }]
-    );
+  const monthlyProduct = products.find((p) => p.productId === PRODUCT_IDS.MONTHLY);
+  const displayPrice = monthlyProduct?.localizedPrice ?? null;
+
+  // Products are considered available when billing loaded without error and
+  // we have at least one product to show.
+  const productsAvailable = !billingLoading && products.length > 0;
+
+  // Billing is unavailable when: wrong platform, not connected, or errored on load
+  const billingUnavailable =
+    !isBillingPlatform ||
+    (!billingLoading && !isConnected && products.length === 0);
+
+  // ── Handlers ────────────────────────────────────────────────────────────────
+
+  async function handleUpgrade() {
+    if (!isBillingPlatform || purchaseLoading || restoreLoading) return;
+    clearError();
+    setPurchaseLoading(true);
+    try {
+      await purchase(PRODUCT_IDS.MONTHLY);
+    } finally {
+      setPurchaseLoading(false);
+    }
   }
 
-  function handleRestore() {
-    Alert.alert(
-      "Yakında",
-      "Google Play Billing entegrasyonu ilerleyen güncellemelerde eklenecek.",
-      [{ text: "Tamam" }]
-    );
+  async function handleRestore() {
+    if (!isBillingPlatform || purchaseLoading || restoreLoading) return;
+    clearError();
+    setRestoreLoading(true);
+    try {
+      const restored = await restore();
+      if (restored) {
+        router.back();
+      }
+    } finally {
+      setRestoreLoading(false);
+    }
   }
+
+  const buttonsDisabled =
+    billingLoading ||
+    purchaseLoading ||
+    restoreLoading ||
+    billingUnavailable;
+
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <ScrollView
@@ -133,7 +234,9 @@ export default function PremiumScreen() {
           >
             <Feather name="arrow-left" size={20} color={colors.foreground} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Premium</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>
+            Premium
+          </Text>
           <View style={styles.headerSpacer} />
         </View>
       </Animated.View>
@@ -143,16 +246,25 @@ export default function PremiumScreen() {
         <View style={[styles.heroCard, { backgroundColor: PREMIUM_COLOR }]}>
           <View style={styles.heroRow}>
             <View style={styles.heroTextWrap}>
-              <Text style={styles.heroTitle} numberOfLines={2}>KonuTakip Premium</Text>
-              <Text style={styles.heroSub} numberOfLines={2}>AI destekli çalışma deneyimi</Text>
+              <Text style={styles.heroTitle} numberOfLines={2}>
+                KonuTakip Premium
+              </Text>
+              <Text style={styles.heroSub} numberOfLines={2}>
+                AI destekli çalışma deneyimi
+              </Text>
             </View>
-            <View style={[styles.heroIconWrap, { backgroundColor: "rgba(255,255,255,0.22)" }]}>
+            <View
+              style={[
+                styles.heroIconWrap,
+                { backgroundColor: "rgba(255,255,255,0.22)" },
+              ]}
+            >
               <Text style={styles.heroStar}>★</Text>
             </View>
           </View>
           <Text style={styles.heroBody}>
-            Premium üyelikle AI özelliklerine, gelişmiş analitiğe ve çok daha fazlasına
-            erişerek sınav hazırlığını bir üst seviyeye taşı.
+            Premium üyelikle AI özelliklerine, gelişmiş analitiğe ve çok daha
+            fazlasına erişerek sınav hazırlığını bir üst seviyeye taşı.
           </Text>
         </View>
       </Animated.View>
@@ -180,17 +292,33 @@ export default function PremiumScreen() {
                 Her ay otomatik yenilenir · İstediğin zaman iptal et
               </Text>
             </View>
-            {/* Price is intentionally a placeholder until SKU is fetched from Play */}
-            <View style={styles.priceWrap}>
-              <Text style={[styles.priceCurrency, { color: PREMIUM_COLOR }]}>₺</Text>
-              <Text style={[styles.priceAmount, { color: PREMIUM_COLOR }]}>—</Text>
-            </View>
+            <PriceDisplay
+              price={displayPrice}
+              isLoading={billingLoading && isBillingPlatform}
+              isAvailable={productsAvailable}
+              colors={colors}
+            />
           </View>
+
           <View style={[styles.planDivider, { backgroundColor: colors.border }]} />
+
+          {/* Plan note — contextual based on billing state */}
           <View style={styles.planNote}>
-            <Feather name="info" size={13} color={colors.mutedForeground} />
-            <Text style={[styles.planNoteText, { color: colors.mutedForeground }]}>
-              Fiyat, Google Play Billing entegrasyonu tamamlandıktan sonra görüntülenecek.
+            <Feather
+              name={billingUnavailable ? "alert-circle" : "info"}
+              size={13}
+              color={colors.mutedForeground}
+            />
+            <Text
+              style={[styles.planNoteText, { color: colors.mutedForeground }]}
+            >
+              {!isBillingPlatform
+                ? "Google Play aboneliği yalnızca Android cihazlarda kullanılabilir."
+                : billingLoading
+                  ? "Fiyat bilgisi Google Play'den yükleniyor..."
+                  : productsAvailable
+                    ? "Google Play üzerinden güvenli ödeme · Türk Lirası cinsinden faturalanır"
+                    : "Google Play bağlantısı kurulamadı. İnternet bağlantınızı kontrol edin."}
             </Text>
           </View>
         </View>
@@ -213,37 +341,93 @@ export default function PremiumScreen() {
         </View>
       </Animated.View>
 
+      {/* Error banner */}
+      {billingError && billingError.code !== "pending" && (
+        <Animated.View entering={FadeInDown.duration(300)}>
+          <View
+            style={[styles.errorBanner, { backgroundColor: colors.card, borderColor: "#ef444440" }]}
+          >
+            <Feather name="alert-triangle" size={14} color="#ef4444" style={styles.errorIcon} />
+            <Text style={[styles.errorText, { color: "#ef4444" }]} numberOfLines={3}>
+              {billingError.message}
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+
+      {/* Pending purchase banner */}
+      {billingError?.code === "pending" && (
+        <Animated.View entering={FadeInDown.duration(300)}>
+          <View
+            style={[styles.infoBanner, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "40" }]}
+          >
+            <Feather name="clock" size={14} color={PREMIUM_COLOR} style={styles.errorIcon} />
+            <Text style={[styles.infoText, { color: PREMIUM_COLOR }]} numberOfLines={3}>
+              {billingError.message}
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+
       {/* Upgrade button */}
       <Animated.View entering={FadeInDown.delay(280).duration(500)}>
         <TouchableOpacity
-          style={[styles.upgradeBtn, { backgroundColor: PREMIUM_COLOR }]}
+          style={[
+            styles.upgradeBtn,
+            { backgroundColor: PREMIUM_COLOR },
+            buttonsDisabled && styles.btnDisabled,
+          ]}
           activeOpacity={0.85}
           onPress={handleUpgrade}
+          disabled={buttonsDisabled}
+          accessibilityLabel="Premium'a geç"
+          accessibilityRole="button"
         >
-          <Text style={styles.upgradeBtnText}>★  Premium'a Geç</Text>
+          {purchaseLoading ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={styles.upgradeBtnText}>
+              {billingUnavailable && isBillingPlatform
+                ? "Bağlanıyor..."
+                : "★  Premium'a Geç"}
+            </Text>
+          )}
         </TouchableOpacity>
       </Animated.View>
 
       {/* Restore button */}
       <Animated.View entering={FadeInDown.delay(320).duration(500)}>
         <TouchableOpacity
-          style={[styles.restoreBtn, { borderColor: colors.border }]}
+          style={[
+            styles.restoreBtn,
+            { borderColor: colors.border },
+            buttonsDisabled && styles.btnDisabled,
+          ]}
           activeOpacity={0.7}
           onPress={handleRestore}
+          disabled={buttonsDisabled}
+          accessibilityLabel="Satın alımları geri yükle"
+          accessibilityRole="button"
         >
-          <Feather name="refresh-cw" size={15} color={colors.mutedForeground} />
-          <Text style={[styles.restoreBtnText, { color: colors.mutedForeground }]}>
-            Satın Alımları Geri Yükle
-          </Text>
+          {restoreLoading ? (
+            <ActivityIndicator color={colors.mutedForeground} size="small" />
+          ) : (
+            <>
+              <Feather name="refresh-cw" size={15} color={colors.mutedForeground} />
+              <Text style={[styles.restoreBtnText, { color: colors.mutedForeground }]}>
+                Satın Alımları Geri Yükle
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
       </Animated.View>
 
       {/* Legal note */}
       <Animated.View entering={FadeInDown.delay(360).duration(500)}>
         <Text style={[styles.legalNote, { color: colors.mutedForeground }]}>
-          Abonelik Google Play üzerinden yönetilir. İptal için Google Play Abonelikler
-          sayfasını ziyaret et. Faturalama bir sonraki dönem başlamadan en az 24 saat önce
-          iptal edilmezse otomatik olarak yenilenir.
+          {isBillingPlatform
+            ? "Abonelik Google Play üzerinden yönetilir. İptal için Google Play Abonelikler sayfasını ziyaret et. Faturalama bir sonraki dönem başlamadan en az 24 saat önce iptal edilmezse otomatik olarak yenilenir."
+            : "Abonelik yönetimi yalnızca Android cihazlarda kullanılabilir."}
         </Text>
       </Animated.View>
     </ScrollView>
@@ -348,9 +532,29 @@ const styles = StyleSheet.create({
   },
   priceCurrency: { fontSize: 15, fontFamily: "Inter_700Bold", marginTop: 4 },
   priceAmount: { fontSize: 28, fontFamily: "Inter_700Bold" },
+  priceLoadingWrap: {
+    width: 40,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  priceUnavailableWrap: {
+    flexShrink: 0,
+    alignItems: "flex-end",
+  },
+  priceUnavailableText: {
+    fontSize: 28,
+    fontFamily: "Inter_700Bold",
+  },
   planDivider: { height: 1, marginVertical: 12 },
   planNote: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
-  planNoteText: { fontSize: 12, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
+  planNoteText: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    flex: 1,
+    lineHeight: 18,
+  },
 
   // Benefits
   sectionLabel: {
@@ -391,6 +595,39 @@ const styles = StyleSheet.create({
   benefitDesc: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 18 },
   benefitCheck: { flexShrink: 0 },
 
+  // Error / info banners
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 12,
+  },
+  infoBanner: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 12,
+  },
+  errorIcon: { flexShrink: 0, marginTop: 1 },
+  errorText: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    flex: 1,
+    lineHeight: 18,
+  },
+  infoText: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    flex: 1,
+    lineHeight: 18,
+  },
+
   // Buttons
   upgradeBtn: {
     borderRadius: 16,
@@ -426,6 +663,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   restoreBtnText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+  btnDisabled: { opacity: 0.55 },
 
   // Legal
   legalNote: {

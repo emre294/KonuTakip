@@ -57,6 +57,8 @@
   },
   "dependencies": {
     "expo-document-picker": "^14.0.8",
-    "expo-notifications": "^0.32.17"
+    "expo-notifications": "^0.32.17",
+    "react-native-iap": "^15.5.2",
+    "react-native-nitro-modules": "^0.36.1"
   }
 }

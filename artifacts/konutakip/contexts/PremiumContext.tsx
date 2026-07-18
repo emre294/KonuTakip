@@ -18,6 +18,7 @@ import React, {
 } from "react";
 
 import { PremiumManager } from "@/utils/premium";
+import type { PremiumStatus, SubscriptionType } from "@/utils/premium";
 
 // ─── Context shape ────────────────────────────────────────────────────────────
 
@@ -33,13 +34,18 @@ interface PremiumContextValue {
 
   /**
    * Grant Premium access.
-   * In production this will be called by the billing callback after a
-   * successful purchase; during development it can be called directly for testing.
+   * Called automatically by BillingContext after a successful Google Play purchase.
+   * Can also be called directly during development for testing.
    *
    * @param subscriptionType - Billing/grant model. Defaults to "monthly".
-   * @param expiresAt - ISO date string for expiry. null for lifetime grants.
+   * @param expiresAt - ISO date string for expiry. null when unknown (server not yet integrated).
+   * @param source - Origin of the grant. Defaults to "manual_grant"; billing sets "google_play".
    */
-  grantPremium: (subscriptionType?: import("@/utils/premium").SubscriptionType, expiresAt?: string | null) => Promise<void>;
+  grantPremium: (
+    subscriptionType?: SubscriptionType,
+    expiresAt?: string | null,
+    source?: PremiumStatus["source"]
+  ) => Promise<void>;
 
   /** Revoke Premium and reset to free tier. */
   revokePremium: () => Promise<void>;
@@ -79,10 +85,11 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
 
   const grantPremium = useCallback(
     async (
-      subscriptionType: import("@/utils/premium").SubscriptionType = "monthly",
-      expiresAt: string | null = null
+      subscriptionType: SubscriptionType = "monthly",
+      expiresAt: string | null = null,
+      source: PremiumStatus["source"] = "manual_grant"
     ) => {
-      await PremiumManager.grantPremium(subscriptionType, expiresAt);
+      await PremiumManager.grantPremium(subscriptionType, expiresAt, source);
       setIsPremium(true);
     },
     []

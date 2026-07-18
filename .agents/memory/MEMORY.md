@@ -4,3 +4,4 @@
 - [KonuTakip AI Infrastructure](konutakip-ai-infra.md) — Provider-swappable AI layer under utils/ai/; all features disabled by default; mock provider always active.
 - [KonuTakip Premium UI Patterns](konutakip-premium-ui.md) — heroRow overflow fix pattern; all hero cards need flex:1+flexShrink:1 on text wrap, flexShrink:0 on icon.
 - [KonuTakip Premium Feature Engine](konutakip-premium-engine.md) — Full registry+access engine; field names (title not name, enabled not active); grantPremium signature; activation checklist.
+- [KonuTakip Google Play Billing](konutakip-billing.md) — react-native-iap v15 infra; requestPurchase uses `request.google` not `android`; cast products via `as unknown as Record<string,unknown>`; needs nitro-modules peer dep.
