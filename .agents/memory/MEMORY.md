@@ -3,3 +3,4 @@
 - [KonuTakip Performance Optimizations](konutakip-perf.md) — saveData shadow-ref pattern, screen memoization rules, React.memo components.
 - [KonuTakip AI Infrastructure](konutakip-ai-infra.md) — Provider-swappable AI layer under utils/ai/; all features disabled by default; mock provider always active.
 - [KonuTakip Premium UI Patterns](konutakip-premium-ui.md) — heroRow overflow fix pattern; all hero cards need flex:1+flexShrink:1 on text wrap, flexShrink:0 on icon.
+- [KonuTakip Premium Feature Engine](konutakip-premium-engine.md) — Full registry+access engine; field names (title not name, enabled not active); grantPremium signature; activation checklist.

@@ -44,7 +44,7 @@ interface Benefit {
 const BENEFITS: Benefit[] = [
   ...FEATURE_REGISTRY.map((f) => ({
     icon: f.icon,
-    title: f.name,
+    title: f.title,
     description: f.description,
   })),
   {

@@ -151,7 +151,7 @@ export function PremiumGate({
 
   // Resolve name and description from registry when featureId is provided
   const registryEntry = featureId ? FEATURE_REGISTRY_MAP.get(featureId) : undefined;
-  const resolvedName = featureName ?? registryEntry?.name ?? "Premium Özellik";
+  const resolvedName = featureName ?? registryEntry?.title ?? "Premium Özellik";
   const resolvedDesc = featureDescription ?? registryEntry?.description;
 
   return (

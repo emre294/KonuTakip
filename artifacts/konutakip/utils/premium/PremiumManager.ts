@@ -12,7 +12,7 @@
  *
  * ─── Future integration points ────────────────────────────────────────────────
  *  1. Google Play Billing:
- *       Replace initializeBilling() and purchaseMonthlySubscription() stubs
+ *       Replace initializeBilling() and purchaseSubscription() stubs
  *       with react-native-purchases (RevenueCat) or google-play-billing calls.
  *  2. Subscription expiration:
  *       Populate expiresAt on grant, then call checkExpiration() on app launch
@@ -31,8 +31,27 @@ const STORAGE_KEY = "konutakip_premium_v1";
 
 export type PremiumTier = "free" | "premium";
 
+/**
+ * Subscription type — determines billing period and unlock scope.
+ * Future Google Play Billing integration will populate this field.
+ *
+ * monthly      — standard recurring monthly subscription
+ * yearly       — recurring annual subscription (typically discounted)
+ * trial        — free trial period before billing starts
+ * promotional  — granted via a promotion code (limited time)
+ * campaign     — granted via a marketing campaign (e.g. partner deal)
+ */
+export type SubscriptionType =
+  | "monthly"
+  | "yearly"
+  | "trial"
+  | "promotional"
+  | "campaign";
+
 export interface PremiumStatus {
   tier: PremiumTier;
+  /** The billing/grant model active for this subscription. null for free users. */
+  subscriptionType: SubscriptionType | null;
   /** ISO date string — null for free users or lifetime grants */
   grantedAt: string | null;
   /** ISO date string — null until expiration tracking is implemented */
@@ -42,7 +61,7 @@ export interface PremiumStatus {
 }
 
 /**
- * Future Premium features.
+ * All Premium feature IDs.
  * Add new values here as each feature is built so PremiumGate can reference
  * a typed enum rather than raw strings.
  */
@@ -53,6 +72,7 @@ export const PremiumFeature = {
   AI_STUDY_COACH_PRO: "ai_study_coach_pro",
   AI_MINI_EXAMS: "ai_mini_exams",
   PERSONALIZED_STUDY_PLANS: "personalized_study_plans",
+  SMART_REVIEW_SYSTEM: "smart_review_system",
 } as const;
 
 export type PremiumFeatureId = (typeof PremiumFeature)[keyof typeof PremiumFeature];
@@ -61,6 +81,7 @@ export type PremiumFeatureId = (typeof PremiumFeature)[keyof typeof PremiumFeatu
 
 const DEFAULT_STATUS: PremiumStatus = {
   tier: "free",
+  subscriptionType: null,
   grantedAt: null,
   expiresAt: null,
   source: "none",
@@ -82,6 +103,7 @@ class PremiumManagerClass {
         const parsed = JSON.parse(raw) as Partial<PremiumStatus>;
         this._status = {
           tier: parsed.tier ?? "free",
+          subscriptionType: parsed.subscriptionType ?? null,
           grantedAt: parsed.grantedAt ?? null,
           expiresAt: parsed.expiresAt ?? null,
           source: parsed.source ?? "none",
@@ -115,6 +137,11 @@ class PremiumManagerClass {
     return true;
   }
 
+  /** Returns the active subscription type, or null for free users. */
+  getSubscriptionType(): SubscriptionType | null {
+    return this._status.subscriptionType;
+  }
+
   /** Full status object — use for display or debugging. */
   getStatus(): PremiumStatus {
     return { ...this._status };
@@ -124,16 +151,20 @@ class PremiumManagerClass {
 
   /**
    * Grant Premium access.
+   *
+   * @param subscriptionType - The billing/grant model being activated.
    * @param expiresAt - ISO date string for subscription expiry. Pass null for
    *   lifetime / manual grants.
    * @param source - Where this grant originated.
    */
   async grantPremium(
+    subscriptionType: SubscriptionType = "monthly",
     expiresAt: string | null = null,
     source: PremiumStatus["source"] = "manual_grant"
   ): Promise<void> {
     this._status = {
       tier: "premium",
+      subscriptionType,
       grantedAt: new Date().toISOString(),
       expiresAt,
       source,
@@ -169,7 +200,7 @@ class PremiumManagerClass {
    * Future implementation:
    *   const info = await Purchases.purchaseProduct("konutakip_premium_monthly");
    *   if (info.activeSubscriptions.includes("konutakip_premium_monthly")) {
-   *     await this.grantPremium(info.expirationDate, "google_play");
+   *     await this.grantPremium("monthly", info.expirationDate, "google_play");
    *     return true;
    *   }
    *   return false;
@@ -180,13 +211,52 @@ class PremiumManagerClass {
   }
 
   /**
+   * [STUB] Launch the yearly subscription purchase flow.
+   * Returns true on a successful purchase.
+   *
+   * Future implementation: same pattern as purchaseMonthlySubscription,
+   * passing "yearly" as the subscriptionType to grantPremium.
+   */
+  async purchaseYearlySubscription(): Promise<boolean> {
+    // TODO: implement Google Play Billing yearly purchase flow
+    return Promise.resolve(false);
+  }
+
+  /**
+   * [STUB] Activate a free trial period.
+   * Returns true when the trial was successfully started.
+   */
+  async startFreeTrial(durationDays: number = 7): Promise<boolean> {
+    // TODO: implement trial via Google Play Billing free trial SKU
+    void durationDays;
+    return Promise.resolve(false);
+  }
+
+  /**
+   * [STUB] Activate Premium via a promotional or campaign code.
+   * Returns true when the code was valid and Premium was granted.
+   *
+   * @param code - The promotional/campaign code entered by the user.
+   * @param type - Whether this is a "promotional" or "campaign" unlock.
+   */
+  async redeemCode(
+    code: string,
+    type: Extract<SubscriptionType, "promotional" | "campaign"> = "promotional"
+  ): Promise<boolean> {
+    // TODO: validate code against a server endpoint, then call grantPremium(type)
+    void code;
+    void type;
+    return Promise.resolve(false);
+  }
+
+  /**
    * [STUB] Restore previous purchases for this Google account.
    * Returns true if an active entitlement was found and restored.
    *
    * Future implementation:
    *   const info = await Purchases.restorePurchases();
    *   if (info.activeSubscriptions.length > 0) {
-   *     await this.grantPremium(info.expirationDate, "restore");
+   *     await this.grantPremium("monthly", info.expirationDate, "restore");
    *     return true;
    *   }
    *   return false;

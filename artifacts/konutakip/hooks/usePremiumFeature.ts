@@ -31,7 +31,7 @@ export interface UsePremiumFeatureResult {
 export function usePremiumFeature(featureId: PremiumFeatureId): UsePremiumFeatureResult {
   const { isPremium, isLoading } = usePremium();
   const feature = FEATURE_REGISTRY_MAP.get(featureId);
-  const isEnabled = isPremium && (feature?.active ?? false);
+  const isEnabled = isPremium && (feature?.enabled ?? false) && !(feature?.comingSoon ?? false);
 
   return { isEnabled, isPremium, isLoading, feature };
 }

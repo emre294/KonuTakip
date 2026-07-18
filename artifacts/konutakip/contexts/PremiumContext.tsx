@@ -35,8 +35,11 @@ interface PremiumContextValue {
    * Grant Premium access.
    * In production this will be called by the billing callback after a
    * successful purchase; during development it can be called directly for testing.
+   *
+   * @param subscriptionType - Billing/grant model. Defaults to "monthly".
+   * @param expiresAt - ISO date string for expiry. null for lifetime grants.
    */
-  grantPremium: (expiresAt?: string | null) => Promise<void>;
+  grantPremium: (subscriptionType?: import("@/utils/premium").SubscriptionType, expiresAt?: string | null) => Promise<void>;
 
   /** Revoke Premium and reset to free tier. */
   revokePremium: () => Promise<void>;
@@ -74,10 +77,16 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
       });
   }, []);
 
-  const grantPremium = useCallback(async (expiresAt: string | null = null) => {
-    await PremiumManager.grantPremium(expiresAt);
-    setIsPremium(true);
-  }, []);
+  const grantPremium = useCallback(
+    async (
+      subscriptionType: import("@/utils/premium").SubscriptionType = "monthly",
+      expiresAt: string | null = null
+    ) => {
+      await PremiumManager.grantPremium(subscriptionType, expiresAt);
+      setIsPremium(true);
+    },
+    []
+  );
 
   const revokePremium = useCallback(async () => {
     await PremiumManager.revokePremium();

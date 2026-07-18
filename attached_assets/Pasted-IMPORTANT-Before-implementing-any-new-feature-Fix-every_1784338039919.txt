@@ -1,0 +1,190 @@
+IMPORTANT
+
+Before implementing any new feature:
+
+• Fix every UI issue introduced in previous updates.
+• No text may overflow outside cards.
+• No buttons may overflow.
+• All screens must be fully responsive.
+• Cards must automatically grow with their content.
+• Turkish text must always fit correctly.
+• Maintain consistent spacing and padding.
+• Preserve the current design language.
+• Do NOT redesign the application.
+
+NOW IMPLEMENT THE PREMIUM FEATURE ENGINE.
+
+Do NOT integrate Google Play Billing yet.
+
+Do NOT connect to any external API.
+
+Do NOT modify existing application functionality.
+
+OBJECTIVE
+
+Create a centralized Premium Feature Engine that will control every Premium capability from one place.
+
+Requirements
+
+1.
+
+Create a PremiumFeatureRegistry.
+
+Every Premium feature must have:
+
+- id
+- title
+- description
+- category
+- enabled
+- premiumRequired
+- comingSoon
+
+2.
+
+Move every Premium feature into this registry.
+
+Examples:
+
+- AI Question Generator
+- AI Teacher
+- AI Study Coach
+- Advanced Statistics
+- Mini Exams
+- Personalized Study Plans
+
+3.
+
+Create Feature Categories:
+
+AI
+
+Analytics
+
+Planning
+
+Testing
+
+Study
+
+Future
+
+4.
+
+Create Feature Metadata.
+
+Every feature should support:
+
+icon
+
+badge
+
+versionIntroduced
+
+minimumPremiumVersion
+
+estimatedRelease
+
+5.
+
+Create Feature Access Engine.
+
+Functions:
+
+canUse()
+
+isPremium()
+
+isComingSoon()
+
+isEnabled()
+
+getLockedReason()
+
+6.
+
+Create reusable hook:
+
+usePremiumFeatures()
+
+Returns:
+
+availableFeatures
+
+lockedFeatures
+
+comingSoonFeatures
+
+featureCount
+
+premiumCount
+
+freeCount
+
+7.
+
+Create reusable PremiumLockedCard component.
+
+Responsive.
+
+No overflow.
+
+No fixed heights.
+
+8.
+
+Create reusable ComingSoonCard component.
+
+9.
+
+Prepare Feature Flags.
+
+Future updates should activate a feature simply by changing:
+
+enabled: true
+
+No code changes elsewhere.
+
+10.
+
+Prepare future compatibility with:
+
+Monthly Subscription
+
+Yearly Subscription
+
+Free Trial
+
+Promotional Unlocks
+
+Campaign Unlocks
+
+11.
+
+Do NOT connect anything to Google Play.
+
+12.
+
+Do NOT generate any AI.
+
+13.
+
+Do NOT modify navigation.
+
+14.
+
+TypeScript must compile with zero errors.
+
+15.
+
+Keep architecture modular, scalable and production-ready.
+
+This update is architecture only.
+
+No payment.
+
+No AI.
+
+No API.
+
+Only the Premium Feature Engine.
