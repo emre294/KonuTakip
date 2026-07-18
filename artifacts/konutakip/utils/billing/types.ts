@@ -9,22 +9,18 @@
  * To update Product IDs: edit utils/billing/config.ts — do NOT add SKU strings here.
  */
 
-import { MONTHLY_PRODUCT_ID, YEARLY_PRODUCT_ID } from "./config";
+import { MONTHLY_PRODUCT_ID } from "./config";
 
 // ─── Product IDs ──────────────────────────────────────────────────────────────
 // Sourced from config.ts — that file is the single source of truth for SKU strings.
 
 export const PRODUCT_IDS = {
   MONTHLY: MONTHLY_PRODUCT_ID,
-  YEARLY: YEARLY_PRODUCT_ID,
 } as const;
 
 export type ProductId = (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS];
 
-export const ALL_PRODUCT_IDS: ProductId[] = [
-  PRODUCT_IDS.MONTHLY,
-  PRODUCT_IDS.YEARLY,
-];
+export const ALL_PRODUCT_IDS: ProductId[] = [PRODUCT_IDS.MONTHLY];
 
 // ─── Product ──────────────────────────────────────────────────────────────────
 
@@ -40,7 +36,7 @@ export interface BillingProduct {
   /** Android offer token required for requestPurchase (null when unavailable). */
   offerToken: string | null;
   /** Canonical billing period for display logic. */
-  type: "monthly" | "yearly";
+  type: "monthly";
 }
 
 // ─── Purchase ─────────────────────────────────────────────────────────────────
@@ -103,7 +99,6 @@ export interface IBillingService {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   purchaseMonthlySubscription(): Promise<void>;
-  purchaseYearlySubscription(): Promise<void>;
   restorePurchases(): Promise<boolean>;
   queryPurchases(): Promise<BillingPurchase[]>;
   queryProducts(): Promise<BillingProduct[]>;

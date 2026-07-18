@@ -237,7 +237,7 @@ export class GooglePlayBillingProvider implements IBillingService {
           localizedPrice: extractPrice(raw),
           currency: (raw.currency ?? "") as string,
           offerToken: extractOfferToken(raw),
-          type: productId === PRODUCT_IDS.MONTHLY ? "monthly" : "yearly",
+          type: "monthly",
         });
       }
 
@@ -255,11 +255,6 @@ export class GooglePlayBillingProvider implements IBillingService {
   /** Initiate the monthly subscription purchase flow. */
   async purchaseMonthlySubscription(): Promise<void> {
     return this._purchase(PRODUCT_IDS.MONTHLY);
-  }
-
-  /** Initiate the yearly subscription purchase flow. */
-  async purchaseYearlySubscription(): Promise<void> {
-    return this._purchase(PRODUCT_IDS.YEARLY);
   }
 
   /**

@@ -27,7 +27,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PREMIUM_COLOR } from "@/components/PremiumBadge";
-import { useBilling } from "@/contexts/BillingContext";
+import { useBilling, isBillingSupported } from "@/contexts/BillingContext";
 import { useColors } from "@/hooks/useColors";
 import { PRODUCT_IDS } from "@/utils/billing";
 import { FEATURE_REGISTRY } from "@/utils/premium/FeatureRegistry";
@@ -160,9 +160,12 @@ export default function PremiumScreen() {
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = Math.max(insets.bottom, 16) + 24;
 
-  // Google Play Billing only works on Android. On other platforms show a
-  // graceful unavailability note instead of broken purchase buttons.
+  // Google Play Billing only works on Android real builds. On other platforms
+  // (iOS, web) or inside Expo Go show a graceful unavailability note.
   const isBillingPlatform = Platform.OS === "android";
+  // isBillingSupported is false inside Expo Go (storeClient environment)
+  // where react-native-iap's native module is absent.
+  const isExpoGo = isBillingPlatform && !isBillingSupported;
 
   const monthlyProduct = products.find((p) => p.productId === PRODUCT_IDS.MONTHLY);
   const displayPrice = monthlyProduct?.localizedPrice ?? null;
@@ -171,15 +174,16 @@ export default function PremiumScreen() {
   // we have at least one product to show.
   const productsAvailable = !billingLoading && products.length > 0;
 
-  // Billing is unavailable when: wrong platform, not connected, or errored on load
+  // Billing is unavailable when: wrong platform, Expo Go, not connected, or errored on load
   const billingUnavailable =
     !isBillingPlatform ||
+    isExpoGo ||
     (!billingLoading && !isConnected && products.length === 0);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   async function handleUpgrade() {
-    if (!isBillingPlatform || purchaseLoading || restoreLoading) return;
+    if (!isBillingSupported || purchaseLoading || restoreLoading) return;
     clearError();
     setPurchaseLoading(true);
     try {
@@ -190,7 +194,7 @@ export default function PremiumScreen() {
   }
 
   async function handleRestore() {
-    if (!isBillingPlatform || purchaseLoading || restoreLoading) return;
+    if (!isBillingSupported || purchaseLoading || restoreLoading) return;
     clearError();
     setRestoreLoading(true);
     try {
@@ -305,11 +309,13 @@ export default function PremiumScreen() {
             >
               {!isBillingPlatform
                 ? "Google Play aboneliği yalnızca Android cihazlarda kullanılabilir."
-                : billingLoading
-                  ? "Fiyat bilgisi Google Play'den yükleniyor..."
-                  : productsAvailable
-                    ? "Google Play üzerinden güvenli ödeme · Türk Lirası cinsinden faturalanır"
-                    : "Google Play bağlantısı kurulamadı. İnternet bağlantınızı kontrol edin."}
+                : isExpoGo
+                  ? "Abonelikler yalnızca Development Build veya Play Store sürümünde kullanılabilir."
+                  : billingLoading
+                    ? "Fiyat bilgisi Google Play'den yükleniyor..."
+                    : productsAvailable
+                      ? "Google Play üzerinden güvenli ödeme · Türk Lirası cinsinden faturalanır"
+                      : "Google Play bağlantısı kurulamadı. İnternet bağlantınızı kontrol edin."}
             </Text>
           </View>
         </View>
@@ -378,7 +384,7 @@ export default function PremiumScreen() {
             <ActivityIndicator color="#fff" size="small" />
           ) : (
             <Text style={styles.upgradeBtnText}>
-              {billingUnavailable && isBillingPlatform
+              {billingUnavailable && isBillingPlatform && !isExpoGo
                 ? "Bağlanıyor..."
                 : "★  Premium'a Geç"}
             </Text>
@@ -416,7 +422,7 @@ export default function PremiumScreen() {
       {/* Legal note */}
       <Animated.View entering={FadeInDown.delay(360).duration(500)}>
         <Text style={[styles.legalNote, { color: colors.mutedForeground }]}>
-          {isBillingPlatform
+          {isBillingPlatform && !isExpoGo
             ? "Abonelik Google Play üzerinden yönetilir. İptal için Google Play Abonelikler sayfasını ziyaret et. Faturalama bir sonraki dönem başlamadan en az 24 saat önce iptal edilmezse otomatik olarak yenilenir."
             : "Abonelik yönetimi yalnızca Android cihazlarda kullanılabilir."}
         </Text>

@@ -67,8 +67,9 @@ export const isBillingSupported: boolean =
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getSubscriptionType(productId: string): SubscriptionType {
-  return productId === PRODUCT_IDS.YEARLY ? "yearly" : "monthly";
+function getSubscriptionType(_productId: string): SubscriptionType {
+  // Only one subscription plan exists: konutakip_premium_aylik (monthly).
+  return "monthly";
 }
 
 // ─── Context shape ────────────────────────────────────────────────────────────
@@ -246,13 +247,10 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
 
   // ── Actions ─────────────────────────────────────────────────────────────────
 
-  const purchase = useCallback(async (productId: ProductId): Promise<void> => {
+  const purchase = useCallback(async (_productId: ProductId): Promise<void> => {
     setError(null);
-    if (productId === PRODUCT_IDS.MONTHLY) {
-      await BillingManager.purchaseMonthlySubscription();
-    } else {
-      await BillingManager.purchaseYearlySubscription();
-    }
+    // Only one plan: konutakip_premium_aylik (monthly).
+    await BillingManager.purchaseMonthlySubscription();
   }, []);
 
   const restore = useCallback(async (): Promise<boolean> => {
