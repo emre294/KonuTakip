@@ -88,12 +88,7 @@ function LockedView({
       {/* Heading */}
       <Animated.View entering={FadeInDown.delay(80).duration(400)} style={styles.textBlock}>
         <Text style={[styles.premiumLabel, { color: PREMIUM_COLOR }]}>Premium Özellik</Text>
-        <Text
-          style={[styles.featureName, { color: colors.foreground }]}
-          numberOfLines={3}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
-        >
+        <Text style={[styles.featureName, { color: colors.foreground }]}>
           {featureName}
         </Text>
         {featureDescription ? (
@@ -198,10 +193,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     textTransform: "uppercase",
   },
+  // alignSelf: "stretch" ensures these texts fill the full container width
+  // even though the parent (textBlock) has alignItems: "center". Without it
+  // Yoga measures Text at intrinsic (content) width which can be too narrow.
   featureName: {
     fontSize: 22,
     fontFamily: "Inter_700Bold",
     textAlign: "center",
+    alignSelf: "stretch",
   },
   featureDesc: {
     fontSize: 14,
@@ -209,6 +208,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
     marginTop: 2,
+    alignSelf: "stretch",
   },
   infoCardWrap: {
     alignSelf: "stretch",

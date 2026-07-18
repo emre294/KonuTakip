@@ -105,20 +105,14 @@ export function PremiumLockedCard({
         {/* Text */}
         <View style={styles.textWrap}>
           <View style={styles.titleRow}>
-            <Text
-              style={[styles.title, { color: colors.foreground }]}
-              numberOfLines={2}
-            >
+            <Text style={[styles.title, { color: colors.foreground }]}>
               {resolvedTitle}
             </Text>
             <View style={[styles.proBadge, { backgroundColor: PREMIUM_COLOR }]}>
               <Text style={styles.proBadgeText}>PRO</Text>
             </View>
           </View>
-          <Text
-            style={[styles.description, { color: colors.mutedForeground }]}
-            numberOfLines={3}
-          >
+          <Text style={[styles.description, { color: colors.mutedForeground }]}>
             {resolvedDesc}
           </Text>
         </View>

@@ -71,10 +71,7 @@ function BenefitRow({
           <Feather name={benefit.icon as never} size={18} color={PREMIUM_COLOR} />
         </View>
         <View style={styles.benefitText}>
-          <Text
-            style={[styles.benefitTitle, { color: colors.foreground }]}
-            numberOfLines={2}
-          >
+          <Text style={[styles.benefitTitle, { color: colors.foreground }]}>
             {benefit.title}
           </Text>
           <Text
@@ -246,10 +243,10 @@ export default function PremiumScreen() {
         <View style={[styles.heroCard, { backgroundColor: PREMIUM_COLOR }]}>
           <View style={styles.heroRow}>
             <View style={styles.heroTextWrap}>
-              <Text style={styles.heroTitle} numberOfLines={2}>
+              <Text style={styles.heroTitle}>
                 KonuTakip Premium
               </Text>
-              <Text style={styles.heroSub} numberOfLines={2}>
+              <Text style={styles.heroSub}>
                 AI destekli çalışma deneyimi
               </Text>
             </View>
@@ -279,16 +276,10 @@ export default function PremiumScreen() {
         >
           <View style={styles.planHeader}>
             <View style={styles.planTextWrap}>
-              <Text
-                style={[styles.planName, { color: colors.foreground }]}
-                numberOfLines={2}
-              >
+              <Text style={[styles.planName, { color: colors.foreground }]}>
                 Aylık Abonelik
               </Text>
-              <Text
-                style={[styles.planBilling, { color: colors.mutedForeground }]}
-                numberOfLines={3}
-              >
+              <Text style={[styles.planBilling, { color: colors.mutedForeground }]}>
                 Her ay otomatik yenilenir · İstediğin zaman iptal et
               </Text>
             </View>
@@ -348,7 +339,7 @@ export default function PremiumScreen() {
             style={[styles.errorBanner, { backgroundColor: colors.card, borderColor: "#ef444440" }]}
           >
             <Feather name="alert-triangle" size={14} color="#ef4444" style={styles.errorIcon} />
-            <Text style={[styles.errorText, { color: "#ef4444" }]} numberOfLines={3}>
+            <Text style={[styles.errorText, { color: "#ef4444" }]}>
               {billingError.message}
             </Text>
           </View>
@@ -362,7 +353,7 @@ export default function PremiumScreen() {
             style={[styles.infoBanner, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "40" }]}
           >
             <Feather name="clock" size={14} color={PREMIUM_COLOR} style={styles.errorIcon} />
-            <Text style={[styles.infoText, { color: PREMIUM_COLOR }]} numberOfLines={3}>
+            <Text style={[styles.infoText, { color: PREMIUM_COLOR }]}>
               {billingError.message}
             </Text>
           </View>
@@ -386,7 +377,7 @@ export default function PremiumScreen() {
           {purchaseLoading ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={styles.upgradeBtnText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
+            <Text style={styles.upgradeBtnText}>
               {billingUnavailable && isBillingPlatform
                 ? "Bağlanıyor..."
                 : "★  Premium'a Geç"}
@@ -414,12 +405,7 @@ export default function PremiumScreen() {
           ) : (
             <>
               <Feather name="refresh-cw" size={15} color={colors.mutedForeground} style={styles.restoreBtnIcon} />
-              <Text
-                style={[styles.restoreBtnText, { color: colors.mutedForeground }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
+              <Text style={[styles.restoreBtnText, { color: colors.mutedForeground }]}>
                 Satın Alımları Geri Yükle
               </Text>
             </>

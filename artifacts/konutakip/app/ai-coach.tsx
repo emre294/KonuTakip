@@ -209,8 +209,8 @@ export default function AICoachScreen() {
         <View style={[styles.heroCard, { backgroundColor: "#7C3AED" }]}>
           <View style={styles.heroRow}>
             <View style={styles.heroTextWrap}>
-              <Text style={styles.heroTitle} numberOfLines={2}>Kişisel Koçun</Text>
-              <Text style={styles.heroSub} numberOfLines={2}>İlerleme analizin hazır</Text>
+              <Text style={styles.heroTitle}>Kişisel Koçun</Text>
+              <Text style={styles.heroSub}>İlerleme analizin hazır</Text>
             </View>
             <View style={[styles.heroIcon, { backgroundColor: "rgba(255,255,255,0.2)" }]}>
               <Ionicons name="sparkles" size={28} color="#fff" />

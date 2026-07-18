@@ -3,7 +3,6 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -29,7 +28,6 @@ import { useApp, UserProfile } from "@/contexts/AppContext";
 import { StudyField, FIELD_LABELS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
-const { width } = Dimensions.get("window");
 const TOTAL_STEPS = 7;
 
 export default function OnboardingScreen() {
@@ -369,8 +367,12 @@ const styles = StyleSheet.create({
   stepContainer: { flex: 1, justifyContent: "center" },
   centeredStep: { alignItems: "center", paddingHorizontal: 16 },
   welcomeIcon: { width: 96, height: 96, borderRadius: 28, alignItems: "center", justifyContent: "center", marginBottom: 32 },
-  welcomeTitle: { fontSize: 32, fontFamily: "Inter_700Bold", textAlign: "center", marginBottom: 16, lineHeight: 40 },
-  welcomeSubtitle: { fontSize: 16, textAlign: "center", lineHeight: 24, fontFamily: "Inter_400Regular" },
+  // alignSelf: "stretch" ensures these Text elements fill the full container
+  // width even though the parent has alignItems: "center". Without it, Yoga
+  // measures Text at its intrinsic (content) width, which can be narrower than
+  // the available space and cause text to wrap incorrectly.
+  welcomeTitle: { fontSize: 32, fontFamily: "Inter_700Bold", textAlign: "center", marginBottom: 16, lineHeight: 40, alignSelf: "stretch" },
+  welcomeSubtitle: { fontSize: 16, textAlign: "center", lineHeight: 24, fontFamily: "Inter_400Regular", alignSelf: "stretch" },
   formStep: { paddingHorizontal: 4 },
   stepTitle: { fontSize: 26, fontFamily: "Inter_700Bold", marginBottom: 8 },
   stepSubtitle: { fontSize: 15, fontFamily: "Inter_400Regular", marginBottom: 28, lineHeight: 22 },
