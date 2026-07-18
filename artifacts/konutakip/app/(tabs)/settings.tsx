@@ -136,12 +136,12 @@ export default function SettingsScreen() {
           ]}
         >
           <View style={styles.premiumCardLeft}>
-            <Text style={styles.premiumCardStar}>★</Text>
-            <View>
-              <Text style={styles.premiumCardTitle}>
+            <Text style={styles.premiumCardStar} numberOfLines={1}>★</Text>
+            <View style={styles.premiumCardTextWrap}>
+              <Text style={styles.premiumCardTitle} numberOfLines={1}>
                 {isPremium ? "Premium Üye" : "KonuTakip Premium"}
               </Text>
-              <Text style={styles.premiumCardSub}>
+              <Text style={styles.premiumCardSub} numberOfLines={2}>
                 {isPremium
                   ? "AI özellikleri ve gelişmiş analitik aktif"
                   : "AI özellikleri ve çok daha fazlası"}
@@ -264,9 +264,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.28, shadowRadius: 12, elevation: 4,
   },
   premiumCardLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
-  premiumCardStar: { fontSize: 26, color: "#fff" },
+  premiumCardStar: { fontSize: 26, color: "#fff", flexShrink: 0 },
+  premiumCardTextWrap: { flex: 1, flexShrink: 1 },
   premiumCardTitle: { fontSize: 15, fontFamily: "Inter_700Bold", color: "#fff" },
-  premiumCardSub: { fontSize: 11, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.82)", marginTop: 2 },
+  premiumCardSub: { fontSize: 11, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.82)", marginTop: 2, lineHeight: 16 },
   premiumCardBadge: {
     backgroundColor: "rgba(255,255,255,0.22)", borderRadius: 10,
     paddingHorizontal: 10, paddingVertical: 5,

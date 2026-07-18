@@ -7,7 +7,7 @@
  *                     unlocks and offering a direct path to /premium.
  *
  * Usage:
- *   <PremiumGate featureName="AI Soru Üretici" featureDescription="...">
+ *   <PremiumGate featureId={PremiumFeature.AI_TEACHER} featureName="AI Öğretmen">
  *     <MyPremiumFeatureScreen />
  *   </PremiumGate>
  */
@@ -22,23 +22,31 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PREMIUM_COLOR } from "@/components/PremiumBadge";
+import type { PremiumFeatureId } from "@/utils/premium";
+import { FEATURE_REGISTRY_MAP } from "@/utils/premium/FeatureRegistry";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PremiumGateProps {
   /** Children rendered when the user IS on Premium. */
   children: React.ReactNode;
-  /** Turkish display name shown in the locked state heading. */
-  featureName: string;
+  /**
+   * The feature ID from PremiumFeature enum.
+   * Used to auto-fill name and description from the registry when not overridden.
+   */
+  featureId?: PremiumFeatureId;
+  /** Turkish display name shown in the locked state heading. Falls back to registry. */
+  featureName?: string;
   /**
    * One-sentence explanation of what the feature does.
-   * Shown in the locked state subtitle.
+   * Falls back to registry description when featureId is provided.
    */
   featureDescription?: string;
   /**
@@ -66,7 +74,7 @@ function LockedView({
     <View
       style={[
         styles.lockedRoot,
-        { backgroundColor: colors.background, paddingBottom: insets.bottom + 40 },
+        { backgroundColor: colors.background, paddingBottom: Math.max(insets.bottom, 24) + 24 },
         containerStyle,
       ]}
     >
@@ -80,7 +88,14 @@ function LockedView({
       {/* Heading */}
       <Animated.View entering={FadeInDown.delay(80).duration(400)} style={styles.textBlock}>
         <Text style={[styles.premiumLabel, { color: PREMIUM_COLOR }]}>Premium Özellik</Text>
-        <Text style={[styles.featureName, { color: colors.foreground }]}>{featureName}</Text>
+        <Text
+          style={[styles.featureName, { color: colors.foreground }]}
+          numberOfLines={3}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
+          {featureName}
+        </Text>
         {featureDescription ? (
           <Text style={[styles.featureDesc, { color: colors.mutedForeground }]}>
             {featureDescription}
@@ -89,10 +104,15 @@ function LockedView({
       </Animated.View>
 
       {/* Info card */}
-      <Animated.View entering={FadeInDown.delay(160).duration(400)}>
-        <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "40" }]}>
+      <Animated.View entering={FadeInDown.delay(160).duration(400)} style={styles.infoCardWrap}>
+        <View
+          style={[
+            styles.infoCard,
+            { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "40" },
+          ]}
+        >
           <View style={styles.infoRow}>
-            <Feather name="lock" size={15} color={PREMIUM_COLOR} />
+            <Feather name="lock" size={15} color={PREMIUM_COLOR} style={styles.infoIcon} />
             <Text style={[styles.infoText, { color: colors.mutedForeground }]}>
               Bu özellik Premium üyelik gerektirir.
             </Text>
@@ -118,6 +138,7 @@ function LockedView({
 
 export function PremiumGate({
   children,
+  featureId,
   featureName,
   featureDescription,
   lockedContainerStyle,
@@ -128,10 +149,15 @@ export function PremiumGate({
     return <>{children}</>;
   }
 
+  // Resolve name and description from registry when featureId is provided
+  const registryEntry = featureId ? FEATURE_REGISTRY_MAP.get(featureId) : undefined;
+  const resolvedName = featureName ?? registryEntry?.name ?? "Premium Özellik";
+  const resolvedDesc = featureDescription ?? registryEntry?.description;
+
   return (
     <LockedView
-      featureName={featureName}
-      featureDescription={featureDescription}
+      featureName={resolvedName}
+      featureDescription={resolvedDesc}
       containerStyle={lockedContainerStyle}
     />
   );
@@ -144,26 +170,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 32,
-    gap: 24,
+    paddingHorizontal: 24,
+    gap: 20,
   },
   iconWrap: {
     alignItems: "center",
   },
   iconCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
+    width: 80,
+    height: 80,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
   },
   lockEmoji: {
-    fontSize: 40,
+    fontSize: 36,
     color: PREMIUM_COLOR,
   },
   textBlock: {
     alignItems: "center",
     gap: 8,
+    alignSelf: "stretch",
   },
   premiumLabel: {
     fontSize: 12,
@@ -183,17 +210,22 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: 2,
   },
+  infoCardWrap: {
+    alignSelf: "stretch",
+  },
   infoCard: {
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    alignSelf: "stretch",
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  infoIcon: {
+    flexShrink: 0,
   },
   infoText: {
     fontSize: 13,
@@ -207,7 +239,10 @@ const styles = StyleSheet.create({
   upgradeBtn: {
     borderRadius: 16,
     paddingVertical: 16,
+    paddingHorizontal: 12,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 54,
     shadowColor: PREMIUM_COLOR,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
@@ -219,5 +254,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Inter_700Bold",
     letterSpacing: 0.3,
+    textAlign: "center",
   },
 });

@@ -30,6 +30,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PREMIUM_COLOR } from "@/components/PremiumBadge";
 import { useColors } from "@/hooks/useColors";
+import { FEATURE_REGISTRY } from "@/utils/premium/FeatureRegistry";
 
 // ─── Benefits data ────────────────────────────────────────────────────────────
 
@@ -39,32 +40,13 @@ interface Benefit {
   description: string;
 }
 
+// Derive benefits from the Feature Registry so the list stays in sync automatically.
 const BENEFITS: Benefit[] = [
-  {
-    icon: "zap",
-    title: "AI Soru Üretici",
-    description: "Çalıştığın konulara özel AI destekli pratik sorular üret.",
-  },
-  {
-    icon: "book-open",
-    title: "AI Öğretmen",
-    description: "Anlamadığın konuları AI'ya sor, adım adım açıklama al.",
-  },
-  {
-    icon: "bar-chart-2",
-    title: "Gelişmiş Analitik",
-    description: "Derinlemesine çalışma istatistikleri ve kişisel performans grafikleri.",
-  },
-  {
-    icon: "cpu",
-    title: "AI Çalışma Koçu Pro",
-    description: "Sınav tarihine göre kişiselleştirilmiş AI çalışma planı.",
-  },
-  {
-    icon: "clipboard",
-    title: "AI Mini Sınavlar",
-    description: "Zayıf konularına göre AI tarafından hazırlanmış mini denemeler.",
-  },
+  ...FEATURE_REGISTRY.map((f) => ({
+    icon: f.icon,
+    title: f.name,
+    description: f.description,
+  })),
   {
     icon: "star",
     title: "Tüm Gelecek Özellikler",
@@ -72,7 +54,7 @@ const BENEFITS: Benefit[] = [
   },
 ];
 
-// ─── Benefit card ─────────────────────────────────────────────────────────────
+// ─── Benefit row ──────────────────────────────────────────────────────────────
 
 function BenefitRow({
   benefit,
@@ -90,14 +72,14 @@ function BenefitRow({
           <Feather name={benefit.icon as never} size={18} color={PREMIUM_COLOR} />
         </View>
         <View style={styles.benefitText}>
-          <Text style={[styles.benefitTitle, { color: colors.foreground }]}>
+          <Text style={[styles.benefitTitle, { color: colors.foreground }]} numberOfLines={2}>
             {benefit.title}
           </Text>
           <Text style={[styles.benefitDesc, { color: colors.mutedForeground }]}>
             {benefit.description}
           </Text>
         </View>
-        <Feather name="check-circle" size={18} color={PREMIUM_COLOR} />
+        <Feather name="check-circle" size={18} color={PREMIUM_COLOR} style={styles.benefitCheck} />
       </View>
     </Animated.View>
   );
@@ -110,7 +92,7 @@ export default function PremiumScreen() {
   const insets = useSafeAreaInsets();
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const botPad = insets.bottom + 32;
+  const botPad = Math.max(insets.bottom, 16) + 24;
 
   // ── Placeholder handlers ──────────────────────────────────────────────────
   // Replace with real billing calls when Google Play Billing is integrated.
@@ -137,7 +119,7 @@ export default function PremiumScreen() {
       contentContainerStyle={{
         paddingTop: topPad + 16,
         paddingBottom: botPad,
-        paddingHorizontal: 20,
+        paddingHorizontal: 16,
       }}
       showsVerticalScrollIndicator={false}
     >
@@ -147,11 +129,12 @@ export default function PremiumScreen() {
           <TouchableOpacity
             onPress={() => router.back()}
             style={[styles.backBtn, { backgroundColor: colors.card }]}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Feather name="arrow-left" size={20} color={colors.foreground} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.foreground }]}>Premium</Text>
-          <View style={{ width: 40 }} />
+          <View style={styles.headerSpacer} />
         </View>
       </Animated.View>
 
@@ -159,9 +142,9 @@ export default function PremiumScreen() {
       <Animated.View entering={FadeInDown.delay(60).duration(500)}>
         <View style={[styles.heroCard, { backgroundColor: PREMIUM_COLOR }]}>
           <View style={styles.heroRow}>
-            <View>
-              <Text style={styles.heroTitle}>KonuTakip Premium</Text>
-              <Text style={styles.heroSub}>AI destekli çalışma deneyimi</Text>
+            <View style={styles.heroTextWrap}>
+              <Text style={styles.heroTitle} numberOfLines={2}>KonuTakip Premium</Text>
+              <Text style={styles.heroSub} numberOfLines={2}>AI destekli çalışma deneyimi</Text>
             </View>
             <View style={[styles.heroIconWrap, { backgroundColor: "rgba(255,255,255,0.22)" }]}>
               <Text style={styles.heroStar}>★</Text>
@@ -176,11 +159,24 @@ export default function PremiumScreen() {
 
       {/* Plan card */}
       <Animated.View entering={FadeInDown.delay(120).duration(500)}>
-        <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "50" }]}>
+        <View
+          style={[
+            styles.planCard,
+            { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "50" },
+          ]}
+        >
           <View style={styles.planHeader}>
-            <View>
-              <Text style={[styles.planName, { color: colors.foreground }]}>Aylık Abonelik</Text>
-              <Text style={[styles.planBilling, { color: colors.mutedForeground }]}>
+            <View style={styles.planTextWrap}>
+              <Text
+                style={[styles.planName, { color: colors.foreground }]}
+                numberOfLines={2}
+              >
+                Aylık Abonelik
+              </Text>
+              <Text
+                style={[styles.planBilling, { color: colors.mutedForeground }]}
+                numberOfLines={3}
+              >
                 Her ay otomatik yenilenir · İstediğin zaman iptal et
               </Text>
             </View>
@@ -264,7 +260,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   backBtn: {
     width: 40,
@@ -272,14 +268,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
   headerTitle: { fontSize: 20, fontFamily: "Inter_700Bold" },
+  headerSpacer: { width: 40 },
 
   // Hero
   heroCard: {
     borderRadius: 20,
-    padding: 24,
-    marginBottom: 16,
+    padding: 20,
+    marginBottom: 14,
     gap: 12,
     shadowColor: PREMIUM_COLOR,
     shadowOffset: { width: 0, height: 4 },
@@ -287,27 +285,34 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 6,
   },
-  heroRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  heroTitle: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#fff" },
+  heroRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
+  heroTextWrap: { flex: 1, flexShrink: 1 },
+  heroTitle: { fontSize: 19, fontFamily: "Inter_700Bold", color: "#fff" },
   heroSub: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
     color: "rgba(255,255,255,0.82)",
-    marginTop: 2,
+    marginTop: 3,
   },
   heroIconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
-  heroStar: { fontSize: 26, color: "#fff" },
+  heroStar: { fontSize: 24, color: "#fff" },
   heroBody: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Inter_400Regular",
     color: "rgba(255,255,255,0.9)",
-    lineHeight: 21,
+    lineHeight: 20,
   },
 
   // Plan card
@@ -315,7 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1.5,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 22,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -324,14 +329,25 @@ const styles = StyleSheet.create({
   },
   planHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
+    gap: 12,
   },
+  planTextWrap: { flex: 1, flexShrink: 1 },
   planName: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
-  planBilling: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 3 },
-  priceWrap: { flexDirection: "row", alignItems: "flex-start", gap: 2 },
-  priceCurrency: { fontSize: 16, fontFamily: "Inter_700Bold", marginTop: 4 },
-  priceAmount: { fontSize: 30, fontFamily: "Inter_700Bold" },
+  planBilling: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    marginTop: 4,
+    lineHeight: 16,
+  },
+  priceWrap: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 2,
+    flexShrink: 0,
+  },
+  priceCurrency: { fontSize: 15, fontFamily: "Inter_700Bold", marginTop: 4 },
+  priceAmount: { fontSize: 28, fontFamily: "Inter_700Bold" },
   planDivider: { height: 1, marginVertical: 12 },
   planNote: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
   planNoteText: { fontSize: 12, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
@@ -346,7 +362,7 @@ const styles = StyleSheet.create({
   },
   benefitsCard: {
     borderRadius: 16,
-    marginBottom: 24,
+    marginBottom: 22,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -357,29 +373,33 @@ const styles = StyleSheet.create({
   benefitRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    paddingHorizontal: 16,
+    gap: 12,
+    paddingHorizontal: 14,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   benefitIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
-  benefitText: { flex: 1, gap: 2 },
+  benefitText: { flex: 1, gap: 3 },
   benefitTitle: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
   benefitDesc: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 18 },
+  benefitCheck: { flexShrink: 0 },
 
   // Buttons
   upgradeBtn: {
     borderRadius: 16,
-    paddingVertical: 17,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     alignItems: "center",
+    justifyContent: "center",
     marginBottom: 12,
+    minHeight: 54,
     shadowColor: PREMIUM_COLOR,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
@@ -388,19 +408,22 @@ const styles = StyleSheet.create({
   },
   upgradeBtnText: {
     color: "#fff",
-    fontSize: 17,
+    fontSize: 16,
     fontFamily: "Inter_700Bold",
     letterSpacing: 0.3,
+    textAlign: "center",
   },
   restoreBtn: {
     borderRadius: 14,
     paddingVertical: 14,
+    paddingHorizontal: 12,
     alignItems: "center",
     borderWidth: 1,
     flexDirection: "row",
     justifyContent: "center",
     gap: 8,
     marginBottom: 20,
+    minHeight: 50,
   },
   restoreBtnText: { fontSize: 14, fontFamily: "Inter_500Medium" },
 
@@ -409,6 +432,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: "Inter_400Regular",
     textAlign: "center",
-    lineHeight: 17,
+    lineHeight: 18,
   },
 });

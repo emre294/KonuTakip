@@ -52,6 +52,7 @@ export const PremiumFeature = {
   ADVANCED_ANALYTICS: "advanced_analytics",
   AI_STUDY_COACH_PRO: "ai_study_coach_pro",
   AI_MINI_EXAMS: "ai_mini_exams",
+  PERSONALIZED_STUDY_PLANS: "personalized_study_plans",
 } as const;
 
 export type PremiumFeatureId = (typeof PremiumFeature)[keyof typeof PremiumFeature];
