@@ -36,7 +36,7 @@
         "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.USE_EXACT_ALARM"
       ],
-      "package": "com.konutakip.app"
+      "package": "com.KonuTakip.app"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -63,6 +63,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b88c1eb0-1328-4459-93e1-9d082110b225"
+      }
+    },
+    "owner": "emre7272"
   }
 }
