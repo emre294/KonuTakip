@@ -2,6 +2,7 @@
 - [KonuTakip 5-Feature Implementation](konutakip-5feat.md) — subject renames, pickers, solved questions, topic reminders, notification deep-link; notes on saveData typing and reminder reliability.
 - [KonuTakip Performance Optimizations](konutakip-perf.md) — saveData shadow-ref pattern, screen memoization rules, React.memo components.
 - [KonuTakip AI Infrastructure](konutakip-ai-infra.md) — Provider-swappable AI layer under utils/ai/; all features disabled by default; mock provider always active.
+- [KonuTakip AI Teacher Screen](konutakip-ai-teacher.md) — Chat screen at app/ai-teacher.tsx; enable in AIFeatureRegistry + FeatureRegistry before it works; mock returns AITeacherResponse, render summary+keyPoints+practiceHint as chat text.
 - [KonuTakip Premium UI Patterns](konutakip-premium-ui.md) — heroRow overflow fix pattern; all hero cards need flex:1+flexShrink:1 on text wrap, flexShrink:0 on icon.
 - [KonuTakip Premium Feature Engine](konutakip-premium-engine.md) — Full registry+access engine; field names (title not name, enabled not active); grantPremium signature; activation checklist.
 - [KonuTakip Google Play Billing](konutakip-billing.md) — react-native-iap v15 infra; requestPurchase uses `request.google` not `android`; cast products via `as unknown as Record<string,unknown>`; needs nitro-modules peer dep.

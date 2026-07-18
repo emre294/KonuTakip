@@ -1,0 +1,313 @@
+IMPORTANT
+
+Before implementing anything:
+
+• Fix every UI issue introduced previously.
+• No text overflow.
+• No button overflow.
+• Every screen must remain fully responsive.
+• Turkish text must always fit correctly.
+• Maintain spacing consistency.
+• Preserve the current design language.
+• Do NOT redesign the application.
+• TypeScript must compile with zero errors.
+
+----------------------------------------------------
+
+NOW IMPLEMENT THE FIRST REAL AI FEATURE
+
+AI TEACHER
+
+IMPORTANT
+
+Do NOT connect OpenAI yet.
+
+Do NOT call any external API.
+
+Continue using the existing AI architecture.
+
+Continue using:
+
+AIManager
+
+AIService
+
+IAIProvider
+
+LocalMockAIProvider
+
+FeatureRegistry
+
+PremiumGate
+
+Billing
+
+PremiumManager
+
+Do NOT rebuild anything.
+
+----------------------------------------------------
+
+GOAL
+
+Create a complete ChatGPT-style AI Teacher screen.
+
+Only the UI and interaction layer.
+
+The provider will still return mock responses.
+
+----------------------------------------------------
+
+Create a new screen:
+
+app/ai-teacher.tsx
+
+----------------------------------------------------
+
+SCREEN
+
+Create a modern conversation screen.
+
+Structure:
+
+Header
+
+↓
+
+Conversation
+
+↓
+
+Suggestion Chips
+
+↓
+
+Message Input
+
+↓
+
+Send Button
+
+----------------------------------------------------
+
+HEADER
+
+Icon
+
+AI Öğretmen
+
+Subtitle:
+
+"Yapay zekâ destekli kişisel öğretmenin"
+
+Back button
+
+Premium badge
+
+----------------------------------------------------
+
+EMPTY STATE
+
+Before first message show:
+
+Large AI illustration/icon
+
+Title:
+
+"Merhaba 👋"
+
+Subtitle:
+
+"Anlamadığın konuları sorabilir, soru çözdürebilir ve konu anlatımı isteyebilirsin."
+
+Below that show suggestion chips.
+
+----------------------------------------------------
+
+SUGGESTION CHIPS
+
+Examples:
+
+"Parabol nedir?"
+
+"Limit konu anlat"
+
+"Bu soruyu çöz"
+
+"TYT Matematik"
+
+"AYT Fizik"
+
+"Biyoloji tekrar"
+
+Tap automatically fills input.
+
+----------------------------------------------------
+
+CHAT
+
+Modern bubble design.
+
+User bubbles:
+
+Right
+
+Primary color
+
+AI bubbles:
+
+Left
+
+Card style
+
+Rounded
+
+Timestamp under messages.
+
+Support:
+
+Long messages
+
+Markdown-ready rendering
+
+Auto-growing message height
+
+No clipping
+
+No overflow
+
+----------------------------------------------------
+
+INPUT
+
+Rounded input
+
+Auto growing
+
+Minimum 1 line
+
+Maximum 6 lines
+
+Numeric keyboard only when appropriate in future
+
+Send button
+
+Disabled while loading
+
+----------------------------------------------------
+
+LOADING
+
+When waiting:
+
+Animated typing indicator
+
+Three bouncing dots
+
+"AI düşünüyor..."
+
+----------------------------------------------------
+
+MOCK RESPONSES
+
+Continue using LocalMockAIProvider.
+
+Generate realistic Turkish responses.
+
+Example:
+
+User:
+
+"Parabol nedir?"
+
+AI:
+
+Explain in 5-8 sentences.
+
+Never answer with Lorem Ipsum.
+
+Always produce believable educational responses.
+
+----------------------------------------------------
+
+CONVERSATION
+
+Store history during the session.
+
+Auto scroll to latest message.
+
+Keep smooth animations.
+
+----------------------------------------------------
+
+ERROR
+
+If provider fails:
+
+Nice inline card:
+
+"Yanıt alınamadı."
+
+Retry button.
+
+----------------------------------------------------
+
+PREMIUM
+
+Wrap entire screen with PremiumGate.
+
+Free users see existing PremiumLockedCard.
+
+Do NOT duplicate Premium UI.
+
+----------------------------------------------------
+
+ACCESSIBILITY
+
+Support dynamic font sizes.
+
+Support screen readers.
+
+Respect safe areas.
+
+Support small Android phones.
+
+Support tablets.
+
+----------------------------------------------------
+
+FILES
+
+Reuse existing architecture.
+
+Only add files that are necessary.
+
+Avoid duplicate utilities.
+
+----------------------------------------------------
+
+DO NOT
+
+Do NOT connect OpenAI.
+
+Do NOT generate real AI.
+
+Do NOT touch Billing.
+
+Do NOT touch onboarding.
+
+Do NOT touch lesson system.
+
+Do NOT modify Premium architecture.
+
+----------------------------------------------------
+
+FINAL
+
+Run full TypeScript validation.
+
+Fix every error.
+
+Ensure zero TypeScript errors.
+
+The application must be fully ready for plugging in OpenAI later with only the provider implementation changing.

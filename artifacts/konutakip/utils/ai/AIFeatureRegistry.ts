@@ -66,7 +66,7 @@ const AI_FEATURE_CONFIGS: AIFeatureConfig[] = [
   {
     key: "ai_teacher",
     name: "AI Öğretmen",
-    enabled: false,
+    enabled: true,
     providerOverride: null,
     maxConcurrent: 1,
     cacheable: true,

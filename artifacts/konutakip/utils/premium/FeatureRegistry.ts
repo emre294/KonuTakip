@@ -104,10 +104,11 @@ export const FEATURE_REGISTRY: PremiumFeatureDescriptor[] = [
     description: "Anlamadığın konuları AI'ya sor, adım adım açıklama al.",
     icon: "book-open",
     category: "ai",
-    enabled: false,
+    enabled: true,
     premiumRequired: true,
-    comingSoon: true,
+    comingSoon: false,
     versionIntroduced: "1.1.0",
+    badge: "YENİ",
   },
   {
     id: PremiumFeature.AI_STUDY_COACH_PRO,
