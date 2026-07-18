@@ -280,6 +280,29 @@ export class GooglePlayBillingProvider implements IBillingService {
   }
 
   /**
+   * Lightweight check: returns true when the user has at least one active
+   * Google Play subscription for any of the known product IDs.
+   *
+   * Used by BillingContext for periodic expiry checks on app foreground.
+   * Does NOT trigger the full restore flow or call any callbacks.
+   *
+   * Returns false (not true) on any error — network issues, connection drops,
+   * offline state — so callers must never revoke premium based on a false return
+   * value caused by an exception. The catch in BillingContext provides an
+   * additional safety net.
+   */
+  async checkActiveSubscription(): Promise<boolean> {
+    if (!this._connected) return false;
+    try {
+      const active = await getActiveSubscriptions(ALL_PRODUCT_IDS);
+      return active.length > 0;
+    } catch {
+      // Treat any error as "unknown" — never revoke on uncertainty.
+      return false;
+    }
+  }
+
+  /**
    * Restore purchases for the current Google account.
    * Checks active subscriptions first, falls back to available purchases.
    * Returns true when an active entitlement is found and restored.

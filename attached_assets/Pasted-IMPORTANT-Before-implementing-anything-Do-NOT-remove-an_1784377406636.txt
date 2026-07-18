@@ -1,0 +1,132 @@
+IMPORTANT
+
+Before implementing anything:
+
+• Do NOT remove any existing functionality.
+• Do NOT redesign the application.
+• Preserve the current Premium architecture.
+• Preserve the current Billing architecture.
+• Preserve the current AI architecture.
+• TypeScript must compile with ZERO errors.
+
+----------------------------------------------------
+PHASE 1 — UI POLISH
+----------------------------------------------------
+
+Perform a complete UI review of every Premium and Billing related screen.
+
+Fix ALL responsive issues including:
+
+• Text overflowing outside cards
+• Text being clipped
+• Buttons that are too narrow
+• Cards with fixed heights
+• Incorrect spacing
+• Incorrect padding
+• Long Turkish texts
+• Small Android phones
+• Large Android phones
+• Safe area spacing
+• Prevent horizontal scrolling
+• Use flexible layouts instead of fixed heights
+• Cards must grow automatically with content
+
+Keep the existing visual design.
+Do NOT redesign anything.
+
+----------------------------------------------------
+PHASE 2 — EXPO WEB COMPATIBILITY
+----------------------------------------------------
+
+Currently Expo Web crashes because Google Play Billing is Android-only.
+
+Fix the platform compatibility.
+
+Requirements:
+
+• Google Play Billing must ONLY initialize on Android.
+
+• Never import react-native-iap on Web.
+
+• Use Platform.OS or dynamic imports.
+
+• BillingContext must work safely on Web.
+
+• Premium screen must still open on Web.
+
+• If Billing is unavailable, show a friendly placeholder.
+
+• Expo Web must run without runtime errors.
+
+Do NOT remove Billing.
+
+----------------------------------------------------
+PHASE 3 — PRODUCT ID CONFIGURATION
+----------------------------------------------------
+
+Prepare the project for the real Google Play Subscription IDs.
+
+For now KEEP the placeholder Product IDs:
+
+monthly_premium
+yearly_premium
+
+Move ALL Product IDs into one centralized configuration file.
+
+Create clear TODO comments showing exactly where the real Product IDs will be replaced after the next Play Console release.
+
+No Product IDs should exist anywhere else in the project.
+
+----------------------------------------------------
+PHASE 4 — BILLING REVIEW
+----------------------------------------------------
+
+Review the complete Billing implementation.
+
+Verify:
+
+• Connection handling
+• Auto reconnect
+• Pending purchases
+• Purchase acknowledgement
+• Restore purchases
+• Purchase verification abstraction
+• Subscription expiration handling
+• Automatic Premium activation
+• Automatic Premium revocation
+
+Fix any issues found.
+
+----------------------------------------------------
+PHASE 5 — DEVELOPMENT BUILD SAFETY
+----------------------------------------------------
+
+Ensure the application behaves correctly in every environment.
+
+Expo Go:
+• Billing disabled
+• No crashes
+
+Expo Web:
+• Billing disabled
+• No crashes
+
+Android Development Build:
+• Billing enabled
+
+Production Build:
+• Billing enabled
+
+----------------------------------------------------
+FINAL VALIDATION
+----------------------------------------------------
+
+Run a full project review.
+
+Fix any TypeScript errors.
+
+Fix any lint issues caused by the new code.
+
+Ensure all workflows still run.
+
+Return a summary of every change made.

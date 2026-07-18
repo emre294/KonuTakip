@@ -117,7 +117,7 @@ export default function SettingsScreen() {
               <Text style={styles.profileInitial}>{(profile.name[0] ?? "K").toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.profileName}>{profile.name}</Text>
+              <Text style={styles.profileName} numberOfLines={1}>{profile.name}</Text>
               <Text style={styles.profileMeta}>{profile.grade === "12" ? "12. Sınıf" : "Mezun"} • {fieldLabel}</Text>
               <Text style={styles.profileTarget} numberOfLines={1}>{profile.targetUniversity} — {profile.targetDepartment}</Text>
             </View>

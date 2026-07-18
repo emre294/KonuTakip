@@ -2,16 +2,21 @@
  * Billing types — shared across all billing modules.
  *
  * Architecture notes:
- *  - PRODUCT_IDS holds the Google Play SKU strings.
+ *  - PRODUCT_IDS holds the Google Play SKU strings (sourced from config.ts).
  *  - IBillingService defines the public contract; swap implementations freely.
  *  - Callbacks are typed so providers can fire them without React dependencies.
+ *
+ * To update Product IDs: edit utils/billing/config.ts — do NOT add SKU strings here.
  */
 
+import { MONTHLY_PRODUCT_ID, YEARLY_PRODUCT_ID } from "./config";
+
 // ─── Product IDs ──────────────────────────────────────────────────────────────
+// Sourced from config.ts — that file is the single source of truth for SKU strings.
 
 export const PRODUCT_IDS = {
-  MONTHLY: "monthly_premium",
-  YEARLY: "yearly_premium",
+  MONTHLY: MONTHLY_PRODUCT_ID,
+  YEARLY: YEARLY_PRODUCT_ID,
 } as const;
 
 export type ProductId = (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS];
@@ -85,12 +90,15 @@ export interface BillingState {
  *
  * Implementations:
  *  - GooglePlayBillingProvider  (production, Android)
+ *  - NativeBillingStub          (web, iOS, Expo Go — no-op)
  *
  * Future:
  *  - AppStoreBillingProvider    (iOS, if needed)
  *  - MockBillingProvider        (development/testing)
  */
 export interface IBillingService {
+  /** Register event callbacks before calling initialize(). */
+  setCallbacks(callbacks: BillingCallbacks): void;
   initialize(): Promise<void>;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
@@ -100,6 +108,13 @@ export interface IBillingService {
   queryPurchases(): Promise<BillingPurchase[]>;
   queryProducts(): Promise<BillingProduct[]>;
   isBillingAvailable(): Promise<boolean>;
+  /**
+   * Lightweight check: returns true if the user has at least one active
+   * Google Play subscription. Used for periodic expiry verification.
+   * Always returns false on non-Android / Expo Go / connection errors
+   * (errors are treated as unknown — never triggers a false revoke).
+   */
+  checkActiveSubscription(): Promise<boolean>;
 }
 
 // ─── Callbacks ────────────────────────────────────────────────────────────────

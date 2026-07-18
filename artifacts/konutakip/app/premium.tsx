@@ -386,7 +386,7 @@ export default function PremiumScreen() {
           {purchaseLoading ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={styles.upgradeBtnText}>
+            <Text style={styles.upgradeBtnText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
               {billingUnavailable && isBillingPlatform
                 ? "Bağlanıyor..."
                 : "★  Premium'a Geç"}
@@ -413,8 +413,13 @@ export default function PremiumScreen() {
             <ActivityIndicator color={colors.mutedForeground} size="small" />
           ) : (
             <>
-              <Feather name="refresh-cw" size={15} color={colors.mutedForeground} />
-              <Text style={[styles.restoreBtnText, { color: colors.mutedForeground }]}>
+              <Feather name="refresh-cw" size={15} color={colors.mutedForeground} style={styles.restoreBtnIcon} />
+              <Text
+                style={[styles.restoreBtnText, { color: colors.mutedForeground }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 Satın Alımları Geri Yükle
               </Text>
             </>
@@ -662,7 +667,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     minHeight: 50,
   },
-  restoreBtnText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+  restoreBtnIcon: { flexShrink: 0 },
+  restoreBtnText: { fontSize: 14, fontFamily: "Inter_500Medium", flexShrink: 1 },
   btnDisabled: { opacity: 0.55 },
 
   // Legal

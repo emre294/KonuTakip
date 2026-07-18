@@ -40,6 +40,10 @@ class NativeBillingStub {
   async queryPurchases(): Promise<BillingPurchase[]> {
     return [];
   }
+
+  async checkActiveSubscription(): Promise<boolean> {
+    return false;
+  }
 }
 
 export const BillingManager = new NativeBillingStub();

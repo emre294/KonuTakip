@@ -9,6 +9,14 @@
  *
  * Usage:
  *   const { products, purchase, restore, isConnected, isLoading, error } = useBilling();
+ *
+ * Platform behaviour:
+ *   • Android dev/production build → billing fully active
+ *   • Android Expo Go              → billing disabled (react-native-iap absent)
+ *   • iOS / Web                    → billing disabled
+ *
+ * The exported `isBillingSupported` constant lets any screen show appropriate
+ * messaging without repeating the platform + Expo Go detection logic.
  */
 
 import React, {
@@ -19,7 +27,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Platform } from "react-native";
+import { AppState, Platform } from "react-native";
+import Constants from "expo-constants";
 
 import { usePremium } from "@/contexts/PremiumContext";
 import {
@@ -32,6 +41,29 @@ import {
   type ProductId,
 } from "@/utils/billing";
 import type { SubscriptionType } from "@/utils/premium";
+
+// ─── Platform guard ───────────────────────────────────────────────────────────
+//
+// react-native-iap requires a real native build.  It is absent from:
+//   • Expo Go ("storeClient" execution environment)
+//   • Expo Web
+//   • iOS (Google Play is Android-only)
+//
+// Checking executionEnvironment at module load is safe: it's a compile-time
+// constant injected by Expo and never changes during a session.
+
+const isExpoGo = Constants.executionEnvironment === "storeClient";
+
+/**
+ * True only when Google Play Billing can actually function:
+ *   - Running on Android
+ *   - NOT running in Expo Go (which lacks the react-native-iap native module)
+ *
+ * Export allows premium.tsx and other screens to adapt their UI messaging
+ * without duplicating this detection logic.
+ */
+export const isBillingSupported: boolean =
+  Platform.OS === "android" && !isExpoGo;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -71,27 +103,41 @@ const BillingContext = createContext<BillingContextValue | null>(null);
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function BillingProvider({ children }: { children: React.ReactNode }) {
-  const { grantPremium } = usePremium();
+  const { grantPremium, revokePremium, isPremium } = usePremium();
 
   const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(Platform.OS === "android");
+  const [isLoading, setIsLoading] = useState(isBillingSupported);
   const [products, setProducts] = useState<BillingProduct[]>([]);
   const [error, setError] = useState<BillingError | null>(null);
 
-  // Keep latest callbacks in refs so the BillingManager closure never goes stale.
+  // Keep latest callbacks in refs so BillingManager closures never go stale.
   const grantPremiumRef = useRef(grantPremium);
   grantPremiumRef.current = grantPremium;
 
+  const revokePremiumRef = useRef(revokePremium);
+  revokePremiumRef.current = revokePremium;
+
+  // Track current premium and connection state in refs for use inside the
+  // AppState listener (which captures a snapshot at registration time).
+  const isPremiumRef = useRef(isPremium);
+  isPremiumRef.current = isPremium;
+
+  const isConnectedRef = useRef(isConnected);
+  isConnectedRef.current = isConnected;
+
+  // ── Effect 1: Billing initialisation ───────────────────────────────────────
+
   useEffect(() => {
-    // Google Play Billing is Android-only.
-    if (Platform.OS !== "android") {
+    // Billing only runs in a real Android build (dev build or production).
+    // Expo Go on Android, iOS, and Web all take the early-exit path.
+    if (!isBillingSupported) {
       setIsLoading(false);
       return;
     }
 
     let cancelled = false;
 
-    // Register callbacks before initializing so no events are missed.
+    // Register callbacks BEFORE initializing so no purchase events are missed.
     BillingManager.setCallbacks({
       onPurchaseSuccess: async (purchase: BillingPurchase) => {
         if (cancelled) return;
@@ -111,9 +157,9 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
 
       onPurchasePending: (_purchase: BillingPurchase) => {
         if (cancelled) return;
-        // Pending = user payment hasn't been processed yet (e.g. cash at kiosk,
-        // parental approval). Don't grant Premium yet — the purchaseUpdatedListener
-        // will fire again once the payment clears.
+        // Pending = payment not yet processed (e.g. cash at kiosk, parental
+        // approval).  Do NOT grant Premium — the purchaseUpdatedListener fires
+        // again once the payment clears.
         setError({
           code: "pending",
           message:
@@ -133,7 +179,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         setIsConnected(true);
 
-        // Fetch products with real prices from Google Play.
+        // Fetch real prices from Google Play.
         const fetched = await BillingManager.queryProducts();
         if (cancelled) return;
         setProducts(fetched);
@@ -142,7 +188,8 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         BillingLogger.error("Billing initialization failed", err);
         setError({
           code: "unavailable",
-          message: "Ödeme sistemi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+          message:
+            "Ödeme sistemi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
         });
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -153,6 +200,48 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       BillingManager.disconnect().catch(() => {});
     };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Effect 2: Subscription expiry check (auto-revoke) ─────────────────────
+  //
+  // When the app returns to the foreground, verify that the Google Play
+  // subscription is still active.  If it has lapsed (cancelled, expired,
+  // refunded) while the app was backgrounded, revoke Premium immediately so
+  // the user cannot keep accessing gated features after their subscription ends.
+  //
+  // Safety rules (all must be true before a revoke is attempted):
+  //   1. isBillingSupported — we're on a real Android build.
+  //   2. isConnectedRef     — billing service is connected; avoids false
+  //                           negatives when the device is offline.
+  //   3. isPremiumRef       — user is actually premium; no point checking otherwise.
+  //   4. checkActiveSubscription returns false explicitly (not via exception).
+  //      Errors (network, timeout) are caught and treated as "unknown" — we
+  //      never revoke based on a failure.
+
+  useEffect(() => {
+    if (!isBillingSupported) return;
+
+    const appStateSub = AppState.addEventListener("change", (nextState) => {
+      if (
+        nextState === "active" &&
+        isConnectedRef.current &&
+        isPremiumRef.current
+      ) {
+        BillingManager.checkActiveSubscription()
+          .then((hasActive) => {
+            if (!hasActive) {
+              BillingLogger.event("Subscription expired — revoking Premium");
+              return revokePremiumRef.current();
+            }
+          })
+          .catch(() => {
+            // Non-fatal: never revoke when we cannot confirm the subscription
+            // status (e.g. offline, Google Play temporarily unavailable).
+          });
+      }
+    });
+
+    return () => appStateSub.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Actions ─────────────────────────────────────────────────────────────────
@@ -192,7 +281,15 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <BillingContext.Provider
-      value={{ products, purchase, restore, isConnected, isLoading, error, clearError }}
+      value={{
+        products,
+        purchase,
+        restore,
+        isConnected,
+        isLoading,
+        error,
+        clearError,
+      }}
     >
       {children}
     </BillingContext.Provider>
