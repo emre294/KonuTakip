@@ -1,5 +1,6 @@
 // ─── Public AI layer exports ──────────────────────────────────────────────────
-// Import from "@/utils/ai" — never from individual files inside this folder.
+// Always import from "@/utils/ai" — never from individual files inside this
+// folder. The internal module structure may change without notice.
 
 export { AIManager } from "./AIManager";
 export { AIError } from "./AIError";
@@ -10,6 +11,7 @@ export {
   getAIFeatureConfig,
   isAIFeatureEnabled,
   getEnabledAIFeatures,
+  getAllAIFeatures,
 } from "./AIFeatureRegistry";
 export type { AIFeatureConfig } from "./AIFeatureRegistry";
 export {
@@ -18,32 +20,42 @@ export {
   AIErrorCode,
 } from "./types";
 export type {
-  // Request types
-  QuestionGenerationRequest,
-  QuestionEvaluationRequest,
-  AITeacherRequest,
-  StudyCoachRequest,
-  MiniExamRequest,
-  StudyPlanRequest,
-  // Response types
-  QuestionGenerationResponse,
-  QuestionEvaluationResponse,
-  AITeacherResponse,
-  StudyCoachResponse,
-  MiniExamResponse,
-  StudyPlanResponse,
-  // Primitives
+  // ── Primitives ────────────────────────────────────────────────────────────
+  ExamType,
+  DifficultyLevel,
   GeneratedQuestion,
   ExplanationStep,
   CoachRecommendation,
   StudyPlanDay,
   MiniExam,
-  ExamType,
-  DifficultyLevel,
-  AIStatus,
-  AIState,
+  MistakeRecord,
+  MistakePattern,
+  // ── Request types ─────────────────────────────────────────────────────────
+  BaseAIRequest,
+  QuestionGenerationRequest,
+  QuestionEvaluationRequest,
+  AITeacherRequest,
+  ExplainQuestionRequest,
+  AnalyzeMistakesRequest,
+  PracticeQuestionRequest,
+  StudyCoachRequest,
+  MiniExamRequest,
+  StudyPlanRequest,
+  // ── Response types ────────────────────────────────────────────────────────
+  BaseAIResponse,
+  QuestionGenerationResponse,
+  QuestionEvaluationResponse,
+  AITeacherResponse,
+  ExplainQuestionResponse,
+  AnalyzeMistakesResponse,
+  PracticeQuestionResponse,
+  StudyCoachResponse,
+  MiniExamResponse,
+  StudyPlanResponse,
+  // ── Union types ───────────────────────────────────────────────────────────
   AnyAIRequest,
   AnyAIResponse,
-  BaseAIRequest,
-  BaseAIResponse,
+  // ── Hook state ────────────────────────────────────────────────────────────
+  AIStatus,
+  AIState,
 } from "./types";

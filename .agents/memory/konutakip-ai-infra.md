@@ -1,5 +1,5 @@
 ---
-name: KonuTakip AI Infrastructure
+name: KonuTakip AI Infrastructure (v2)
 description: Architecture of the provider-swappable AI layer under utils/ai/; key decisions and extension points.
 ---
 

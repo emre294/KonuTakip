@@ -3,19 +3,23 @@
  *
  * Responsibilities:
  *   • Holds the active IAIProvider
- *   • Validates that a feature is enabled before delegating
+ *   • Validates feature availability before delegating
+ *   • Enforces per-feature concurrency limits (maxConcurrent from registry)
+ *   • Applies a configurable request timeout (default 30 s)
+ *   • Retries once on transient failures (rate limit, network, timeout)
  *   • Wraps all errors in AIError for consistent handling
- *   • Provides a configure() method for swapping providers at runtime
+ *   • Provides configure() for swapping providers at runtime
  *
  * The UI layer and hooks never import a provider directly.
  * They only use AIManager, so swapping providers requires zero UI changes.
  *
  * Usage:
- *   // In _layout.tsx or app bootstrap:
- *   AIManager.configure(new OpenAIProvider(apiKey));
+ *   // At app bootstrap (e.g. _layout.tsx):
+ *   AIManager.configure(new GeminiProvider({ apiKey: GEMINI_KEY }));
  *
- *   // In a hook or component:
- *   const result = await AIManager.generateQuestions(req);
+ *   // Anywhere in the app:
+ *   const result = await AIManager.teachTopic(req);
+ *   const plan   = await AIManager.createStudyPlan(req);  // alias → generateStudyPlan
  */
 
 import { AIError } from "./AIError";
@@ -24,19 +28,27 @@ import { isAIFeatureEnabled, getAIFeatureConfig } from "./AIFeatureRegistry";
 import { LocalMockAIProvider } from "./providers/LocalMockAIProvider";
 import type {
   AIProviderKind,
-  QuestionGenerationRequest,
-  QuestionGenerationResponse,
-  QuestionEvaluationRequest,
-  QuestionEvaluationResponse,
-  AITeacherRequest,
-  AITeacherResponse,
-  StudyCoachRequest,
-  StudyCoachResponse,
-  MiniExamRequest,
-  MiniExamResponse,
-  StudyPlanRequest,
-  StudyPlanResponse,
   AIFeatureKey,
+  // Request types
+  QuestionGenerationRequest,
+  QuestionEvaluationRequest,
+  AITeacherRequest,
+  ExplainQuestionRequest,
+  AnalyzeMistakesRequest,
+  PracticeQuestionRequest,
+  StudyCoachRequest,
+  MiniExamRequest,
+  StudyPlanRequest,
+  // Response types
+  QuestionGenerationResponse,
+  QuestionEvaluationResponse,
+  AITeacherResponse,
+  ExplainQuestionResponse,
+  AnalyzeMistakesResponse,
+  PracticeQuestionResponse,
+  StudyCoachResponse,
+  MiniExamResponse,
+  StudyPlanResponse,
 } from "./types";
 
 // ─── Manager class ────────────────────────────────────────────────────────────
@@ -44,126 +56,235 @@ import type {
 class AIManagerClass {
   private _provider: IAIProvider = new LocalMockAIProvider();
   private _devMode: boolean = __DEV__;
+  /** Total timeout per request attempt in ms. Override with setTimeoutMs(). */
+  private _requestTimeoutMs: number = 30_000;
+  /** Tracks how many requests are currently in-flight per feature key */
+  private readonly _inFlight = new Map<string, number>();
 
   // ── Configuration ──────────────────────────────────────────────────────────
 
   /**
    * Swap the active provider.
-   * Call this once on app start once a real provider is configured.
+   * Call this once on app start after a real provider is configured.
    *
    * @example
-   *   AIManager.configure(new OpenAIProvider({ apiKey: OPENAI_KEY }));
+   *   AIManager.configure(new GeminiProvider({ apiKey: GEMINI_KEY }));
+   *   AIManager.configure(new GeminiProvider({ apiKey }), { timeoutMs: 20_000 });
    */
-  configure(provider: IAIProvider): void {
+  configure(provider: IAIProvider, options?: { timeoutMs?: number }): void {
     this._provider = provider;
+    if (options?.timeoutMs !== undefined) {
+      this._requestTimeoutMs = options.timeoutMs;
+    }
     if (this._devMode) {
-      console.log(`[AIManager] Provider set to: ${provider.kind}`);
+      console.log(`[AIManager] Provider → ${provider.kind} | timeout: ${this._requestTimeoutMs}ms`);
     }
   }
 
-  /** Returns the kind of the currently active provider */
+  /**
+   * Override the per-request timeout in ms.
+   * Useful in tests or when provider SLAs differ between environments.
+   */
+  setTimeoutMs(ms: number): void {
+    this._requestTimeoutMs = ms;
+  }
+
+  /** Returns the kind identifier of the currently active provider */
   get activeProvider(): AIProviderKind {
     return this._provider.kind;
   }
 
-  /** Returns true when the active provider reports it is ready */
+  /** True when the active provider reports it is ready */
   get isProviderAvailable(): boolean {
     return this._provider.isAvailable;
+  }
+
+  /**
+   * Current in-flight count per feature and the active provider kind.
+   * Useful for debug UIs and integration tests.
+   */
+  getStats(): { provider: AIProviderKind; inFlight: Record<string, number> } {
+    return {
+      provider: this._provider.kind,
+      inFlight: Object.fromEntries(this._inFlight),
+    };
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
   /**
    * Validates provider availability and feature enabled status.
-   * Resolves to the provider instance to call.
+   * Returns the provider instance to use (currently always the global provider;
+   * per-feature overrides are logged but not yet resolved to a second provider).
    */
-  private _getProvider(featureKey: AIFeatureKey): IAIProvider {
+  private _validate(featureKey: AIFeatureKey): IAIProvider {
     if (!this._provider.isAvailable) {
       throw AIError.providerUnavailable(this._provider.kind);
     }
     if (!isAIFeatureEnabled(featureKey)) {
       throw AIError.featureDisabled(featureKey);
     }
-
-    // Per-feature provider override (e.g. route mini-exams to a cheaper model)
     const config = getAIFeatureConfig(featureKey);
-    if (config?.providerOverride) {
-      // In the future: look up the override provider from a registry.
-      // For now, fall through to the default provider.
-      if (this._devMode) {
-        console.log(
-          `[AIManager] Feature "${featureKey}" has a provider override configured (${config.providerOverride}) — falling back to default for now.`
-        );
-      }
+    if (config?.providerOverride && this._devMode) {
+      console.log(
+        `[AIManager] Feature "${featureKey}" has a provider override (${config.providerOverride}) — using default provider for now.`
+      );
     }
-
     return this._provider;
   }
 
-  /** Wraps any thrown value into an AIError */
-  private _wrap(e: unknown): never {
-    if (e instanceof AIError) throw e;
-    throw AIError.unknown(e);
+  /** Increment the in-flight counter for a feature. Returns a cleanup fn. */
+  private _enter(feature: string): () => void {
+    this._inFlight.set(feature, (this._inFlight.get(feature) ?? 0) + 1);
+    return () => {
+      const n = this._inFlight.get(feature) ?? 1;
+      n <= 1 ? this._inFlight.delete(feature) : this._inFlight.set(feature, n - 1);
+    };
+  }
+
+  /**
+   * Core execution wrapper applied to every provider call.
+   *
+   * Enforces concurrency limits → validates feature → runs the call with a
+   * timeout → retries once on transient errors → propagates AIError to callers.
+   */
+  private async _execute<T>(
+    featureKey: AIFeatureKey,
+    call: (provider: IAIProvider) => Promise<T>
+  ): Promise<T> {
+    const startMs = Date.now();
+
+    // ── 1. Validate provider + feature ───────────────────────────────────────
+    const provider = this._validate(featureKey);
+
+    // ── 2. Enforce concurrency limit ─────────────────────────────────────────
+    const config = getAIFeatureConfig(featureKey)!;
+    const inFlight = this._inFlight.get(featureKey) ?? 0;
+    if (inFlight >= config.maxConcurrent) {
+      throw AIError.concurrentLimit(featureKey, config.maxConcurrent);
+    }
+
+    // ── 3. Track in-flight ───────────────────────────────────────────────────
+    const leave = this._enter(featureKey);
+
+    try {
+      // ── 4. Execute with timeout + 1 retry on transient failures ─────────────
+      for (let attempt = 0; attempt <= 1; attempt++) {
+        if (attempt > 0) {
+          if (this._devMode) {
+            console.warn(`[AIManager] ↩ retrying "${featureKey}" (attempt ${attempt + 1})...`);
+          }
+          await new Promise<void>((r) => setTimeout(r, 1_000));
+        }
+
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(
+            () => reject(AIError.timeout(this._requestTimeoutMs)),
+            this._requestTimeoutMs
+          );
+        });
+
+        try {
+          const result = await Promise.race([call(provider), timeoutPromise]);
+          clearTimeout(timeoutId);
+
+          if (this._devMode) {
+            console.log(
+              `[AIManager] ✓ "${featureKey}" via ${provider.kind} — ${Date.now() - startMs}ms`
+            );
+          }
+          return result;
+        } catch (e) {
+          clearTimeout(timeoutId);
+          const err = e instanceof AIError ? e : AIError.unknown(e);
+          // Non-retryable → throw immediately, don't waste the retry
+          if (!err.retryable || attempt >= 1) throw err;
+          // Retryable on first attempt → loop continues
+        }
+      }
+
+      // Unreachable — the loop always returns or throws
+      throw AIError.unknown(new Error("unreachable"));
+    } finally {
+      leave();
+    }
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────
+  // All public methods follow the same pattern:
+  //   return this._execute("feature_key", (p) => p.method(req));
+
+  // ── Original operations ────────────────────────────────────────────────────
 
   async generateQuestions(
     req: QuestionGenerationRequest
   ): Promise<QuestionGenerationResponse> {
-    try {
-      const provider = this._getProvider("question_generator");
-      return await provider.generateQuestions(req);
-    } catch (e) {
-      return this._wrap(e);
-    }
+    return this._execute("question_generator", (p) => p.generateQuestions(req));
   }
 
   async evaluateQuestion(
     req: QuestionEvaluationRequest
   ): Promise<QuestionEvaluationResponse> {
-    try {
-      const provider = this._getProvider("question_evaluator");
-      return await provider.evaluateQuestion(req);
-    } catch (e) {
-      return this._wrap(e);
-    }
+    return this._execute("question_evaluator", (p) => p.evaluateQuestion(req));
   }
 
   async teachTopic(req: AITeacherRequest): Promise<AITeacherResponse> {
-    try {
-      const provider = this._getProvider("ai_teacher");
-      return await provider.teachTopic(req);
-    } catch (e) {
-      return this._wrap(e);
-    }
+    return this._execute("ai_teacher", (p) => p.teachTopic(req));
   }
 
   async coachStudent(req: StudyCoachRequest): Promise<StudyCoachResponse> {
-    try {
-      const provider = this._getProvider("study_coach");
-      return await provider.coachStudent(req);
-    } catch (e) {
-      return this._wrap(e);
-    }
+    return this._execute("study_coach", (p) => p.coachStudent(req));
   }
 
   async generateMiniExam(req: MiniExamRequest): Promise<MiniExamResponse> {
-    try {
-      const provider = this._getProvider("mini_exams");
-      return await provider.generateMiniExam(req);
-    } catch (e) {
-      return this._wrap(e);
-    }
+    return this._execute("mini_exams", (p) => p.generateMiniExam(req));
   }
 
   async generateStudyPlan(req: StudyPlanRequest): Promise<StudyPlanResponse> {
-    try {
-      const provider = this._getProvider("study_plans");
-      return await provider.generateStudyPlan(req);
-    } catch (e) {
-      return this._wrap(e);
-    }
+    return this._execute("study_plans", (p) => p.generateStudyPlan(req));
+  }
+
+  // ── New operations ─────────────────────────────────────────────────────────
+
+  /**
+   * Full worked solution for a specific question.
+   * Optionally explains why the student's wrong answer was incorrect.
+   */
+  async explainQuestion(
+    req: ExplainQuestionRequest
+  ): Promise<ExplainQuestionResponse> {
+    return this._execute("explain_question", (p) => p.explainQuestion(req));
+  }
+
+  /**
+   * Analyse a batch of wrong answers and surface recurring mistake patterns.
+   */
+  async analyzeMistakes(
+    req: AnalyzeMistakesRequest
+  ): Promise<AnalyzeMistakesResponse> {
+    return this._execute("analyze_mistakes", (p) => p.analyzeMistakes(req));
+  }
+
+  /**
+   * Generate a single targeted practice question for one topic.
+   * Lighter-weight alternative to generateQuestions() for "give me another" UIs.
+   */
+  async generatePracticeQuestion(
+    req: PracticeQuestionRequest
+  ): Promise<PracticeQuestionResponse> {
+    return this._execute("practice_question", (p) => p.generatePracticeQuestion(req));
+  }
+
+  // ── Convenience aliases ────────────────────────────────────────────────────
+
+  /**
+   * Alias for generateStudyPlan().
+   * "createStudyPlan" is the user-facing verb; "generateStudyPlan" is the
+   * technical name used internally. Both use the same feature key and types.
+   */
+  async createStudyPlan(req: StudyPlanRequest): Promise<StudyPlanResponse> {
+    return this.generateStudyPlan(req);
   }
 }
 

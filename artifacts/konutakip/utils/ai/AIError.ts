@@ -3,6 +3,10 @@
  *
  * Every error surfaced from AIManager or providers is an instance of this class
  * so call-sites and hooks can rely on a consistent shape.
+ *
+ * The `retryable` flag signals whether the operation is safe to retry:
+ *   true  → transient failure (rate limit, timeout, network, concurrent limit)
+ *   false → permanent failure (validation, auth, disabled feature)
  */
 
 import { type AIErrorCode } from "./types";
@@ -10,7 +14,8 @@ import { type AIErrorCode } from "./types";
 export class AIError extends Error {
   readonly code: AIErrorCode;
   /**
-   * True when the operation is safe to retry (e.g. rate-limit, transient network).
+   * True when retrying the exact same request has a reasonable chance of
+   * succeeding (rate limit, transient network blip, timeout, concurrency).
    * False for validation errors, auth errors, or disabled features.
    */
   readonly retryable: boolean;
@@ -29,7 +34,8 @@ export class AIError extends Error {
     this.cause = options?.cause;
   }
 
-  /** Convenience factory for feature-disabled errors */
+  // ── Static factories ────────────────────────────────────────────────────────
+
   static featureDisabled(featureKey: string): AIError {
     return new AIError(
       `AI feature "${featureKey}" is disabled in AIFeatureRegistry.`,
@@ -38,7 +44,6 @@ export class AIError extends Error {
     );
   }
 
-  /** Convenience factory for provider-unavailable errors */
   static providerUnavailable(providerKind: string): AIError {
     return new AIError(
       `AI provider "${providerKind}" is not available.`,
@@ -47,21 +52,82 @@ export class AIError extends Error {
     );
   }
 
-  /** Convenience factory for invalid-request errors */
   static invalidRequest(detail: string): AIError {
-    return new AIError(`Invalid AI request: ${detail}`, "INVALID_REQUEST", { retryable: false });
+    return new AIError(
+      `Invalid AI request: ${detail}`,
+      "INVALID_REQUEST",
+      { retryable: false }
+    );
   }
 
-  /** Convenience factory for wrapping an unknown caught error */
+  static invalidResponse(detail: string): AIError {
+    return new AIError(
+      `AI provider returned an unexpected response: ${detail}`,
+      "INVALID_RESPONSE",
+      { retryable: false }
+    );
+  }
+
+  static rateLimited(providerKind: string): AIError {
+    return new AIError(
+      `Rate limit reached on provider "${providerKind}". Retry after a short delay.`,
+      "RATE_LIMITED",
+      { retryable: true }
+    );
+  }
+
+  static networkError(detail?: string): AIError {
+    return new AIError(
+      `Network error${detail ? `: ${detail}` : "."}`,
+      "NETWORK_ERROR",
+      { retryable: true }
+    );
+  }
+
+  static authError(providerKind: string): AIError {
+    return new AIError(
+      `Authentication failed for provider "${providerKind}". Check your API key.`,
+      "AUTH_ERROR",
+      { retryable: false }
+    );
+  }
+
+  /**
+   * Thrown when a feature's maxConcurrent limit is already reached.
+   * Retryable — the caller should wait for the in-flight request to complete.
+   */
+  static concurrentLimit(featureKey: string, max: number): AIError {
+    return new AIError(
+      `Feature "${featureKey}" is already at its concurrency limit (${max}). Wait for the current request to finish.`,
+      "CONCURRENT_LIMIT",
+      { retryable: true }
+    );
+  }
+
+  /**
+   * Thrown when the provider did not respond within the configured timeout.
+   * Retryable — a subsequent attempt may succeed once the provider recovers.
+   */
+  static timeout(timeoutMs: number): AIError {
+    return new AIError(
+      `AI request timed out after ${timeoutMs}ms.`,
+      "TIMEOUT",
+      { retryable: true }
+    );
+  }
+
   static unknown(cause: unknown): AIError {
     const message = cause instanceof Error ? cause.message : String(cause);
-    return new AIError(`Unexpected AI error: ${message}`, "UNKNOWN", {
-      retryable: false,
-      cause,
-    });
+    return new AIError(
+      `Unexpected AI error: ${message}`,
+      "UNKNOWN",
+      { retryable: false, cause }
+    );
   }
 
-  /** Human-readable Turkish UI message for each error code */
+  // ── User-facing messages (Turkish) ─────────────────────────────────────────
+
+  /** Human-readable Turkish UI message mapped from the error code. */
   toUserMessage(): string {
     switch (this.code) {
       case "FEATURE_DISABLED":
@@ -78,6 +144,10 @@ export class AIError extends Error {
         return "Geçersiz istek. Lütfen tekrar dene.";
       case "INVALID_RESPONSE":
         return "AI servisi beklenmeyen bir yanıt döndürdü.";
+      case "CONCURRENT_LIMIT":
+        return "İstek işleniyor. Lütfen tamamlanmasını bekle.";
+      case "TIMEOUT":
+        return "AI servisinden yanıt alınamadı. Tekrar dene.";
       default:
         return "Beklenmeyen bir hata oluştu. Lütfen tekrar dene.";
     }
