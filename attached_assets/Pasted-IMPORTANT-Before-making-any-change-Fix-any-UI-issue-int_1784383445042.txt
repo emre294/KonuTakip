@@ -1,0 +1,166 @@
+IMPORTANT
+
+Before making any change:
+
+• Fix any UI issue introduced by previous updates.
+• No text may overflow.
+• No buttons may overflow.
+• Keep every screen fully responsive.
+• Do NOT redesign anything.
+• Preserve the existing Premium architecture.
+• TypeScript must compile with zero errors.
+
+NOW CONNECT THE REAL GOOGLE PLAY SUBSCRIPTION.
+
+Google Play Console has now been configured.
+
+REAL PRODUCT INFORMATION
+
+Product ID:
+konutakip_premium_aylik
+
+Base Plan ID:
+premium-aylik
+
+Replace every placeholder SKU.
+
+Remove:
+
+monthly_premium
+yearly_premium
+
+Use only:
+
+konutakip_premium_aylik
+
+----------------------------------------
+
+GOALS
+
+Connect the existing Billing infrastructure to the real Google Play subscription.
+
+Do NOT change the UI.
+
+Do NOT remove any architecture.
+
+Do NOT remove BillingManager.
+
+Do NOT remove PremiumManager.
+
+Only connect the real Product ID.
+
+----------------------------------------
+
+Verify every Billing call.
+
+queryProducts()
+
+must load
+
+konutakip_premium_aylik
+
+purchase()
+
+must purchase
+
+konutakip_premium_aylik
+
+restorePurchases()
+
+must restore
+
+konutakip_premium_aylik
+
+----------------------------------------
+
+Premium screen
+
+• Load the product directly from Google Play.
+
+• Show the real localized price.
+
+• Show the real billing period.
+
+• Keep loading placeholders.
+
+• Keep graceful error handling.
+
+----------------------------------------
+
+Purchase flow
+
+When purchase succeeds:
+
+• acknowledge purchase
+
+• verify through the existing verification layer
+
+• activate Premium automatically
+
+• persist Premium status
+
+• update UI immediately
+
+----------------------------------------
+
+Restore flow
+
+Restore purchases must:
+
+• reconnect Billing if needed
+
+• query purchases
+
+• reactivate Premium automatically
+
+----------------------------------------
+
+Expiration flow
+
+If the subscription is no longer active:
+
+• revoke Premium automatically
+
+without requiring app restart.
+
+----------------------------------------
+
+Development safety
+
+If running inside Expo Go:
+
+Do NOT crash.
+
+Instead show a friendly message explaining that subscriptions are only available in the Development Build / Play Store version.
+
+----------------------------------------
+
+Development logging
+
+Keep Billing logs only inside __DEV__.
+
+----------------------------------------
+
+Final verification
+
+Search the entire project.
+
+Ensure there are NO remaining placeholder Product IDs.
+
+The only Product ID allowed is:
+
+konutakip_premium_aylik
+
+----------------------------------------
+
+Do NOT modify AI.
+
+Do NOT redesign UI.
+
+Do NOT touch onboarding.
+
+Do NOT modify lesson system.
+
+Only finalize the real Google Play Billing integration.
+
+TypeScript must finish with zero errors.
