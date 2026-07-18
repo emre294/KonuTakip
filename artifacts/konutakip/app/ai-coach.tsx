@@ -208,9 +208,9 @@ export default function AICoachScreen() {
       <Animated.View entering={FadeInDown.delay(60).duration(500)}>
         <View style={[styles.heroCard, { backgroundColor: "#7C3AED" }]}>
           <View style={styles.heroRow}>
-            <View>
-              <Text style={styles.heroTitle}>Kişisel Koçun</Text>
-              <Text style={styles.heroSub}>İlerleme analizin hazır</Text>
+            <View style={styles.heroTextWrap}>
+              <Text style={styles.heroTitle} numberOfLines={2}>Kişisel Koçun</Text>
+              <Text style={styles.heroSub} numberOfLines={2}>İlerleme analizin hazır</Text>
             </View>
             <View style={[styles.heroIcon, { backgroundColor: "rgba(255,255,255,0.2)" }]}>
               <Ionicons name="sparkles" size={28} color="#fff" />
@@ -247,10 +247,11 @@ const styles = StyleSheet.create({
     shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 4,
     gap: 12,
   },
-  heroRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  heroRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
+  heroTextWrap: { flex: 1, flexShrink: 1 },
   heroTitle: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#fff" },
   heroSub: { fontSize: 13, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.8)", marginTop: 2 },
-  heroIcon: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center" },
+  heroIcon: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", flexShrink: 0 },
   heroText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.9)", lineHeight: 20 },
   sectionLabel: { fontSize: 13, fontFamily: "Inter_500Medium", marginBottom: 16, paddingLeft: 4 },
   recList: { gap: 12 },

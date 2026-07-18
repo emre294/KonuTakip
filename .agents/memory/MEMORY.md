@@ -1,3 +1,5 @@
 - [KonuTakip Architecture](konutakip-arch.md) — Expo mobile YKS study tracker; all state AsyncStorage-only, no backend needed.
 - [KonuTakip 5-Feature Implementation](konutakip-5feat.md) — subject renames, pickers, solved questions, topic reminders, notification deep-link; notes on saveData typing and reminder reliability.
 - [KonuTakip Performance Optimizations](konutakip-perf.md) — saveData shadow-ref pattern, screen memoization rules, React.memo components.
+- [KonuTakip AI Infrastructure](konutakip-ai-infra.md) — Provider-swappable AI layer under utils/ai/; all features disabled by default; mock provider always active.
+- [KonuTakip Premium UI Patterns](konutakip-premium-ui.md) — heroRow overflow fix pattern; all hero cards need flex:1+flexShrink:1 on text wrap, flexShrink:0 on icon.
