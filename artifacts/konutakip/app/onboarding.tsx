@@ -44,6 +44,7 @@ export default function OnboardingScreen() {
   const [department, setDepartment] = useState("");
   const [tytScore, setTytScore] = useState("");
   const [aytScore, setAytScore] = useState("");
+  const [scoreError, setScoreError] = useState(false);
   const [field, setField] = useState<StudyField>("sayisal");
 
   const progress = useSharedValue((step + 1) / TOTAL_STEPS);
@@ -53,6 +54,22 @@ export default function OnboardingScreen() {
   }));
 
   function nextStep() {
+    // Validate score steps before proceeding
+    if (step === 4) {
+      const v = parseInt(tytScore, 10);
+      if (!tytScore.trim() || isNaN(v) || v < 100 || v > 500) {
+        setScoreError(true);
+        return;
+      }
+    }
+    if (step === 5) {
+      const v = parseInt(aytScore, 10);
+      if (!aytScore.trim() || isNaN(v) || v < 100 || v > 500) {
+        setScoreError(true);
+        return;
+      }
+    }
+    setScoreError(false);
     if (step < TOTAL_STEPS - 1) {
       progress.value = withSpring((step + 2) / TOTAL_STEPS);
       setStep((s) => s + 1);
@@ -64,6 +81,7 @@ export default function OnboardingScreen() {
 
   function prevStep() {
     if (step > 0) {
+      setScoreError(false);
       progress.value = withSpring(step / TOTAL_STEPS);
       setStep((s) => s - 1);
     }
@@ -96,8 +114,22 @@ export default function OnboardingScreen() {
     <NameStep key="name" value={name} onChange={setName} colors={colors} />,
     <GradeStep key="grade" value={grade} onChange={setGrade} colors={colors} />,
     <UniversityStep key="uni" university={university} department={department} onChangeUni={setUniversity} onChangeDept={setDepartment} colors={colors} />,
-    <TYTScoreStep key="tyt" value={tytScore} onChange={setTytScore} colors={colors} />,
-    <AYTScoreStep key="ayt" value={aytScore} onChange={setAytScore} colors={colors} />,
+    <TYTScoreStep
+      key="tyt"
+      value={tytScore}
+      onChange={(v) => { setTytScore(v); if (scoreError) setScoreError(false); }}
+      onBlur={() => setTytScore(clampScore(tytScore))}
+      showError={scoreError}
+      colors={colors}
+    />,
+    <AYTScoreStep
+      key="ayt"
+      value={aytScore}
+      onChange={(v) => { setAytScore(v); if (scoreError) setScoreError(false); }}
+      onBlur={() => setAytScore(clampScore(aytScore))}
+      showError={scoreError}
+      colors={colors}
+    />,
     <FieldStep key="field" value={field} onChange={setField} colors={colors} />,
   ];
 
@@ -220,38 +252,82 @@ function UniversityStep({ university, department, onChangeUni, onChangeDept, col
   );
 }
 
-function TYTScoreStep({ value, onChange, colors }: { value: string; onChange: (v: string) => void; colors: ReturnType<typeof useColors> }) {
+/** Strip any non-digit characters from input (handles paste, swipe keyboards, etc.) */
+function filterScoreInput(text: string): string {
+  return text.replace(/[^0-9]/g, "");
+}
+
+/** Clamp a score string to [100, 500]; returns empty string unchanged. */
+function clampScore(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return value;
+  const num = parseInt(trimmed, 10);
+  if (isNaN(num)) return "";
+  if (num < 100) return "100";
+  if (num > 500) return "500";
+  return String(num);
+}
+
+type ScoreStepProps = {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur: () => void;
+  showError: boolean;
+  colors: ReturnType<typeof useColors>;
+};
+
+function TYTScoreStep({ value, onChange, onBlur, showError, colors }: ScoreStepProps) {
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={styles.formStep}>
       <Text style={[styles.stepTitle, { color: colors.foreground }]}>TYT Hedef Puan</Text>
       <Text style={[styles.stepSubtitle, { color: colors.mutedForeground }]}>Ulaşmak istediğin TYT puanı nedir? (100–500)</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
+        style={[
+          styles.input,
+          { backgroundColor: colors.card, borderColor: showError ? colors.destructive : colors.border, color: colors.foreground },
+        ]}
         placeholder="Örn: 350"
         placeholderTextColor={colors.mutedForeground}
         value={value}
-        onChangeText={onChange}
-        keyboardType="numeric"
+        onChangeText={(t) => onChange(filterScoreInput(t))}
+        onBlur={onBlur}
+        keyboardType="number-pad"
+        maxLength={3}
         autoFocus
       />
+      {showError && (
+        <Text style={[styles.errorText, { color: colors.destructive }]}>
+          Lütfen 100 ile 500 arasında bir hedef puan giriniz.
+        </Text>
+      )}
     </Animated.View>
   );
 }
 
-function AYTScoreStep({ value, onChange, colors }: { value: string; onChange: (v: string) => void; colors: ReturnType<typeof useColors> }) {
+function AYTScoreStep({ value, onChange, onBlur, showError, colors }: ScoreStepProps) {
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={styles.formStep}>
       <Text style={[styles.stepTitle, { color: colors.foreground }]}>AYT Hedef Puan</Text>
       <Text style={[styles.stepSubtitle, { color: colors.mutedForeground }]}>Ulaşmak istediğin AYT puanı nedir? (100–500)</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground }]}
+        style={[
+          styles.input,
+          { backgroundColor: colors.card, borderColor: showError ? colors.destructive : colors.border, color: colors.foreground },
+        ]}
         placeholder="Örn: 400"
         placeholderTextColor={colors.mutedForeground}
         value={value}
-        onChangeText={onChange}
-        keyboardType="numeric"
+        onChangeText={(t) => onChange(filterScoreInput(t))}
+        onBlur={onBlur}
+        keyboardType="number-pad"
+        maxLength={3}
         autoFocus
       />
+      {showError && (
+        <Text style={[styles.errorText, { color: colors.destructive }]}>
+          Lütfen 100 ile 500 arasında bir hedef puan giriniz.
+        </Text>
+      )}
     </Animated.View>
   );
 }
@@ -322,4 +398,5 @@ const styles = StyleSheet.create({
     gap: 8, paddingHorizontal: 28,
   },
   nextBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
+  errorText: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 8 },
 });
