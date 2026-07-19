@@ -219,14 +219,26 @@ function AppContent() {
   }, [isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#01011B" }}>
       <OnboardingGuard>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "#01011B" },
+          }}
+        >
           <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="statistics" options={{ presentation: "modal" }} />
           <Stack.Screen name="achievements" options={{ presentation: "modal" }} />
-          <Stack.Screen name="ai-coach" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="ai-coach"
+            options={{
+              presentation: "card",
+              animation: "none",
+              contentStyle: { backgroundColor: "#01011B" },
+            }}
+          />
           <Stack.Screen name="faq" options={{ presentation: "modal" }} />
           <Stack.Screen name="mock-exams" options={{ presentation: "modal" }} />
           <Stack.Screen name="exam-analytics" options={{ presentation: "modal" }} />

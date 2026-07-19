@@ -1,266 +1,585 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useMemo } from "react";
+import React, { useRef, useState } from "react";
 import {
-  Dimensions,
-  Platform,
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import Markdown from "react-native-markdown-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useApp } from "@/contexts/AppContext";
-import { AYT_SUBJECTS_BY_FIELD, TYT_EXAM_DATE, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
+import { sendAIMessage, type AIMessage } from "@/services/aiService";
 
-interface Recommendation {
-  type: "warning" | "info" | "success" | "tip";
-  title: string;
-  body: string;
-  icon: string;
+interface ChatMessage extends AIMessage {
+  id: string;
 }
 
-function RecommendationCard({ rec, colors }: { rec: Recommendation; colors: ReturnType<typeof import("@/hooks/useColors").useColors> }) {
-  const colorMap = {
-    warning: colors.warning,
-    info: colors.primary,
-    success: colors.success,
-    tip: "#7C3AED",
-  };
-  const iconColor = colorMap[rec.type];
+function cleanAIText(value: string): string {
+  return value
+    .replace(/\r\n/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/<\/?.*?>/g, "")
+    .replace(/```(?:markdown|text)?\n?/gi, "")
+    .replace(/```/g, "")
+    .replace(/\\\[|\\\]/g, "")
+    .replace(/\\\(|\\\)/g, "")
+    .replace(/\\boxed\{([^}]+)\}/g, "$1")
+    .replace(/\\text\{([^}]+)\}/g, "$1")
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "$1 / $2")
+    .replace(/\\Longrightarrow/g, "→")
+    .replace(/\\Rightarrow/g, "→")
+    .replace(/\\rightarrow/g, "→")
+    .replace(/\\equiv/g, "≡")
+    .replace(/\\times/g, "×")
+    .replace(/\\cdot/g, "×")
+    .replace(/\\Delta/g, "Δ")
+    .replace(/\\pmod\{([^}]+)\}/g, "(mod $1)")
+    .replace(/^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/gm, "")
+    .replace(/^\s*\|(.+)\|\s*$/gm, (_, row: string) => {
+      const cells = row
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter(Boolean);
 
-  return (
-    <Animated.View entering={FadeInDown.duration(400)}>
-      <View style={[styles.recCard, { backgroundColor: colors.card, borderLeftColor: iconColor, borderLeftWidth: 4 }]}>
-        <View style={[styles.recIcon, { backgroundColor: iconColor + "20" }]}>
-          <Ionicons name={rec.icon as never} size={22} color={iconColor} />
-        </View>
-        <View style={styles.recContent}>
-          <Text style={[styles.recTitle, { color: colors.foreground }]}>{rec.title}</Text>
-          <Text style={[styles.recBody, { color: colors.mutedForeground }]}>{rec.body}</Text>
-        </View>
-      </View>
-    </Animated.View>
-  );
+      if (cells.length === 0) return "";
+
+      return cells
+        .map((cell, index) =>
+          index === 0 ? `**${cell}**` : `• ${cell}`
+        )
+        .join("\n");
+    })
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 export default function AICoachScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { profile, topicCompletion, sessions, questions, tytProgress, aytProgress, studyStreak, studyDays, totalTopicsCompleted } = useApp();
+  const scrollRef = useRef<ScrollView>(null);
 
-  const recommendations = useMemo<Recommendation[]>(() => {
-    const recs: Recommendation[] = [];
-    const today = new Date().toISOString().split("T")[0];
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content:
+        "Merhaba! Ben KonuTakip AI çalışma koçunum. Konu anlatımı, soru çözümü veya çalışma planı hakkında bana soru sorabilirsin.",
+    },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
 
-    if (!profile) {
-      recs.push({ type: "info", title: "Profil Oluştur", body: "Kişiselleştirilmiş önerileri görmek için önce profilini oluştur.", icon: "person-circle-outline" });
-      return recs;
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+  };
+
+  const handleSendMessage = async () => {
+    const cleanMessage = input.trim();
+
+    if (!cleanMessage || isLoading) {
+      return;
     }
 
-    if (tytProgress === 0 && aytProgress === 0) {
-      recs.push({ type: "tip", title: "Çalışmaya Başla", body: "Henüz hiç konu tamamlanmamış. İlk konunu tamamlayarak yolculuğunu başlat!", icon: "rocket-outline" });
-    }
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: cleanMessage,
+    };
 
-    const allTYT = TYT_SUBJECTS.flatMap((s) => s.topics);
-    const completedTYT = allTYT.filter((t) => topicCompletion[t.id]).length;
-    const tytRemaining = allTYT.length - completedTYT;
-
-    if (tytRemaining > 0 && tytProgress < 80) {
-      const daysToExam = Math.max(0, Math.floor((TYT_EXAM_DATE.getTime() - Date.now()) / 86400000));
-      const topicsPerDay = daysToExam > 0 ? Math.ceil(tytRemaining / daysToExam) : tytRemaining;
-      recs.push({
-        type: "info",
-        title: "TYT Hedef Hızı",
-        body: `Sınava ${daysToExam} gün kaldı. TYT'yi bitirmek için günde yaklaşık ${topicsPerDay} konu çalışman gerekiyor.`,
-        icon: "speedometer-outline",
-      });
-    }
-
-    if (profile) {
-      const aytSubjects = AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [];
-      const allAYT = aytSubjects.flatMap((s) => s.topics);
-      const completedAYT = allAYT.filter((t) => topicCompletion[t.id]).length;
-      const aytRemaining = allAYT.length - completedAYT;
-      if (aytRemaining > 0 && aytProgress < 50) {
-        recs.push({
-          type: "warning",
-          title: "AYT İlerlemesi Düşük",
-          body: `AYT'de %${aytProgress} tamamlandı. Özellikle ağırlıklı derslere odaklan ve her gün en az 2 AYT konusu çalış.`,
-          icon: "alert-circle-outline",
-        });
-      }
-
-      const subjectProgress = aytSubjects.map((s) => ({
-        name: s.name,
-        pct: s.topics.length > 0 ? (s.topics.filter((t) => topicCompletion[t.id]).length / s.topics.length) * 100 : 0,
+    const history: AIMessage[] = messages
+      .filter((message) => message.id !== "welcome")
+      .map(({ role, content }) => ({
+        role,
+        content,
       }));
-      const neglected = subjectProgress.filter((s) => s.pct < 20);
-      if (neglected.length > 0) {
-        recs.push({
-          type: "warning",
-          title: "İhmal Edilen Dersler",
-          body: `${neglected.map((s) => s.name).join(", ")} derslerinde çok az ilerleme var. Bu hafta bu derslere ağırlık ver.`,
-          icon: "warning-outline",
-        });
-      }
+
+    setMessages((current) => [...current, userMessage]);
+    setInput("");
+    setChatError(null);
+    setIsLoading(true);
+    scrollToBottom();
+
+    try {
+      const answer = await sendAIMessage(cleanMessage, history);
+
+      setMessages((current) => [
+        ...current,
+        {
+          id: `assistant-${Date.now()}`,
+          role: "assistant",
+          content: cleanAIText(answer),
+        },
+      ]);
+    } catch (error) {
+      setChatError(
+        error instanceof Error
+          ? error.message
+          : "Yapay zekâ yanıtı alınamadı."
+      );
+    } finally {
+      setIsLoading(false);
+      scrollToBottom();
     }
-
-    if (studyStreak === 0 && studyDays.length > 0) {
-      recs.push({
-        type: "warning",
-        title: "Seri Kırıldı",
-        body: "Çalışma seriniz kırılmış. Bugün en az bir konu tamamlayarak serinizi yeniden başlatın!",
-        icon: "flame-outline",
-      });
-    } else if (studyStreak >= 7) {
-      recs.push({
-        type: "success",
-        title: `${studyStreak} Günlük Seri — Harika!`,
-        body: "Tutarlılığın meyvelerini topluyorsun. Bu ritmi korumak uzun vadede en büyük avantajın.",
-        icon: "flame-outline",
-      });
-    }
-
-    const pendingQuestions = questions.filter((q) => {
-      const days = Math.floor((Date.now() - new Date(q.addedDate).getTime()) / 86400000);
-      return !q.understood && days >= 7;
-    });
-    if (pendingQuestions.length > 0) {
-      recs.push({
-        type: "info",
-        title: `${pendingQuestions.length} Soru Tekrar Zamanı`,
-        body: "Soru bankasında tekrar edilmesi gereken sorular var. Zayıf noktalarını güçlendirmek için hepsini gözden geçir.",
-        icon: "refresh-circle-outline",
-      });
-    }
-
-    const pendingSessions = sessions.filter((s) => s.date < today && !s.completed);
-    if (pendingSessions.length > 0) {
-      recs.push({
-        type: "warning",
-        title: `${pendingSessions.length} Gecikmiş Oturum`,
-        body: "Planlanmış ama tamamlanmamış oturumlar var. Bugün bunları tamamlamaya çalış veya güncelle.",
-        icon: "time-outline",
-      });
-    }
-
-    if (totalTopicsCompleted >= 10 && sessions.filter((s) => s.completed).length === 0) {
-      recs.push({
-        type: "tip",
-        title: "Günlük Plan Kur",
-        body: "Konu çalışıyorsun ama henüz günlük oturum planlamadın. Planlı çalışmak verimliliği 2 katına çıkarır.",
-        icon: "calendar-outline",
-      });
-    }
-
-    const daysStudied = studyDays.length;
-    const estimatedDailyTopics = daysStudied > 0 ? totalTopicsCompleted / daysStudied : 0;
-    if (estimatedDailyTopics > 0) {
-      recs.push({
-        type: "success",
-        title: "Günlük Tempo Analizi",
-        body: `Günde ortalama ${estimatedDailyTopics.toFixed(1)} konu tamamlıyorsun. ${estimatedDailyTopics >= 3 ? "Bu tempo sınava kadar yetecek!" : "Tempoyu biraz artırabilirsen daha güvenli bir konuma gelirsin."}`,
-        icon: "analytics-outline",
-      });
-    }
-
-    recs.push({
-      type: "tip",
-      title: "Çalışma Yöntemi Önerisi",
-      body: "Pomodoro tekniği dene: 25 dk çalış, 5 dk mola ver. Her 4 pomodorodan sonra 15-30 dk uzun mola. Bu yöntem odaklanmayı artırır.",
-      icon: "timer-outline",
-    });
-
-    recs.push({
-      type: "tip",
-      title: "Aktif Tekrar",
-      body: "Okuduğun konuyu okuduktan hemen sonra kapatıp başkasına anlat ya da not yaz. Aktif geri çağırma, pasif okumadan 3 kat daha etkili.",
-      icon: "bulb-outline",
-    });
-
-    return recs;
-  }, [profile, topicCompletion, sessions, questions, tytProgress, aytProgress, studyStreak, studyDays, totalTopicsCompleted]);
-
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 24;
+  };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: botPad, paddingHorizontal: 20 }}
-      showsVerticalScrollIndicator={false}
+      behavior="translate-with-padding"
+      keyboardVerticalOffset={0}
     >
-      <Animated.View entering={FadeIn.duration(400)}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card }]}>
-            <Feather name="arrow-left" size={20} color={colors.foreground} />
-          </TouchableOpacity>
-          <Text style={[styles.pageTitle, { color: colors.foreground }]}>AI Çalışma Koçu</Text>
-          <View style={{ width: 40 }} />
-        </View>
-      </Animated.View>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: insets.top + 12,
+            borderBottomColor: colors.border,
+            backgroundColor: colors.background,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={() => router.back()}
+          activeOpacity={0.75}
+          style={[styles.backButton, { backgroundColor: colors.card }]}
+        >
+          <Feather name="arrow-left" size={21} color={colors.foreground} />
+        </TouchableOpacity>
 
-      <Animated.View entering={FadeInDown.delay(60).duration(500)}>
-        <View style={[styles.heroCard, { backgroundColor: "#7C3AED" }]}>
-          <View style={styles.heroRow}>
-            <View style={styles.heroTextWrap}>
-              <Text style={styles.heroTitle}>Kişisel Koçun</Text>
-              <Text style={styles.heroSub}>İlerleme analizin hazır</Text>
+        <View style={styles.headerCenter}>
+          <View style={styles.headerIcon}>
+            <Ionicons
+              name="chatbubble-ellipses"
+              size={21}
+              color="#8B5CF6"
+            />
+          </View>
+
+          <View style={styles.headerText}>
+            <Text style={[styles.title, { color: colors.foreground }]}>
+              AI Çalışma Koçu
+            </Text>
+
+            <Text
+              style={[
+                styles.subtitle,
+                { color: colors.mutedForeground },
+              ]}
+            >
+              YKS için kişisel yardımcın
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        ref={scrollRef}
+        style={styles.messageList}
+        contentContainerStyle={[
+          styles.messageContent,
+          {
+            paddingBottom: 20,
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={scrollToBottom}
+      >
+        {messages.map((message) => {
+          const isUser = message.role === "user";
+
+          return (
+            <View
+              key={message.id}
+              style={[
+                styles.messageRow,
+                isUser
+                  ? styles.userMessageRow
+                  : styles.assistantMessageRow,
+              ]}
+            >
+              {!isUser && (
+                <View style={styles.avatar}>
+                  <Ionicons name="sparkles" size={16} color="#A78BFA" />
+                </View>
+              )}
+
+              <View
+                style={[
+                  styles.messageBubble,
+                  isUser
+                    ? styles.userBubble
+                    : {
+                        backgroundColor: colors.card,
+                        borderColor: colors.border,
+                      },
+                ]}
+              >
+                {isUser ? (
+                  <Text
+                    selectable
+                    style={[
+                      styles.messageText,
+                      { color: "#FFFFFF" },
+                    ]}
+                  >
+                    {message.content}
+                  </Text>
+                ) : (
+                  <Markdown
+                    style={{
+                      body: {
+                        color: colors.foreground,
+                        fontSize: 15,
+                        lineHeight: 23,
+                        fontFamily: "Inter_400Regular",
+                      },
+                      paragraph: {
+                        marginTop: 0,
+                        marginBottom: 12,
+                      },
+                      heading1: {
+                        color: colors.foreground,
+                        fontSize: 21,
+                        lineHeight: 28,
+                        fontFamily: "Inter_700Bold",
+                        marginTop: 8,
+                        marginBottom: 10,
+                      },
+                      heading2: {
+                        color: colors.foreground,
+                        fontSize: 18,
+                        lineHeight: 25,
+                        fontFamily: "Inter_700Bold",
+                        marginTop: 8,
+                        marginBottom: 8,
+                      },
+                      heading3: {
+                        color: colors.foreground,
+                        fontSize: 16,
+                        lineHeight: 23,
+                        fontFamily: "Inter_600SemiBold",
+                        marginTop: 6,
+                        marginBottom: 6,
+                      },
+                      strong: {
+                        color: colors.foreground,
+                        fontFamily: "Inter_700Bold",
+                      },
+                      bullet_list: {
+                        marginTop: 3,
+                        marginBottom: 12,
+                      },
+                      ordered_list: {
+                        marginTop: 3,
+                        marginBottom: 12,
+                      },
+                      list_item: {
+                        marginBottom: 7,
+                      },
+                      code_inline: {
+                        color: colors.foreground,
+                        backgroundColor: colors.background,
+                        borderRadius: 5,
+                        paddingHorizontal: 5,
+                        paddingVertical: 2,
+                        fontSize: 14,
+                      },
+                      fence: {
+                        color: colors.foreground,
+                        backgroundColor: colors.background,
+                        borderColor: colors.border,
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        padding: 12,
+                        fontSize: 13,
+                      },
+                      blockquote: {
+                        backgroundColor: "#7C3AED14",
+                        borderLeftColor: "#7C3AED",
+                        borderLeftWidth: 3,
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                      },
+                    }}
+                  >
+                    {message.content}
+                  </Markdown>
+                )}
+              </View>
             </View>
-            <View style={[styles.heroIcon, { backgroundColor: "rgba(255,255,255,0.2)" }]}>
-              <Ionicons name="sparkles" size={28} color="#fff" />
+          );
+        })}
+
+        {isLoading && (
+          <View style={[styles.messageRow, styles.assistantMessageRow]}>
+            <View style={styles.avatar}>
+              <Ionicons name="sparkles" size={16} color="#A78BFA" />
+            </View>
+
+            <View
+              style={[
+                styles.loadingBubble,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              <ActivityIndicator size="small" color="#8B5CF6" />
+
+              <Text
+                style={[
+                  styles.loadingText,
+                  { color: colors.mutedForeground },
+                ]}
+              >
+                AI düşünüyor...
+              </Text>
             </View>
           </View>
-          <Text style={styles.heroText}>
-            Bugün için {recommendations.filter((r) => r.type === "warning").length} uyarı ve {recommendations.filter((r) => r.type === "success").length} pozitif tespit bulunuyor.
-          </Text>
+        )}
+
+        {chatError && (
+          <View style={styles.errorBox}>
+            <Ionicons
+              name="alert-circle-outline"
+              size={19}
+              color="#EF4444"
+            />
+
+            <Text style={styles.errorText}>{chatError}</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      <View
+        style={[
+          styles.inputArea,
+          {
+            paddingBottom: Math.max(insets.bottom, 10),
+            borderTopColor: colors.border,
+            backgroundColor: colors.background,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <TextInput
+            value={input}
+            onChangeText={setInput}
+            placeholder="AI koçuna bir soru sor..."
+            placeholderTextColor={colors.mutedForeground}
+            multiline
+            maxLength={2000}
+            editable={!isLoading}
+            returnKeyType="default"
+            style={[styles.input, { color: colors.foreground }]}
+          />
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            disabled={!input.trim() || isLoading}
+            onPress={() => void handleSendMessage()}
+            style={[
+              styles.sendButton,
+              {
+                opacity: !input.trim() || isLoading ? 0.4 : 1,
+              },
+            ]}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Ionicons name="send" size={19} color="#FFFFFF" />
+            )}
+          </TouchableOpacity>
         </View>
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(120).duration(500)}>
-        <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>
-          {recommendations.length} kişiselleştirilmiş öneri
-        </Text>
-      </Animated.View>
-
-      <View style={styles.recList}>
-        {recommendations.map((r, i) => (
-          <RecommendationCard key={i} rec={r} colors={colors} />
-        ))}
       </View>
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 24 },
-  backBtn: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  pageTitle: { fontSize: 20, fontFamily: "Inter_700Bold" },
-  heroCard: {
-    borderRadius: 20, padding: 24, marginBottom: 20,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 4,
-    gap: 12,
+  container: {
+    flex: 1,
   },
-  heroRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
-  heroTextWrap: { flex: 1, flexShrink: 1 },
-  heroTitle: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#fff" },
-  heroSub: { fontSize: 13, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.8)", marginTop: 2 },
-  heroIcon: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  heroText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.9)", lineHeight: 20 },
-  sectionLabel: { fontSize: 13, fontFamily: "Inter_500Medium", marginBottom: 16, paddingLeft: 4 },
-  recList: { gap: 12 },
-  recCard: {
-    borderRadius: 16, padding: 16, flexDirection: "row", gap: 12, alignItems: "flex-start",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  header: {
+    minHeight: 86,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
   },
-  recIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  recContent: { flex: 1, gap: 4 },
-  recTitle: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
-  recBody: { fontSize: 13, fontFamily: "Inter_400Regular", lineHeight: 20 },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerCenter: {
+    flex: 1,
+    marginHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: "#7C3AED24",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerText: {
+    flex: 1,
+    marginLeft: 11,
+  },
+  title: {
+    fontSize: 18,
+    fontFamily: "Inter_700Bold",
+  },
+  subtitle: {
+    marginTop: 2,
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+  },
+  headerSpacer: {
+    width: 42,
+  },
+  messageList: {
+    flex: 1,
+  },
+  messageContent: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    gap: 14,
+  },
+  messageRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+  },
+  userMessageRow: {
+    justifyContent: "flex-end",
+  },
+  assistantMessageRow: {
+    justifyContent: "flex-start",
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 11,
+    backgroundColor: "#7C3AED24",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  messageBubble: {
+    maxWidth: "88%",
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+  },
+  userBubble: {
+    backgroundColor: "#7C3AED",
+    borderColor: "#7C3AED",
+    borderBottomRightRadius: 5,
+  },
+  messageText: {
+    fontSize: 15,
+    lineHeight: 23,
+    fontFamily: "Inter_400Regular",
+  },
+  loadingBubble: {
+    minHeight: 44,
+    borderRadius: 18,
+    borderBottomLeftRadius: 5,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  loadingText: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+  },
+  errorBox: {
+    marginTop: 4,
+    borderRadius: 14,
+    padding: 12,
+    backgroundColor: "#EF444418",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 9,
+  },
+  errorText: {
+    flex: 1,
+    color: "#EF4444",
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: "Inter_500Medium",
+  },
+  inputArea: {
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  inputContainer: {
+    minHeight: 54,
+    maxHeight: 140,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingLeft: 15,
+    paddingRight: 7,
+    paddingVertical: 6,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+  },
+  input: {
+    flex: 1,
+    minHeight: 40,
+    maxHeight: 120,
+    paddingTop: 9,
+    paddingBottom: 8,
+    fontSize: 15,
+    fontFamily: "Inter_400Regular",
+    textAlignVertical: "top",
+  },
+  sendButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: "#7C3AED",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
+

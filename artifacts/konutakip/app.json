@@ -69,6 +69,10 @@
         "projectId": "b88c1eb0-1328-4459-93e1-9d082110b225"
       }
     },
-    "owner": "emre7272"
+    "owner": "emre7272",
+    "androidNavigationBar": {
+      "backgroundColor": "#0F172A",
+      "barStyle": "light-content"
+    }
   }
 }
