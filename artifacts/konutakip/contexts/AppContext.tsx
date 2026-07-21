@@ -1,3 +1,4 @@
+﻿import { recordCompletedSession, recordCompletedTopic, recordExamResult, addAINote } from "@/utils/coach";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
@@ -843,6 +844,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
       markStudyDay();
+
+        recordCompletedSession({
+          sessionId: target.id,
+          date: today,
+          subjectName: target.subjectName,
+          topic: target.topic,
+          solvedQuestions: addedAmount,
+        }).catch(() => {});
+
       return addedAmount;
     }
 
@@ -874,6 +884,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
     }
     markStudyDay();
+
+      if (addedAmount > 0) {
+        recordCompletedSession({
+          sessionId: target.id,
+          date: today,
+          subjectName: target.subjectName,
+          topic: target.topic,
+          solvedQuestions: addedAmount,
+        }).catch(() => {});
+      }
+
     return addedAmount;
   }, [markStudyDay, sessions]);
 
@@ -1078,6 +1099,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addMockExamResult = useCallback((r: Omit<MockExamResult, "id">) => {
     const result: MockExamResult = { ...r, id: generateId() };
+
+    recordExamResult({
+      examName: r.name,
+      tytNet: r.type === "TYT" ? r.totalNet : undefined,
+      aytNet: r.type === "AYT" ? r.totalNet : undefined,
+    }).catch(() => {});
     setMockExamResults(prev => {
       const next = [...prev, result];
       saveData({ mockExamResults: next });
@@ -1171,3 +1198,10 @@ export function useApp() {
   if (!ctx) throw new Error("useApp must be used within AppProvider");
   return ctx;
 }
+
+
+
+
+
+
+

@@ -1,5 +1,5 @@
 /**
- * BillingManager.ts — no-op stub for non-Android platforms (web, iOS).
+ * BillingManager.ts — no-op stub for non-Android platforms (web, iOS, Expo Go).
  *
  * Metro bundler resolves BillingManager.android.ts on Android, which imports
  * the real GooglePlayBillingProvider. On every other platform (web, iOS) this
@@ -30,8 +30,6 @@ class NativeBillingStub {
   }
 
   async purchaseMonthlySubscription(): Promise<void> {}
-
-  async purchaseYearlySubscription(): Promise<void> {}
 
   async restorePurchases(): Promise<boolean> {
     return false;

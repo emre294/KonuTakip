@@ -1,0 +1,10 @@
+/**
+ * Android billing entry point.
+ *
+ * Metro automatically selects this file on Android.
+ * It must use the real Google Play Billing provider.
+ */
+
+import { GooglePlayBillingProvider } from "./GooglePlayBillingProvider";
+
+export const BillingManager = new GooglePlayBillingProvider();

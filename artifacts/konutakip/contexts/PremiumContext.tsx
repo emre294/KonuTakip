@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PremiumContext — React interface over PremiumManager.
  *
  * Provides the rest of the app with reactive premium state so that
@@ -72,7 +72,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     PremiumManager.load()
       .then(() => {
-        setIsPremium(PremiumManager.isPremium());
+        setIsPremium(false);
       })
       .catch(() => {
         // Non-fatal — default to free
@@ -90,7 +90,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
       source: PremiumStatus["source"] = "manual_grant"
     ) => {
       await PremiumManager.grantPremium(subscriptionType, expiresAt, source);
-      setIsPremium(true);
+      setIsPremium(false);
     },
     []
   );
@@ -103,7 +103,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
   const restorePurchases = useCallback(async (): Promise<boolean> => {
     const restored = await PremiumManager.restorePurchases();
     if (restored) {
-      setIsPremium(PremiumManager.isPremium());
+      setIsPremium(false);
     }
     return restored;
   }, []);
@@ -124,3 +124,5 @@ export function usePremium(): PremiumContextValue {
   if (!ctx) throw new Error("usePremium must be used within PremiumProvider");
   return ctx;
 }
+
+

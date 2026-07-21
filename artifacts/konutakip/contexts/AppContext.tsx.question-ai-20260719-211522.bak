@@ -1,0 +1,1197 @@
+﻿import { recordCompletedSession, recordCompletedTopic } from "@/utils/coach";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
+import {
+  cancelAllSessionReminders,
+  cancelDailyStudyReminder,
+  cancelQuestionReminder,
+  cancelTopicReminder,
+  scheduleDailyStudyReminder,
+  scheduleEveryDaySessionReminder,
+  scheduleQuestionReminder,
+  scheduleSessionReminder,
+  scheduleTopicReminder,
+  scheduleWeeklySessionReminder,
+  syncNotifications,
+} from "@/utils/notifications";
+
+export interface UserProfile {
+  name: string;
+  grade: "12" | "mezun";
+  targetUniversity: string;
+  targetDepartment: string;
+  tytTargetScore: number;
+  aytTargetScore: number;
+  studyStartDate: string;
+  studyField: StudyField;
+}
+
+export type RepeatType = "one_time" | "every_day" | "every_week";
+
+export interface DailySession {
+  id: string;
+  date: string;          // YYYY-MM-DD â€” only meaningful for one_time
+  time: string;          // HH:mm
+  subjectId: string;
+  subjectName: string;
+  topic: string;
+  targetQuestions: number;
+  notes: string;
+  completed: boolean;    // only used for one_time sessions
+  repeatType: RepeatType;
+  weekdays?: number[];   // JS: 0=Sun â€¦ 6=Sat; only for every_week
+  // Guards against double-counting this session's targetQuestions into
+  // dailySolvedQuestions. Set true the moment completeSession() adds its
+  // count; checked again on edit/delete so the running total stays correct.
+  countedInStatistics?: boolean;
+  // Recurring sessions only: ISO date strings (YYYY-MM-DD) for each calendar
+  // day the session was completed. One entry per day â€” never duplicated.
+  completedDates?: string[];
+}
+
+export interface QuestionAttachment {
+  type: "image" | "pdf";
+  uri: string;
+  name: string;
+}
+
+export interface Question {
+  id: string;
+  subjectId: string;
+  subjectName: string;
+  addedDate: string;
+  notes: string;
+  understood: boolean;
+  nextReviewDate: string;
+  attachments: QuestionAttachment[];
+  reminderInterval: 3 | 5 | 7;
+}
+
+export interface MockExamResult {
+  id: string;
+  name: string;
+  date: string;
+  type: "TYT" | "AYT";
+  turkishNet: number;
+  mathNet: number;
+  scienceNet: number;
+  socialNet: number;
+  fieldNets: Record<string, number>;
+  totalNet: number;
+  notes: string;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  unlockedDate?: string;
+}
+
+export interface DailyReminderSetting {
+  hour: number;
+  minute: number;
+  enabled: boolean;
+}
+
+// Topic reminder record now also stores topicName/subjectName so that sync can
+// rebuild the notification after a device restart without extra data lookups.
+export interface TopicReminderRecord {
+  interval: 3 | 5 | 7;
+  nextDate: string; // YYYY-MM-DD
+  topicName?: string;
+  subjectName?: string;
+}
+
+const ACHIEVEMENTS_TEMPLATE: Achievement[] = [
+  // Topics
+  { id: "first_topic",        title: "Ä°lk AdÄ±m",            description: "Ä°lk konunu tamamladÄ±n!",                  icon: "star",         unlocked: false },
+  { id: "topics_10",          title: "Ã‡alÄ±ÅŸkan",             description: "10 konu tamamladÄ±n",                      icon: "book",         unlocked: false },
+  { id: "topics_25",          title: "Azimli",               description: "25 konu tamamladÄ±n",                      icon: "book",         unlocked: false },
+  { id: "topics_50",          title: "50'lik KulÃ¼p",         description: "50 konu tamamladÄ±n",                      icon: "award",        unlocked: false },
+  { id: "topics_100",         title: "YÃ¼zlÃ¼k KulÃ¼p",         description: "100 konu tamamladÄ±n",                     icon: "award",        unlocked: false },
+  { id: "all_topics",         title: "Konu Fatihi",          description: "TÃ¼m konularÄ± tamamladÄ±n!",                icon: "crown",        unlocked: false },
+  { id: "tyt_50",             title: "TYT YarÄ±sÄ±",           description: "TYT konularÄ±nÄ±n %50'sini bitirdin",       icon: "target",       unlocked: false },
+  { id: "tyt_100",            title: "TYT Fatihi",           description: "TÃ¼m TYT konularÄ±nÄ± bitirdin!",            icon: "crown",        unlocked: false },
+  { id: "ayt_50",             title: "AYT YarÄ±sÄ±",           description: "AYT konularÄ±nÄ±n %50'sini bitirdin",       icon: "target",       unlocked: false },
+  { id: "ayt_100",            title: "AYT Fatihi",           description: "TÃ¼m AYT konularÄ±nÄ± bitirdin!",            icon: "crown",        unlocked: false },
+  // Wrong questions
+  { id: "first_question",     title: "Hata AvcÄ±sÄ±",          description: "Ä°lk yanlÄ±ÅŸ soruyu ekledin",               icon: "help-circle",  unlocked: false },
+  { id: "questions_10",       title: "Soru TakipÃ§isi",       description: "10 yanlÄ±ÅŸ soru ekledin",                  icon: "help-circle",  unlocked: false },
+  { id: "questions_25",       title: "Soru Koleksiyoncusu",  description: "25 yanlÄ±ÅŸ soru ekledin",                  icon: "help-circle",  unlocked: false },
+  { id: "reviews_25",         title: "Revizyoncu",           description: "25 soruyu anlayarak geÃ§tin",              icon: "zap",          unlocked: false },
+  { id: "reviews_100",        title: "Tekrar UstasÄ±",        description: "100 soruyu anlayarak geÃ§tin",             icon: "zap",          unlocked: false },
+  { id: "question_master",    title: "Soru UstasÄ±",          description: "200 soruyu anlayarak geÃ§tin",             icon: "crown",        unlocked: false },
+  // Mock exams
+  { id: "first_exam",         title: "Ä°lk Deneme",           description: "Ä°lk deneme sonucunu kaydettÄ±n",           icon: "clipboard",    unlocked: false },
+  { id: "exams_10",           title: "Deneme AÅŸÄ±ÄŸÄ±",         description: "10 deneme kaydettÄ±n",                     icon: "clipboard",    unlocked: false },
+  { id: "exams_25",           title: "Deneme UzmanÄ±",        description: "25 deneme kaydettÄ±n",                     icon: "clipboard",    unlocked: false },
+  { id: "exams_50",           title: "SÄ±nav SavaÅŸÃ§Ä±sÄ±",      description: "50 deneme kaydettÄ±n",                     icon: "award",        unlocked: false },
+  { id: "exams_100",          title: "Deneme Efsanesi",      description: "100 deneme kaydettÄ±n!",                   icon: "crown",        unlocked: false },
+  // Streaks
+  { id: "streak_3",           title: "3 GÃ¼nlÃ¼k Seri",        description: "3 gÃ¼n Ã¼st Ã¼ste Ã§alÄ±ÅŸtÄ±n",                 icon: "zap",          unlocked: false },
+  { id: "streak_7",           title: "DevamlÄ±lÄ±k",           description: "7 gÃ¼n Ã¼st Ã¼ste Ã§alÄ±ÅŸtÄ±n",                 icon: "zap",          unlocked: false },
+  { id: "streak_15",          title: "15 GÃ¼nlÃ¼k Seri",       description: "15 gÃ¼n Ã¼st Ã¼ste Ã§alÄ±ÅŸtÄ±n",                icon: "zap",          unlocked: false },
+  { id: "streak_30",          title: "30 GÃ¼nlÃ¼k Seri",       description: "30 gÃ¼n Ã¼st Ã¼ste Ã§alÄ±ÅŸtÄ±n",                icon: "award",        unlocked: false },
+  { id: "streak_60",          title: "2 AylÄ±k Seri",         description: "60 gÃ¼n Ã¼st Ã¼ste Ã§alÄ±ÅŸtÄ±n",                icon: "award",        unlocked: false },
+  { id: "streak_100",         title: "100 GÃ¼nlÃ¼k Seri",      description: "100 gÃ¼n Ã¼st Ã¼ste Ã§alÄ±ÅŸtÄ±n!",              icon: "crown",        unlocked: false },
+  // Subject masters (TYT)
+  { id: "turkish_champion",   title: "TÃ¼rkÃ§e Åžampiyonu",     description: "TÃ¼m TÃ¼rkÃ§e konularÄ±nÄ± bitirdin",          icon: "book",         unlocked: false },
+  { id: "math_master",        title: "Matematik UstasÄ±",     description: "TÃ¼m Matematik konularÄ±nÄ± bitirdin",       icon: "book",         unlocked: false },
+  { id: "science_expert",     title: "Fen Bilimleri UzmanÄ±", description: "TÃ¼m Fen Bilimleri konularÄ±nÄ± bitirdin",   icon: "book",         unlocked: false },
+  { id: "social_scholar",     title: "Sosyal UzmanÄ±",        description: "TÃ¼m Sosyal Bilimler konularÄ±nÄ± bitirdin", icon: "book",         unlocked: false },
+  // Subject masters (AYT)
+  { id: "physics_explorer",   title: "Fizik KaÅŸifi",         description: "TÃ¼m Fizik konularÄ±nÄ± bitirdin",           icon: "book",         unlocked: false },
+  { id: "chemistry_expert",   title: "Kimya UzmanÄ±",         description: "TÃ¼m Kimya konularÄ±nÄ± bitirdin",           icon: "book",         unlocked: false },
+  { id: "biology_specialist", title: "Biyoloji UzmanÄ±",      description: "TÃ¼m Biyoloji konularÄ±nÄ± bitirdin",        icon: "book",         unlocked: false },
+  { id: "literature_master",  title: "Edebiyat UstasÄ±",      description: "TÃ¼m Edebiyat konularÄ±nÄ± bitirdin",        icon: "book",         unlocked: false },
+  { id: "history_scholar",    title: "Tarih Alimi",          description: "TÃ¼m Tarih konularÄ±nÄ± bitirdin",           icon: "book",         unlocked: false },
+  { id: "geography_master",   title: "CoÄŸrafya UstasÄ±",      description: "TÃ¼m CoÄŸrafya konularÄ±nÄ± bitirdin",        icon: "book",         unlocked: false },
+  { id: "philosophy_thinker", title: "Felsefe DÃ¼ÅŸÃ¼nÃ¼rÃ¼",     description: "TÃ¼m Felsefe konularÄ±nÄ± bitirdin",         icon: "book",         unlocked: false },
+  { id: "religion_expert",    title: "Din KÃ¼ltÃ¼rÃ¼ UzmanÄ±",   description: "TÃ¼m Din KÃ¼ltÃ¼rÃ¼ konularÄ±nÄ± bitirdin",     icon: "book",         unlocked: false },
+  // Progress & habits
+  { id: "halfway",            title: "YarÄ±yolda",            description: "Genel ilerlemenin %50'sine ulaÅŸtÄ±n",      icon: "target",       unlocked: false },
+  { id: "almost_ready",       title: "Neredeyse HazÄ±r",      description: "Genel ilerlemenin %80'ine ulaÅŸtÄ±n",       icon: "award",        unlocked: false },
+  { id: "goal_chaser",        title: "Hedef TakipÃ§isi",      description: "5 Ã§alÄ±ÅŸma oturumu planladÄ±n",             icon: "calendar",     unlocked: false },
+  { id: "discipline_master",  title: "Disiplin UstasÄ±",      description: "30 oturumu tamamladÄ±n",                   icon: "award",        unlocked: false },
+  { id: "plan_master",        title: "Plan UstasÄ±",          description: "50 Ã§alÄ±ÅŸma oturumu planladÄ±n",            icon: "calendar",     unlocked: false },
+  { id: "konutakip_champion", title: "KonuTakip Åžampiyonu",  description: "30 baÅŸarÄ± kazandÄ±n. Efsanesin!",          icon: "crown",        unlocked: false },
+];
+
+interface AppContextValue {
+  profile: UserProfile | null;
+  setProfile: (p: UserProfile) => void;
+  topicCompletion: Record<string, boolean>;
+  toggleTopic: (topicId: string) => void;
+  sessions: DailySession[];
+  addSession: (s: Omit<DailySession, "id">) => void;
+  updateSession: (id: string, updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>) => void;
+  /** Marks the session complete and, unless already counted, adds its targetQuestions
+   *  into dailySolvedQuestions. Returns the number of questions just auto-added (0 if
+   *  the session was already counted, so callers can decide whether to show feedback). */
+  completeSession: (id: string) => number;
+  deleteSession: (id: string) => void;
+  questions: Question[];
+  addQuestion: (q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => void;
+  updateQuestion: (id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => void;
+  updateQuestionReminder: (id: string, interval: 3 | 5 | 7) => void;
+  updateQuestionNextReviewDate: (id: string, nextDate: string) => void;
+  deleteQuestion: (id: string) => void;
+  markQuestionUnderstood: (id: string) => void;
+  /**
+   * Watchdog sync â€” verifies every active Wrong Question has exactly one future
+   * OS notification and repairs any that are missing or stale.
+   * Safe to call repeatedly; a 30-second cooldown prevents over-triggering.
+   * Called automatically on every cold-start (via loadData) and every foreground
+   * transition (via the AppState listener in _layout.tsx).
+   *
+   * Pass `force = true` to bypass the 30-second cooldown â€” used immediately
+   * after the user grants notification permission so scheduling happens without
+   * waiting for the next foreground transition or 10-minute periodic timer.
+   */
+  runWatchdogSync: (force?: boolean) => Promise<void>;
+  mockExamResults: MockExamResult[];
+  addMockExamResult: (r: Omit<MockExamResult, "id">) => void;
+  deleteMockExamResult: (id: string) => void;
+  achievements: Achievement[];
+  newAchievement: Achievement | null;
+  clearNewAchievement: () => void;
+  tytProgress: number;
+  aytProgress: number;
+  totalTopicsCompleted: number;
+  studyStreak: number;
+  studyDays: string[];
+  markStudyDay: () => void;
+  isLoaded: boolean;
+  topicSolvedQuestions: Record<string, number>;
+  setTopicSolvedQuestion: (topicId: string, count: number) => void;
+  totalSolvedQuestions: number;
+  // â”€â”€ Automatic Daily Study Plan question counter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Fully independent from topicSolvedQuestions above: only ever written to by
+  // completeSession/updateSession/deleteSession, never by manual topic entry.
+  dailySolvedQuestions: number;
+  totalQuestionsSolved: number; // topic + daily plan combined
+  /** True if there is a completed & counted session today for this subjectId â€”
+   *  used to surface the informational double-count warning on manual topic entry. */
+  hasCompletedSessionTodayForSubject: (subjectId: string) => boolean;
+  topicReminders: Record<string, TopicReminderRecord>;
+  setTopicReminder: (topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7) => Promise<void>;
+  removeTopicReminder: (topicId: string) => Promise<void>;
+  dailyReminder: DailyReminderSetting | null;
+  setDailyReminder: (hour: number, minute: number) => Promise<void>;
+  removeDailyReminder: () => Promise<void>;
+}
+
+const AppContext = createContext<AppContextValue | null>(null);
+
+const STORAGE_KEY = "konutakip_v3";
+
+export function generateId(): string {
+  return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+}
+
+function getNextReviewDate(from: Date, intervalDays: number = 7): string {
+  const d = new Date(from);
+  d.setDate(d.getDate() + intervalDays);
+  return d.toISOString().split("T")[0];
+}
+
+function computeStreak(days: string[]): number {
+  if (days.length === 0) return 0;
+  const sorted = [...days].sort().reverse();
+  const today = new Date().toISOString().split("T")[0];
+  let streak = 0;
+  const current = new Date(today);
+  for (let i = 0; i < 365; i++) {
+    const dateStr = current.toISOString().split("T")[0];
+    if (sorted.includes(dateStr)) {
+      streak++;
+      current.setDate(current.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function mergeAchievements(saved: Achievement[], template: Achievement[]): Achievement[] {
+  const savedMap: Record<string, Achievement> = {};
+  for (const a of saved) savedMap[a.id] = a;
+  return template.map((t) => savedMap[t.id] ? { ...t, ...savedMap[t.id] } : t);
+}
+
+export function AppProvider({ children }: { children: React.ReactNode }) {
+  const [profile, setProfileState] = useState<UserProfile | null>(null);
+  const [topicCompletion, setTopicCompletion] = useState<Record<string, boolean>>({});
+  const [sessions, setSessions] = useState<DailySession[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [mockExamResults, setMockExamResults] = useState<MockExamResult[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>(ACHIEVEMENTS_TEMPLATE);
+  const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
+  const [studyDays, setStudyDays] = useState<string[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [topicSolvedQuestions, setTopicSolvedQuestionsState] = useState<Record<string, number>>({});
+  // Independent running total of questions auto-counted from completed Daily
+  // Study Plan sessions. Never read or written by the Topic Question Tracking
+  // system (topicSolvedQuestions) above.
+  const [dailySolvedQuestions, setDailySolvedQuestions] = useState<number>(0);
+  const [topicReminders, setTopicRemindersState] = useState<Record<string, TopicReminderRecord>>({});
+  const [dailyReminder, setDailyReminderState] = useState<DailyReminderSetting | null>(null);
+  // Guard against double-counting if completeSession is called twice for the
+  // same id before the first setSessions updater has had a chance to run and
+  // re-render (e.g. rapid double-tap). A Set of in-flight session ids is stored
+  // in a ref so it is shared across renders without causing re-renders itself.
+  const completingSessionIds = useRef(new Set<string>());
+
+  // â”€â”€ Persisted-data shadow ref â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Mirrors the last value written to AsyncStorage so saveData can merge and
+  // write in a single operation without an async disk read on every call.
+  // Populated from the parsed object in loadData; updated on every saveData call.
+  const persistedDataRef = useRef<Record<string, unknown>>({});
+
+  // â”€â”€ Watchdog refs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // These refs always hold the latest committed state values so runWatchdogSync
+  // can read them without a stale closure, regardless of when it is called.
+  const questionsRef = useRef(questions);
+  const sessionsRef = useRef(sessions);
+  const topicRemindersRef = useRef(topicReminders);
+  const dailyReminderRef = useRef(dailyReminder);
+  // Timestamp of the last completed watchdog sync. Prevents re-running the
+  // full OS notification check more than once every 30 seconds (e.g. rapid
+  // foreground transitions). Cold-start sync (via loadData) always sets this.
+  const lastWatchdogRef = useRef<number>(0);
+
+  // Keep refs in sync with latest state on every render (stable-ref pattern).
+  // This ensures runWatchdogSync always reads fresh data without stale closures.
+  questionsRef.current = questions;
+  sessionsRef.current = sessions;
+  topicRemindersRef.current = topicReminders;
+  dailyReminderRef.current = dailyReminder;
+
+  useEffect(() => { loadData(); }, []);
+
+  async function loadData() {
+    try {
+      const raw = await AsyncStorage.getItem(STORAGE_KEY);
+
+      if (!raw) {
+        // Migrate from v2 if present
+        const oldRaw = await AsyncStorage.getItem("konutakip_v2");
+        if (oldRaw) {
+          const old = JSON.parse(oldRaw);
+          // persistedDataRef starts as {} â€” first user action will start writing v3
+          if (old.profile) setProfileState(old.profile);
+          if (old.topicCompletion) setTopicCompletion(old.topicCompletion);
+          if (old.sessions) setSessions(
+            (old.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
+          );
+          if (old.questions) setQuestions((old.questions as Question[]).map(q => ({
+            ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+          })));
+          if (old.achievements) setAchievements(mergeAchievements(old.achievements, ACHIEVEMENTS_TEMPLATE));
+          if (old.studyDays) setStudyDays(old.studyDays);
+        }
+      } else {
+        const data = JSON.parse(raw);
+        // Seed the shadow ref so saveData never needs to read from disk again.
+        persistedDataRef.current = data;
+        if (data.profile) setProfileState(data.profile);
+        if (data.topicCompletion) setTopicCompletion(data.topicCompletion);
+        if (data.sessions) setSessions(
+          (data.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
+        );
+        if (data.questions) setQuestions((data.questions as Question[]).map(q => ({
+          ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+        })));
+        if (data.mockExamResults) setMockExamResults((data.mockExamResults as MockExamResult[]).map(r => ({
+          ...r, name: r.name ?? "",
+        })));
+        if (data.achievements) setAchievements(mergeAchievements(data.achievements, ACHIEVEMENTS_TEMPLATE));
+        if (data.studyDays) setStudyDays(data.studyDays);
+        if (data.topicSolvedQuestions) setTopicSolvedQuestionsState(data.topicSolvedQuestions);
+        if (typeof data.dailySolvedQuestions === "number") setDailySolvedQuestions(data.dailySolvedQuestions);
+        if (data.topicReminders) setTopicRemindersState(data.topicReminders);
+        if (data.dailyReminder) setDailyReminderState(data.dailyReminder);
+
+        // â”€â”€ App-start sync: validate & restore notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Run asynchronously so it never blocks the UI from appearing.
+        const loadedSessions: DailySession[] = (data.sessions ?? []).map((s: DailySession) => ({
+          ...s, repeatType: s.repeatType ?? "one_time",
+        }));
+        const loadedQuestions: Question[] = (data.questions ?? []).map((q: Question) => ({
+          ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+        }));
+        const loadedTopicReminders: Record<string, TopicReminderRecord> = data.topicReminders ?? {};
+        const loadedDailyReminder: DailyReminderSetting | null = data.dailyReminder ?? null;
+
+        syncNotifications({
+          topicReminders: loadedTopicReminders,
+          questions: loadedQuestions,
+          sessions: loadedSessions,
+          dailyReminder: loadedDailyReminder,
+        }, "launch").then(result => {
+          // Mark the cold-start sync as complete so the foreground watchdog
+          // (runWatchdogSync) respects the cooldown and does not fire again
+          // immediately on the first foreground transition after launch.
+          lastWatchdogRef.current = Date.now();
+          // Persist the updated nextReviewDate for any question whose reminder
+          // had already fired while the app was closed (background delivery).
+          // Without this update the next sync would see the same stale past date
+          // and compute the wrong next trigger time, breaking the reminder chain.
+          //
+          // IMPORTANT: use `loadedQuestions` (the local variable read from
+          // AsyncStorage just above) â€” NOT a React state updater (`prev =>`)
+          // â€” because React may not have committed setQuestions(loadedQuestions)
+          // yet when this .then() runs. Using `prev` here risks seeing the
+          // initial empty [] state, causing saveData({ questions: [] }) to
+          // silently wipe the entire Question Bank.
+          if (result.rescheduledQuestions.length > 0) {
+            const updates = new Map(result.rescheduledQuestions.map(r => [r.id, r.newNextDate]));
+            setQuestions(prev => {
+              // Guard against the startup race: if React hasn't committed
+              // setQuestions(loadedQuestions) yet, prev is still the initial
+              // empty [] â€” use loadedQuestions as the base in that case so we
+              // never call saveData({ questions: [] }) and wipe the bank.
+              // When prev has data it already includes any questions the user
+              // may have added since launch, so we prefer it to keep those.
+              const base =
+                prev.length === 0 && loadedQuestions.length > 0 ? loadedQuestions : prev;
+              const next = base.map(q =>
+                updates.has(q.id) && !q.understood
+                  ? { ...q, nextReviewDate: updates.get(q.id)! }
+                  : q
+              );
+              saveData({ questions: next });
+              return next;
+            });
+          }
+        }).catch(() => {});
+      }
+    } catch { /* ignore */ } finally {
+      setIsLoaded(true);
+    }
+  }
+
+  function saveData(updates: Partial<{
+    profile: UserProfile | null;
+    topicCompletion: Record<string, boolean>;
+    sessions: DailySession[];
+    questions: Question[];
+    mockExamResults: MockExamResult[];
+    achievements: Achievement[];
+    studyDays: string[];
+    topicSolvedQuestions: Record<string, number>;
+    dailySolvedQuestions: number;
+    topicReminders: Record<string, TopicReminderRecord>;
+    dailyReminder: DailyReminderSetting | null;
+  }>) {
+    // Merge into the in-memory shadow and write once â€” no AsyncStorage.getItem needed.
+    // persistedDataRef is seeded from the parsed storage object in loadData, so this
+    // is always a complete merge even when only a single key changes.
+    persistedDataRef.current = { ...persistedDataRef.current, ...updates };
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(persistedDataRef.current)).catch(() => {});
+  }
+
+  const setProfile = useCallback((p: UserProfile) => {
+    setProfileState(p);
+    saveData({ profile: p });
+  }, []);
+
+  const tytProgress = useMemo(() => {
+    const all = TYT_SUBJECTS.flatMap(s => s.topics);
+    if (!all.length) return 0;
+    return Math.round((all.filter(t => topicCompletion[t.id]).length / all.length) * 100);
+  }, [topicCompletion]);
+
+  const aytProgress = useMemo(() => {
+    if (!profile) return 0;
+    const all = (AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? []).flatMap(s => s.topics);
+    if (!all.length) return 0;
+    return Math.round((all.filter(t => topicCompletion[t.id]).length / all.length) * 100);
+  }, [topicCompletion, profile]);
+
+  const totalTopicsCompleted = useMemo(
+    () => Object.values(topicCompletion).filter(Boolean).length,
+    [topicCompletion]
+  );
+
+  const studyStreak = useMemo(() => computeStreak(studyDays), [studyDays]);
+
+  const totalSolvedQuestions = useMemo(
+    () => Object.values(topicSolvedQuestions).reduce((sum, n) => sum + (n || 0), 0),
+    [topicSolvedQuestions]
+  );
+
+  const totalQuestionsSolved = useMemo(
+    () => totalSolvedQuestions + dailySolvedQuestions,
+    [totalSolvedQuestions, dailySolvedQuestions]
+  );
+
+  const hasCompletedSessionTodayForSubject = useCallback((subjectId: string): boolean => {
+    const today = new Date().toISOString().split("T")[0];
+    return sessions.some(s =>
+      s.subjectId === subjectId && s.completed && s.countedInStatistics && s.date === today
+    );
+  }, [sessions]);
+
+  function checkAchievements(
+    comp: Record<string, boolean>,
+    sess: DailySession[],
+    qs: Question[],
+    exams: MockExamResult[],
+    prevA: Achievement[],
+    field?: StudyField,
+    streak?: number
+  ): { updated: Achievement[]; triggered: Achievement | null } {
+    const total = Object.values(comp).filter(Boolean).length;
+    const tytTopics = TYT_SUBJECTS.flatMap(s => s.topics);
+    const tytDone = tytTopics.filter(t => comp[t.id]).length;
+    const tytPct = tytTopics.length ? (tytDone / tytTopics.length) * 100 : 0;
+
+    let aytTopics: typeof tytTopics = [];
+    let aytDone = 0;
+    let aytPct = 0;
+    if (field) {
+      aytTopics = (AYT_SUBJECTS_BY_FIELD[field] ?? []).flatMap(s => s.topics);
+      aytDone = aytTopics.filter(t => comp[t.id]).length;
+      aytPct = aytTopics.length ? (aytDone / aytTopics.length) * 100 : 0;
+    }
+
+    const allTopics = [...tytTopics, ...aytTopics];
+    const allDone = allTopics.filter(t => comp[t.id]).length;
+    const overallPct = allTopics.length ? (allDone / allTopics.length) * 100 : 0;
+
+    const understoodQs = qs.filter(q => q.understood).length;
+    const completedSess = sess.filter(s => s.completed).length;
+
+    function tytSubDone(idx: number): boolean {
+      const sub = TYT_SUBJECTS[idx];
+      return sub ? sub.topics.every(t => comp[t.id]) : false;
+    }
+
+    function aytSubDone(keyword: string): boolean {
+      if (!field) return false;
+      const subs = AYT_SUBJECTS_BY_FIELD[field] ?? [];
+      const sub = subs.find(s =>
+        s.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        s.id.toLowerCase().includes(keyword.toLowerCase())
+      );
+      return sub ? sub.topics.every(t => comp[t.id]) : false;
+    }
+
+    const conditions: Record<string, boolean> = {
+      first_topic:        total >= 1,
+      topics_10:          total >= 10,
+      topics_25:          total >= 25,
+      topics_50:          total >= 50,
+      topics_100:         total >= 100,
+      all_topics:         allTopics.length > 0 && allDone === allTopics.length,
+      tyt_50:             tytPct >= 50,
+      tyt_100:            tytPct >= 100,
+      ayt_50:             aytPct >= 50,
+      ayt_100:            aytPct >= 100,
+      first_question:     qs.length >= 1,
+      questions_10:       qs.length >= 10,
+      questions_25:       qs.length >= 25,
+      reviews_25:         understoodQs >= 25,
+      reviews_100:        understoodQs >= 100,
+      question_master:    understoodQs >= 200,
+      first_exam:         exams.length >= 1,
+      exams_10:           exams.length >= 10,
+      exams_25:           exams.length >= 25,
+      exams_50:           exams.length >= 50,
+      exams_100:          exams.length >= 100,
+      streak_3:           (streak ?? 0) >= 3,
+      streak_7:           (streak ?? 0) >= 7,
+      streak_15:          (streak ?? 0) >= 15,
+      streak_30:          (streak ?? 0) >= 30,
+      streak_60:          (streak ?? 0) >= 60,
+      streak_100:         (streak ?? 0) >= 100,
+      turkish_champion:   tytSubDone(0),
+      math_master:        tytSubDone(1),
+      science_expert:     tytSubDone(2),
+      social_scholar:     tytSubDone(3),
+      physics_explorer:   aytSubDone("fizik"),
+      chemistry_expert:   aytSubDone("kimya"),
+      biology_specialist: aytSubDone("biyoloji"),
+      literature_master:  aytSubDone("edebiyat"),
+      history_scholar:    aytSubDone("tarih"),
+      geography_master:   aytSubDone("coÄŸrafya"),
+      philosophy_thinker: aytSubDone("felsefe"),
+      religion_expert:    aytSubDone("din"),
+      halfway:            overallPct >= 50,
+      almost_ready:       overallPct >= 80,
+      goal_chaser:        sess.length >= 5,
+      discipline_master:  completedSess >= 30,
+      plan_master:        sess.length >= 50,
+      konutakip_champion: prevA.filter(a => a.unlocked).length >= 30,
+    };
+
+    let triggered: Achievement | null = null;
+    const updated = prevA.map(a => {
+      if (!a.unlocked && conditions[a.id]) {
+        const unlocked: Achievement = { ...a, unlocked: true, unlockedDate: new Date().toISOString() };
+        if (!triggered) triggered = unlocked;
+        return unlocked;
+      }
+      return a;
+    });
+    return { updated, triggered };
+  }
+
+  const markStudyDay = useCallback(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setStudyDays(prev => {
+      if (prev.includes(today)) return prev;
+      const next = [...prev, today];
+      const streak = computeStreak(next);
+      saveData({ studyDays: next });
+      setAchievements(prevA => {
+        setSessions(sessSnap => {
+          setQuestions(qSnap => {
+            setMockExamResults(examSnap => {
+              setProfileState(pSnap => {
+                const { updated, triggered } = checkAchievements(
+                  topicCompletion, sessSnap, qSnap, examSnap, prevA, pSnap?.studyField, streak
+                );
+                if (triggered) {
+                  setNewAchievement(triggered);
+                  saveData({ achievements: updated });
+                  setAchievements(updated);
+                }
+                return pSnap;
+              });
+              return examSnap;
+            });
+            return qSnap;
+          });
+          return sessSnap;
+        });
+        return prevA;
+      });
+      return next;
+    });
+  }, [topicCompletion]);
+
+  const setTopicSolvedQuestion = useCallback((topicId: string, count: number) => {
+    setTopicSolvedQuestionsState(prev => {
+      const next = { ...prev, [topicId]: count };
+      saveData({ topicSolvedQuestions: next });
+      return next;
+    });
+  }, []);
+
+  // â”€â”€ Topic reminders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const setTopicReminderCtx = useCallback(async (
+    topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7
+  ) => {
+    const nextDate = new Date();
+    nextDate.setDate(nextDate.getDate() + interval);
+    const nextDateStr = nextDate.toISOString().split("T")[0];
+
+    const success = await scheduleTopicReminder(topicId, topicName, subjectName, interval);
+    if (!success) {
+      throw new Error("Bildirim izni reddedildi veya hatÄ±rlatma ayarlanamadÄ±.");
+    }
+
+    setTopicRemindersState(prev => {
+      const next = {
+        ...prev,
+        [topicId]: { interval, nextDate: nextDateStr, topicName, subjectName },
+      };
+      saveData({ topicReminders: next });
+      return next;
+    });
+  }, []);
+
+  const removeTopicReminderCtx = useCallback(async (topicId: string) => {
+    await cancelTopicReminder(topicId);
+    setTopicRemindersState(prev => {
+      const next = { ...prev };
+      delete next[topicId];
+      saveData({ topicReminders: next });
+      return next;
+    });
+  }, []);
+
+  // â”€â”€ toggleTopic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const toggleTopic = useCallback((topicId: string) => {
+    setTopicCompletion(prev => {
+      const wasCompleted = !!prev[topicId];
+      const next = { ...prev, [topicId]: !prev[topicId] };
+      saveData({ topicCompletion: next });
+      // Auto-cancel reminder when topic is marked complete
+      if (!wasCompleted) {
+        cancelTopicReminder(topicId).catch(() => {});
+        setTopicRemindersState(prevR => {
+          if (!prevR[topicId]) return prevR;
+          const nextR = { ...prevR };
+          delete nextR[topicId];
+          saveData({ topicReminders: nextR });
+          return nextR;
+        });
+      }
+      setSessions(sessSnap => {
+        setQuestions(qSnap => {
+          setMockExamResults(examSnap => {
+            setAchievements(prevA => {
+              setProfileState(pSnap => {
+                const streak = computeStreak(studyDays);
+                const { updated, triggered } = checkAchievements(
+                  next, sessSnap, qSnap, examSnap, prevA, pSnap?.studyField, streak
+                );
+                if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); setAchievements(updated); }
+                return pSnap;
+              });
+              return prevA;
+            });
+            return examSnap;
+          });
+          return qSnap;
+        });
+        return sessSnap;
+      });
+      return next;
+    });
+    markStudyDay();
+  }, [studyDays, markStudyDay]);
+
+  // â”€â”€ Session management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const addSession = useCallback((s: Omit<DailySession, "id">) => {
+    const session: DailySession = { ...s, id: generateId(), countedInStatistics: false };
+
+    // Schedule notification(s) based on repeat type
+    if (session.repeatType === "every_day") {
+      scheduleEveryDaySessionReminder(
+        session.id, session.time, session.subjectName, session.topic
+      ).catch(() => {});
+    } else if (session.repeatType === "every_week") {
+      for (const wd of session.weekdays ?? []) {
+        scheduleWeeklySessionReminder(
+          session.id, wd, session.time, session.subjectName, session.topic
+        ).catch(() => {});
+      }
+    } else {
+      scheduleSessionReminder(
+        session.id, session.date, session.time, session.subjectName, session.topic
+      ).catch(() => {});
+    }
+
+    setSessions(prev => {
+      const next = [...prev, session];
+      saveData({ sessions: next });
+      setAchievements(prevA => {
+        setQuestions(qSnap => {
+          setMockExamResults(examSnap => {
+            setProfileState(pSnap => {
+              const streak = computeStreak(studyDays);
+              const { updated, triggered } = checkAchievements(
+                topicCompletion, next, qSnap, examSnap, prevA, pSnap?.studyField, streak
+              );
+              if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); setAchievements(updated); }
+              return pSnap;
+            });
+            return examSnap;
+          });
+          return qSnap;
+        });
+        return prevA;
+      });
+      return next;
+    });
+  }, [topicCompletion, studyDays]);
+
+  const updateSession = useCallback((
+    id: string,
+    updates: Partial<Pick<DailySession,
+      "date" | "time" | "topic" | "notes" | "targetQuestions" | "repeatType" | "weekdays">>
+  ) => {
+    // If this session's targetQuestions changed and it was already counted into
+    // dailySolvedQuestions, adjust the running total by the delta (old amount
+    // removed, new amount added) so the auto-counter stays in sync with the edit.
+    if (updates.targetQuestions !== undefined) {
+      const existing = sessions.find(s => s.id === id);
+      if (existing && existing.countedInStatistics && existing.targetQuestions !== updates.targetQuestions) {
+        const delta = updates.targetQuestions - existing.targetQuestions;
+        setDailySolvedQuestions(prevTotal => {
+          const next = Math.max(0, prevTotal + delta);
+          saveData({ dailySolvedQuestions: next });
+          return next;
+        });
+      }
+    }
+    setSessions(prev => {
+      const next = prev.map(s => {
+        if (s.id !== id) return s;
+        const updated = { ...s, ...updates };
+        // Reschedule whenever a notification-relevant field changes
+        const notifChanged =
+          updates.date !== undefined ||
+          updates.time !== undefined ||
+          updates.topic !== undefined ||
+          updates.repeatType !== undefined ||
+          updates.weekdays !== undefined;
+        if (notifChanged) {
+          // Cancel all variants first, then schedule new ones in sequence
+          cancelAllSessionReminders(id)
+            .then(() => {
+              if (updated.repeatType === "every_day") {
+                scheduleEveryDaySessionReminder(
+                  updated.id, updated.time, updated.subjectName, updated.topic
+                ).catch(() => {});
+              } else if (updated.repeatType === "every_week") {
+                for (const wd of updated.weekdays ?? []) {
+                  scheduleWeeklySessionReminder(
+                    updated.id, wd, updated.time, updated.subjectName, updated.topic
+                  ).catch(() => {});
+                }
+              } else if (!updated.completed) {
+                scheduleSessionReminder(
+                  updated.id, updated.date, updated.time, updated.subjectName, updated.topic
+                ).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
+        return updated;
+      });
+      saveData({ sessions: next });
+      return next;
+    });
+  }, [sessions]);
+
+  const completeSession = useCallback((id: string): number => {
+    // Guard: if already in-flight (e.g. rapid double-tap before re-render), skip.
+    if (completingSessionIds.current.has(id)) return 0;
+    const target = sessions.find(s => s.id === id);
+    if (!target) return 0;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // â”€â”€ Recurring session (every_day / every_week) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    if (target.repeatType !== "one_time") {
+      // One completion per calendar day â€” never duplicate.
+      if (target.completedDates?.includes(today)) return 0;
+      completingSessionIds.current.add(id);
+      const addedAmount = target.targetQuestions;
+      setSessions(prev => {
+        const next = prev.map(s => {
+          if (s.id !== id) return s;
+          return { ...s, completedDates: [...(s.completedDates ?? []), today] };
+        });
+        saveData({ sessions: next });
+        completingSessionIds.current.delete(id);
+        return next;
+      });
+      setDailySolvedQuestions(prevTotal => {
+        const next = prevTotal + addedAmount;
+        saveData({ dailySolvedQuestions: next });
+        return next;
+      });
+      markStudyDay();
+
+        recordCompletedSession({
+          sessionId: target.id,
+          date: today,
+          subjectName: target.subjectName,
+          topic: target.topic,
+          solvedQuestions: addedAmount,
+        }).catch(() => {});
+
+      return addedAmount;
+    }
+
+    // â”€â”€ One-time session â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Compute addedAmount synchronously from current sessions state BEFORE
+    // calling setSessions. The setState updater runs asynchronously, so any
+    // mutation inside it would not be visible to code in the same tick.
+    const addedAmount =
+      !(target.completed && target.countedInStatistics)
+        ? target.targetQuestions
+        : 0;
+    if (addedAmount > 0) completingSessionIds.current.add(id);
+    cancelAllSessionReminders(id).catch(() => {});
+    setSessions(prev => {
+      const next = prev.map(s => {
+        if (s.id !== id) return s;
+        if (s.completed && s.countedInStatistics) return s; // guard against double-add
+        return { ...s, completed: true, countedInStatistics: true };
+      });
+      saveData({ sessions: next });
+      completingSessionIds.current.delete(id);
+      return next;
+    });
+    if (addedAmount > 0) {
+      setDailySolvedQuestions(prevTotal => {
+        const next = prevTotal + addedAmount;
+        saveData({ dailySolvedQuestions: next });
+        return next;
+      });
+    }
+    markStudyDay();
+
+      if (addedAmount > 0) {
+        recordCompletedSession({
+          sessionId: target.id,
+          date: today,
+          subjectName: target.subjectName,
+          topic: target.topic,
+          solvedQuestions: addedAmount,
+        }).catch(() => {});
+      }
+
+    return addedAmount;
+  }, [markStudyDay, sessions]);
+
+  const deleteSession = useCallback((id: string) => {
+    // Cancel all notification variants (one-time, daily, weekly) for this session
+    cancelAllSessionReminders(id).catch(() => {});
+    const target = sessions.find(s => s.id === id);
+    if (target) {
+      if (target.repeatType !== "one_time") {
+        // Recurring: each entry in completedDates contributed targetQuestions once
+        const daysCompleted = target.completedDates?.length ?? 0;
+        if (daysCompleted > 0) {
+          setDailySolvedQuestions(prevTotal => {
+            const next = Math.max(0, prevTotal - daysCompleted * target.targetQuestions);
+            saveData({ dailySolvedQuestions: next });
+            return next;
+          });
+        }
+      } else if (target.completed && target.countedInStatistics) {
+        setDailySolvedQuestions(prevTotal => {
+          const next = Math.max(0, prevTotal - target.targetQuestions);
+          saveData({ dailySolvedQuestions: next });
+          return next;
+        });
+      }
+    }
+    setSessions(prev => {
+      const next = prev.filter(s => s.id !== id);
+      saveData({ sessions: next });
+      return next;
+    });
+  }, [sessions]);
+
+  // â”€â”€ Question management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const addQuestion = useCallback((q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => {
+    const interval = q.reminderInterval ?? 7;
+    const nextReviewDate = getNextReviewDate(new Date(), interval);
+    const question: Question = {
+      ...q,
+      id: generateId(),
+      addedDate: new Date().toISOString().split("T")[0],
+      understood: false,
+      nextReviewDate,
+      reminderInterval: interval,
+    };
+    scheduleQuestionReminder(question.id, nextReviewDate, q.subjectName, interval).catch(() => {});
+    setQuestions(prev => {
+      const next = [...prev, question];
+      saveData({ questions: next });
+      setAchievements(prevA => {
+        setMockExamResults(examSnap => {
+          setProfileState(pSnap => {
+            const streak = computeStreak(studyDays);
+            const { updated, triggered } = checkAchievements(
+              topicCompletion, sessions, next, examSnap, prevA, pSnap?.studyField, streak
+            );
+            if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); setAchievements(updated); }
+            return pSnap;
+          });
+          return examSnap;
+        });
+        return prevA;
+      });
+      return next;
+    });
+  }, [topicCompletion, sessions, studyDays]);
+
+  const updateQuestion = useCallback((id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => {
+    setQuestions(prev => {
+      const next = prev.map(q => q.id === id ? { ...q, ...updates } : q);
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
+  /**
+   * Change the reminder interval for an existing question.
+   * Cancels the old scheduled notification, computes a new nextReviewDate from
+   * today + interval, schedules the new notification, and persists both changes.
+   * No-op if the question is already marked as understood.
+   */
+  const updateQuestionReminder = useCallback((id: string, interval: 3 | 5 | 7) => {
+    setQuestions(prev => {
+      const question = prev.find(q => q.id === id);
+      if (!question || question.understood) return prev;
+
+      const nextReviewDate = getNextReviewDate(new Date(), interval);
+      // safeSchedule inside scheduleQuestionReminder cancels the old notification first
+      scheduleQuestionReminder(id, nextReviewDate, question.subjectName, interval).catch(() => {});
+
+      const next = prev.map(q =>
+        q.id === id ? { ...q, reminderInterval: interval, nextReviewDate } : q
+      );
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
+  /**
+   * Update the stored nextReviewDate for a question after a reminder fires.
+   * Called by the foreground notification received listener in _layout.tsx so
+   * syncNotifications stays consistent with what is actually scheduled in the OS.
+   * No-op if the question is already marked as understood.
+   */
+  const updateQuestionNextReviewDate = useCallback((id: string, nextDate: string) => {
+    setQuestions(prev => {
+      const question = prev.find(q => q.id === id);
+      if (!question || question.understood) return prev;
+      const next = prev.map(q => q.id === id ? { ...q, nextReviewDate: nextDate } : q);
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
+  /**
+   * Wrong Question watchdog sync.
+   *
+   * Verifies every active (non-understood) question has exactly one future OS
+   * notification scheduled. Automatically repairs missing or stale notifications.
+   *
+   * Called on every app foreground transition (AppState "active") in _layout.tsx.
+   * Also called implicitly at cold start via loadData â†’ syncNotifications.
+   *
+   * Cooldown: at most once every 30 seconds. The cold-start sync (loadData) stamps
+   * lastWatchdogRef so the first foreground transition after launch is skipped if
+   * it happens within the cooldown window, preventing a redundant double-sync.
+   *
+   * Uses refs (questionsRef, sessionsRef, etc.) so it always reads the latest
+   * committed state without depending on a stable closure over React state.
+   */
+  const runWatchdogSync = useCallback(async (force = false) => {
+    const now = Date.now();
+    if (!force && now - lastWatchdogRef.current < 30_000) return; // cooldown: max once per 30s
+    lastWatchdogRef.current = now;
+
+    try {
+      const result = await syncNotifications(
+        {
+          topicReminders: topicRemindersRef.current,
+          questions: questionsRef.current,
+          sessions: sessionsRef.current,
+          dailyReminder: dailyReminderRef.current,
+        },
+        "foreground"
+      );
+
+      // Persist updated nextReviewDate for questions whose notification had
+      // already fired while the app was in the background (background delivery).
+      // Without this the next watchdog call would see the same stale past date,
+      // computing today+interval again instead of the correct future date.
+      if (result.rescheduledQuestions.length > 0) {
+        const updates = new Map(result.rescheduledQuestions.map(r => [r.id, r.newNextDate]));
+        setQuestions(prev => {
+          const next = prev.map(q =>
+            updates.has(q.id) && !q.understood
+              ? { ...q, nextReviewDate: updates.get(q.id)! }
+              : q
+          );
+          saveData({ questions: next });
+          return next;
+        });
+      }
+    } catch {
+      // Watchdog failure must never crash or block the UI.
+    }
+  }, []);
+
+  const deleteQuestion = useCallback((id: string) => {
+    cancelQuestionReminder(id).catch(() => {});
+    setQuestions(prev => {
+      const next = prev.filter(q => q.id !== id);
+      saveData({ questions: next });
+      return next;
+    });
+  }, []);
+
+  const markQuestionUnderstood = useCallback((id: string) => {
+    cancelQuestionReminder(id).catch(() => {});
+    setQuestions(prev => {
+      const next = prev.map(q => q.id === id ? { ...q, understood: true } : q);
+      saveData({ questions: next });
+      setAchievements(prevA => {
+        setMockExamResults(examSnap => {
+          setProfileState(pSnap => {
+            const streak = computeStreak(studyDays);
+            const { updated, triggered } = checkAchievements(
+              topicCompletion, sessions, next, examSnap, prevA, pSnap?.studyField, streak
+            );
+            if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); setAchievements(updated); }
+            return pSnap;
+          });
+          return examSnap;
+        });
+        return prevA;
+      });
+      return next;
+    });
+  }, [topicCompletion, sessions, studyDays]);
+
+  // â”€â”€ Mock exam results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const addMockExamResult = useCallback((r: Omit<MockExamResult, "id">) => {
+    const result: MockExamResult = { ...r, id: generateId() };
+    setMockExamResults(prev => {
+      const next = [...prev, result];
+      saveData({ mockExamResults: next });
+      setAchievements(prevA => {
+        setProfileState(pSnap => {
+          const streak = computeStreak(studyDays);
+          const { updated, triggered } = checkAchievements(
+            topicCompletion, sessions, questions, next, prevA, pSnap?.studyField, streak
+          );
+          if (triggered) { setNewAchievement(triggered); saveData({ achievements: updated }); setAchievements(updated); }
+          return pSnap;
+        });
+        return prevA;
+      });
+      return next;
+    });
+  }, [topicCompletion, sessions, questions, studyDays]);
+
+  const deleteMockExamResult = useCallback((id: string) => {
+    setMockExamResults(prev => {
+      const next = prev.filter(r => r.id !== id);
+      saveData({ mockExamResults: next });
+      return next;
+    });
+  }, []);
+
+  // â”€â”€ Daily reminder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const setDailyReminderCtx = useCallback(async (hour: number, minute: number) => {
+    const setting: DailyReminderSetting = { hour, minute, enabled: true };
+    const success = await scheduleDailyStudyReminder(hour, minute);
+    if (!success) {
+      throw new Error("Bildirim izni reddedildi veya hatÄ±rlatma ayarlanamadÄ±.");
+    }
+    setDailyReminderState(setting);
+    saveData({ dailyReminder: setting });
+  }, []);
+
+  const removeDailyReminderCtx = useCallback(async () => {
+    await cancelDailyStudyReminder();
+    const setting: DailyReminderSetting | null = null;
+    setDailyReminderState(setting);
+    saveData({ dailyReminder: setting });
+  }, []);
+
+  const clearNewAchievement = useCallback(() => setNewAchievement(null), []);
+
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const value = useMemo<AppContextValue>(() => ({
+    profile, setProfile,
+    topicCompletion, toggleTopic,
+    sessions, addSession, updateSession, completeSession, deleteSession,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
+    runWatchdogSync,
+    deleteQuestion, markQuestionUnderstood,
+    mockExamResults, addMockExamResult, deleteMockExamResult,
+    achievements, newAchievement, clearNewAchievement,
+    tytProgress, aytProgress, totalTopicsCompleted,
+    studyStreak, studyDays, markStudyDay, isLoaded,
+    topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+    dailySolvedQuestions, totalQuestionsSolved, hasCompletedSessionTodayForSubject,
+    topicReminders,
+    setTopicReminder: setTopicReminderCtx,
+    removeTopicReminder: removeTopicReminderCtx,
+    dailyReminder,
+    setDailyReminder: setDailyReminderCtx,
+    removeDailyReminder: removeDailyReminderCtx,
+  }), [
+    profile, setProfile,
+    topicCompletion, toggleTopic,
+    sessions, addSession, updateSession, completeSession, deleteSession,
+    questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
+    runWatchdogSync,
+    deleteQuestion, markQuestionUnderstood,
+    mockExamResults, addMockExamResult, deleteMockExamResult,
+    achievements, newAchievement, clearNewAchievement,
+    tytProgress, aytProgress, totalTopicsCompleted,
+    studyStreak, studyDays, markStudyDay, isLoaded,
+    topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+    dailySolvedQuestions, totalQuestionsSolved, hasCompletedSessionTodayForSubject,
+    topicReminders, setTopicReminderCtx, removeTopicReminderCtx,
+    dailyReminder, setDailyReminderCtx, removeDailyReminderCtx,
+  ]);
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+}
+
+export function useApp() {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("useApp must be used within AppProvider");
+  return ctx;
+}
+
+
+

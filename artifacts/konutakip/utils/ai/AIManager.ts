@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AIManager — singleton orchestrator for all AI requests.
  *
  * Responsibilities:
@@ -25,7 +25,7 @@
 import { AIError } from "./AIError";
 import type { IAIProvider } from "./AIProvider";
 import { isAIFeatureEnabled, getAIFeatureConfig } from "./AIFeatureRegistry";
-import { LocalMockAIProvider } from "./providers/LocalMockAIProvider";
+import { NvidiaAIProvider } from "./providers/NvidiaAIProvider";
 import type {
   AIProviderKind,
   AIFeatureKey,
@@ -54,10 +54,10 @@ import type {
 // ─── Manager class ────────────────────────────────────────────────────────────
 
 class AIManagerClass {
-  private _provider: IAIProvider = new LocalMockAIProvider();
+  private _provider: IAIProvider = new NvidiaAIProvider();
   private _devMode: boolean = __DEV__;
   /** Total timeout per request attempt in ms. Override with setTimeoutMs(). */
-  private _requestTimeoutMs: number = 30_000;
+  private _requestTimeoutMs: number = 120_000;
   /** Tracks how many requests are currently in-flight per feature key */
   private readonly _inFlight = new Map<string, number>();
 
@@ -291,3 +291,4 @@ class AIManagerClass {
 // ─── Singleton export ─────────────────────────────────────────────────────────
 
 export const AIManager = new AIManagerClass();
+

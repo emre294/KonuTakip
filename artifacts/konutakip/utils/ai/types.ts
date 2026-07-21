@@ -18,6 +18,7 @@
 
 export const AIProviderKind = {
   LOCAL_MOCK:       "local_mock",
+  NVIDIA:          "nvidia",
   OPENAI:           "openai",
   GOOGLE_GEMINI:    "google_gemini",
   ANTHROPIC_CLAUDE: "anthropic_claude",
@@ -237,6 +238,14 @@ export interface QuestionEvaluationResponse extends BaseAIResponse {
 
 // ─── AI Teacher ───────────────────────────────────────────────────────────────
 
+export interface AITeacherAttachment {
+  kind: "image" | "pdf";
+  uri: string;
+  mimeType: string;
+  fileName: string;
+  base64?: string;
+}
+
 export interface AITeacherRequest extends BaseAIRequest {
   feature: "ai_teacher";
   topicId: string;
@@ -248,6 +257,8 @@ export interface AITeacherRequest extends BaseAIRequest {
    * When undefined, the teacher gives an introductory explanation.
    */
   userQuestion?: string;
+/** Uploaded image(s) or PDF(s) */
+  attachments?: AITeacherAttachment[];
   /** Prior exchanges for multi-turn sessions */
   conversationHistory?: {
     role: "teacher" | "student";
@@ -445,3 +456,4 @@ export interface AIState<TResponse> {
   /** ISO timestamp of the last successful response */
   lastSuccessAt: string | null;
 }
+

@@ -1,4 +1,4 @@
-import { Feather, Ionicons } from "@expo/vector-icons";
+﻿import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -110,7 +110,7 @@ function CircleProgress({ pct, color, size }: { pct: number; color: string; size
           strokeWidth={strokeWidth}
           fill="none"
         />
-        {/* Colored progress arc — dashoffset=circumference at 0% so nothing is visible */}
+        {/* Colored progress arc - dashoffset=circumference at 0% so nothing is visible */}
         <AnimatedCircle
           cx={size / 2}
           cy={size / 2}
@@ -323,7 +323,7 @@ export default function HomeScreen() {
       const d = new Date(today);
       d.setDate(d.getDate() - 1);
       const yesterday = d.toISOString().split("T")[0];
-      if (yesterday < s.date) return false; // Session was created today — nothing overdue yet
+      if (yesterday < s.date) return false; // Session was created today - nothing overdue yet
       return !(s.completedDates?.includes(yesterday) ?? false);
     }
 
@@ -342,7 +342,7 @@ export default function HomeScreen() {
         const occ = new Date(todayDate);
         occ.setDate(occ.getDate() - daysAgo);
         const occStr = occ.toISOString().split("T")[0];
-        if (occStr < s.date) continue; // Occurrence predates session creation — skip
+        if (occStr < s.date) continue; // Occurrence predates session creation - skip
         if (!(s.completedDates?.includes(occStr) ?? false)) return true;
       }
       return false;
@@ -384,7 +384,7 @@ export default function HomeScreen() {
         <View style={[styles.quoteCard, { backgroundColor: colors.card }]}>
           <Ionicons name="chatbubble-ellipses-outline" size={17} color={colors.primary} style={{ marginBottom: 8 }} />
           <Text style={[styles.quoteText, { color: colors.foreground }]}>"{quote.text}"</Text>
-          <Text style={[styles.quoteAuthor, { color: colors.mutedForeground }]}>— {quote.author}</Text>
+          <Text style={[styles.quoteAuthor, { color: colors.mutedForeground }]}>- {quote.author}</Text>
         </View>
       </Animated.View>
 
@@ -503,6 +503,24 @@ export default function HomeScreen() {
             <Ionicons name="sparkles-outline" size={21} color="#7C3AED" />
             <Text style={[styles.quickActionText, { color: colors.foreground }]}>AI Koç</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push("/ai-teacher")}
+            style={[styles.quickAction, { backgroundColor: colors.card }]}
+          >
+            <Ionicons
+              name="school-outline"
+              size={21}
+              color="#2563EB"
+            />
+            <Text
+              style={[
+                styles.quickActionText,
+                { color: colors.foreground },
+              ]}
+            >
+              AI Öğretmen
+            </Text>
+          </TouchableOpacity>
         </View>
       </Animated.View>
     </ScrollView>
@@ -602,3 +620,4 @@ const styles = StyleSheet.create({
   },
   quickActionText: { fontSize: 10, fontFamily: "Inter_500Medium", textAlign: "center" },
 });
+

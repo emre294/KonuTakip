@@ -1,21 +1,18 @@
-/**
- * AI Teacher screen — ChatGPT-style conversational AI tutor.
- *
- * Architecture:
- *  • PremiumGate wraps the entire feature — free users see the locked state.
- *  • Messages are stored in local component state (session only).
- *  • All AI calls go through AIManager.teachTopic() — no direct provider imports.
- *  • Swapping the provider in AIManager is the only change needed for real AI.
- *
- * Layout:
- *   Header → ScrollView (empty state | messages) → Input bar
+﻿/**
+ * AI Teacher Screen
+ * ChatGPT-style conversational AI tutor.
+ * Premium access is handled by PremiumGate.
+ * AI requests are handled through AIManager.
  */
 
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -47,7 +44,6 @@ import { AIError, AIManager } from "@/utils/ai";
 import type { AITeacherResponse } from "@/utils/ai";
 import { PremiumFeature } from "@/utils/premium";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ChatMessage {
   id: string;
@@ -55,230 +51,12 @@ interface ChatMessage {
   content: string;
   timestamp: Date;
   isError?: boolean;
-  /** Original user text — used for retry on error messages */
-  retryText?: string;
-}
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const SUGGESTIONS = [
-  "Parabol nedir?",
-  "Limit konu anlat",
-  "TYT Matematik",
-  "AYT Fizik",
-  "Biyoloji tekrar",
-  "Türev nasıl alınır?",
-];
-
-const AI_COLOR = "#6366F1"; // indigo — distinct from premium amber
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-}
-
-function formatAIResponse(res: AITeacherResponse): string {
-  const parts: string[] = [res.summary];
-
-  if (res.keyPoints.length > 0) {
-    parts.push("\n📌 Önemli Noktalar:");
-    res.keyPoints.forEach((kp) => parts.push(`• ${kp}`));
-  }
-
-  if (res.practiceHint) {
-    parts.push(`\n💡 ${res.practiceHint}`);
-  }
-
-  return parts.join("\n");
-}
-
-// ─── Typing indicator ─────────────────────────────────────────────────────────
-
-function TypingDot({
-  delay,
-  color,
-}: {
-  delay: number;
-  color: string;
-}) {
-  const translateY = useSharedValue(0);
-
-  useEffect(() => {
-    translateY.value = withDelay(
-      delay,
-      withRepeat(
-        withSequence(
-          withTiming(-5, { duration: 280 }),
-          withTiming(0, { duration: 280 })
-        ),
-        -1,
-        false
-      )
-    );
-    return () => {
-      translateY.value = 0;
-    };
-  }, [delay, translateY]);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  return (
-    <Animated.View
-      style={[
-        styles.dot,
-        { backgroundColor: color },
-        animStyle,
-      ]}
-    />
-  );
-}
-
-function TypingIndicator({
-  colors,
-}: {
-  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}) {
-  return (
-    <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
-      <View style={styles.aiAvatarWrap}>
-        <View style={[styles.aiAvatar, { backgroundColor: AI_COLOR + "22" }]}>
-          <Feather name="cpu" size={14} color={AI_COLOR} />
-        </View>
-      </View>
-      <View style={[styles.aiBubble, { backgroundColor: colors.card }]}>
-        <View style={styles.typingRow}>
-          <TypingDot delay={0} color={colors.mutedForeground} />
-          <TypingDot delay={150} color={colors.mutedForeground} />
-          <TypingDot delay={300} color={colors.mutedForeground} />
-          <Text
-            style={[styles.typingLabel, { color: colors.mutedForeground }]}
-            accessibilityLabel="AI yanıt hazırlıyor"
-          >
-            AI düşünüyor...
-          </Text>
-        </View>
-      </View>
-    </Animated.View>
-  );
-}
-
-// ─── Message bubble ───────────────────────────────────────────────────────────
-
-function UserBubble({
-  message,
-  colors,
-}: {
-  message: ChatMessage;
-  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}) {
-  return (
-    <Animated.View entering={FadeInRight.duration(300)} style={styles.userBubbleRow}>
-      <View style={styles.userBubbleGroup}>
-        <View
-          style={[styles.userBubble, { backgroundColor: colors.primary }]}
-          accessibilityLabel={`Sen: ${message.content}`}
-          accessibilityRole="text"
-        >
-          <Text style={[styles.userBubbleText, { color: colors.primaryForeground }]}>
-            {message.content}
-          </Text>
-        </View>
-        <Text style={[styles.timestamp, { color: colors.mutedForeground, textAlign: "right" }]}>
-          {formatTime(message.timestamp)}
-        </Text>
-      </View>
-    </Animated.View>
-  );
-}
-
-function AIBubble({
-  message,
-  colors,
-  onRetry,
-}: {
-  message: ChatMessage;
-  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-  onRetry?: (text: string) => void;
-}) {
-  if (message.isError) {
-    return (
-      <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
-        <View style={styles.aiAvatarWrap}>
-          <View style={[styles.aiAvatar, { backgroundColor: "#ef444422" }]}>
-            <Feather name="alert-circle" size={14} color="#ef4444" />
-          </View>
-        </View>
-        <View style={styles.errorBubbleGroup}>
-          <View
-            style={[
-              styles.errorBubble,
-              { backgroundColor: colors.card, borderColor: "#ef444430" },
-            ]}
-          >
-            <Feather name="alert-triangle" size={14} color="#ef4444" style={styles.errorIcon} />
-            <Text style={[styles.errorText, { color: "#ef4444" }]}>{message.content}</Text>
-          </View>
-          {message.retryText && onRetry ? (
-            <TouchableOpacity
-              style={[styles.retryBtn, { borderColor: colors.border }]}
-              onPress={() => onRetry(message.retryText!)}
-              accessibilityLabel="Tekrar dene"
-              accessibilityRole="button"
-            >
-              <Feather name="refresh-cw" size={13} color={colors.mutedForeground} />
-              <Text style={[styles.retryBtnText, { color: colors.mutedForeground }]}>
-                Tekrar dene
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-          <Text style={[styles.timestamp, { color: colors.mutedForeground }]}>
-            {formatTime(message.timestamp)}
-          </Text>
-        </View>
-      </Animated.View>
-    );
-  }
-
-  return (
-    <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
-      <View style={styles.aiAvatarWrap}>
-        <View style={[styles.aiAvatar, { backgroundColor: AI_COLOR + "22" }]}>
-          <Feather name="cpu" size={14} color={AI_COLOR} />
-        </View>
-      </View>
-      <View style={styles.aiBubbleGroup}>
-        <View
-          style={[styles.aiBubble, { backgroundColor: colors.card }]}
-          accessibilityLabel={`AI Öğretmen: ${message.content}`}
-          accessibilityRole="text"
-        >
-          <Text style={[styles.aiBubbleText, { color: colors.foreground }]}>
-            {message.content}
-          </Text>
-        </View>
-        <Text style={[styles.timestamp, { color: colors.mutedForeground }]}>
-          {formatTime(message.timestamp)}
-        </Text>
-      </View>
-    </Animated.View>
-  );
-}
-
-// ─── Empty state ──────────────────────────────────────────────────────────────
-
-function EmptyState({
-  colors,
-  onSuggestion,
-}: {
-  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-  onSuggestion: (text: string) => void;
-}) {
-  return (
-    <Animated.View entering={FadeIn.duration(400)} style={styles.emptyRoot}>
-      {/* Illustration */}
+/**
+ * AI Teacher Screen
+ * ChatGPT-style conversational AI tutor.
+ * Premium access is handled by PremiumGate.
+ * AI requests are handled through AIManager.
+ */
       <View style={[styles.emptyIconWrap, { backgroundColor: AI_COLOR + "18" }]}>
         <Feather name="cpu" size={40} color={AI_COLOR} />
       </View>
@@ -317,17 +95,38 @@ function EmptyState({
   );
 }
 
-// ─── Main content (inside PremiumGate) ───────────────────────────────────────
 
 function AITeacherContent() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { prompt } = useLocalSearchParams<{ prompt?: string | string[] }>();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+const [selectedAttachments, setSelectedAttachments] = useState<
+  {
+    kind: "image" | "pdf";
+    uri: string;
+    mimeType: string;
+    fileName: string;
+  }[]
+>([]);
   const scrollRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    const incomingPrompt = Array.isArray(prompt) ? prompt[0] : prompt;
+
+    if (typeof incomingPrompt === "string" && incomingPrompt.trim()) {
+      setInputText(incomingPrompt.trim());
+
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
+    }
+  }, [prompt]);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = Math.max(insets.bottom, 8);
@@ -416,6 +215,87 @@ function AITeacherContent() {
     },
     [sendMessage]
   );
+
+  const openCamera = useCallback(async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permission.granted) {
+      Alert.alert(
+        "Kamera İzni Gerekli",
+        "Soru fotoğrafı çekebilmek için kamera izni vermelisin."
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.9,
+      allowsEditing: false,
+    });
+
+    if (!result.canceled) {
+      const image = result.assets[0];
+      setInputText("Bu soru fotoğrafını adım adım çöz ve açıkla.");
+      Alert.alert("Fotoğraf Hazır", image.fileName ?? "Kameradan soru eklendi.");
+    }
+  }, []);
+
+  const openGallery = useCallback(async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      Alert.alert(
+        "Galeri İzni Gerekli",
+        "Galeriden soru seçebilmek için fotoğraf izni vermelisin."
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 0.9,
+      allowsEditing: false,
+    });
+
+    if (!result.canceled) {
+      const image = result.assets[0];
+      setInputText("Bu soru görselini adım adım çöz ve açıkla.");
+      Alert.alert("Görsel Hazır", image.fileName ?? "Galeriden soru eklendi.");
+    }
+  }, []);
+
+  const openDocument = useCallback(async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["application/pdf", "image/*"],
+      copyToCacheDirectory: true,
+      multiple: false,
+    });
+
+    if (!result.canceled) {
+      const document = result.assets[0];
+      setInputText("Bu dosyadaki soruyu adım adım çöz ve açıkla.");
+      Alert.alert("Dosya Hazır", document.name);
+    }
+  }, []);
+
+  const handleAttachment = useCallback(() => {
+    Alert.alert("Soru Yükle", "Yükleme yöntemini seç.", [
+      {
+        text: "Kamerayla Çek",
+        onPress: () => void openCamera(),
+      },
+      {
+        text: "Galeriden Seç",
+        onPress: () => void openGallery(),
+      },
+      {
+        text: "PDF veya Dosya Seç",
+        onPress: () => void openDocument(),
+      },
+      {
+        text: "İptal",
+        style: "cancel",
+      },
+    ]);
+  }, [openCamera, openDocument, openGallery]);
 
   const canSend = inputText.trim().length > 0 && !isLoading;
 
@@ -521,7 +401,19 @@ function AITeacherContent() {
                 borderColor: colors.border,
               },
             ]}
-          >
+          ><TouchableOpacity
+  style={styles.attachmentBtn}
+  onPress={handleAttachment}
+  disabled={isLoading}
+  accessibilityLabel="Soru yükle"
+  accessibilityRole="button"
+>
+  <Feather
+    name="paperclip"
+    size={19}
+    color={isLoading ? colors.mutedForeground : colors.foreground}
+  />
+</TouchableOpacity>
             <TextInput
               ref={inputRef}
               style={[styles.textInput, { color: colors.foreground }]}
@@ -563,7 +455,6 @@ function AITeacherContent() {
   );
 }
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function AITeacherScreen() {
   return (
@@ -573,7 +464,6 @@ export default function AITeacherScreen() {
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
@@ -831,6 +721,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     gap: 8,
+  },
+  attachmentBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   textInput: {
     flex: 1,

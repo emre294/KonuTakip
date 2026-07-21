@@ -1,0 +1,3 @@
+import { GooglePlayBillingProvider } from "./GooglePlayBillingProvider";
+
+export const BillingManager = new GooglePlayBillingProvider();

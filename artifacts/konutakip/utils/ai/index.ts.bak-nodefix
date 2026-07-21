@@ -1,0 +1,63 @@
+﻿// â”€â”€â”€ Public AI layer exports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Always import from "@/utils/ai" â€” never from individual files inside this
+// folder. The internal module structure may change without notice.
+
+export { AIManager } from "./AIManager";
+export { AIError } from "./AIError";
+export type { IAIProvider } from "./AIProvider";
+export { LocalMockAIProvider } from "./providers/LocalMockAIProvider";
+export { NvidiaAIProvider } from "./providers/NvidiaAIProvider";
+export {
+  AI_FEATURE_REGISTRY,
+  getAIFeatureConfig,
+  isAIFeatureEnabled,
+  getEnabledAIFeatures,
+  getAllAIFeatures,
+} from "./AIFeatureRegistry";
+export type { AIFeatureConfig } from "./AIFeatureRegistry";
+export {
+  AIProviderKind,
+  AIFeatureKey,
+  AIErrorCode,
+} from "./types";
+export type {
+  // â”€â”€ Primitives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ExamType,
+  DifficultyLevel,
+  GeneratedQuestion,
+  ExplanationStep,
+  CoachRecommendation,
+  StudyPlanDay,
+  MiniExam,
+  MistakeRecord,
+  MistakePattern,
+  // â”€â”€ Request types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  BaseAIRequest,
+  QuestionGenerationRequest,
+  QuestionEvaluationRequest,
+  AITeacherRequest,
+  ExplainQuestionRequest,
+  AnalyzeMistakesRequest,
+  PracticeQuestionRequest,
+  StudyCoachRequest,
+  MiniExamRequest,
+  StudyPlanRequest,
+  // â”€â”€ Response types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  BaseAIResponse,
+  QuestionGenerationResponse,
+  QuestionEvaluationResponse,
+  AITeacherResponse,
+  ExplainQuestionResponse,
+  AnalyzeMistakesResponse,
+  PracticeQuestionResponse,
+  StudyCoachResponse,
+  MiniExamResponse,
+  StudyPlanResponse,
+  // â”€â”€ Union types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  AnyAIRequest,
+  AnyAIResponse,
+  // â”€â”€ Hook state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  AIStatus,
+  AIState,
+} from "./types";
+

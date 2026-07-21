@@ -165,7 +165,16 @@ export default function SettingsScreen() {
           <SettingRow icon="book-open" label="Hedef Bölüm" value={profile?.targetDepartment ?? "-"} colors={colors} />
           <SettingRow icon="trending-up" label="TYT Hedef Puan" value={`${profile?.tytTargetScore ?? "-"}`} colors={colors} />
           <SettingRow icon="trending-up" label="AYT Hedef Puan" value={`${profile?.aytTargetScore ?? "-"}`} colors={colors} />
-          <SettingRow icon="layers" label="Çalışma Alanı" value={fieldLabel} colors={colors} last />
+          <SettingRow icon="layers" label="Çalışma Alanı" value={fieldLabel} colors={colors}
+/>
+
+          <SettingRow
+            icon="book-open"
+            label="AI Öğretmen"
+            onPress={() => router.push("/ai-teacher")}
+            colors={colors}
+            last
+          />
         </Section>
       </Animated.View>
 
@@ -175,7 +184,16 @@ export default function SettingsScreen() {
           <SettingRow icon="clipboard" label="Deneme Takibi" value={`${mockExamResults.length} deneme`} onPress={() => router.push("/mock-exams")} colors={colors} />
           <SettingRow icon="trending-up" label="Deneme Analizi" onPress={() => router.push("/exam-analytics")} colors={colors} />
           <SettingRow icon="award" label="Başarılar" value={`${unlockedCount}/${achievements.length}`} onPress={() => router.push("/achievements")} colors={colors} />
-          <SettingRow icon="zap" label="AI Çalışma Koçu" onPress={() => router.push("/ai-coach")} colors={colors} last />
+          <SettingRow icon="zap" label="AI Çalışma Koçu" onPress={() => router.push("/ai-coach")} colors={colors}
+/>
+
+          <SettingRow
+            icon="book-open"
+            label="AI Öğretmen"
+            onPress={() => router.push("/ai-teacher")}
+            colors={colors}
+            last
+          />
         </Section>
       </Animated.View>
 
@@ -196,7 +214,16 @@ export default function SettingsScreen() {
 
       <Animated.View entering={FadeInDown.delay(240).duration(500)}>
         <Section title="YARDIM" colors={colors}>
-          <SettingRow icon="help-circle" label="Sık Sorulan Sorular" onPress={() => router.push("/faq")} colors={colors} last />
+          <SettingRow icon="help-circle" label="Sık Sorulan Sorular" onPress={() => router.push("/faq")} colors={colors}
+/>
+
+          <SettingRow
+            icon="book-open"
+            label="AI Öğretmen"
+            onPress={() => router.push("/ai-teacher")}
+            colors={colors}
+            last
+          />
         </Section>
       </Animated.View>
 
@@ -281,3 +308,4 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 22, fontFamily: "Inter_700Bold" },
   statLabel: { fontSize: 10, fontFamily: "Inter_500Medium" },
 });
+

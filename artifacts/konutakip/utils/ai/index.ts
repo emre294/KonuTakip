@@ -1,4 +1,4 @@
-// ─── Public AI layer exports ──────────────────────────────────────────────────
+﻿// ─── Public AI layer exports ──────────────────────────────────────────────────
 // Always import from "@/utils/ai" — never from individual files inside this
 // folder. The internal module structure may change without notice.
 
@@ -6,6 +6,7 @@ export { AIManager } from "./AIManager";
 export { AIError } from "./AIError";
 export type { IAIProvider } from "./AIProvider";
 export { LocalMockAIProvider } from "./providers/LocalMockAIProvider";
+export { NvidiaAIProvider } from "./providers/NvidiaAIProvider";
 export {
   AI_FEATURE_REGISTRY,
   getAIFeatureConfig,
@@ -59,3 +60,4 @@ export type {
   AIStatus,
   AIState,
 } from "./types";
+

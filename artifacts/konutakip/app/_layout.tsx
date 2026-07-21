@@ -1,4 +1,4 @@
-import {
+﻿import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_600SemiBold,
@@ -10,7 +10,7 @@ import * as Notifications from "expo-notifications";
 import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useRef } from "react";
-import { AppState, type AppStateStatus, View } from "react-native";
+import { AppState, type AppStateStatus } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -37,9 +37,8 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-// ─── Onboarding guard ─────────────────────────────────────────────────────────
 
-function OnboardingGuard({ children }: { children: React.ReactNode }) {
+function OnboardingGuard() {
   const { profile, isLoaded } = useApp();
   const segments = useSegments();
 
@@ -53,10 +52,9 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
     }
   }, [profile, isLoaded, segments]);
 
-  return <>{children}</>;
+  return null;
 }
 
-// ─── App content (inside providers) ──────────────────────────────────────────
 
 function AppContent() {
   const { newAchievement, clearNewAchievement, updateQuestionNextReviewDate, runWatchdogSync, isLoaded } = useApp();
@@ -74,20 +72,16 @@ function AppContent() {
   const runWatchdogSyncRef = useRef(runWatchdogSync);
   runWatchdogSyncRef.current = runWatchdogSync;
 
-  // ── Effect 1: Channels + listeners + watchdog (NO permission request) ─────
   //
-  // Android notification channels are set up here — they don't need permission.
   // The permission request is intentionally deferred to Effect 2 (after isLoaded)
   // so the OS dialog never appears before the app is fully initialized.
   useEffect(() => {
-    // 1. Set up Android channels immediately — no permission dialog triggered
     initNotificationChannels().catch(() => {});
 
     // 2. Handle foreground/background notification taps
     responseListenerRef.current =
       Notifications.addNotificationResponseReceivedListener(handleNotificationTap);
 
-    // 3. Persistent question reminder cycle — foreground delivery handler
     //
     //    When a question reminder fires while the app is in the foreground,
     //    Expo removes the one-time scheduled notification. This listener
@@ -98,7 +92,6 @@ function AppContent() {
     //    NOTE: On some Android versions/devices, addNotificationReceivedListener
     //    does NOT reliably fire for local scheduled notifications even when the
     //    app is in the foreground (documented Expo/Android behavior).  The
-    //    periodic watchdog (item 5 below) covers this gap — it runs every
     //    10 minutes while the app is active, so the chain is always repaired
     //    within one watchdog cycle even if this listener silently skips.
     receivedListenerRef.current = Notifications.addNotificationReceivedListener(
@@ -135,26 +128,21 @@ function AppContent() {
     // 4. Handle cold-start (app launched by tapping a notification)
     handleColdStartNotification();
 
-    // 5. AppState watchdog — runs on every background→foreground transition.
     //
     //    When a question notification fires while the app is in the background:
     //      a) The OS removes the one-time scheduled notification.
     //      b) addNotificationReceivedListener does NOT fire (app not active).
-    //      c) The user brings the app to foreground — this handler runs.
     //      d) runWatchdogSync detects the missing OS notification, sees that
     //         nextReviewDate is in the past, reschedules for today+interval,
-    //         and persists the new date — fully restoring the chain.
     const appStateSub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
       if (appStateRef.current.match(/inactive|background/) && nextState === "active") {
         invalidatePermissionCache();
-        // Run the watchdog — respects its own 30-second cooldown, so rapid
         // foreground transitions don't cause redundant OS notification queries.
         runWatchdogSyncRef.current().catch(() => {});
       }
       appStateRef.current = nextState;
     });
 
-    // 6. Periodic foreground watchdog — runs every 10 minutes while the app
     //    is active.
     //
     //    This is the critical safeguard for the most common failure mode: the
@@ -162,14 +150,12 @@ function AppContent() {
     //    desk) and addNotificationReceivedListener fails to fire for a delivered
     //    notification (documented Android behavior on many devices/OS versions).
     //    Without this timer the chain could stay broken for the entire session
-    //    — potentially hours — until the user backgrounds and foregrounds the app.
     //
     //    The 10-minute interval is >> the 30-second runWatchdogSync cooldown,
     //    so every periodic call results in an actual OS notification query.
     //
     //    Repair: if the OS queue is missing the notification (it fired while
     //    the foreground listener was skipped), runWatchdogSync schedules a new
-    //    one immediately — restoring the chain within the next 10-minute window.
     const periodicWatchdogInterval = setInterval(() => {
       // Only run when the app is truly in the foreground.
       if (AppState.currentState === "active") {
@@ -185,7 +171,6 @@ function AppContent() {
     };
   }, []);
 
-  // ── Effect 2: Permission request — deferred until app is initialized ───────
   //
   // This effect runs exactly once, when isLoaded transitions from false to true.
   // Deferring the permission request until after initialization guarantees:
@@ -197,7 +182,6 @@ function AppContent() {
   //      syncNotifications has already finished its run, so the permission cache
   //      (_permissionGranted) is in a stable known state.
   //   3. If permission is granted here, runWatchdogSync(force=true) immediately
-  //      schedules all pending notifications — the user does NOT need to restart
   //      the app or background/foreground it to make notifications work.
   useEffect(() => {
     if (!isLoaded) return;
@@ -207,11 +191,9 @@ function AppContent() {
       if (granted) {
         // Force a full sync regardless of the 30-second cooldown.
         // This is critical for two scenarios:
-        //   a) First launch: the user just granted permission — schedule all
         //      existing reminders immediately without waiting for next foreground
         //      transition or 10-minute periodic timer.
         //   b) Existing install where loadData's syncNotifications ran while
-        //      permission was in an intermediate state (undetermined → granted):
         //      the forced sync repairs any notifications that failed to schedule.
         await runWatchdogSyncRef.current(true);
       }
@@ -219,9 +201,9 @@ function AppContent() {
   }, [isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#01011B" }}>
-      <OnboardingGuard>
-        <Stack
+    <>
+      <OnboardingGuard />
+      <Stack
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: "#01011B" },
@@ -239,20 +221,27 @@ function AppContent() {
               contentStyle: { backgroundColor: "#01011B" },
             }}
           />
+          <Stack.Screen
+            name="ai-teacher"
+            options={{
+              presentation: "card",
+              animation: "none",
+              contentStyle: { backgroundColor: "#01011B" },
+            }}
+          />
+
           <Stack.Screen name="faq" options={{ presentation: "modal" }} />
           <Stack.Screen name="mock-exams" options={{ presentation: "modal" }} />
           <Stack.Screen name="exam-analytics" options={{ presentation: "modal" }} />
           <Stack.Screen name="premium" options={{ presentation: "modal" }} />
         </Stack>
-      </OnboardingGuard>
       {newAchievement && (
         <AchievementToast achievement={newAchievement} onDismiss={clearNewAchievement} />
       )}
-    </View>
+    </>
   );
 }
 
-// ─── Root layout ──────────────────────────────────────────────────────────────
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
