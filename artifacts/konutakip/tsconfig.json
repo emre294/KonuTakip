@@ -23,6 +23,7 @@
                        }
                    ],
     "exclude":  [
-                    "code-backups"
+                    "code-backups",
+                    "backend"
                 ]
 }

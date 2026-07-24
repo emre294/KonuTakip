@@ -5,7 +5,7 @@ YKS (Turkish university entrance exam) study tracker — an Expo mobile app with
 ## Run & Operate
 
 - **KonuTakip (mobile):** `artifacts/konutakip: expo` workflow — `pnpm --filter @workspace/konutakip run dev`
-- **API Server:** `artifacts/api-server: API Server` workflow — `pnpm --filter @workspace/api-server run dev`
+- **API Server:** `artifacts/api-server: API Server` workflow — `pnpm --filter @workspace/api-server run dev` (serves on port 8080)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
