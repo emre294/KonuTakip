@@ -50,6 +50,7 @@
       ],
       "expo-font",
       "expo-web-browser",
+      "./plugins/withBuildConfig",
       [
         "expo-notifications",
         {
