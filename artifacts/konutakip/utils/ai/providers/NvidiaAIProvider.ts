@@ -1,4 +1,4 @@
-﻿import type { IAIProvider } from "../AIProvider";
+import type { IAIProvider } from "../AIProvider";
 import { AIError } from "../AIError";
 import { LocalMockAIProvider } from "./LocalMockAIProvider";
 import {
@@ -36,6 +36,9 @@ type NvidiaEndpoint =
   | "study-plan";
 
 interface NvidiaBackendResponse {
+  /** New standardised field (v2 backend) */
+  content?: unknown;
+  /** Legacy field — kept for backward compatibility with older deployments */
   answer?: unknown;
   error?: unknown;
   message?: unknown;
@@ -166,17 +169,22 @@ export class NvidiaAIProvider implements IAIProvider {
         throw AIError.networkError(detail);
       }
 
-      if (
-        typeof payload.answer !== "string" ||
-        payload.answer.trim().length === 0
-      ) {
+      // Prefer `content` (v2 backend), fall back to `answer` (legacy).
+      const rawAnswer =
+        typeof payload.content === "string" && payload.content.trim().length > 0
+          ? payload.content.trim()
+          : typeof payload.answer === "string" && payload.answer.trim().length > 0
+            ? payload.answer.trim()
+            : null;
+
+      if (!rawAnswer) {
         throw AIError.invalidResponse(
-          "Backend cevabında geçerli bir answer alanı bulunamadı."
+          "Backend cevabında geçerli bir content alanı bulunamadı."
         );
       }
 
       return {
-        answer: payload.answer.trim(),
+        answer: rawAnswer,
         durationMs: Date.now() - startedAt,
       };
     } catch (error) {

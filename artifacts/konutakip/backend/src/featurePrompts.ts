@@ -1,4 +1,4 @@
-﻿export type AIFeature =
+export type AIFeature =
   | "generate-questions"
   | "evaluate-question"
   | "teach-topic"
@@ -34,30 +34,61 @@ Kurallar:
 `,
 
   "teach-topic": `
-Verilen konuyu öğrenciye öğret.
+Verilen konuyu öğrenciye öğret. Aşağıdaki bölümleri sırayla yaz. Her bölüm için Markdown başlığı kullan.
 
-Şu sırayı kullan:
-1. Kısa tanım
-2. Temel kavramlar
-3. Formüller veya kurallar
-4. Adım adım anlatım
-5. Çözümlü örnek
-6. Sık yapılan hatalar
-7. Kısa çalışma önerisi
+## [Konu Adı]
 
-Anlatımı öğrencinin sınav türü ve seviyesine göre düzenle.
+### 📌 Kısa Özet
+Konuyu 2–3 cümleyle özetle.
+
+### 📖 Detaylı Anlatım
+Konuyu açık, anlaşılır şekilde anlat. Gerektiğinde alt başlıklar ekle.
+
+### 🔑 Temel Kavramlar
+Her kavramı **kalın** yaz ve kısa tanımla.
+
+### 📐 Formüller ve Kurallar
+Formülleri ve önemli kuralları listele. LaTeX yerine Unicode kullan (×, ÷, √, ≤, ≥).
+
+### 🎯 ÖSYM İpuçları
+Sınavda sık çıkan soru tipleri ve dikkat edilmesi gereken noktalar.
+
+### ✅ Çözümlü Örnek
+Tipik bir soruyu adım adım çöz.
+
+### ⚠️ Sık Yapılan Hatalar
+Öğrencilerin en çok yaptığı hataları listele.
+
+### 🧪 Mini Test
+2–3 kısa soru sor ve cevapları altına yaz.
+
+### 💡 Sonuç
+Konuyu 1–2 cümleyle özetle ve çalışma önerisi ver.
+
+Kurallar:
+- Yalnızca Markdown metin çıkışı ver.
+- JSON veya kod bloğu üretme.
+- Anlatımı öğrencinin sınav türü ve seviyesine göre düzenle.
 `,
 
   "explain-question": `
 Verilen soruyu ayrıntılı şekilde çöz ve açıkla.
 
+### 🔍 Soru Analizi
+Verilenleri ve isteneni belirle.
+
+### 📝 Çözüm Adımları
+Her adımı sırayla açıkla. Her önemli adımın nedenini kısaca belirt.
+
+### ✅ Sonuç Doğrulama
+Sonucu kontrol et. Çoktan seçmeli soruda doğru seçeneği net biçimde yaz.
+
+### ⚠️ Yanlış Cevap Analizi (varsa)
+Öğrencinin yanlış cevabı neden yanlış olduğunu açıkla.
+
 Kurallar:
-- Verilenleri ve isteneni belirle.
-- Çözümü adım adım göster.
-- Her önemli adımın nedenini açıkla.
-- Öğrencinin yanlış cevabı varsa neden yanlış olduğunu belirt.
-- Sonucu kontrol et.
-- Çoktan seçmeli soruda doğru seçeneği net biçimde yaz.
+- Yalnızca Markdown metin çıkışı ver.
+- JSON veya kod bloğu üretme.
 `,
 
   "analyze-mistakes": `
@@ -129,11 +160,43 @@ Plan gerçekçi, sürdürülebilir ve öğrencinin verilerine özel olsun.
 `
 };
 
+/** Features that must return plain Markdown text (not JSON). */
+const TEXT_OUTPUT_FEATURES = new Set<AIFeature>([
+  "teach-topic",
+  "explain-question",
+  "coach",
+  "study-plan",
+]);
+
+const TEXT_OUTPUT_RULES = `
+ÇIKTI KURALLARI:
+- Yalnızca okunabilir Türkçe Markdown metin çıkışı ver.
+- JSON, kod bloğu veya HTML etiketi kullanma.
+- Kullanıcıya gösterilecek nihai metni üret; talimatları açıklama.
+- İstek verisindeki alanları dikkate al.
+- Eksik bilgi varsa makul varsayımı açıkça belirt.
+`.trim();
+
+const JSON_OUTPUT_RULES = `
+ÇIKTI KURALLARI:
+- Yalnızca geçerli JSON üret.
+- Markdown kod bloğu kullanma.
+- JSON öncesinde veya sonrasında açıklama yazma.
+- Alan isimlerini İngilizce yaz.
+- Kullanıcıya gösterilecek metinlerin değerlerini Türkçe yaz.
+- İstek verisindeki alanları dikkate al.
+- Eksik bilgi varsa makul ve açık bir varsayım kullan.
+- Uydurma öğrenci geçmişi veya istatistik oluşturma.
+`.trim();
+
 export function buildFeaturePrompt(
   feature: AIFeature,
   requestData: Record<string, unknown>
 ): string {
   const instruction = FEATURE_INSTRUCTIONS[feature];
+  const outputRules = TEXT_OUTPUT_FEATURES.has(feature)
+    ? TEXT_OUTPUT_RULES
+    : JSON_OUTPUT_RULES;
 
   return `
 GÖREV TÜRÜ:
@@ -145,14 +208,6 @@ ${instruction}
 UYGULAMADAN GELEN İSTEK VERİSİ:
 ${JSON.stringify(requestData, null, 2)}
 
-ÇIKTI KURALLARI:
-- Yalnızca geçerli JSON üret.
-- Markdown kod bloğu kullanma.
-- JSON öncesinde veya sonrasında açıklama yazma.
-- Alan isimlerini İngilizce yaz.
-- Kullanıcıya gösterilecek metinlerin değerlerini Türkçe yaz.
-- İstek verisindeki alanları dikkate al.
-- Eksik bilgi varsa makul ve açık bir varsayım kullan.
-- Uydurma öğrenci geçmişi veya istatistik oluşturma.
+${outputRules}
 `.trim();
 }

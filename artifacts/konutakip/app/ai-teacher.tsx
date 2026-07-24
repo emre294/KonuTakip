@@ -28,6 +28,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Markdown from "react-native-markdown-display";
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -81,19 +82,12 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
+/**
+ * The real AI response lands in `res.summary` as a raw Markdown string.
+ * We display it directly — the Markdown renderer handles all formatting.
+ */
 function formatAIResponse(res: AITeacherResponse): string {
-  const parts: string[] = [res.summary];
-
-  if (res.keyPoints.length > 0) {
-    parts.push("\n📌 Önemli Noktalar:");
-    res.keyPoints.forEach((kp) => parts.push(`• ${kp}`));
-  }
-
-  if (res.practiceHint) {
-    parts.push(`\nðŸ’¡ ${res.practiceHint}`);
-  }
-
-  return parts.join("\n");
+  return res.summary;
 }
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
@@ -197,6 +191,84 @@ function UserBubble({
   );
 }
 
+function buildMarkdownStyles(colors: ReturnType<typeof import("@/hooks/useColors").useColors>) {
+  return {
+    body: {
+      color: colors.foreground,
+      fontSize: 15,
+      fontFamily: "Inter_400Regular",
+      lineHeight: 23,
+    },
+    heading2: {
+      color: colors.foreground,
+      fontSize: 17,
+      fontFamily: "Inter_700Bold",
+      marginTop: 14,
+      marginBottom: 4,
+    },
+    heading3: {
+      color: colors.foreground,
+      fontSize: 15,
+      fontFamily: "Inter_600SemiBold",
+      marginTop: 10,
+      marginBottom: 2,
+    },
+    strong: {
+      fontFamily: "Inter_700Bold",
+      color: colors.foreground,
+    },
+    em: {
+      fontFamily: "Inter_400Regular",
+      fontStyle: "italic" as const,
+      color: colors.foreground,
+    },
+    bullet_list: {
+      marginVertical: 4,
+    },
+    bullet_list_icon: {
+      color: AI_COLOR,
+      marginTop: 5,
+    },
+    bullet_list_content: {
+      flex: 1,
+    },
+    ordered_list_icon: {
+      color: AI_COLOR,
+      fontFamily: "Inter_600SemiBold",
+    },
+    blockquote: {
+      backgroundColor: AI_COLOR + "12",
+      borderLeftColor: AI_COLOR,
+      borderLeftWidth: 3,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 6,
+      marginVertical: 6,
+    },
+    code_inline: {
+      backgroundColor: colors.muted,
+      color: colors.foreground,
+      fontFamily: "Inter_400Regular",
+      borderRadius: 4,
+      paddingHorizontal: 4,
+      fontSize: 14,
+    },
+    fence: {
+      backgroundColor: colors.muted,
+      borderRadius: 10,
+      padding: 12,
+    },
+    hr: {
+      backgroundColor: colors.border,
+      marginVertical: 8,
+    },
+    paragraph: {
+      marginTop: 0,
+      marginBottom: 6,
+    },
+  };
+}
+
 function AIBubble({
   message,
   colors,
@@ -206,6 +278,8 @@ function AIBubble({
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
   onRetry?: (text: string) => void;
 }) {
+  const mdStyles = buildMarkdownStyles(colors);
+
   if (message.isError) {
     return (
       <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
@@ -255,12 +329,12 @@ function AIBubble({
       <View style={styles.aiBubbleGroup}>
         <View
           style={[styles.aiBubble, { backgroundColor: colors.card }]}
-          accessibilityLabel={`AI Öğretmen: ${message.content}`}
           accessibilityRole="text"
+          accessibilityLabel={`AI Öğretmen yanıtı`}
         >
-          <Text style={[styles.aiBubbleText, { color: colors.foreground }]}>
+          <Markdown style={mdStyles}>
             {message.content}
-          </Text>
+          </Markdown>
         </View>
         <Text style={[styles.timestamp, { color: colors.mutedForeground }]}>
           {formatTime(message.timestamp)}

@@ -90,7 +90,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
       source: PremiumStatus["source"] = "manual_grant"
     ) => {
       await PremiumManager.grantPremium(subscriptionType, expiresAt, source);
-      setIsPremium(false);
+      setIsPremium(true);
     },
     []
   );
@@ -103,14 +103,14 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
   const restorePurchases = useCallback(async (): Promise<boolean> => {
     const restored = await PremiumManager.restorePurchases();
     if (restored) {
-      setIsPremium(false);
+      setIsPremium(true);
     }
     return restored;
   }, []);
 
   return (
     <PremiumContext.Provider
-      value={{ isPremium: true, isLoading, grantPremium, revokePremium, restorePurchases }}
+      value={{ isPremium, isLoading, grantPremium, revokePremium, restorePurchases }}
     >
       {children}
     </PremiumContext.Provider>

@@ -47,7 +47,10 @@ aiRouter.post("/", aiRateLimiter, async (request, response, next) => {
     );
 
     return response.json({
-      answer,
+      content: answer,
+      provider: "nvidia",
+      model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+      usage: null,
     });
   } catch (error) {
     next(error);
@@ -92,7 +95,10 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
     console.log("[ROUTE] askNvidia bitti");
 
     return response.json({
-      answer,
+      content: answer,
+      provider: "nvidia",
+      model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+      usage: null,
     });
   } catch (error) {
     next(error);
