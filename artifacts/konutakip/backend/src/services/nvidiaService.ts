@@ -1,8 +1,21 @@
-﻿import { SYSTEM_PROMPT } from "../prompts.js";
+﻿import axios, { AxiosError } from "axios";
+import https from "node:https";
+import { SYSTEM_PROMPT } from "../prompts.js";
 
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+};
+
+type NvidiaResponse = {
+  choices?: Array<{
+    message?: {
+      content?: string | null;
+    };
+  }>;
+  error?: {
+    message?: string;
+  };
 };
 
 const NVIDIA_API_URL =
@@ -12,6 +25,13 @@ const NVIDIA_API_URL =
 const NVIDIA_MODEL =
   process.env.NVIDIA_MODEL ??
   "openai/gpt-oss-120b";
+
+const REQUEST_TIMEOUT_MS = 60_000;
+
+const nvidiaHttpsAgent = new https.Agent({
+  family: 4,
+  keepAlive: false,
+});
 
 export async function askNvidia(
   message: string,
@@ -23,18 +43,10 @@ export async function askNvidia(
     throw new Error("NVIDIA_API_KEY tanımlı değil.");
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 120_000);
-
   try {
-    const response = await fetch(NVIDIA_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        Accept: "text/event-stream",
-      },
-      body: JSON.stringify({
+    const response = await axios.post<NvidiaResponse>(
+      NVIDIA_API_URL,
+      {
         model: NVIDIA_MODEL,
         messages: [
           {
@@ -50,95 +62,54 @@ export async function askNvidia(
         temperature: 1,
         top_p: 1,
         max_tokens: 1024,
-        stream: true,
-      }),
-      signal: controller.signal,
-    });
+        reasoning_effort: "low",
+        stream: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        timeout: REQUEST_TIMEOUT_MS,
+        proxy: false,
+        httpsAgent: nvidiaHttpsAgent,
+      },
+    );
 
-    if (!response.ok) {
-      const errorBody = await response.text();
-
-      console.error("NVIDIA HTTP:", response.status);
-      console.error("NVIDIA cevabı:", errorBody);
-
-      throw new Error(
-        `NVIDIA API isteği başarısız oldu. HTTP ${response.status}: ${errorBody}`,
-      );
-    }
-
-    if (!response.body) {
-      throw new Error("NVIDIA boş yanıt gövdesi döndürdü.");
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-
-    let buffer = "";
-    let finalAnswer = "";
-    let reasoningAnswer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) {
-        break;
-      }
-
-      buffer += decoder.decode(value, { stream: true });
-
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-
-      for (const rawLine of lines) {
-        const line = rawLine.trim();
-
-        if (!line.startsWith("data:")) {
-          continue;
-        }
-
-        const dataText = line.slice(5).trim();
-
-        if (!dataText || dataText === "[DONE]") {
-          continue;
-        }
-
-        try {
-          const chunk = JSON.parse(dataText);
-          const delta = chunk?.choices?.[0]?.delta;
-
-          if (typeof delta?.content === "string") {
-            finalAnswer += delta.content;
-          }
-
-          if (typeof delta?.reasoning_content === "string") {
-            reasoningAnswer += delta.reasoning_content;
-          }
-        } catch {
-          console.warn("Okunamayan NVIDIA stream parçası:", dataText);
-        }
-      }
-    }
-
-    const answer = finalAnswer.trim();
+    const answer =
+      response.data.choices?.[0]?.message?.content?.trim();
 
     if (!answer) {
-      console.error("NVIDIA reasoning:", reasoningAnswer);
       throw new Error(
-        "NVIDIA yanıt üretti ancak son cevap metni boş geldi.",
+        "NVIDIA yanıt üretti ancak cevap metni boş geldi.",
       );
     }
 
     return answer;
   } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError<NvidiaResponse>;
+
+      if (axiosError.code === "ECONNABORTED") {
+        throw new Error(
+          `NVIDIA API isteği ${REQUEST_TIMEOUT_MS / 1000} saniyede zaman aşımına uğradı.`,
+        );
+      }
+
+      const status = axiosError.response?.status;
+      const apiMessage =
+        axiosError.response?.data?.error?.message ??
+        axiosError.message;
+
       throw new Error(
-        "NVIDIA API isteği 120 saniyede zaman aşımına uğradı.",
+        status
+          ? `NVIDIA API isteği başarısız oldu. HTTP ${status}: ${apiMessage}`
+          : `NVIDIA API bağlantı hatası: ${apiMessage}`,
       );
     }
 
     throw error;
-  } finally {
-    clearTimeout(timeout);
   }
 }
 

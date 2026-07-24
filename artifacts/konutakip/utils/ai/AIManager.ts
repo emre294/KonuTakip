@@ -198,6 +198,16 @@ class AIManagerClass {
         } catch (e) {
           clearTimeout(timeoutId);
           const err = e instanceof AIError ? e : AIError.unknown(e);
+
+          console.error("[AIManager DEBUG]", {
+            featureKey,
+            attempt: attempt + 1,
+            code: err.code,
+            message: err.message,
+            retryable: err.retryable,
+            originalError: e,
+          });
+
           // Non-retryable → throw immediately, don't waste the retry
           if (!err.retryable || attempt >= 1) throw err;
           // Retryable on first attempt → loop continues
@@ -291,4 +301,5 @@ class AIManagerClass {
 // ─── Singleton export ─────────────────────────────────────────────────────────
 
 export const AIManager = new AIManagerClass();
+
 

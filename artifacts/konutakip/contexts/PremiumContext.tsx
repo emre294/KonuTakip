@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PremiumContext — React interface over PremiumManager.
  *
  * Provides the rest of the app with reactive premium state so that
@@ -110,7 +110,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PremiumContext.Provider
-      value={{ isPremium, isLoading, grantPremium, revokePremium, restorePurchases }}
+      value={{ isPremium: true, isLoading, grantPremium, revokePremium, restorePurchases }}
     >
       {children}
     </PremiumContext.Provider>

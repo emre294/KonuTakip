@@ -168,13 +168,6 @@ export default function SettingsScreen() {
           <SettingRow icon="layers" label="Çalışma Alanı" value={fieldLabel} colors={colors}
 />
 
-          <SettingRow
-            icon="book-open"
-            label="AI Öğretmen"
-            onPress={() => router.push("/ai-teacher")}
-            colors={colors}
-            last
-          />
         </Section>
       </Animated.View>
 
@@ -217,13 +210,6 @@ export default function SettingsScreen() {
           <SettingRow icon="help-circle" label="Sık Sorulan Sorular" onPress={() => router.push("/faq")} colors={colors}
 />
 
-          <SettingRow
-            icon="book-open"
-            label="AI Öğretmen"
-            onPress={() => router.push("/ai-teacher")}
-            colors={colors}
-            last
-          />
         </Section>
       </Animated.View>
 
