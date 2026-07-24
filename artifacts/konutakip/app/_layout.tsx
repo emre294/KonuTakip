@@ -1,4 +1,4 @@
-﻿import {
+import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_600SemiBold,
@@ -234,6 +234,15 @@ function AppContent() {
           <Stack.Screen name="mock-exams" options={{ presentation: "modal" }} />
           <Stack.Screen name="exam-analytics" options={{ presentation: "modal" }} />
           <Stack.Screen name="premium" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="premium-success"
+            options={{
+              presentation: "fullScreenModal",
+              gestureEnabled: false,
+              animation: "fade",
+              contentStyle: { backgroundColor: "#080E1A" },
+            }}
+          />
         </Stack>
       {newAchievement && (
         <AchievementToast achievement={newAchievement} onDismiss={clearNewAchievement} />

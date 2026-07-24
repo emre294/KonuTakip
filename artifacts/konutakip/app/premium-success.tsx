@@ -1,9 +1,18 @@
-﻿import { Feather } from "@expo/vector-icons";
+/**
+ * PremiumSuccessScreen — Full-screen Premium kutlama ekranı.
+ *
+ * Konfeti, altın parıltılar, glow efekti, staggered feature kartları,
+ * Premium rozeti pulse animasyonu ve "Ders Çalışmaya Başla" butonu.
+ */
+
+import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import {
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -13,347 +22,436 @@ import Animated, {
   FadeInDown,
   FadeInUp,
   ZoomIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 import { useTheme } from "@/contexts/ThemeContext";
 
-const PREMIUM_COLOR = "#F59E0B";
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const CONFETTI = [
-  { left: "8%", top: "12%", rotate: "-24deg", symbol: "◆" },
-  { left: "20%", top: "23%", rotate: "18deg", symbol: "●" },
-  { left: "34%", top: "10%", rotate: "30deg", symbol: "▲" },
-  { left: "67%", top: "11%", rotate: "-18deg", symbol: "●" },
-  { left: "80%", top: "22%", rotate: "28deg", symbol: "◆" },
-  { left: "91%", top: "13%", rotate: "-30deg", symbol: "▲" },
-  { left: "14%", top: "42%", rotate: "15deg", symbol: "▲" },
-  { left: "87%", top: "43%", rotate: "-15deg", symbol: "◆" },
-];
+const PREMIUM_COLOR = "#F59E0B";
+const PREMIUM_GLOW  = "#F59E0B30";
+const PURPLE        = "#7C3AED";
+
+const CONFETTI_ITEMS = [
+  { left: "5%",  top: "6%",  rotate: "-24deg", symbol: "◆", color: PREMIUM_COLOR },
+  { left: "15%", top: "18%", rotate: "18deg",  symbol: "●", color: PURPLE },
+  { left: "28%", top: "8%",  rotate: "30deg",  symbol: "▲", color: "#EC4899" },
+  { left: "42%", top: "4%",  rotate: "-10deg", symbol: "★", color: PREMIUM_COLOR },
+  { left: "58%", top: "9%",  rotate: "22deg",  symbol: "◆", color: "#3B82F6" },
+  { left: "72%", top: "6%",  rotate: "-18deg", symbol: "●", color: PREMIUM_COLOR },
+  { left: "84%", top: "17%", rotate: "28deg",  symbol: "▲", color: PURPLE },
+  { left: "93%", top: "10%", rotate: "-30deg", symbol: "★", color: "#EC4899" },
+  { left: "10%", top: "38%", rotate: "15deg",  symbol: "●", color: "#3B82F6" },
+  { left: "90%", top: "40%", rotate: "-15deg", symbol: "◆", color: PREMIUM_COLOR },
+  { left: "50%", top: "3%",  rotate: "8deg",   symbol: "✦", color: PREMIUM_COLOR },
+  { left: "35%", top: "45%", rotate: "-20deg", symbol: "★", color: PURPLE },
+] as const;
+
+const FEATURES = [
+  { icon: "cpu" as const,         label: "AI Öğretmen",             desc: "Sınırsız konu anlatımı" },
+  { icon: "book-open" as const,   label: "Sınırsız Konu Anlatımı",  desc: "Her konuyu derinlemesine öğren" },
+  { icon: "check-square" as const,label: "Akıllı Soru Çözümü",      desc: "Adım adım çözüm açıklamaları" },
+  { icon: "target" as const,      label: "AI Koç",                  desc: "Kişisel çalışma analizi" },
+  { icon: "calendar" as const,    label: "Kişisel Çalışma Planı",   desc: "YKS'ye özel haftalık program" },
+  { icon: "bar-chart-2" as const, label: "Hata Analizi",            desc: "Zayıf noktalarını tespit et" },
+  { icon: "award" as const,       label: "Premium Rozet",           desc: "Profilde altın premium rozeti" },
+] as const;
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function ConfettiParticle({
+  item,
+  index,
+}: {
+  item: (typeof CONFETTI_ITEMS)[number];
+  index: number;
+}) {
+  const translateY = useSharedValue(0);
+
+  useEffect(() => {
+    translateY.value = withDelay(
+      index * 120,
+      withRepeat(
+        withSequence(
+          withTiming(-10, { duration: 1200 + index * 80 }),
+          withTiming(0, { duration: 1200 + index * 80 })
+        ),
+        -1,
+        false
+      )
+    );
+  }, []);
+
+  const style = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: item.rotate },
+      { translateY: translateY.value },
+    ],
+  }));
+
+  return (
+    <Animated.Text
+      entering={FadeIn.delay(index * 90).duration(600)}
+      style={[
+        styles.confetti,
+        { left: item.left as `${number}%`, top: item.top as `${number}%`, color: item.color },
+        style,
+      ]}
+    >
+      {item.symbol}
+    </Animated.Text>
+  );
+}
+
+function GlowIcon() {
+  const pulse = useSharedValue(1);
+  const glowOpacity = useSharedValue(0.3);
+
+  useEffect(() => {
+    pulse.value = withRepeat(
+      withSequence(withSpring(1.06), withSpring(1)),
+      -1,
+      false
+    );
+    glowOpacity.value = withRepeat(
+      withSequence(withTiming(0.6, { duration: 1000 }), withTiming(0.2, { duration: 1000 })),
+      -1,
+      false
+    );
+  }, []);
+
+  const pulseStyle = useAnimatedStyle(() => ({ transform: [{ scale: pulse.value }] }));
+  const glowStyle  = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
+
+  return (
+    <Animated.View
+      entering={ZoomIn.springify().damping(12)}
+      style={[styles.iconContainer, pulseStyle]}
+    >
+      {/* Glow halo */}
+      <Animated.View style={[styles.glowHalo, glowStyle]} />
+
+      {/* Outer ring */}
+      <View style={[styles.iconOuter, { backgroundColor: PREMIUM_GLOW, borderColor: PREMIUM_COLOR + "45" }]}>
+        {/* Inner circle */}
+        <LinearGradient
+          colors={[PREMIUM_COLOR, "#D97706"]}
+          style={styles.iconInner}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.iconEmoji}>⭐</Text>
+        </LinearGradient>
+      </View>
+    </Animated.View>
+  );
+}
+
+function FeatureCard({
+  feature,
+  index,
+  cardBg,
+  cardBorder,
+  textColor,
+  subColor,
+}: {
+  feature: (typeof FEATURES)[number];
+  index: number;
+  cardBg: string;
+  cardBorder: string;
+  textColor: string;
+  subColor: string;
+}) {
+  return (
+    <Animated.View
+      entering={FadeInDown.delay(340 + index * 70).duration(400)}
+      style={[styles.featureCard, { backgroundColor: cardBg, borderColor: cardBorder }]}
+    >
+      <View style={[styles.featureIconWrap, { backgroundColor: PREMIUM_COLOR + "18" }]}>
+        <Feather name={feature.icon} size={18} color={PREMIUM_COLOR} />
+      </View>
+      <View style={styles.featureTextWrap}>
+        <Text style={[styles.featureLabel, { color: textColor }]}>{feature.label}</Text>
+        <Text style={[styles.featureDesc, { color: subColor }]}>{feature.desc}</Text>
+      </View>
+      <Feather name="check-circle" size={18} color={PREMIUM_COLOR} />
+    </Animated.View>
+  );
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function PremiumSuccessScreen() {
   const { resolved } = useTheme();
+  const isDark = resolved === "dark";
 
-  const colors =
-    resolved === "dark"
-      ? {
-          background: "#0B1020",
-          card: "#141B2D",
-          foreground: "#F8FAFC",
-          mutedForeground: "#94A3B8",
-          border: "#263247",
-        }
-      : {
-          background: "#F8FAFC",
-          card: "#FFFFFF",
-          foreground: "#0F172A",
-          mutedForeground: "#64748B",
-          border: "#E2E8F0",
-        };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {}, 300);
-    return () => clearTimeout(timeout);
-  }, []);
+  const colors = isDark
+    ? {
+        background: "#080E1A",
+        card: "#111927",
+        foreground: "#F8FAFC",
+        muted: "#94A3B8",
+        border: "#1E2D42",
+      }
+    : {
+        background: "#FFFBEB",
+        card: "#FFFFFF",
+        foreground: "#1C1917",
+        muted: "#78716C",
+        border: "#FDE68A",
+      };
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.container}>
-        {CONFETTI.map((item, index) => (
-          <Animated.Text
-            key={`${item.left}-${item.top}`}
-            entering={FadeIn.delay(index * 80).duration(500)}
-            style={[
-              styles.confetti,
-              {
-                left: item.left as `${number}%`,
-                top: item.top as `${number}%`,
-                transform: [{ rotate: item.rotate }],
-                color: index % 2 === 0 ? PREMIUM_COLOR : "#7C3AED",
-              },
-            ]}
-          >
-            {item.symbol}
-          </Animated.Text>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
+      {/* Floating confetti */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        {CONFETTI_ITEMS.map((item, i) => (
+          <ConfettiParticle key={i} item={item} index={i} />
         ))}
+      </View>
 
-        <Animated.View
-          entering={ZoomIn.springify().damping(12)}
-          style={[
-            styles.iconOuter,
-            {
-              backgroundColor: PREMIUM_COLOR + "18",
-              borderColor: PREMIUM_COLOR + "45",
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.iconInner,
-              { backgroundColor: PREMIUM_COLOR },
-            ]}
-          >
-            <Feather name="check" size={42} color="#FFFFFF" />
-          </View>
-        </Animated.View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── Glow icon ── */}
+        <GlowIcon />
 
-        <Animated.View
-          entering={FadeInDown.delay(180).duration(500)}
-          style={styles.textArea}
-        >
-          <View style={styles.badge}>
+        {/* ── Title block ── */}
+        <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.titleBlock}>
+          <View style={styles.premiumBadge}>
             <Feather name="award" size={13} color="#7C4A03" />
-            <Text style={styles.badgeText}>PREMIUM AKTİF</Text>
+            <Text style={styles.premiumBadgeText}>PREMIUM AKTİF</Text>
           </View>
-
           <Text style={[styles.title, { color: colors.foreground }]}>
-            Aramıza hoş geldin!
+            Premium'a Hoş Geldin! 🎉
           </Text>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>
+            KonuTakip'in tüm Premium özellikleri artık aktif.{"\n"}
+            Başarıya giden yolda seni bekliyoruz!
+          </Text>
+        </Animated.View>
 
-          <Text
-            style={[
-              styles.description,
-              { color: colors.mutedForeground },
-            ]}
+        {/* ── Feature cards ── */}
+        <Animated.View entering={FadeIn.delay(300).duration(300)} style={styles.featuresWrapper}>
+          {FEATURES.map((f, i) => (
+            <FeatureCard
+              key={f.label}
+              feature={f}
+              index={i}
+              cardBg={colors.card}
+              cardBorder={colors.border}
+              textColor={colors.foreground}
+              subColor={colors.muted}
+            />
+          ))}
+        </Animated.View>
+
+        {/* ── CTA buttons ── */}
+        <Animated.View entering={FadeInUp.delay(700).duration(500)} style={styles.actions}>
+          <Pressable
+            onPress={() => router.replace("/(tabs)")}
+            style={({ pressed }) => [{ opacity: pressed ? 0.88 : 1 }]}
           >
-            KonuTakip Premium hesabın başarıyla aktif edildi. Artık tüm
-            Premium özellikleri kullanabilirsin.
-          </Text>
-        </Animated.View>
+            <LinearGradient
+              colors={[PREMIUM_COLOR, "#D97706"]}
+              style={styles.primaryBtn}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Feather name="zap" size={20} color="#FFFFFF" />
+              <Text style={styles.primaryBtnText}>Ders Çalışmaya Başla</Text>
+            </LinearGradient>
+          </Pressable>
 
-        <Animated.View
-          entering={FadeInUp.delay(320).duration(500)}
-          style={[
-            styles.featureCard,
-            {
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <FeatureRow
-            icon="message-circle"
-            text="AI Öğretmeni ile sınırsız konu desteği"
-            color={colors.foreground}
-          />
-          <FeatureRow
-            icon="target"
-            text="Kişisel AI çalışma koçu"
-            color={colors.foreground}
-          />
-          <FeatureRow
-            icon="bar-chart-2"
-            text="Gelişmiş performans analizleri"
-            color={colors.foreground}
-          />
-          <FeatureRow
-            icon="calendar"
-            text="Sana özel çalışma planları"
-            color={colors.foreground}
-          />
-        </Animated.View>
-
-        <Animated.View
-          entering={FadeInUp.delay(450).duration(500)}
-          style={styles.actions}
-        >
           <Pressable
             onPress={() => router.replace("/ai-teacher")}
             style={({ pressed }) => [
-              styles.primaryButton,
-              {
-                backgroundColor: PREMIUM_COLOR,
-                opacity: pressed ? 0.86 : 1,
-              },
+              styles.secondaryBtn,
+              { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "50", opacity: pressed ? 0.75 : 1 },
             ]}
           >
-            <Feather name="zap" size={19} color="#FFFFFF" />
-            <Text style={styles.primaryButtonText}>
-              AI Öğretmeni Aç
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.replace("/(tabs)")}
-            style={({ pressed }) => [
-              styles.secondaryButton,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.border,
-                opacity: pressed ? 0.75 : 1,
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.secondaryButtonText,
-                { color: colors.foreground },
-              ]}
-            >
-              Ana Sayfaya Dön
+            <Feather name="cpu" size={17} color={PREMIUM_COLOR} />
+            <Text style={[styles.secondaryBtnText, { color: PREMIUM_COLOR }]}>
+              AI Öğretmeni Dene
             </Text>
           </Pressable>
         </Animated.View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-function FeatureRow({
-  icon,
-  text,
-  color,
-}: {
-  icon: React.ComponentProps<typeof Feather>["name"];
-  text: string;
-  color: string;
-}) {
-  return (
-    <View style={styles.featureRow}>
-      <View style={styles.featureIcon}>
-        <Feather name={icon} size={17} color={PREMIUM_COLOR} />
-      </View>
-
-      <Text style={[styles.featureText, { color }]}>{text}</Text>
-
-      <Feather name="check-circle" size={18} color={PREMIUM_COLOR} />
-    </View>
-  );
-}
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 22,
-    paddingTop: 54,
-    paddingBottom: 24,
+  safe: { flex: 1 },
+  scrollContent: {
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 32,
+    paddingBottom: 36,
+    gap: 24,
   },
+
+  // Confetti
   confetti: {
     position: "absolute",
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Inter_700Bold",
   },
+
+  // Glow icon
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  glowHalo: {
+    position: "absolute",
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: PREMIUM_COLOR,
+    opacity: 0.25,
+  },
   iconOuter: {
-    width: 118,
-    height: 118,
-    borderRadius: 59,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
   },
   iconInner: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
+    width: 86,
+    height: 86,
+    borderRadius: 43,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.16,
-    shadowRadius: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
     elevation: 8,
   },
-  textArea: {
+  iconEmoji: {
+    fontSize: 40,
+  },
+
+  // Title block
+  titleBlock: {
     width: "100%",
     alignItems: "center",
-    marginBottom: 25,
+    gap: 10,
   },
-  badge: {
+  premiumBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
     backgroundColor: "#FDE68A",
     borderRadius: 999,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    marginBottom: 14,
     borderWidth: 1,
     borderColor: "#F59E0B55",
   },
-  badgeText: {
+  premiumBadgeText: {
     color: "#7C4A03",
     fontSize: 10,
     fontFamily: "Inter_700Bold",
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontFamily: "Inter_700Bold",
     textAlign: "center",
-    marginBottom: 10,
+    lineHeight: 34,
   },
-  description: {
-    maxWidth: 330,
+  subtitle: {
     fontSize: 14,
     fontFamily: "Inter_400Regular",
-    lineHeight: 22,
     textAlign: "center",
+    lineHeight: 22,
+  },
+
+  // Feature cards
+  featuresWrapper: {
+    width: "100%",
+    gap: 10,
   },
   featureCard: {
-    width: "100%",
-    borderRadius: 22,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 24,
-  },
-  featureRow: {
-    minHeight: 54,
     flexDirection: "row",
     alignItems: "center",
-    gap: 11,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 12,
   },
-  featureIcon: {
-    width: 34,
-    height: 34,
+  featureIconWrap: {
+    width: 38,
+    height: 38,
     borderRadius: 11,
-    backgroundColor: PREMIUM_COLOR + "14",
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
-  featureText: {
+  featureTextWrap: {
     flex: 1,
-    fontSize: 12,
-    fontFamily: "Inter_500Medium",
-    lineHeight: 18,
+    gap: 2,
   },
+  featureLabel: {
+    fontSize: 14,
+    fontFamily: "Inter_600SemiBold",
+  },
+  featureDesc: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+  },
+
+  // CTA buttons
   actions: {
     width: "100%",
-    gap: 11,
-    marginTop: "auto",
+    gap: 12,
   },
-  primaryButton: {
-    height: 56,
-    borderRadius: 17,
+  primaryBtn: {
+    width: "100%",
+    height: 58,
+    borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 9,
+    gap: 10,
+    shadowColor: PREMIUM_COLOR,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 7,
   },
-  primaryButtonText: {
+  primaryBtnText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Inter_700Bold",
   },
-  secondaryButton: {
+  secondaryBtn: {
+    width: "100%",
     height: 52,
-    borderRadius: 17,
+    borderRadius: 16,
     borderWidth: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
   },
-  secondaryButtonText: {
+  secondaryBtnText: {
     fontSize: 14,
     fontFamily: "Inter_600SemiBold",
   },
 });
-

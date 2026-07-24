@@ -1,4 +1,4 @@
-﻿import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -22,7 +22,10 @@ import Animated, {
 import Svg, { Circle } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { LinearGradient } from "expo-linear-gradient";
+
 import { useApp } from "@/contexts/AppContext";
+import { usePremium } from "@/contexts/PremiumContext";
 import { AYT_EXAM_DATE, AYT_SUBJECTS_BY_FIELD, TYT_EXAM_DATE, TYT_SUBJECTS } from "@/data/subjects";
 import { getRandomQuote, Quote } from "@/data/quotes";
 import { useColors } from "@/hooks/useColors";
@@ -151,6 +154,214 @@ function ProgressCard({ title, pct, color, colors }: { title: string; pct: numbe
     </View>
   );
 }
+
+// ─── Premium Home Section ─────────────────────────────────────────────────────
+
+const PREMIUM_COLOR = "#F59E0B";
+
+const DAILY_QUOTES_PREMIUM = [
+  "Zirveye giden yol, sıradan çabalardan değil olağanüstü kararlılıktan geçer.",
+  "Her soru çözdüğünde geleceğini inşa ediyorsun.",
+  "YKS bir maraton. Sen doğru adımlarla koşuyorsun.",
+  "Bugün ektiğin tohumlar, sınav gününde hasat olacak.",
+  "Başarı tesadüf değil, tutarlı çalışmanın ürünüdür.",
+];
+
+function PremiumHomeSection({
+  profile,
+  studyStreak,
+  tytProgress,
+  aytProgress,
+  totalSolvedQuestions,
+  colors,
+}: {
+  profile: import("@/contexts/AppContext").UserProfile | null;
+  studyStreak: number;
+  tytProgress: number;
+  aytProgress: number;
+  totalSolvedQuestions: number;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}) {
+  const dailyQuote = React.useMemo(() => {
+    const idx = new Date().getDate() % DAILY_QUOTES_PREMIUM.length;
+    return DAILY_QUOTES_PREMIUM[idx];
+  }, []);
+
+  return (
+    <Animated.View entering={FadeInDown.delay(0).duration(600)} style={{ gap: 14, marginBottom: 4 }}>
+      {/* Premium banner — greeting with gold star */}
+      <LinearGradient
+        colors={["#78350F", "#92400E", "#B45309"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={premiumStyles.banner}
+      >
+        <View style={premiumStyles.bannerLeft}>
+          <Text style={premiumStyles.bannerGreeting}>Merhaba, {profile?.name ?? "Öğrenci"} ⭐</Text>
+          <View style={premiumStyles.premiumBadgeRow}>
+            <View style={premiumStyles.premiumBadge}>
+              <Text style={premiumStyles.premiumBadgeText}>✦ PREMIUM</Text>
+            </View>
+            <Text style={premiumStyles.bannerSub}>Premium üye</Text>
+          </View>
+        </View>
+        <View style={premiumStyles.streakCircle}>
+          <Text style={premiumStyles.streakNum}>{studyStreak}</Text>
+          <Text style={premiumStyles.streakLabel}>🔥 seri</Text>
+        </View>
+      </LinearGradient>
+
+      {/* AI Quick Access */}
+      <Animated.View entering={FadeInDown.delay(80).duration(500)}>
+        <TouchableOpacity
+          activeOpacity={0.88}
+          onPress={() => router.push("/ai-teacher")}
+        >
+          <LinearGradient
+            colors={["#4F46E5", "#7C3AED", "#6D28D9"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={premiumStyles.aiCard}
+          >
+            <View style={premiumStyles.aiCardLeft}>
+              <View style={premiumStyles.aiIconWrap}>
+                <Ionicons name="sparkles" size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ gap: 3 }}>
+                <Text style={premiumStyles.aiCardTitle}>✨ Premium AI Öğretmen</Text>
+                <Text style={premiumStyles.aiCardSub}>Konuyu anında öğren · Soru çöz</Text>
+              </View>
+            </View>
+            <Feather name="arrow-right" size={20} color="rgba(255,255,255,0.8)" />
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Daily motivation */}
+      <Animated.View entering={FadeInDown.delay(140).duration(500)}>
+        <View style={[premiumStyles.motivCard, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "30" }]}>
+          <Text style={premiumStyles.motivEmoji}>💡</Text>
+          <Text style={[premiumStyles.motivText, { color: colors.foreground }]}>
+            "{dailyQuote}"
+          </Text>
+        </View>
+      </Animated.View>
+
+      {/* Premium stats row */}
+      <Animated.View entering={FadeInDown.delay(190).duration(500)}>
+        <View style={premiumStyles.statsRow}>
+          <View style={[premiumStyles.statChip, { backgroundColor: colors.card }]}>
+            <Text style={[premiumStyles.statVal, { color: PREMIUM_COLOR }]}>{tytProgress}%</Text>
+            <Text style={[premiumStyles.statLbl, { color: colors.mutedForeground }]}>TYT</Text>
+          </View>
+          <View style={[premiumStyles.statChip, { backgroundColor: colors.card }]}>
+            <Text style={[premiumStyles.statVal, { color: "#7C3AED" }]}>{aytProgress}%</Text>
+            <Text style={[premiumStyles.statLbl, { color: colors.mutedForeground }]}>AYT</Text>
+          </View>
+          <View style={[premiumStyles.statChip, { backgroundColor: colors.card }]}>
+            <Text style={[premiumStyles.statVal, { color: colors.primary }]}>
+              {totalSolvedQuestions.toLocaleString("tr-TR")}
+            </Text>
+            <Text style={[premiumStyles.statLbl, { color: colors.mutedForeground }]}>Soru</Text>
+          </View>
+        </View>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+const premiumStyles = StyleSheet.create({
+  banner: {
+    borderRadius: 22,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: PREMIUM_COLOR,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+  bannerLeft: { gap: 8, flex: 1 },
+  bannerGreeting: { fontSize: 18, fontFamily: "Inter_700Bold", color: "#FFFFFF" },
+  bannerSub: { fontSize: 11, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.75)" },
+  premiumBadgeRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  premiumBadge: {
+    backgroundColor: PREMIUM_COLOR,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  premiumBadgeText: { fontSize: 9, fontFamily: "Inter_700Bold", color: "#1C1917", letterSpacing: 1 },
+  streakCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+    flexShrink: 0,
+  },
+  streakNum: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#FFFFFF" },
+  streakLabel: { fontSize: 10, fontFamily: "Inter_500Medium", color: "rgba(255,255,255,0.8)" },
+  aiCard: {
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#6D28D9",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+  aiCardLeft: { flexDirection: "row", alignItems: "center", gap: 14, flex: 1 },
+  aiIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  aiCardTitle: { fontSize: 15, fontFamily: "Inter_700Bold", color: "#FFFFFF" },
+  aiCardSub: { fontSize: 12, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.75)" },
+  motivCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  motivEmoji: { fontSize: 20, flexShrink: 0, marginTop: 1 },
+  motivText: { flex: 1, fontSize: 13, fontFamily: "Inter_500Medium", lineHeight: 20 },
+  statsRow: { flexDirection: "row", gap: 10 },
+  statChip: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    alignItems: "center",
+    gap: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  statVal: { fontSize: 18, fontFamily: "Inter_700Bold" },
+  statLbl: { fontSize: 10, fontFamily: "Inter_500Medium" },
+});
+
+// ─── End Premium Home Section ──────────────────────────────────────────────────
 
 function getMotivationMessage(overallPct: number): { text: string; emoji: string } {
   if (overallPct === 0)   return { text: "Harika bir başlangıç seni bekliyor!", emoji: "🌟" };
@@ -295,6 +506,7 @@ const TaskItem = React.memo(function TaskItem({ session, onComplete, colors, isC
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { isPremium } = usePremium();
   const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion, totalSolvedQuestions } = useApp();
   const [quote] = useState<Quote>(getRandomQuote);
 
@@ -367,30 +579,43 @@ export default function HomeScreen() {
       contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: botPad, paddingHorizontal: 20 }}
       showsVerticalScrollIndicator={false}
     >
-      <Animated.View entering={FadeInDown.delay(0).duration(500)}>
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.greeting, { color: colors.mutedForeground }]}>Merhaba,</Text>
-            <Text style={[styles.userName, { color: colors.foreground }]} numberOfLines={1} ellipsizeMode="tail">{profile?.name ?? "Öğrenci"}</Text>
-          </View>
-          <TouchableOpacity onPress={() => router.push("/achievements")} style={[styles.streakBadge, { backgroundColor: colors.warning + "20" }]}>
-            <Ionicons name="flame" size={16} color={colors.warning} />
-            <Text style={[styles.streakText, { color: colors.warning }]}>{studyStreak}</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
+      {isPremium ? (
+        <PremiumHomeSection
+          profile={profile}
+          studyStreak={studyStreak}
+          tytProgress={tytProgress}
+          aytProgress={aytProgress}
+          totalSolvedQuestions={totalSolvedQuestions}
+          colors={colors}
+        />
+      ) : (
+        <>
+          <Animated.View entering={FadeInDown.delay(0).duration(500)}>
+            <View style={styles.header}>
+              <View>
+                <Text style={[styles.greeting, { color: colors.mutedForeground }]}>Merhaba,</Text>
+                <Text style={[styles.userName, { color: colors.foreground }]} numberOfLines={1} ellipsizeMode="tail">{profile?.name ?? "Öğrenci"}</Text>
+              </View>
+              <TouchableOpacity onPress={() => router.push("/achievements")} style={[styles.streakBadge, { backgroundColor: colors.warning + "20" }]}>
+                <Ionicons name="flame" size={16} color={colors.warning} />
+                <Text style={[styles.streakText, { color: colors.warning }]}>{studyStreak}</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(60).duration(500)}>
-        <View style={[styles.quoteCard, { backgroundColor: colors.card }]}>
-          <Ionicons name="chatbubble-ellipses-outline" size={17} color={colors.primary} style={{ marginBottom: 8 }} />
-          <Text style={[styles.quoteText, { color: colors.foreground }]}>"{quote.text}"</Text>
-          <Text style={[styles.quoteAuthor, { color: colors.mutedForeground }]}>- {quote.author}</Text>
-        </View>
-      </Animated.View>
+          <Animated.View entering={FadeInDown.delay(60).duration(500)}>
+            <View style={[styles.quoteCard, { backgroundColor: colors.card }]}>
+              <Ionicons name="chatbubble-ellipses-outline" size={17} color={colors.primary} style={{ marginBottom: 8 }} />
+              <Text style={[styles.quoteText, { color: colors.foreground }]}>"{quote.text}"</Text>
+              <Text style={[styles.quoteAuthor, { color: colors.mutedForeground }]}>- {quote.author}</Text>
+            </View>
+          </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(100).duration(500)}>
-        <MotivationBanner tytPct={tytProgress} aytPct={aytProgress} colors={colors} />
-      </Animated.View>
+          <Animated.View entering={FadeInDown.delay(100).duration(500)}>
+            <MotivationBanner tytPct={tytProgress} aytPct={aytProgress} colors={colors} />
+          </Animated.View>
+        </>
+      )}
 
       <Animated.View entering={FadeInDown.delay(120).duration(500)}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Sınava Geri Sayım</Text>

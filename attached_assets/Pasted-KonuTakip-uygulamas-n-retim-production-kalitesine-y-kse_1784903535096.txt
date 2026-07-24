@@ -1,0 +1,216 @@
+KonuTakip uygulamasını üretim (production) kalitesine yükselt.
+
+AMAÇ:
+Premium üyelik alan kullanıcı uygulamaya girdiği anda gerçekten özel hissetsin. Arayüz modern, akıcı ve premium görünmeli. Aynı zamanda uygulamadaki tüm sayfalarda kullanıcı deneyimini iyileştir.
+
+==================================================
+GENEL KURALLAR
+==================================================
+
+- Değiştireceğin tüm dosyaların önce zaman damgalı yedeğini al.
+- Geniş kapsamlı encoding düzeltmesi yapma.
+- Gereksiz dosyaları değiştirme.
+- Mevcut çalışan sistemi bozma.
+- Kod tekrarından kaçın.
+- Performansı düşürmeyecek animasyonlar kullan.
+- Expo / React Native uyumlu çözüm üret.
+- TypeScript hatası bırakma.
+- İşlem sonunda typecheck çalıştır.
+- Git diff göster.
+- Hata oluşursa otomatik geri yükleme yap.
+
+==================================================
+1) PREMIUM SATIN ALMA DENEYİMİ
+==================================================
+
+Premium satın alma başarılı olduğunda tam ekran profesyonel kutlama göster.
+
+İçerik:
+
+⭐ Premium'a Hoş Geldin
+
+"KonuTakip'in tüm Premium özellikleri artık aktif."
+
+Animasyonlar:
+
+• Konfeti
+• Altın renkli parıltılar
+• Hafif glow efekti
+• Kartların sırayla gelmesi
+• Premium rozeti animasyonu
+
+Açılan özellik kartları:
+
+✓ AI Öğretmen
+
+✓ Sınırsız Konu Anlatımı
+
+✓ Akıllı Soru Çözümü
+
+✓ AI Koç
+
+✓ Kişisel Çalışma Planı
+
+✓ Hata Analizi
+
+✓ Premium Rozet
+
+Altta büyük:
+
+"Ders Çalışmaya Başla"
+
+butonu olsun.
+
+==================================================
+2) PREMIUM ANA SAYFA
+==================================================
+
+Premium kullanıcı giriş yaptığında ana sayfa farklı görünsün.
+
+Eklenmesini istediğim özellikler:
+
+• Premium rozeti
+
+• İsmin yanında altın yıldız
+
+• Hafif hareketli premium arka plan
+
+• Gradient kartlar
+
+• AI Hızlı Erişim kartı
+
+• Günlük motivasyon kartı
+
+• Günün çalışma hedefi
+
+• Premium istatistik kartları
+
+• Günlük seri (streak)
+
+• Premium renk paleti
+
+• Cam (glassmorphism) hissi
+
+• Premium ikonları
+
+• Kart geçiş animasyonları
+
+• Sayfa açılış fade animasyonu
+
+==================================================
+3) TÜM SAYFALARA GERİ TUŞU
+==================================================
+
+Ana sekmeler (Bottom Tabs) HARİÇ...
+
+Kullanıcının girdiği tüm ekranlarda
+
+SOL ÜSTTE
+
+standart geri butonu bulunsun.
+
+Kurallar:
+
+• iOS ve Android ile uyumlu olsun.
+
+• Güvenli alanı (Safe Area) bozmasın.
+
+• Sistem geri davranışı ile uyumlu çalışsın.
+
+• router.back() veya navigation.goBack() kullan.
+
+• Geri gidilecek ekran yoksa ana sayfaya dönsün.
+
+• İkon tüm sayfalarda aynı tasarımı kullansın.
+
+• Başlıkla hizalı olsun.
+
+Bu ekranlara dahil:
+
+- AI Öğretmen
+
+- Premium
+
+- Ayarlar alt sayfaları
+
+- Ders detayları
+
+- Konu detayları
+
+- İstatistik ekranları
+
+- Hatırlatıcı detayları
+
+- Premium satın alma ekranı
+
+- Oluşturulacak diğer tüm Stack ekranları
+
+==================================================
+4) PREMIUM AI
+==================================================
+
+Premium kullanıcı AI ekranına girdiğinde
+
+üstte
+
+✨ Premium AI Öğretmen
+
+başlığı bulunsun.
+
+AI cevapları:
+
+• Markdown
+
+• Kart düzeni
+
+• Emoji
+
+• Başlıklar
+
+• Kod yerine okunabilir bloklar
+
+• ChatGPT Plus kalitesinde görünüm
+
+==================================================
+5) PREMIUM DETAYLARI
+==================================================
+
+Premium olmayan kullanıcı
+
+kilitli kartlar görsün.
+
+Premium kullanıcı
+
+kilitler yerine animasyonlu aktif kartlar görsün.
+
+==================================================
+6) PERFORMANS
+==================================================
+
+Animasyonlar:
+
+60 FPS'e yakın çalışmalı.
+
+Gereksiz re-render oluşturma.
+
+Memoization kullan.
+
+Liste ekranlarında performansı koru.
+
+==================================================
+7) KALİTE KONTROLÜ
+==================================================
+
+İşlem sonunda:
+
+- TypeScript kontrolü çalıştır.
+
+- Lint varsa düzelt.
+
+- Değişen dosyaları listele.
+
+- Yapılan değişiklikleri özetle.
+
+- Çalışan production seviyesinde kod bırak.
+
+Hiçbir mevcut özelliği bozma. Mevcut Premium mantığını koru ve yalnızca kullanıcı deneyimini profesyonel seviyeye çıkar.

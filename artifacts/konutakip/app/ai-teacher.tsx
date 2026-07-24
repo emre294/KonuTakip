@@ -629,7 +629,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
               style={[styles.headerTitle, { color: colors.foreground }]}
               numberOfLines={1}
             >
-              AI Öğretmen
+              ✨ Premium AI Öğretmen
             </Text>
             <PremiumBadge size="sm" />
           </View>
