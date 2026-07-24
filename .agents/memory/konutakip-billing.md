@@ -37,9 +37,10 @@ BillingProvider MUST be inside PremiumProvider (calls grantPremium from usePremi
 - `finishTransaction({ purchase, isConsumable: false })` — must pass original IAP Purchase object, not mapped BillingPurchase.
 - Cancellations arrive via `purchaseErrorListener` with code `ErrorCode.UserCancelled` — do NOT surface as UI error.
 
-## Product IDs (placeholders — update in Google Play Console before launch)
-- `monthly_premium`
-- `yearly_premium`
+## Product IDs
+- Monthly subscription product: `konutakip_premium_aylik`
+- Monthly base plan: `premium-aylik`
+- Android application ID must exactly match Google Play Console: `com.konutakip.app`
 
 ## PremiumContext.grantPremium signature (updated)
 Now accepts optional `source` parameter:
@@ -49,6 +50,17 @@ grantPremium(subscriptionType?, expiresAt?, source?: PremiumStatus['source'])
 BillingContext calls it with `source: 'google_play'`.
 
 **Why:** Needed so billing-originated grants are distinguished from manual/test grants in PremiumStatus.source.
+
+## Android entry point
+
+The Android-specific `BillingManager.android.ts` file must export the real
+`GooglePlayBillingProvider`. The platform file is preferred by Metro on
+Android; exporting the no-op stub there makes every billing action silently do
+nothing while web/iOS can continue using the stub in `BillingManager.ts`.
+
+**Why:** A prior import state had the no-op implementation in the Android
+platform file, which prevented `initConnection`, product loading, and
+`requestPurchase` from ever running.
 
 ## Key constraints
 - Billing is Android-only; Platform.OS check guards all calls.

@@ -31,6 +31,7 @@ import {
 } from "react-native-iap";
 import type { Purchase } from "react-native-iap";
 
+import { MONTHLY_BASE_PLAN_ID } from "./config";
 import {
   PRODUCT_IDS,
   ALL_PRODUCT_IDS,
@@ -113,18 +114,56 @@ function extractPrice(product: Record<string, unknown>): string {
   return legacyOffers?.[0]?.pricingPhases?.pricingPhaseList?.[0]?.formattedPrice ?? "—";
 }
 
-/** Extract the offer token required for requestPurchase on Android. */
-function extractOfferToken(product: Record<string, unknown>): string | null {
+function getAndroidSubscriptionOffer(
+  product: Record<string, unknown>,
+): { offerToken: string; displayPrice?: string } | null {
   const offers = product.subscriptionOffers as
-    | Array<{ offerTokenAndroid?: string }>
+    | Array<{
+        basePlanIdAndroid?: string | null;
+        offerTokenAndroid?: string | null;
+        displayPrice?: string;
+      }>
     | undefined;
-  const token = offers?.[0]?.offerTokenAndroid;
-  if (token) return token;
+  const offer = offers?.find(
+    (candidate) =>
+      candidate.basePlanIdAndroid === MONTHLY_BASE_PLAN_ID &&
+      Boolean(candidate.offerTokenAndroid),
+  );
+  if (offer?.offerTokenAndroid) {
+    return {
+      offerToken: offer.offerTokenAndroid,
+      displayPrice: offer.displayPrice,
+    };
+  }
 
   const legacyOffers = product.subscriptionOfferDetailsAndroid as
-    | Array<{ offerToken?: string }>
+    | Array<{
+        basePlanId?: string;
+        offerToken?: string;
+        pricingPhases?: {
+          pricingPhaseList?: Array<{ formattedPrice?: string }>;
+        };
+      }>
     | undefined;
-  return legacyOffers?.[0]?.offerToken ?? null;
+  const legacyOffer = legacyOffers?.find(
+    (candidate) =>
+      candidate.basePlanId === MONTHLY_BASE_PLAN_ID &&
+      Boolean(candidate.offerToken),
+  );
+  if (legacyOffer?.offerToken) {
+    return {
+      offerToken: legacyOffer.offerToken,
+      displayPrice:
+        legacyOffer.pricingPhases?.pricingPhaseList?.[0]?.formattedPrice,
+    };
+  }
+
+  return null;
+}
+
+/** Extract the offer token required for requestPurchase on Android. */
+function extractOfferToken(product: Record<string, unknown>): string | null {
+  return getAndroidSubscriptionOffer(product)?.offerToken ?? null;
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -217,7 +256,13 @@ export class GooglePlayBillingProvider implements IBillingService {
         skus: ALL_PRODUCT_IDS,
         type: "subs",
       });
-      if (!results || results.length === 0) return [];
+      if (!results || results.length === 0) {
+        BillingLogger.warn("No Google Play subscription products returned", {
+          productIds: ALL_PRODUCT_IDS,
+          basePlanId: MONTHLY_BASE_PLAN_ID,
+        });
+        return [];
+      }
 
       const products: BillingProduct[] = [];
       for (const item of results) {
@@ -234,7 +279,8 @@ export class GooglePlayBillingProvider implements IBillingService {
           productId: productId as ProductId,
           title: (raw.title ?? raw.nameAndroid ?? productId) as string,
           description: (raw.description ?? "") as string,
-          localizedPrice: extractPrice(raw),
+        localizedPrice:
+          getAndroidSubscriptionOffer(raw)?.displayPrice ?? extractPrice(raw),
           currency: (raw.currency ?? "") as string,
           offerToken: extractOfferToken(raw),
           type: "monthly",
@@ -245,6 +291,12 @@ export class GooglePlayBillingProvider implements IBillingService {
         "Products fetched",
         products.map((p) => `${p.productId}: ${p.localizedPrice}`)
       );
+      if (products.length === 0) {
+        BillingLogger.warn("Configured Google Play product was not found", {
+          productIds: ALL_PRODUCT_IDS,
+          basePlanId: MONTHLY_BASE_PLAN_ID,
+        });
+      }
       return products;
     } catch (err) {
       BillingLogger.error("queryProducts failed", err);
@@ -314,8 +366,9 @@ export class GooglePlayBillingProvider implements IBillingService {
     try {
       // 1. Check active subscriptions (most reliable)
       const active = await getActiveSubscriptions(ALL_PRODUCT_IDS);
-      if (active && active.length > 0) {
-        const sub = active[0];
+      const current = active?.filter((sub) => sub.isActive !== false) ?? [];
+      if (current.length > 0) {
+        const sub = current[0];
         BillingLogger.event("RestoreFound (active subscription)", sub.productId);
 
         const purchase: BillingPurchase = {
@@ -375,7 +428,22 @@ export class GooglePlayBillingProvider implements IBillingService {
       const products = await this.queryProducts();
       offerToken = products.find((p) => p.productId === productId)?.offerToken ?? null;
     } catch {
-      // Non-fatal — proceed without offer token
+      // The product was already loaded during initialization. This is only a
+      // defensive fallback for a transient re-query failure.
+    }
+
+    if (!offerToken) {
+      const error: BillingError = {
+        code: "no_products",
+        message:
+          "Google Play aboneliği bulunamadı. Ürünün premium-aylik base planı ile yayınlandığını kontrol edin.",
+      };
+      BillingLogger.error("Subscription offer token missing", {
+        productId,
+        basePlanId: MONTHLY_BASE_PLAN_ID,
+      });
+      this._callbacks?.onPurchaseError(error);
+      return;
     }
 
     BillingLogger.log("Initiating purchase", { productId, offerToken });
@@ -395,9 +463,21 @@ export class GooglePlayBillingProvider implements IBillingService {
       });
       // Purchase result is delivered via purchaseUpdatedListener — not here.
     } catch (err) {
-      // requestPurchase may throw for synchronous errors (e.g. item not found).
-      // Most errors (including user cancellation) arrive via purchaseErrorListener.
+      // requestPurchase may throw synchronously before the error listener fires.
       BillingLogger.error("requestPurchase threw synchronously", err);
+      const error = err as {
+        code?: string;
+        message?: string;
+        debugMessage?: string;
+      };
+      const code = mapErrorCode(error.code ?? "unknown");
+      if (code !== "cancelled") {
+        this._callbacks?.onPurchaseError({
+          code,
+          message: error.message ?? "Satın alma başlatılamadı.",
+          debugMessage: error.debugMessage,
+        });
+      }
     }
   }
 

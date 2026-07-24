@@ -9,3 +9,6 @@
 
 // Google Play Monthly Subscription ID
 export const MONTHLY_PRODUCT_ID = "konutakip_premium_aylik" as const;
+
+// Google Play base plan ID for the monthly subscription.
+export const MONTHLY_BASE_PLAN_ID = "premium-aylik" as const;

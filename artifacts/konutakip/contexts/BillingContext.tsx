@@ -184,6 +184,19 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         const fetched = await BillingManager.queryProducts();
         if (cancelled) return;
         setProducts(fetched);
+        if (fetched.length === 0) {
+          setError({
+            code: "no_products",
+            message:
+              "Google Play aboneliği bulunamadı. Play Console ürününün yayınlandığını ve premium-aylik base planının aktif olduğunu kontrol edin.",
+          });
+        }
+
+        // Restore an existing Google Play subscription on every app launch.
+        // This also grants Premium through the same verified callback used by
+        // a newly completed purchase.
+        await BillingManager.restorePurchases();
+        if (cancelled) return;
       } catch (err) {
         if (cancelled) return;
         BillingLogger.error("Billing initialization failed", err);
@@ -250,6 +263,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
   const purchase = useCallback(async (_productId: ProductId): Promise<void> => {
     setError(null);
     // Only one plan: konutakip_premium_aylik (monthly).
+    BillingLogger.event("PurchaseRequested", { productId: _productId });
     await BillingManager.purchaseMonthlySubscription();
   }, []);
 

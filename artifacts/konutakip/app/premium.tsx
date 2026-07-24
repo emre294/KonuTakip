@@ -178,7 +178,7 @@ export default function PremiumScreen() {
   const billingUnavailable =
     !isBillingPlatform ||
     isExpoGo ||
-    (!billingLoading && !isConnected && products.length === 0);
+    (!billingLoading && (!isConnected || products.length === 0));
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
