@@ -58,13 +58,14 @@
     "zod-validation-error": "^3.4.0"
   },
   "dependencies": {
+    "expo": "~54.0.36",
     "expo-document-picker": "^14.0.8",
     "expo-notifications": "^0.32.17",
-    "react-native-iap": "^15.5.2",
-    "react-native-markdown-display": "^7.0.2",
-    "react-native-nitro-modules": "^0.36.1",
-    "expo": "~54.0.36",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "react-native": "0.81.5",
+    "react-native-iap": "^15.5.2",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-markdown-display": "^7.0.2",
+    "react-native-nitro-modules": "^0.36.1"
   }
 }
