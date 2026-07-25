@@ -19,7 +19,7 @@ module.exports = function withBuildConfig(config) {
       return modConfig;
     }
 
-    const marker = "    namespace 'com.konutakip.app'\n";
+    const marker = "    namespace 'com.KonuTakip.app'\n";
     if (!contents.includes(marker)) {
       throw new Error(
         "Could not find the expected Android namespace while enabling BuildConfig.",
