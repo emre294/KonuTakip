@@ -13,9 +13,10 @@
 
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -23,7 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown, ZoomIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PREMIUM_COLOR } from "@/components/PremiumBadge";
@@ -152,10 +153,29 @@ export default function PremiumScreen() {
     isConnected,
     error: billingError,
     clearError,
+    purchaseCompletedAt,
+    clearPurchaseSuccess,
   } = useBilling();
 
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [restoreLoading, setRestoreLoading] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  useEffect(() => {
+    if (purchaseCompletedAt) {
+      setShowCelebration(true);
+    }
+  }, [purchaseCompletedAt]);
+
+  function closeCelebration() {
+    setShowCelebration(false);
+    clearPurchaseSuccess();
+  }
+
+  function openAITeacher() {
+    closeCelebration();
+    router.push("/ai-teacher");
+  }
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = Math.max(insets.bottom, 16) + 24;
@@ -670,4 +690,98 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 18,
   },
-});
+
+  celebrationOverlay:{
+    flex:1,
+    backgroundColor:"rgba(2,6,23,0.82)",
+    alignItems:"center",
+    justifyContent:"center",
+    paddingHorizontal:22,
+    overflow:"hidden",
+  },
+  confettiPiece:{
+    position:"absolute",
+    color:"#F59E0B",
+    fontSize:18,
+    fontFamily:"Inter_700Bold",
+  },
+  celebrationCard:{
+    width:"100%",
+    maxWidth:420,
+    borderRadius:28,
+    paddingHorizontal:22,
+    paddingTop:28,
+    paddingBottom:20,
+    alignItems:"center",
+    shadowColor:PREMIUM_COLOR,
+    shadowOffset:{width:0,height:12},
+    shadowOpacity:0.4,
+    shadowRadius:28,
+    elevation:16,
+  },
+  celebrationIcon:{
+    width:76,
+    height:76,
+    borderRadius:38,
+    backgroundColor:PREMIUM_COLOR,
+    alignItems:"center",
+    justifyContent:"center",
+    marginBottom:18,
+  },
+  celebrationStar:{
+    color:"#fff",
+    fontSize:38,
+  },
+  celebrationTitle:{
+    fontSize:24,
+    fontFamily:"Inter_700Bold",
+    textAlign:"center",
+  },
+  celebrationDescription:{
+    marginTop:10,
+    fontSize:14,
+    lineHeight:21,
+    textAlign:"center",
+  },
+  celebrationBenefits:{
+    width:"100%",
+    marginTop:22,
+    marginBottom:22,
+    gap:12,
+  },
+  celebrationBenefit:{
+    flexDirection:"row",
+    alignItems:"center",
+    gap:10,
+  },
+  celebrationBenefitText:{
+    flex:1,
+    fontSize:14,
+  },
+  celebrationPrimaryButton:{
+    width:"100%",
+    height:54,
+    borderRadius:16,
+    backgroundColor:PREMIUM_COLOR,
+    alignItems:"center",
+    justifyContent:"center",
+    flexDirection:"row",
+    gap:8,
+  },
+  celebrationPrimaryText:{
+    color:"#fff",
+    fontSize:15,
+    fontFamily:"Inter_700Bold",
+  },
+  celebrationSecondaryButton:{
+    width:"100%",
+    height:48,
+    borderRadius:14,
+    borderWidth:1,
+    alignItems:"center",
+    justifyContent:"center",
+    marginTop:10,
+  },
+  celebrationSecondaryText:{
+    fontSize:14,
+  },});

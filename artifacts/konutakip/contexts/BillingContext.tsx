@@ -95,6 +95,8 @@ interface BillingContextValue {
   error: BillingError | null;
   /** Clear the current error (e.g. after displaying it to the user). */
   clearError: () => void;
+  purchaseCompletedAt: number | null;
+  clearPurchaseSuccess: () => void;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -110,6 +112,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(isBillingSupported);
   const [products, setProducts] = useState<BillingProduct[]>([]);
   const [error, setError] = useState<BillingError | null>(null);
+  const [purchaseCompletedAt, setPurchaseCompletedAt] = useState<number | null>(null);
 
   // Keep latest callbacks in refs so BillingManager closures never go stale.
   const grantPremiumRef = useRef(grantPremium);
@@ -145,6 +148,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         const subscriptionType = getSubscriptionType(purchase.productId);
         await grantPremiumRef.current(subscriptionType, null, "google_play");
         setError(null);
+        setPurchaseCompletedAt(Date.now());
         BillingLogger.event("PremiumGranted via purchase", {
           productId: purchase.productId,
           subscriptionType,
@@ -291,6 +295,10 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
     setError(null);
   }, []);
 
+  const clearPurchaseSuccess = useCallback(() => {
+    setPurchaseCompletedAt(null);
+  }, []);
+
   return (
     <BillingContext.Provider
       value={{
@@ -301,6 +309,8 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         error,
         clearError,
+        purchaseCompletedAt,
+        clearPurchaseSuccess,
       }}
     >
       {children}
