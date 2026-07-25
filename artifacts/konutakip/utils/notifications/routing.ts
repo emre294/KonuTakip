@@ -5,6 +5,7 @@
 
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
+import { Platform } from "react-native";
 import { NotificationRoute, NotificationType } from "./constants";
 import { notifLog } from "./logger";
 
@@ -72,6 +73,10 @@ export function handleNotificationTap(
 let _lastHandledResponseId: string | null = null;
 
 export async function handleColdStartNotification(): Promise<void> {
+  // Expo Notifications does not implement cold-start response lookup on web.
+  // Notification deep-linking remains enabled on native platforms.
+  if (Platform.OS === "web") return;
+
   try {
     const response = await Notifications.getLastNotificationResponseAsync();
     if (!response) return;

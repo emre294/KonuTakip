@@ -1,0 +1,397 @@
+KRİTİK PREMIUM DENEYİMİ VE AI DOSYA ANALİZİ DÜZELTME GÖREVİ
+
+Google Play satın alma akışı artık çalışıyor ve Premium başarıyla aktif oluyor.
+
+Şimdi aşağıdaki uygulama içi sorunları, hiçbir mevcut özelliği veya çalışan satın alma sistemini bozmadan kökten düzelt.
+
+KORUMA KURALLARI
+
+- Google Play Billing entegrasyonunu bozma.
+- Product ID’yi değiştirme:
+  konutakip_premium_aylik
+- Base Plan ID’yi değiştirme:
+  premium-aylik
+- Package Name’i değiştirme:
+  com.KonuTakip.app
+- Mevcut satın alma doğrulama, restore ve finishTransaction akışını kaldırma.
+- Kullanıcı verilerini, konu ilerlemelerini ve kayıtlı soruları silme.
+- Git reset, checkout, revert, hard reset, clean veya force push kullanma.
+- Gereksiz geniş refactor yapma.
+- Önce yedek al, sonra yalnızca hedef dosyalarda değişiklik yap.
+- Her değişiklik sonunda TypeScript kontrolü çalıştır.
+- Sadece rapor yazma; değişiklikleri gerçekten uygula ve test et.
+
+==================================================
+1. ANA SAYFADAKİ PREMIUM SONRASI FAZLADAN İLERLEME ALANI
+==================================================
+
+Belirti:
+
+Premium aktif olduğunda ana sayfada gereksiz, boş veya tekrarlanan bir ilerleme bileşeni oluşuyor ve ekran kalabalıklaşıyor.
+
+Yapılacaklar:
+
+- Ana sayfadaki Premium üyelik durumuna bağlı conditional render zincirini incele.
+- Aynı ilerleme kartı, konu ilerlemesi veya istatistik bileşeni iki kez render ediliyorsa tekrarını kaldır.
+- Premium kullanıcı için yeni boş ilerleme kartı oluşturma.
+- Mevcut TYT, AYT ve soru istatistikleri tek kez gösterilsin.
+- “Konu İlerlemesi” bölümü tek kez render edilsin.
+- Premium banner mevcut tasarımla uyumlu kalsın.
+- Ana sayfa kalabalıklaşmasın ve dikey boşluklar dengeli olsun.
+- Ücretsiz kullanıcının mevcut ana sayfa düzenini bozma.
+
+==================================================
+2. FOTOĞRAF, KAMERA VE PDF AI’A GERÇEKTEN ULAŞMIYOR
+==================================================
+
+Ekran görüntülerindeki belirti:
+
+Kullanıcı dosya veya görsel ekledikten sonra AI şu tür cevaplar veriyor:
+
+- “Soru metni ya da görseli sağlanmadığı için...”
+- “Sorunun fotoğrafını burada göremiyorum...”
+- “Görseldeki sorunun tipini ve içeriğini bilmiyorum...”
+
+Bu, kullanıcı arayüzünde dosya seçilmiş olsa bile backend/provider isteğine dosyanın gerçek içeriğinin eklenmediğini gösteriyor.
+
+Yapılacaklar:
+
+A. Çağrı zincirini uçtan uca incele
+
+Şu akışı takip et:
+
+1. Ataç butonu
+2. Galeri seçimi
+3. Kamera çekimi
+4. PDF seçimi
+5. Seçilen dosyanın yerel state’e kaydedilmesi
+6. Mesaj gönderme fonksiyonu
+7. API request body
+8. Backend endpoint
+9. AIManager
+10. NVIDIAProvider veya kullanılan gerçek AI provider
+11. Model isteğinin content formatı
+
+Dosyanın hangi aşamada kaybolduğunu gerçek loglarla tespit et.
+
+B. Fotoğraf ve kamera desteği
+
+- Galeri veya kameradan seçilen görselin URI, MIME type, dosya adı ve boyutu korunmalı.
+- Görsel gerçekten okunmalı.
+- Gerekiyorsa base64 veya güvenli multipart upload kullanılmalı.
+- AI provider vision destekliyorsa görsel, resmi multimodal message formatında gönderilmeli.
+- Yalnızca “Bu dosyadaki soruyu çöz” metni gönderilmemeli.
+- Görsel içeriği request içinde gerçekten bulunmalı.
+- Kamera izni reddedilirse kullanıcıya anlaşılır hata göster.
+- Dosya çok büyükse kullanıcıya boyut sınırı göster.
+- Desteklenmeyen formatlarda sessiz başarısızlık olmasın.
+- Aynı dosya iki kez yüklenmesin.
+- Gönderim tamamlanana kadar loading durumu göster.
+- Mesaj balonunda küçük görsel önizlemesi göster.
+- AI cevap vermeden önce dosyanın başarıyla işlendiği doğrulansın.
+
+C. PDF desteği
+
+PDF dosyasını doğrudan model desteklemiyorsa:
+
+- PDF’den metin güvenli biçimde çıkarılsın.
+- Birden fazla sayfa varsa sayfa sırası korunsun.
+- Metin tabanlı PDF’de gerçek metin modele iletilsin.
+- Taranmış/görsel PDF ise desteklenen yöntemle sayfalar görsele çevrilsin veya kullanıcıya taranmış PDF’nin doğrudan okunamadığı açıkça söylensin.
+- PDF hiç okunamadıysa AI’ya boş içerik gönderme.
+- Dosya okunamadığında genel ders anlatımı üretme.
+- Kullanıcıya “PDF içeriği okunamadı, tekrar yükleyin” şeklinde net hata göster.
+- PDF adı ve işlenen sayfa sayısı mesajda gösterilebilir.
+
+D. Boş veya başarısız attachment güvenliği
+
+Attachment içeriği yoksa veya işlenemediyse:
+
+- AI isteğini başlatma.
+- Kullanıcının kota hakkını tüketme.
+- Uydurma çözüm üretme.
+- Genel soru türleri anlatma.
+- “Dosyayı okuyamadım” şeklinde kısa ve dürüst hata göster.
+- Yeniden yükleme seçeneği sun.
+
+E. Gerçek doğrulama
+
+En az şu senaryoları test et:
+
+1. Galeriden matematik soru fotoğrafı
+2. Kameradan çekilen soru
+3. Metin tabanlı tek sayfalık PDF
+4. Çok sayfalı PDF
+5. Bozuk veya desteklenmeyen dosya
+6. Dosyasız normal metin sorusu
+
+Her testte request’in gerçekten attachment içerdiğini loglarla doğrula.
+Gizli kullanıcı verisini veya base64 içeriğin tamamını production loglarına yazma.
+
+==================================================
+3. AI GÖRSELİ OKUMADAN CEVAP UYDURMASIN
+==================================================
+
+Sistem prompt ve cevap doğrulamasını güçlendir.
+
+Kurallar:
+
+- Model görseli veya PDF’yi gerçekten almadıysa soruyu gördüğünü iddia etmesin.
+- Sorunun içeriği mevcut değilse çözüm uydurmasın.
+- Görsel bulanıksa hangi kısmın okunamadığını söylesin.
+- Okuyabildiği soru metnini önce kısa şekilde kullanıcıya teyit ettirsin veya cevabın başında “Soruyu şöyle okudum:” biçiminde göstersin.
+- Sayı, sembol, üs, kök, kesir ve seçenekleri dikkatle ayırsın.
+- Emin olmadığı sembolü kesinmiş gibi kullanmasın.
+- YKS/TYT/AYT seviyesine uygun Türkçe cevap versin.
+- Sonucu işlemle doğrulasın.
+- Kullanıcı yalnızca çözüm istediyse gereksiz uzun genel konu anlatımı yapmasın.
+- Görseldeki gerçek soruyla ilgisiz örnek sorular üretmesin.
+
+Önerilen attachment cevap yapısı:
+
+1. Soruyu okuma
+2. Verilenler
+3. Adım adım çözüm
+4. Doğru cevap
+5. Kısa kontrol
+
+==================================================
+4. MİNİ TEST OTOMATİK GELMESİN
+==================================================
+
+Mevcut sorun:
+
+AI hemen her cevapta otomatik “Mini Test” oluşturuyor.
+Bu testler bazen kullanıcının verdiği sorunun konusu ve zorluk seviyesiyle uyuşmuyor.
+
+Yeni davranış:
+
+- Mini test varsayılan olarak otomatik eklenmesin.
+- Kullanıcı özellikle isterse oluşturulsun.
+- AI cevabının altında ayrı bir buton gösterilebilir:
+
+“Benzer Mini Test Oluştur”
+
+- Kullanıcı bu butona basınca test oluşturulsun.
+- Kullanıcı metinde “mini test hazırla”, “benzer soru ver”, “beni dene” gibi açık bir talep yazarsa da oluşturulsun.
+- Normal soru çözümünde mini test eklenmesin.
+
+Mini test oluşturulurken:
+
+- Kullanıcının verdiği soruyla aynı konu olmalı.
+- Aynı soru tipi veya yakın kazanım olmalı.
+- Aynı zorluk seviyesinde başlamalı.
+- İlk sorudan belirgin şekilde daha kolay veya alakasız olmamalı.
+- Öğrencinin sınıf/sınav seviyesi korunmalı.
+- TYT sorusuysa TYT seviyesinde olmalı.
+- AYT sorusuysa AYT seviyesinde olmalı.
+- Matematik sorusuna alakasız genel matematik testleri eklenmemeli.
+- Görselden tespit edilen soru tipi kullanılmalı.
+- Kullanıcı isterse kolay, orta veya zor seçebilmeli.
+- Varsayılan olarak 3 soru üret.
+- Cevaplar başlangıçta kapalı olsun.
+- “Cevabı Göster” ile açılabilsin.
+- Her sorunun çözümü ayrı açılabilsin.
+
+==================================================
+5. PREMIUM GÖRSEL FARKINI TÜM SEKMELERDE ARTIR
+==================================================
+
+Premium kullanıcı, yalnızca ana sayfadaki turuncu karttan değil tüm uygulamada Premium deneyimini hissetmeli.
+
+Ancak ekranları aşırı parlak, kalabalık veya yorucu yapma.
+
+Premium kullanıcı için aşağıdaki sekmeleri incele:
+
+- Ana Sayfa
+- Konular
+- Günlük Plan
+- Soru Bankam
+- Ayarlar
+- AI Öğretmen
+- Premium ekranı
+
+Her sekmede uyumlu ve ölçülü Premium görsel farklılıkları ekle:
+
+- Küçük PRO/Premium rozeti
+- Premium kullanıcıya özel zarif vurgu
+- İnce gradient veya accent alanları
+- Kilidi açılmış özelliklerde küçük yıldız/parıltı işareti
+- Premium özellik kartlarında daha güçlü ama sade görünüm
+- Premium olmayan kullanıcıda kilit veya yükseltme çağrısı
+- Premium kullanıcıda “aktif” durumunun net görünmesi
+
+Kurallar:
+
+- Mevcut koyu tema korunmalı.
+- Renk bütünlüğü korunmalı.
+- Turuncu ve mor vurgular kontrollü kullanılmalı.
+- Her karta gradient basma.
+- Metin okunabilirliğini bozma.
+- Navigasyon düzenini değiştirme.
+- İçerik alanını daraltma.
+- Premium olmayan kullanıcı deneyimini cezalandırma.
+- Premium olmayan temel özellikleri yanlışlıkla kilitleme.
+- Premium durumu uygulama açılışında restore edildiğinde tüm sekmelere anında yansısın.
+- Premium state için tek kaynak kullan; ekranlar kendi başına farklı state tutmasın.
+
+Örnek görsel iyileştirmeler:
+
+Ana Sayfa:
+- Premium üye kartını koru.
+- Fazladan ilerleme alanını kaldır.
+- Premium AI kartını daha kaliteli ve dengeli göster.
+
+Konular:
+- Premium analiz veya AI anlatım düğmesine küçük PRO işareti.
+- Normal konu listesi aynı kalsın.
+
+Günlük Plan:
+- AI plan önerisi Premium ise belirgin ama sade Premium kartı.
+- Normal manuel plan alanını bozma.
+
+Soru Bankam:
+- Görsel/PDF çözüm özelliğine Premium rozeti.
+- Kayıtlı soruların temel görünümünü bozma.
+
+Ayarlar:
+- “Premium Aktif” durumu net gösterilsin.
+- Aboneliği yönet ve satın alımları geri yükle seçenekleri erişilebilir olsun.
+
+AI Öğretmen:
+- Attachment önizlemesi net olsun.
+- PRO rozeti korunabilir.
+- Online durum göstergesi gerçek provider bağlantısını temsil etsin; yalnızca sabit yeşil nokta olmasın.
+- Dosya yüklenirken durum metni göster.
+
+==================================================
+6. SATIN ALMA ONAYLANDIĞINDA KONFETİ VE TEBRİK
+==================================================
+
+Google Play satın almayı gerçekten onayladıktan ve finishTransaction başarıyla tamamlandıktan sonra uygulama içinde bir defaya mahsus kutlama göster.
+
+Önemli:
+
+- Kullanıcı sadece butona bastığında kutlama gösterme.
+- Purchase pending durumunda gösterme.
+- Purchase cancelled durumunda gösterme.
+- Hata durumunda gösterme.
+- Sadece satın alma başarıyla doğrulandığında ve Premium state aktif edildiğinde göster.
+- Restore purchases sırasında her uygulama açılışında yeniden konfeti gösterme.
+- Daha önce satın alınmış abonelik restore ediliyorsa sessizce Premium aktif olsun.
+- Yeni satın alma olayında gösterilsin.
+
+Kutlama deneyimi:
+
+- Ekranda kısa süreli konfeti animasyonu.
+- Hafif haptic feedback.
+- Başlık:
+  “Premium’a Hoş Geldin! 🎉”
+- Alt metin:
+  “Premium AI Öğretmen, görsel/PDF soru çözümü ve kişisel çalışma özelliklerin artık aktif.”
+- Ana buton:
+  “Premium’u Keşfet”
+- İkincil buton:
+  “Devam Et”
+- Modal kapatılabilir olsun.
+- Animasyon 2–4 saniye arasında olsun.
+- Performansı düşürmesin.
+- Uygulamanın tamamını yeniden başlatmasın.
+- Satın alma callback’i birden fazla tetiklenirse kutlama bir kez gösterilsin.
+- İşlem ID veya purchase token bazında tekrar gösterimi engelle.
+- Token’ı açık metin olarak loglama veya güvensiz depolama.
+- Kullanıcı uygulamayı satın alma anında arka plana atarsa uygulamaya dönünce başarı modalı gösterilebilsin.
+- Erişilebilirlik için “hareketi azalt” ayarında konfeti yerine sade başarı animasyonu göster.
+
+==================================================
+7. PREMIUM STATE VE SATIN ALMA SONRASI ANLIK GÜNCELLEME
+==================================================
+
+Satın alma başarıyla tamamlandıktan sonra:
+
+- PremiumContext/tek merkezi premium store anında güncellensin.
+- Ana sayfa, AI Öğretmen, Ayarlar ve diğer sekmeler yeniden açılmadan Premium görünümüne geçsin.
+- Kullanıcının uygulamayı kapatıp açması gerekmemeli.
+- State’in AsyncStorage/secure storage karşılığı doğru kaydedilsin.
+- Ancak yalnızca local boolean’a güvenme; uygulama açılışında Google Play restore/doğrulama devam etsin.
+- Abonelik iptal olmuşsa sonraki doğrulamada Premium erişimi doğru güncellensin.
+- Satın alma listener’ları birden fazla kez kurulmasın.
+- Ekran unmount olduğunda listener cleanup yapılsın.
+
+==================================================
+8. HATA MESAJLARI VE KULLANICI DENEYİMİ
+==================================================
+
+AI attachment hataları kullanıcıya teknik hata kodlarıyla gösterilmesin.
+
+Örnek kullanıcı mesajları:
+
+- “Görsel yüklenemedi. Lütfen tekrar deneyin.”
+- “Fotoğraf çok büyük. Daha düşük boyutlu bir görsel seçin.”
+- “PDF içeriği okunamadı.”
+- “Bu dosya türü şu an desteklenmiyor.”
+- “Görseldeki soru net değil. Daha yakın ve aydınlık bir fotoğraf çekin.”
+- “AI servisine bağlanılamadı. Biraz sonra tekrar deneyin.”
+
+Retry butonu ekle.
+Aynı dosya retry sırasında yeniden seçilmek zorunda kalmasın.
+
+==================================================
+9. TEST VE DOĞRULAMA
+==================================================
+
+Aşağıdaki kontrolleri gerçekten yap:
+
+- pnpm exec tsc --noEmit
+- Expo doctor
+- Android production bundle
+- Premium state testi
+- Yeni satın alma başarı callback testi
+- Restore purchases testi
+- Satın alma iptal testi
+- Satın alma pending testi
+- Fotoğraf yükleme testi
+- Kamera testi
+- PDF testi
+- Dosyasız normal mesaj testi
+- Mini test butonu testi
+- Premium olmayan kullanıcı ekranları
+- Premium kullanıcı tüm sekmeler
+- Ana sayfada duplicate ilerleme testi
+
+Replit web önizlemesinin native kamera, Play Billing ve gerçek IAP penceresini doğrulayamayacağını dürüstçe belirt.
+Ancak kod akışını, request payload’ını, listener’ları ve TypeScript/bundle sonuçlarını gerçek şekilde doğrula.
+
+==================================================
+10. GIT VE RAPOR
+==================================================
+
+- Önce git diff ile yalnızca gerekli dosyaların değiştiğini kontrol et.
+- Billing’in çalışan temel akışını silme veya stub’a geri döndürme.
+- Değişiklikleri commit et.
+- Push erişimi varsa origin/main’e push et.
+- Push başarısız olursa commit hash’ini koru ve raporla.
+
+Commit mesajı:
+
+Improve Premium AI attachments and purchase celebration
+
+SON RAPORDA SADECE ŞUNLARI VER:
+
+1. Ana sayfadaki fazladan alanın kök nedeni ve düzeltmesi
+2. Görsel/kamera/PDF’nin daha önce nerede kaybolduğu
+3. Attachment’ın artık AI isteğine nasıl eklendiği
+4. PDF işleme yöntemi
+5. Görsel okunamadığında yeni davranış
+6. Mini testin yeni çalışma şekli
+7. Premium görsel iyileştirilen sekmeler
+8. Satın alma kutlama akışının hangi gerçek başarı olayına bağlandığı
+9. Yeni satın alma ve restore arasındaki fark
+10. Değişen dosyalar
+11. TypeScript sonucu
+12. Android bundle sonucu
+13. Billing Product ID ve Base Plan ID’nin korunduğu
+14. Package Name’in korunduğu
+15. Commit hash
+16. Push sonucu
+17. Gerçek Android cihazda test edilmesi gereken maddeler
