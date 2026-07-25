@@ -20,7 +20,7 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "100kb" }));
+app.use(express.json({ limit: "25mb" }));
 
 app.get("/health", (_request, response) => {
   response.json({
@@ -42,3 +42,4 @@ app.use(errorHandler);
 app.listen(env.PORT, "0.0.0.0", () => {
   console.log(`KonuTakip backend çalışıyor: http://localhost:${env.PORT}`);
 });
+

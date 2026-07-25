@@ -1,5 +1,8 @@
-import { Router } from "express";
-import { askNvidia } from "../services/nvidiaService.js";
+﻿import { Router } from "express";
+import {
+  askNvidia,
+  type NvidiaAttachment,
+} from "../services/nvidiaService.js";
 import { aiRequestSchema } from "../validation/aiRequestSchema.js";
 import { aiFeatureRequestSchema } from "../validation/aiFeatureRequestSchema.js";
 import { aiRateLimiter } from "../middleware/rateLimiter.js";
@@ -36,7 +39,7 @@ aiRouter.post("/", aiRateLimiter, async (request, response, next) => {
 
     if (!parsed.success) {
       return response.status(400).json({
-        error: "Geçersiz istek.",
+        error: "GeÃ§ersiz istek.",
         details: parsed.error.flatten().fieldErrors,
       });
     }
@@ -72,7 +75,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     if (!feature || !isAIFeature(feature)) {
       return response.status(404).json({
-        error: "Desteklenmeyen AI özelliği.",
+        error: "Desteklenmeyen AI Ã¶zelliÄŸi.",
         feature,
       });
     }
@@ -81,16 +84,21 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     if (!parsed.success) {
       return response.status(400).json({
-        error: "Geçersiz istek.",
+        error: "GeÃ§ersiz istek.",
         details: parsed.error.flatten(),
       });
     }
 
     const prompt = buildFeaturePrompt(feature, parsed.data);
 
-    console.log("[ROUTE] askNvidia başladı");
+    console.log("[ROUTE] askNvidia baÅŸladÄ±");
 
-    const answer = await askNvidia(prompt);
+    const attachments =
+      feature === "teach-topic" && Array.isArray(parsed.data.attachments)
+        ? (parsed.data.attachments as NvidiaAttachment[])
+        : [];
+
+    const answer = await askNvidia(prompt, [], attachments);
 
     console.log("[ROUTE] askNvidia bitti");
 

@@ -597,7 +597,9 @@ const [selectedAttachments, setSelectedAttachments] = useState<
     ]);
   }, [openCamera, openDocument, openGallery]);
 
-  const canSend = inputText.trim().length > 0 && !isLoading;
+  const canSend =
+    (inputText.trim().length > 0 || selectedAttachments.length > 0) &&
+    !isLoading;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -1023,6 +1025,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     gap: 8,
+  },
+  attachmentPreview: {
+    minHeight: 42,
+    borderWidth: 1,
+    borderRadius: 12,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  attachmentName: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: "Inter_500Medium",
   },
   attachmentBtn: {
     width: 34,
