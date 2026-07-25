@@ -13,13 +13,13 @@
 
 import { Feather } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -28,6 +28,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Markdown from "react-native-markdown-display";
 import Animated, {
   FadeIn,
@@ -142,7 +143,7 @@ function TypingIndicator({
     <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
       <View style={styles.aiAvatarWrap}>
         <View style={[styles.aiAvatar, { backgroundColor: AI_COLOR + "22" }]}>
-          <Feather name="cpu" size={14} color={AI_COLOR} />
+          <Feather name="zap" size={15} color="#FFFFFF" />
         </View>
       </View>
       <View style={[styles.aiBubble, { backgroundColor: colors.card }]}>
@@ -323,7 +324,7 @@ function AIBubble({
     <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
       <View style={styles.aiAvatarWrap}>
         <View style={[styles.aiAvatar, { backgroundColor: AI_COLOR + "22" }]}>
-          <Feather name="cpu" size={14} color={AI_COLOR} />
+          <Feather name="zap" size={15} color="#FFFFFF" />
         </View>
       </View>
       <View style={styles.aiBubbleGroup}>
@@ -411,6 +412,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
     uri: string;
     mimeType: string;
     fileName: string;
+    base64: string;
   }[]
 >([]);
   const scrollRef = useRef<ScrollView>(null);
@@ -443,17 +445,22 @@ const [selectedAttachments, setSelectedAttachments] = useState<
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed || isLoading) return;
+      const attachmentsToSend = [...selectedAttachments];
+
+      if ((!trimmed && attachmentsToSend.length === 0) || isLoading) return;
 
       const userMsg: ChatMessage = {
         id: `user_${Date.now()}`,
         role: "user",
-        content: trimmed,
+        content:
+          trimmed ||
+          attachmentsToSend.map((item) => `📎 ${item.fileName}`).join("\n"),
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, userMsg]);
       setInputText("");
+      setSelectedAttachments([]);
       setIsLoading(true);
 
       try {
@@ -464,7 +471,10 @@ const [selectedAttachments, setSelectedAttachments] = useState<
           topicName: trimmed,
           subjectName: "Genel",
           examType: "TYT",
-          userQuestion: trimmed,
+          userQuestion:
+            trimmed ||
+            "Yüklenen soru veya dosyayı analiz et, adım adım çöz ve açıkla.",
+          attachments: attachmentsToSend,
         });
 
         const aiMsg: ChatMessage = {
@@ -496,7 +506,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         setIsLoading(false);
       }
     },
-    [isLoading]
+    [isLoading, selectedAttachments]
   );
 
   const handleSuggestion = useCallback(
@@ -528,14 +538,30 @@ const [selectedAttachments, setSelectedAttachments] = useState<
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      quality: 0.9,
+      quality: 0.8,
       allowsEditing: false,
+      base64: true,
     });
 
     if (!result.canceled) {
       const image = result.assets[0];
+
+      if (!image.base64) {
+        Alert.alert("Hata", "Fotoğraf okunamadı.");
+        return;
+      }
+
+      setSelectedAttachments([
+        {
+          kind: "image",
+          uri: image.uri,
+          mimeType: image.mimeType ?? "image/jpeg",
+          fileName: image.fileName ?? `kamera-${Date.now()}.jpg`,
+          base64: image.base64,
+        },
+      ]);
+
       setInputText("Bu soru fotoğrafını adım adım çöz ve açıkla.");
-      Alert.alert("Fotoğraf Hazır", image.fileName ?? "Kameradan soru eklendi.");
     }
   }, []);
 
@@ -551,14 +577,31 @@ const [selectedAttachments, setSelectedAttachments] = useState<
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      quality: 0.9,
+      quality: 0.8,
       allowsEditing: false,
+      base64: true,
+      mediaTypes: ["images"],
     });
 
     if (!result.canceled) {
       const image = result.assets[0];
+
+      if (!image.base64) {
+        Alert.alert("Hata", "Görsel okunamadı.");
+        return;
+      }
+
+      setSelectedAttachments([
+        {
+          kind: "image",
+          uri: image.uri,
+          mimeType: image.mimeType ?? "image/jpeg",
+          fileName: image.fileName ?? `galeri-${Date.now()}.jpg`,
+          base64: image.base64,
+        },
+      ]);
+
       setInputText("Bu soru görselini adım adım çöz ve açıkla.");
-      Alert.alert("Görsel Hazır", image.fileName ?? "Galeriden soru eklendi.");
     }
   }, []);
 
@@ -571,8 +614,27 @@ const [selectedAttachments, setSelectedAttachments] = useState<
 
     if (!result.canceled) {
       const document = result.assets[0];
+
+      if (document.size && document.size > 8 * 1024 * 1024) {
+        Alert.alert("Dosya Çok Büyük", "En fazla 8 MB dosya yükleyebilirsin.");
+        return;
+      }
+
+      const base64 = await FileSystem.readAsStringAsync(document.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      setSelectedAttachments([
+        {
+          kind: document.mimeType === "application/pdf" ? "pdf" : "image",
+          uri: document.uri,
+          mimeType: document.mimeType ?? "application/octet-stream",
+          fileName: document.name,
+          base64,
+        },
+      ]);
+
       setInputText("Bu dosyadaki soruyu adım adım çöz ve açıkla.");
-      Alert.alert("Dosya Hazır", document.name);
     }
   }, []);
 
@@ -652,7 +714,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
       {/* ── Chat area + input ── */}
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="translate-with-padding"
         keyboardVerticalOffset={0}
       >
         {/* Messages */}
@@ -661,6 +723,9 @@ const [selectedAttachments, setSelectedAttachments] = useState<
           style={styles.flex}
           contentContainerStyle={styles.messagesList}
           keyboardShouldPersistTaps="handled"
+          onContentSizeChange={() =>
+            scrollRef.current?.scrollToEnd({ animated: true })
+          }
           showsVerticalScrollIndicator={false}
         >
           {messages.length === 0 ? (
@@ -695,6 +760,71 @@ const [selectedAttachments, setSelectedAttachments] = useState<
             },
           ]}
         >
+          {selectedAttachments.length > 0 ? (
+            <Animated.View
+              entering={FadeInDown.duration(220)}
+              style={[
+                styles.attachmentPreview,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: "rgba(124,58,237,0.30)",
+                },
+              ]}
+            >
+              <View style={styles.attachmentIcon}>
+                <Feather
+                  name={
+                    selectedAttachments[0].kind === "pdf"
+                      ? "file-text"
+                      : "image"
+                  }
+                  size={18}
+                  color={AI_COLOR}
+                />
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.attachmentName,
+                    { color: colors.foreground },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {selectedAttachments[0].fileName}
+                </Text>
+
+                <Text
+                  style={{
+                    color: colors.mutedForeground,
+                    fontSize: 11,
+                    marginTop: 2,
+                  }}
+                >
+                  {selectedAttachments[0].kind === "pdf"
+                    ? "PDF analize hazır"
+                    : "Görsel analize hazır"}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setSelectedAttachments([])}
+                disabled={isLoading}
+                accessibilityLabel="Eki kaldır"
+                style={[
+                  styles.removeAttachmentBtn,
+                  { backgroundColor: colors.muted },
+                ]}
+              >
+                <Feather
+                  name="x"
+                  size={17}
+                  color={colors.mutedForeground}
+                />
+              </TouchableOpacity>
+            </Animated.View>
+          ) : null}
+
           <View
             style={[
               styles.inputWrap,
@@ -875,13 +1005,14 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 12,
+    backgroundColor: "#7C3AED",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "rgba(245,158,11,0.55)",
-    shadowColor: "#F59E0B",
+    shadowColor: "#7C3AED",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.28,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -939,14 +1070,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   retryBtn: {
+    minHeight: 40,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginTop: 10,
+    alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    alignSelf: "flex-start",
+    justifyContent: "center",
+    gap: 7,
+    backgroundColor: "#7C3AED",
   },
   retryBtnText: {
     fontSize: 13,
@@ -961,11 +1094,11 @@ const styles = StyleSheet.create({
 
   // Typing indicator
   typingRow: {
-    minHeight: 30,
+    minHeight: 32,
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
-    paddingHorizontal: 3,
+    gap: 6,
+    paddingHorizontal: 2,
   },
   dot: {
     width: 8,
@@ -978,9 +1111,10 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   typingLabel: {
-    fontSize: 13,
-    fontFamily: "Inter_400Regular",
-    marginLeft: 2,
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+    marginLeft: 4,
+    letterSpacing: 0.2,
   },
 
   // Empty state
@@ -1104,5 +1238,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.28,
     shadowRadius: 8,
     elevation: 4,
+  },
+
+  attachmentIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    backgroundColor: "rgba(124,58,237,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  removeAttachmentBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

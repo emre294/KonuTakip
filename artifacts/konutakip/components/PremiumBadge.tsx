@@ -9,8 +9,15 @@
  *   style — optional ViewStyle overrides
  */
 
-import React from "react";
-import { StyleSheet, Text, View, type ViewStyle } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, type ViewStyle } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 // The amber/gold Premium brand colour — intentionally hard-coded so the badge
 // reads the same in both light and dark mode without pulling from ThemeContext.
@@ -26,18 +33,35 @@ export function PremiumBadge({ size = "md", style }: PremiumBadgeProps) {
   const fontSize = size === "sm" ? 9 : 10;
   const px = size === "sm" ? 5 : 7;
   const py = size === "sm" ? 2 : 3;
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.06, { duration: 800 }),
+        withTiming(1, { duration: 800 })
+      ),
+      -1,
+      false
+    );
+  }, [scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.badge,
+        animatedStyle,
         { paddingHorizontal: px, paddingVertical: py },
         style,
       ]}
     >
       <Text style={[styles.crown, { fontSize: fontSize + 1 }]}>★</Text>
       <Text style={[styles.label, { fontSize }]}>PRO</Text>
-    </View>
+    </Animated.View>
   );
 }
 
