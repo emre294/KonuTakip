@@ -1,5 +1,5 @@
-/**
- * BillingContext — React interface over BillingManager.
+﻿/**
+ * BillingContext â€” React interface over BillingManager.
  *
  * Provides the rest of the app with reactive billing state and purchase
  * actions without prop-drilling.
@@ -11,9 +11,9 @@
  *   const { products, purchase, restore, isConnected, isLoading, error } = useBilling();
  *
  * Platform behaviour:
- *   • Android dev/production build → billing fully active
- *   • Android Expo Go              → billing disabled (react-native-iap absent)
- *   • iOS / Web                    → billing disabled
+ *   â€¢ Android dev/production build â†’ billing fully active
+ *   â€¢ Android Expo Go              â†’ billing disabled (react-native-iap absent)
+ *   â€¢ iOS / Web                    â†’ billing disabled
  *
  * The exported `isBillingSupported` constant lets any screen show appropriate
  * messaging without repeating the platform + Expo Go detection logic.
@@ -42,12 +42,12 @@ import {
 } from "@/utils/billing";
 import type { SubscriptionType } from "@/utils/premium";
 
-// ─── Platform guard ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Platform guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //
 // react-native-iap requires a real native build.  It is absent from:
-//   • Expo Go ("storeClient" execution environment)
-//   • Expo Web
-//   • iOS (Google Play is Android-only)
+//   â€¢ Expo Go ("storeClient" execution environment)
+//   â€¢ Expo Web
+//   â€¢ iOS (Google Play is Android-only)
 //
 // Checking executionEnvironment at module load is safe: it's a compile-time
 // constant injected by Expo and never changes during a session.
@@ -65,14 +65,14 @@ const isExpoGo = Constants.executionEnvironment === "storeClient";
 export const isBillingSupported: boolean =
   Platform.OS === "android" && !isExpoGo;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function getSubscriptionType(_productId: string): SubscriptionType {
   // Only one subscription plan exists: konutakip_premium_aylik (monthly).
   return "monthly";
 }
 
-// ─── Context shape ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Context shape â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface BillingContextValue {
   /** Subscription products fetched from Google Play (empty until loaded). */
@@ -96,14 +96,15 @@ interface BillingContextValue {
   /** Clear the current error (e.g. after displaying it to the user). */
   clearError: () => void;
   purchaseCompletedAt: number | null;
+  purchaseSource: "purchase" | "restore" | null;
   clearPurchaseSuccess: () => void;
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const BillingContext = createContext<BillingContextValue | null>(null);
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Provider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function BillingProvider({ children }: { children: React.ReactNode }) {
   const { grantPremium, revokePremium, isPremium } = usePremium();
@@ -112,9 +113,15 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(isBillingSupported);
   const [products, setProducts] = useState<BillingProduct[]>([]);
   const [error, setError] = useState<BillingError | null>(null);
-  const [purchaseCompletedAt, setPurchaseCompletedAt] = useState<number | null>(null);
+  const [purchaseCompletedAt, setPurchaseCompletedAt] =
+    useState<number | null>(null);
+  const [purchaseSource, setPurchaseSource] = useState<
+    "purchase" | "restore" | null
+  >(null);
 
   // Keep latest callbacks in refs so BillingManager closures never go stale.
+  const restoreInProgressRef = useRef(false);
+
   const grantPremiumRef = useRef(grantPremium);
   grantPremiumRef.current = grantPremium;
 
@@ -129,7 +136,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
   const isConnectedRef = useRef(isConnected);
   isConnectedRef.current = isConnected;
 
-  // ── Effect 1: Billing initialisation ───────────────────────────────────────
+  // â”€â”€ Effect 1: Billing initialisation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   useEffect(() => {
     // Billing only runs in a real Android build (dev build or production).
@@ -148,6 +155,9 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         const subscriptionType = getSubscriptionType(purchase.productId);
         await grantPremiumRef.current(subscriptionType, null, "google_play");
         setError(null);
+        setPurchaseSource(
+          restoreInProgressRef.current ? "restore" : "purchase"
+        );
         setPurchaseCompletedAt(Date.now());
         BillingLogger.event("PremiumGranted via purchase", {
           productId: purchase.productId,
@@ -163,12 +173,12 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
       onPurchasePending: (_purchase: BillingPurchase) => {
         if (cancelled) return;
         // Pending = payment not yet processed (e.g. cash at kiosk, parental
-        // approval).  Do NOT grant Premium — the purchaseUpdatedListener fires
+        // approval).  Do NOT grant Premium â€” the purchaseUpdatedListener fires
         // again once the payment clears.
         setError({
           code: "pending",
           message:
-            "Satın alma işleminiz onay bekliyor. Onaylandığında Premium otomatik olarak aktif olacak.",
+            "SatÄ±n alma iÅŸleminiz onay bekliyor. OnaylandÄ±ÄŸÄ±nda Premium otomatik olarak aktif olacak.",
         });
       },
 
@@ -192,14 +202,19 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
           setError({
             code: "no_products",
             message:
-              "Google Play aboneliği bulunamadı. Play Console ürününün yayınlandığını ve premium-aylik base planının aktif olduğunu kontrol edin.",
+              "Google Play aboneliÄŸi bulunamadÄ±. Play Console Ã¼rÃ¼nÃ¼nÃ¼n yayÄ±nlandÄ±ÄŸÄ±nÄ± ve premium-aylik base planÄ±nÄ±n aktif olduÄŸunu kontrol edin.",
           });
         }
 
         // Restore an existing Google Play subscription on every app launch.
         // This also grants Premium through the same verified callback used by
         // a newly completed purchase.
-        await BillingManager.restorePurchases();
+        restoreInProgressRef.current = true;
+        try {
+          await BillingManager.restorePurchases();
+        } finally {
+          restoreInProgressRef.current = false;
+        }
         if (cancelled) return;
       } catch (err) {
         if (cancelled) return;
@@ -207,7 +222,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         setError({
           code: "unavailable",
           message:
-            "Ödeme sistemi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+            "Ã–deme sistemi ÅŸu anda kullanÄ±lamÄ±yor. LÃ¼tfen daha sonra tekrar deneyin.",
         });
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -220,7 +235,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Effect 2: Subscription expiry check (auto-revoke) ─────────────────────
+  // â”€â”€ Effect 2: Subscription expiry check (auto-revoke) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   //
   // When the app returns to the foreground, verify that the Google Play
   // subscription is still active.  If it has lapsed (cancelled, expired,
@@ -228,12 +243,12 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
   // the user cannot keep accessing gated features after their subscription ends.
   //
   // Safety rules (all must be true before a revoke is attempted):
-  //   1. isBillingSupported — we're on a real Android build.
-  //   2. isConnectedRef     — billing service is connected; avoids false
+  //   1. isBillingSupported â€” we're on a real Android build.
+  //   2. isConnectedRef     â€” billing service is connected; avoids false
   //                           negatives when the device is offline.
-  //   3. isPremiumRef       — user is actually premium; no point checking otherwise.
+  //   3. isPremiumRef       â€” user is actually premium; no point checking otherwise.
   //   4. checkActiveSubscription returns false explicitly (not via exception).
-  //      Errors (network, timeout) are caught and treated as "unknown" — we
+  //      Errors (network, timeout) are caught and treated as "unknown" â€” we
   //      never revoke based on a failure.
 
   useEffect(() => {
@@ -248,7 +263,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         BillingManager.checkActiveSubscription()
           .then((hasActive) => {
             if (!hasActive) {
-              BillingLogger.event("Subscription expired — revoking Premium");
+              BillingLogger.event("Subscription expired â€” revoking Premium");
               return revokePremiumRef.current();
             }
           })
@@ -262,7 +277,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
     return () => appStateSub.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Actions ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const purchase = useCallback(async (_productId: ProductId): Promise<void> => {
     setError(null);
@@ -273,21 +288,28 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
 
   const restore = useCallback(async (): Promise<boolean> => {
     setError(null);
+    restoreInProgressRef.current = true;
+
     try {
       const restored = await BillingManager.restorePurchases();
+
       if (!restored) {
         setError({
           code: "unknown",
           message: "Geri yüklenecek aktif abonelik bulunamadı.",
         });
       }
+
       return restored;
     } catch {
       setError({
         code: "unknown",
         message: "Satın alımlar geri yüklenemedi. Lütfen tekrar deneyin.",
       });
+
       return false;
+    } finally {
+      restoreInProgressRef.current = false;
     }
   }, []);
 
@@ -297,6 +319,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
 
   const clearPurchaseSuccess = useCallback(() => {
     setPurchaseCompletedAt(null);
+    setPurchaseSource(null);
   }, []);
 
   return (
@@ -310,6 +333,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
         error,
         clearError,
         purchaseCompletedAt,
+        purchaseSource,
         clearPurchaseSuccess,
       }}
     >
@@ -318,7 +342,7 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Hook â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function useBilling(): BillingContextValue {
   const ctx = useContext(BillingContext);
