@@ -1,6 +1,8 @@
-﻿import axios, { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import https from "node:https";
-import pdfParse from "pdf-parse";
+const pdfParse = require("pdf-parse/lib/pdf-parse.js") as (
+  dataBuffer: Buffer,
+) => Promise<{ text: string }>;
 import { SYSTEM_PROMPT } from "../prompts.js";
 
 type ChatMessage = {
