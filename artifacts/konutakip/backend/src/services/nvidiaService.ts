@@ -1,5 +1,8 @@
 import axios, { AxiosError } from "axios";
+import { createRequire } from "node:module";
 import https from "node:https";
+const require = createRequire(import.meta.url);
+
 const pdfParse = require("pdf-parse/lib/pdf-parse.js") as (
   dataBuffer: Buffer,
 ) => Promise<{ text: string }>;
