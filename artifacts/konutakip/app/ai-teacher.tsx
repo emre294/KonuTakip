@@ -11,6 +11,7 @@
  *   Header → ScrollView (empty state | messages) → Input bar
  */
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
@@ -47,6 +48,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PREMIUM_COLOR } from "@/components/PremiumBadge";
 import { PremiumBadge } from "@/components/PremiumBadge";
 import { PremiumGate } from "@/components/PremiumGate";
+import { useApp } from "@/contexts/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { AIError, AIManager } from "@/utils/ai";
 import type { AITeacherResponse } from "@/utils/ai";
@@ -75,7 +77,48 @@ const SUGGESTIONS = [
   "Türev nasıl alınır?",
 ];
 
-const AI_COLOR = "#7C3AED"; // indigo — distinct from premium amber
+const AI_COLOR = "#7C3AED";
+const AI_TEACHER_HISTORY_KEY = "konutakip_ai_teacher_history_v1";
+const AI_TEACHER_MAX_MESSAGES = 80;
+
+type StoredTeacherMessage = Omit<ChatMessage, "timestamp"> & {
+  timestamp: string;
+};
+
+function parseTeacherMessages(value: string | null): ChatMessage[] {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value) as StoredTeacherMessage[];
+
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(
+        (message) =>
+          message &&
+          typeof message.id === "string" &&
+          (message.role === "user" || message.role === "ai") &&
+          typeof message.content === "string"
+      )
+      .slice(-AI_TEACHER_MAX_MESSAGES)
+      .map((message) => ({
+        ...message,
+        timestamp: new Date(message.timestamp),
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function serializeTeacherMessages(messages: ChatMessage[]): string {
+  return JSON.stringify(
+    messages.slice(-AI_TEACHER_MAX_MESSAGES).map((message) => ({
+      ...message,
+      timestamp: message.timestamp.toISOString(),
+    }))
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -87,8 +130,78 @@ function formatTime(date: Date): string {
  * The real AI response lands in `res.summary` as a raw Markdown string.
  * We display it directly — the Markdown renderer handles all formatting.
  */
+function normalizeAIText(value: string): string {
+  let result = value
+    .replace(/\r\n/g, "\n")
+    .replace(/\\\[/g, "\n")
+    .replace(/\\\]/g, "\n")
+    .replace(/\\\(/g, "")
+    .replace(/\\\)/g, "")
+    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+    .replace(/\$([^$\n]+)\$/g, "$1");
+
+  result = result
+    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, "√($1)")
+    .replace(/\\lim_\{([^{}]+)\}/g, "limit ($1)")
+    .replace(/\\lim/g, "limit")
+    .replace(/\\text\s*\{([^{}]+)\}/g, "$1")
+    .replace(/\\boxed\s*\{([^{}]+)\}/g, "$1")
+    .replace(/\\overline\s*\{([^{}]+)\}/g, "$1")
+    .replace(/\\left|\\right/g, "")
+    .replace(/\\cdot|\\times/g, "×")
+    .replace(/\\div/g, "÷")
+    .replace(/\\neq/g, "≠")
+    .replace(/\\leq?/g, "≤")
+    .replace(/\\geq?/g, "≥")
+    .replace(/\\to/g, "→")
+    .replace(/\\Delta/g, "Δ")
+    .replace(/\\pi/g, "π")
+    .replace(/\\pm/g, "±")
+    .replace(/\\infty/g, "∞")
+    .replace(/\\begin\{[^}]+\}|\\end\{[^}]+\}/g, "")
+    .replace(/\\qquad|\\quad/g, " ")
+    .replace(/\\\\/g, "\n")
+    .replace(/&=/g, "=")
+    .replace(/&/g, " ");
+
+  const superscripts: Record<string, string> = {
+    "0": "⁰",
+    "1": "¹",
+    "2": "²",
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵",
+    "6": "⁶",
+    "7": "⁷",
+    "8": "⁸",
+    "9": "⁹",
+    "-": "⁻",
+  };
+
+  result = result.replace(
+    /\^\{?(-?\d+)\}?/g,
+    (_match, exponent: string) =>
+      exponent
+        .split("")
+        .map((character) => superscripts[character] ?? character)
+        .join("")
+  );
+
+  return result
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function formatAIResponse(res: AITeacherResponse): string {
-  return res.summary;
+  const normalized = normalizeAIText(res.summary ?? "");
+
+  if (!normalized) {
+    return "Yanıt oluşturuldu ancak açıklama metni boş geldi. Lütfen tekrar dene.";
+  }
+
+  return normalized;
 }
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
@@ -399,10 +512,12 @@ function EmptyState({
 
 function AITeacherContent() {
   const colors = useColors();
+  const { profile } = useApp();
   const insets = useSafeAreaInsets();
   const { prompt } = useLocalSearchParams<{ prompt?: string | string[] }>();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -417,6 +532,37 @@ const [selectedAttachments, setSelectedAttachments] = useState<
 >([]);
   const scrollRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
+  useEffect(() => {
+    let active = true;
+
+    AsyncStorage.getItem(AI_TEACHER_HISTORY_KEY)
+      .then((stored) => {
+        if (!active) return;
+        setMessages(parseTeacherMessages(stored));
+      })
+      .catch(() => {
+        if (!active) return;
+        setMessages([]);
+      })
+      .finally(() => {
+        if (active) setIsHistoryLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isHistoryLoaded) return;
+
+    AsyncStorage.setItem(
+      AI_TEACHER_HISTORY_KEY,
+      serializeTeacherMessages(messages)
+    ).catch(() => {});
+  }, [isHistoryLoaded, messages]);
+
+
 
   useEffect(() => {
     const incomingPrompt = Array.isArray(prompt) ? prompt[0] : prompt;
@@ -462,18 +608,42 @@ const [selectedAttachments, setSelectedAttachments] = useState<
       setInputText("");
       setSelectedAttachments([]);
       setIsLoading(true);
+        try {
+          const recentConversation = messages
+            .filter((message) => !message.isError)
+            .slice(-10)
+            .map((message) => {
+              const speaker =
+                message.role === "user" ? "Öğrenci" : "AI Öğretmen";
 
-      try {
-        const res = await AIManager.teachTopic({
+              return `${speaker}: ${message.content}`;
+            })
+            .join("\n\n");
+
+          const studentName = profile?.name?.trim() || "Öğrenci";
+
+          const contextualQuestion = [
+            `Öğrencinin adı: ${studentName}`,
+            recentConversation
+              ? `Önceki konuşma:\n${recentConversation}`
+              : "",
+            `Yeni istek: ${
+              trimmed ||
+              "Yüklenen soru veya dosyayı analiz et, adım adım çöz ve açıkla."
+            }`,
+            "Öğrencinin adını her cevapta tekrar etme. Yalnızca doğal ve gerekli olduğunda kullan.",
+          ]
+            .filter(Boolean)
+            .join("\n\n");
+
+          const res = await AIManager.teachTopic({
           feature: "ai_teacher",
           requestedAt: new Date().toISOString(),
           topicId: `chat_${Date.now()}`,
           topicName: trimmed,
           subjectName: "Genel",
           examType: "TYT",
-          userQuestion:
-            trimmed ||
-            "Yüklenen soru veya dosyayı analiz et, adım adım çöz ve açıkla.",
+          userQuestion: contextualQuestion,
           attachments: attachmentsToSend,
         });
 
@@ -506,7 +676,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         setIsLoading(false);
       }
     },
-    [isLoading, selectedAttachments]
+    [isLoading, messages, profile?.name, selectedAttachments]
   );
 
   const handleSuggestion = useCallback(

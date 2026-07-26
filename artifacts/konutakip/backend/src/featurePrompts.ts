@@ -1,4 +1,4 @@
-export type AIFeature =
+﻿export type AIFeature =
   | "generate-questions"
   | "evaluate-question"
   | "teach-topic"
@@ -9,6 +9,42 @@ export type AIFeature =
   | "mini-exam"
   | "study-plan";
 
+const STEP_BY_STEP_RULES = `
+SORU ÇÖZÜMÜ ZORUNLU DÜZENİ:
+
+## Soru Analizi
+
+- Verilen:
+- İstenen:
+- Kullanılacak yöntem:
+
+## Adım Adım Çözüm
+
+### 1. Adım
+
+İşlemi yaz ve nedenini kısa biçimde açıkla.
+
+### 2. Adım
+
+Sonraki işlemi yaz ve nedenini açıkla.
+
+Gerekli olduğu kadar numaralı adım kullan. Önemli işlem atlama.
+
+## Sonuç
+
+Cevabı net biçimde yaz.
+
+## Kontrol
+
+Sonucu kısa bir işlemle veya mantık kontrolüyle doğrula.
+
+MATEMATİK GÖSTERİMİ:
+- Ham LaTeX kullanma.
+- \frac, \sqrt, \lim, \text, \boxed, \begin, \end, \left ve \right yazma.
+- x², √16, 2 × 3, 10 ÷ 2, x → 2 gibi okunabilir gösterim kullan.
+- Kesirleri gerektiğinde (pay)/(payda) biçiminde yaz.
+`.trim();
+
 const FEATURE_INSTRUCTIONS: Record<AIFeature, string> = {
   "generate-questions": `
 Verilen öğrenci, ders, konu, sınav türü, seviye ve adet bilgilerine göre özgün sorular üret.
@@ -18,8 +54,9 @@ Kurallar:
 - Her soru 5 seçenekli olsun.
 - Yalnızca bir doğru cevap bulunsun.
 - Çeldiriciler mantıklı olsun.
-- Her soruda doğru cevap ve açıklamalı çözüm yer alsın.
+- Her soruda doğru cevap ve adım adım çözüm yer alsın.
 - Gerçek ÖSYM sorularını birebir kopyalama.
+- Ham LaTeX kullanma.
 `,
 
   "evaluate-question": `
@@ -28,73 +65,85 @@ Kurallar:
 Kurallar:
 - Cevabın doğru veya yanlış olduğunu açıkça belirt.
 - Doğru cevabı yaz.
-- Öğrencinin cevabındaki hatayı açıkla.
-- Kısa fakat öğretici geri bildirim ver.
-- Gerekirse doğru çözüm yolunu adım adım göster.
+- Öğrencinin hatasını açıkla.
+- Doğru çözüm yolunu adım adım göster.
+- Her önemli işlemin nedenini kısaca belirt.
+
+${STEP_BY_STEP_RULES}
 `,
 
   "teach-topic": `
-Verilen konuyu öğrenciye öğret. Aşağıdaki bölümleri sırayla yaz. Her bölüm için Markdown başlığı kullan.
+Kullanıcının isteğini önce sınıflandır:
 
-## [Konu Adı]
+1. Kullanıcı bir soru, denklem, işlem, fotoğraf veya PDF çözümü istiyorsa konu anlatımı yapma. Doğrudan adım adım soru çözümü üret.
+2. Kullanıcı açıkça bir konuyu anlatmanı istiyorsa konu anlatımı formatını kullan.
 
-### 📌 Kısa Özet
+SORU ÇÖZÜMÜ İSTENDİYSE:
+${STEP_BY_STEP_RULES}
+
+KONU ANLATIMI İSTENDİYSE:
+
+## Konu Başlığı
+
+### Kısa Özet
+
 Konuyu 2–3 cümleyle özetle.
 
-### 📖 Detaylı Anlatım
-Konuyu açık, anlaşılır şekilde anlat. Gerektiğinde alt başlıklar ekle.
+### Temel Kavramlar
 
-### 🔑 Temel Kavramlar
-Her kavramı **kalın** yaz ve kısa tanımla.
+Kavramları kısa ve anlaşılır biçimde açıkla.
 
-### 📐 Formüller ve Kurallar
-Formülleri ve önemli kuralları listele. LaTeX yerine Unicode kullan (×, ÷, √, ≤, ≥).
+### Formüller ve Kurallar
 
-### 🎯 ÖSYM İpuçları
-Sınavda sık çıkan soru tipleri ve dikkat edilmesi gereken noktalar.
+Formülleri okunabilir düz metin ve Unicode ile yaz.
 
-### ✅ Çözümlü Örnek
-Tipik bir soruyu adım adım çöz.
+### Adım Adım Anlatım
 
-### ⚠️ Sık Yapılan Hatalar
-Öğrencilerin en çok yaptığı hataları listele.
+Konuyu mantıksal sırayla anlat.
 
-### 🧪 Mini Test
-2–3 kısa soru sor ve cevapları altına yaz.
+### Çözümlü Örnek
 
-### 💡 Sonuç
-Konuyu 1–2 cümleyle özetle ve çalışma önerisi ver.
+Tipik bir soruyu hiçbir önemli işlemi atlamadan çöz.
+
+### Sık Yapılan Hatalar
+
+En yaygın hataları listele.
+
+### Kısa Tekrar Önerisi
+
+Öğrencinin konuyu pekiştirmesi için kısa öneri ver.
+
+DOSYA VE GÖRSEL:
+- Yüklenen görsel veya PDF'deki metni gerçekten incele.
+- Okunamayan bölümü tahmin etme.
+- Önce soruyu kısaca yeniden yaz.
+- Ardından adım adım çöz.
+- Birden fazla soru varsa ilk okunabilir sorudan başla.
 
 Kurallar:
-- Yalnızca Markdown metin çıkışı ver.
-- JSON veya kod bloğu üretme.
-- Anlatımı öğrencinin sınav türü ve seviyesine göre düzenle.
+- Yalnızca Markdown metni üret.
+- JSON, HTML veya kod bloğu üretme.
+- Ham LaTeX kullanma.
+- Gereksiz uzun giriş yapma.
 `,
 
   "explain-question": `
-Verilen soruyu ayrıntılı şekilde çöz ve açıkla.
+Verilen soruyu doğrudan çöz.
 
-### 🔍 Soru Analizi
-Verilenleri ve isteneni belirle.
+${STEP_BY_STEP_RULES}
 
-### 📝 Çözüm Adımları
-Her adımı sırayla açıkla. Her önemli adımın nedenini kısaca belirt.
-
-### ✅ Sonuç Doğrulama
-Sonucu kontrol et. Çoktan seçmeli soruda doğru seçeneği net biçimde yaz.
-
-### ⚠️ Yanlış Cevap Analizi (varsa)
-Öğrencinin yanlış cevabı neden yanlış olduğunu açıkla.
-
-Kurallar:
-- Yalnızca Markdown metin çıkışı ver.
-- JSON veya kod bloğu üretme.
+Ek kurallar:
+- Soruyu yeniden uzun uzun anlatma.
+- Her adımda yalnızca gerekli işlemi ve kısa nedenini yaz.
+- Çoktan seçmeli soruda doğru seçeneği net biçimde belirt.
+- Öğrencinin yanlış cevabı varsa neden yanlış olduğunu açıkla.
+- JSON, HTML veya kod bloğu üretme.
 `,
 
   "analyze-mistakes": `
 Öğrencinin yanlış sorularını ve hata kayıtlarını analiz et.
 
-Her önemli hata için şunları belirt:
+Her önemli hata için:
 - Zayıf konu
 - Hata türü
 - Muhtemel neden
@@ -102,7 +151,8 @@ Her önemli hata için şunları belirt:
 - Önerilen tekrar
 - Önerilen soru sayısı
 
-Sonunda öncelik sırasına göre kısa bir gelişim planı oluştur.
+Sonunda öncelik sırasına göre kısa gelişim planı oluştur.
+Uydurma öğrenci verisi üretme.
 `,
 
   "practice-question": `
@@ -113,34 +163,48 @@ Kurallar:
 - 5 seçenek oluştur.
 - Yalnızca bir doğru cevap bulunsun.
 - Doğru cevabı belirt.
-- Ayrıntılı çözüm ekle.
+- Çözümü adım adım göster.
 - Çeldiriciler mantıklı olsun.
+- Ham LaTeX kullanma.
+
+${STEP_BY_STEP_RULES}
 `,
 
   "coach": `
 Öğrencinin ilerleme, tamamlanan konular, yanlış sorular, çalışma geçmişi ve hedef bilgilerini incele.
 
 Şunları üret:
-- Mevcut durum değerlendirmesi
-- Güçlü yönler
-- Öncelikli eksikler
-- Bugün yapılacak en önemli görevler
-- Gerçekçi çalışma önerileri
-- Kısa motivasyon mesajı
 
-Genel ve yüzeysel tavsiyeler yerine gönderilen öğrenci verilerini kullan.
+## Mevcut Durum
+
+## Güçlü Yönler
+
+## Öncelikli Eksikler
+
+## Bugünün En Önemli Görevleri
+
+## Çalışma Önerileri
+
+## Kısa Motivasyon
+
+Kurallar:
+- Gönderilen gerçek öğrenci verilerini kullan.
+- Veri yoksa uydurma istatistik oluşturma.
+- Boş veya yalnızca başlıklardan oluşan cevap verme.
+- Her bölümde en az bir anlamlı cümle veya madde bulunmalı.
 `,
 
   "mini-exam": `
-Verilen zayıf konu ve derslere göre uyarlanabilir bir mini sınav hazırla.
+Verilen zayıf konu ve derslere göre uyarlanabilir mini sınav hazırla.
 
 Kurallar:
-- Soru sayısına uy.
+- İstenen soru sayısına uy.
 - TYT veya AYT seviyesine uygun ol.
 - Her soru 5 seçenekli olsun.
 - Her sorunun tek doğru cevabı olsun.
 - Sorular farklı kazanımları ölçsün.
-- Cevap anahtarı ve açıklamalı çözümler ekle.
+- Cevap anahtarı ve adım adım çözümler ekle.
+- Ham LaTeX kullanma.
 `,
 
   "study-plan": `
@@ -157,10 +221,10 @@ Plan şunları içersin:
 - Dinlenme veya hafif gün
 
 Plan gerçekçi, sürdürülebilir ve öğrencinin verilerine özel olsun.
+Uydurma öğrenci geçmişi veya istatistik oluşturma.
 `
 };
 
-/** Features that must return plain Markdown text (not JSON). */
 const TEXT_OUTPUT_FEATURES = new Set<AIFeature>([
   "teach-topic",
   "explain-question",
@@ -170,11 +234,13 @@ const TEXT_OUTPUT_FEATURES = new Set<AIFeature>([
 
 const TEXT_OUTPUT_RULES = `
 ÇIKTI KURALLARI:
-- Yalnızca okunabilir Türkçe Markdown metin çıkışı ver.
+- Yalnızca okunabilir Türkçe Markdown metni üret.
 - JSON, kod bloğu veya HTML etiketi kullanma.
-- Kullanıcıya gösterilecek nihai metni üret; talimatları açıklama.
-- İstek verisindeki alanları dikkate al.
-- Eksik bilgi varsa makul varsayımı açıkça belirt.
+- Kullanıcıya gösterilecek nihai metni üret.
+- Eksik bilgi varsa varsayımı açıkça belirt.
+- Ham LaTeX komutu kullanma.
+- Bozuk karakter, anlamsız sembol veya HTML kalıntısı üretme.
+- Boş cevap verme.
 `.trim();
 
 const JSON_OUTPUT_RULES = `
@@ -183,10 +249,10 @@ const JSON_OUTPUT_RULES = `
 - Markdown kod bloğu kullanma.
 - JSON öncesinde veya sonrasında açıklama yazma.
 - Alan isimlerini İngilizce yaz.
-- Kullanıcıya gösterilecek metinlerin değerlerini Türkçe yaz.
-- İstek verisindeki alanları dikkate al.
-- Eksik bilgi varsa makul ve açık bir varsayım kullan.
+- Kullanıcıya gösterilecek metinleri Türkçe yaz.
+- Eksik bilgi varsa açık bir varsayım kullan.
 - Uydurma öğrenci geçmişi veya istatistik oluşturma.
+- Ham LaTeX kullanma.
 `.trim();
 
 export function buildFeaturePrompt(

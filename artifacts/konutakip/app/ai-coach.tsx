@@ -1,6 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -15,12 +16,59 @@ import Markdown from "react-native-markdown-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PremiumGate } from "@/components/PremiumGate";
+import { useApp } from "@/contexts/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { sendAIMessage, type AIMessage } from "@/services/aiService";
 import { PremiumFeature } from "@/utils/premium";
 
 interface ChatMessage extends AIMessage {
   id: string;
+}
+
+const AI_COACH_HISTORY_KEY = "konutakip_ai_coach_history_v1";
+const AI_COACH_MAX_MESSAGES = 80;
+
+function createCoachWelcomeMessage(name?: string): ChatMessage {
+  const cleanName = name?.trim();
+
+  return {
+    id: "welcome",
+    role: "assistant",
+    content: cleanName
+      ? `Merhaba ${cleanName}! Ben KonuTakip AI çalışma koçunum. Hedeflerini, çalışma düzenini ve eksiklerini birlikte planlayabiliriz.`
+      : "Merhaba! Ben KonuTakip AI çalışma koçunum. Hedeflerini, çalışma düzenini ve eksiklerini birlikte planlayabiliriz.",
+  };
+}
+
+function parseCoachMessages(
+  value: string | null,
+  name?: string
+): ChatMessage[] {
+  if (!value) return [createCoachWelcomeMessage(name)];
+
+  try {
+    const parsed = JSON.parse(value) as ChatMessage[];
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return [createCoachWelcomeMessage(name)];
+    }
+
+    const valid = parsed
+      .filter(
+        (message) =>
+          message &&
+          typeof message.id === "string" &&
+          (message.role === "user" || message.role === "assistant") &&
+          typeof message.content === "string"
+      )
+      .slice(-AI_COACH_MAX_MESSAGES);
+
+    return valid.length > 0
+      ? valid
+      : [createCoachWelcomeMessage(name)];
+  } catch {
+    return [createCoachWelcomeMessage(name)];
+  }
 }
 
 function cleanAIText(value: string): string {
@@ -103,20 +151,46 @@ function isQuestionRequest(text: string): boolean {
 
 function AICoachContent() {
   const colors = useColors();
+  const { profile } = useApp();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
 
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content:
-        "Merhaba! Ben KonuTakip AI çalışma koçunum. Konu anlatımı, soru çözümü veya çalışma planı hakkında bana soru sorabilirsin.",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+
+    AsyncStorage.getItem(AI_COACH_HISTORY_KEY)
+      .then((stored) => {
+        if (!active) return;
+        setMessages(parseCoachMessages(stored, profile?.name));
+      })
+      .catch(() => {
+        if (!active) return;
+        setMessages([createCoachWelcomeMessage(profile?.name)]);
+      })
+      .finally(() => {
+        if (active) setIsHistoryLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isHistoryLoaded || messages.length === 0) return;
+
+    AsyncStorage.setItem(
+      AI_COACH_HISTORY_KEY,
+      JSON.stringify(messages.slice(-AI_COACH_MAX_MESSAGES))
+    ).catch(() => {});
+  }, [isHistoryLoaded, messages]);
+
+
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -175,7 +249,20 @@ function AICoachContent() {
       return;
     }
     try {
-      const answer = await sendAIMessage(cleanMessage, history);
+      const personalizedMessage = [
+          profile?.name?.trim()
+            ? `Öğrencinin adı: ${profile.name.trim()}`
+            : "",
+          cleanMessage,
+          "Öğrencinin adını her cevapta tekrar etme. Yalnızca doğal ve gerekli olduğunda kullan.",
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+
+        const answer = await sendAIMessage(
+          personalizedMessage,
+          history
+        );
 
       setMessages((current) => [
         ...current,
@@ -654,7 +741,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-
-
-

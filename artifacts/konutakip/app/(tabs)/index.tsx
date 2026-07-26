@@ -237,6 +237,43 @@ function PremiumHomeSection({
         </TouchableOpacity>
       </Animated.View>
 
+      {/* AI Coach Quick Access */}
+      <Animated.View entering={FadeInDown.delay(110).duration(500)}>
+        <TouchableOpacity
+          activeOpacity={0.88}
+          onPress={() => router.push("/ai-coach")}
+        >
+          <LinearGradient
+            colors={["#6D28D9", "#9333EA", "#A855F7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={premiumStyles.aiCard}
+          >
+            <View style={premiumStyles.aiCardLeft}>
+              <View style={premiumStyles.aiIconWrap}>
+                <Ionicons name="sparkles" size={22} color="#FFFFFF" />
+              </View>
+
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={premiumStyles.aiCardTitle}>
+                  Premium AI Koç
+                </Text>
+
+                <Text style={premiumStyles.aiCardSub}>
+                  Planını, hedefini ve çalışma düzenini sor
+                </Text>
+              </View>
+            </View>
+
+            <Feather
+              name="arrow-right"
+              size={20}
+              color="rgba(255,255,255,0.8)"
+            />
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+
       {/* Daily motivation */}
       <Animated.View entering={FadeInDown.delay(140).duration(500)}>
         <View style={[premiumStyles.motivCard, { backgroundColor: colors.card, borderColor: PREMIUM_COLOR + "30" }]}>
@@ -263,6 +300,108 @@ function PremiumHomeSection({
               {totalSolvedQuestions.toLocaleString("tr-TR")}
             </Text>
             <Text style={[premiumStyles.statLbl, { color: colors.mutedForeground }]}>Soru</Text>
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Premium personal insight */}
+      <Animated.View entering={FadeInDown.delay(230).duration(500)}>
+        <View
+          style={[
+            premiumStyles.insightCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: "#7C3AED35",
+            },
+          ]}
+        >
+          <View style={premiumStyles.insightHeader}>
+            <View style={premiumStyles.insightIcon}>
+              <Ionicons name="analytics" size={20} color="#7C3AED" />
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <Text
+                style={[
+                  premiumStyles.insightTitle,
+                  { color: colors.foreground },
+                ]}
+              >
+                Premium performans özeti
+              </Text>
+
+              <Text
+                style={[
+                  premiumStyles.insightSubtitle,
+                  { color: colors.mutedForeground },
+                ]}
+              >
+                Güncel ilerlemene göre kişisel öneri
+              </Text>
+            </View>
+          </View>
+
+          <View style={premiumStyles.insightRows}>
+            <View style={premiumStyles.insightRow}>
+              <Ionicons
+                name="trending-up"
+                size={17}
+                color="#22C55E"
+              />
+
+              <Text
+                style={[
+                  premiumStyles.insightText,
+                  { color: colors.foreground },
+                ]}
+              >
+                {tytProgress === aytProgress
+                  ? "TYT ve AYT ilerlemen dengeli."
+                  : tytProgress > aytProgress
+                    ? "TYT ilerlemen önde. Bugün AYT çalışmalarına ağırlık ver."
+                    : "AYT ilerlemen önde. Bugün TYT çalışmalarına ağırlık ver."}
+              </Text>
+            </View>
+
+            <View style={premiumStyles.insightRow}>
+              <Ionicons
+                name="help-circle"
+                size={17}
+                color="#2563EB"
+              />
+
+              <Text
+                style={[
+                  premiumStyles.insightText,
+                  { color: colors.foreground },
+                ]}
+              >
+                Toplam {totalSolvedQuestions.toLocaleString("tr-TR")} soru
+                çözdün. Düzenli tekrarlarla yanlışlarını azalt.
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => router.push("/ai-coach")}
+              style={premiumStyles.insightButton}
+            >
+              <Ionicons
+                name="sparkles"
+                size={16}
+                color="#FFFFFF"
+              />
+
+              <Text style={premiumStyles.insightButtonText}>
+                AI Koç ile plan oluştur
+              </Text>
+
+              <Feather
+                name="arrow-right"
+                size={15}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
           </View>
         </View>
       </Animated.View>
@@ -345,6 +484,69 @@ const premiumStyles = StyleSheet.create({
   motivEmoji: { fontSize: 20, flexShrink: 0, marginTop: 1 },
   motivText: { flex: 1, fontSize: 13, fontFamily: "Inter_500Medium", lineHeight: 20 },
   statsRow: { flexDirection: "row", gap: 10 },
+  insightCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 16,
+    shadowColor: "#7C3AED",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  insightHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+  },
+  insightIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: "#7C3AED18",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  insightTitle: {
+    fontSize: 14,
+    fontFamily: "Inter_700Bold",
+  },
+  insightSubtitle: {
+    marginTop: 2,
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+  },
+  insightRows: {
+    gap: 11,
+    marginTop: 15,
+  },
+  insightRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 9,
+  },
+  insightText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: "Inter_500Medium",
+  },
+  insightButton: {
+    minHeight: 44,
+    borderRadius: 14,
+    backgroundColor: "#7C3AED",
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 2,
+  },
+  insightButtonText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+  },
   statChip: {
     flex: 1,
     borderRadius: 16,
@@ -625,6 +827,8 @@ export default function HomeScreen() {
           <CountdownCard title="AYT 2027" date={AYT_EXAM_DATE} color="#7C3AED" colors={colors} />
         </View>
       </Animated.View>
+      {!isPremium && (
+
 
       <Animated.View entering={FadeInDown.delay(180).duration(500)}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Konu İlerlemesi</Text>
@@ -634,6 +838,7 @@ export default function HomeScreen() {
           <ProgressCard title="AYT" pct={aytProgress} color="#7C3AED" colors={colors} />
         </View>
       </Animated.View>
+      )}
 
       <Animated.View entering={FadeInDown.delay(220).duration(500)}>
         <RemainingTopicsCard
@@ -645,6 +850,8 @@ export default function HomeScreen() {
           colors={colors}
         />
       </Animated.View>
+      {!isPremium && (
+
 
       <Animated.View entering={FadeInDown.delay(260).duration(500)}>
         <View style={styles.statsRow}>
@@ -671,6 +878,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </Animated.View>
+      )}
 
       <Animated.View entering={FadeInDown.delay(300).duration(500)}>
         <View style={styles.sectionHeader}>
@@ -845,4 +1053,3 @@ const styles = StyleSheet.create({
   },
   quickActionText: { fontSize: 10, fontFamily: "Inter_500Medium", textAlign: "center" },
 });
-
