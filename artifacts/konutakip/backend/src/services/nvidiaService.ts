@@ -17,6 +17,7 @@ export type NvidiaRequestOptions = {
   temperature?: number;
   topP?: number;
   maxTokens?: number;
+  allowReasoningValidationFallback?: boolean;
 };
 
 export type NvidiaAttachment = {
@@ -66,6 +67,41 @@ const NVIDIA_VISION_MODEL =
 const REQUEST_TIMEOUT_MS = 60_000;
 const MAX_PDF_BYTES = 8 * 1024 * 1024;
 const MAX_PDF_TEXT_LENGTH = 50_000;
+
+function extractValidationVerdict(
+  reasoning: string,
+): string | null {
+  const normalized = reasoning
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  const invalidMatches = [
+    ...normalized.matchAll(/INVALID\s*:[^\n]*/gi),
+  ];
+
+  if (invalidMatches.length > 0) {
+    return invalidMatches[invalidMatches.length - 1][0].trim();
+  }
+
+  const lines = normalized
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  for (let index = lines.length - 1; index >= 0; index--) {
+    const line = lines[index].toUpperCase();
+
+    if (line === "VALID") {
+      return "VALID";
+    }
+
+    if (line.startsWith("INVALID")) {
+      return lines[index];
+    }
+  }
+
+  return null;
+}
 
 function normalizeModelAnswer(value: string): string {
   return value
@@ -236,6 +272,17 @@ export async function askNvidia(
       typeof choice?.message?.reasoning_content === "string"
         ? choice.message.reasoning_content.trim()
         : "";
+
+    if (
+      options.allowReasoningValidationFallback &&
+      reasoning
+    ) {
+      const verdict = extractValidationVerdict(reasoning);
+
+      if (verdict) {
+        return verdict;
+      }
+    }
 
     if ((options.maxTokens ?? 0) < 4096) {
       return askNvidia(

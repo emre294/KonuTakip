@@ -244,6 +244,7 @@ async function generateVerifiedQuestionAnswer(
       temperature: 0.05,
       topP: 0.35,
       maxTokens: 4096,
+      allowReasoningValidationFallback: true,
     },
   );
 
@@ -276,6 +277,7 @@ async function generateVerifiedQuestionAnswer(
       temperature: 0.03,
       topP: 0.3,
       maxTokens: 4096,
+      allowReasoningValidationFallback: true,
     },
   );
 
