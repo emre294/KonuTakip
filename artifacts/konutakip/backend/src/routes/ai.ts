@@ -137,6 +137,10 @@ DENETİM KURALLARI:
 - Soru kökü açık ve tek anlamlı mı?
 - Cevap anahtarı ile çözüm aynı sonucu veriyor mu?
 - Türkçe sorularında bağlaç olan "de/da" ile bulunma hâl eki doğru ayrılmış mı?
+- De/da sorularında seçenekler tam ve doğal cümlelerden mi oluşuyor?
+- "dey", "day", "hiçbiri", "hepsi" veya yalnızca eklerden oluşan seçenek var mı?
+- Bağlaç olan de/da yanlışlıkla te/ta biçiminde kullanılmış mı?
+- Özel adlara gelen eklerde kesme işareti doğru kullanılmış mı?
 - Yazım, noktalama veya anlatım bozukluğu var mı?
 - Matematik ve fen sorularında işlem, birim, işaret veya koşul hatası var mı?
 
@@ -256,6 +260,47 @@ async function generateVerifiedQuestionAnswer(
   return finalRepair;
 }
 
+const DE_DA_QUESTION_RULES = `
+DE/DA SORULARI İÇİN ÖZEL ZORUNLU FORMAT:
+
+- Boşluk doldurma sorusu üretme.
+- Seçenekleri yalnızca "de", "da", "te", "ta" veya uydurma sözcüklerden oluşturma.
+- "dey", "day", "hiçbiri", "hepsi" gibi seçenekler kesinlikle kullanma.
+- Her seçenekte doğal ve eksiksiz bir Türkçe cümle yaz.
+- Her soru şu iki kalıptan biriyle hazırlanmalı:
+  1. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı yanlıştır?"
+  2. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı doğrudur?"
+- Her soruda yalnızca bir seçenek hedeflenen cevaba uymalıdır.
+- Diğer dört seçenek kesin ve tartışmasız biçimde yanlış veya doğru olmalıdır.
+- Bağlaç olan "de/da" ayrı yazılır.
+- Bulunma hâl eki "-de/-da/-te/-ta" kelimeye bitişik yazılır.
+- Özel adlara gelen bulunma hâl eki kesme işaretiyle ayrılır: Ankara'da, İstanbul'da.
+- "de/da" bağlacı hiçbir zaman "te/ta" biçimine dönüşmez.
+- Ünsüz benzeşmesi yalnızca bulunma hâl ekinde görülür: sınıfta, parkta.
+- Her seçeneği cümleden "de/da" çıkarma yöntemiyle kontrol et.
+- Çıkarıldığında temel anlam bozulmuyorsa bağlaçtır ve ayrı yazılır.
+- Yer, zaman veya bulunma anlamı veriyorsa ektir ve bitişik yazılır.
+- Anlatım bozukluğu, eksik öge veya doğal olmayan cümle kullanma.
+- Cevap anahtarındaki harf ile çözümdeki harf aynı olmalıdır.
+- Çözümde yanlış cümleyi doğruymuş gibi savunma.
+
+ÖRNEK SORU YAPISI:
+
+### 1. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de seninle geleceğim.
+B) Kitaplar masada duruyor.
+C) Ankara'da hava soğuktu.
+D) Oda çok sessizdi.
+E) Kardeşimde bizimle geldi.
+
+Bu örnekte yalnızca E yanlıştır. Çünkü bağlaç olan "de" ayrı yazılmalıdır:
+"Kardeşim de bizimle geldi."
+
+Bu örneği birebir kopyalama; aynı kesinlikte özgün sorular üret.
+`.trim();
+
 function getNvidiaOptions(
   feature: AIFeature,
   requestData: Record<string, unknown>,
@@ -363,6 +408,18 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       prompt = [
         prompt,
         TEACHER_QUESTION_GENERATION_RULES,
+      ].join("\n\n");
+    }
+
+    const requestText = JSON.stringify(parsed.data);
+
+    if (
+      isQuestionGenerationRequest(feature, parsed.data) &&
+      /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(requestText)
+    ) {
+      prompt = [
+        prompt,
+        DE_DA_QUESTION_RULES,
       ].join("\n\n");
     }
 
