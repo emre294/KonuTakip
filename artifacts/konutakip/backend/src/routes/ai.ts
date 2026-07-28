@@ -658,6 +658,134 @@ GENEL DERS UZMANI:
   ].join("\n\n");
 }
 
+function getStudentLevelRules(
+  requestData: Record<string, unknown>,
+): string {
+  const rawLevel = String(
+    requestData.level ??
+    requestData.difficulty ??
+    requestData.studentLevel ??
+    requestData.gradeLevel ??
+    "orta",
+  )
+    .toLocaleLowerCase("tr-TR")
+    .trim();
+
+  const rawQuestion = String(
+    requestData.userQuestion ??
+    requestData.message ??
+    requestData.prompt ??
+    "",
+  ).toLocaleLowerCase("tr-TR");
+
+  let level: "beginner" | "easy" | "medium" | "hard" | "advanced" =
+    "medium";
+
+  if (
+    /başlangıç|temel|hiç bilmiyorum|sıfırdan|yeni başladım/.test(
+      rawLevel + " " + rawQuestion,
+    )
+  ) {
+    level = "beginner";
+  }
+  else if (
+    /kolay|basit/.test(rawLevel + " " + rawQuestion)
+  ) {
+    level = "easy";
+  }
+  else if (
+    /çok zor|ileri|üst düzey|derece/.test(
+      rawLevel + " " + rawQuestion,
+    )
+  ) {
+    level = "advanced";
+  }
+  else if (
+    /zor|orta-zor|ösym ayarında|ösym seviyesinde/.test(
+      rawLevel + " " + rawQuestion,
+    )
+  ) {
+    level = "hard";
+  }
+
+  const shared = `
+ÖĞRENCİ SEVİYESİNE UYARLAMA:
+
+- Aynı konuyu her öğrenciye aynı zorlukta anlatma.
+- Öğrencinin isteğindeki seviye ifadesini dikkate al.
+- Bilinmeyen ön koşulları kısa biçimde hatırlat.
+- Öğrenciyi gereksiz ayrıntıyla boğma.
+- Anlatım ve soru zorluğu birbiriyle uyumlu olsun.
+- Çözümde seviyeye uygun miktarda ara adım göster.
+- Kolay soruyu yapay biçimde uzatma.
+- Zor soruda kritik düşünme adımlarını atlama.
+- Soru setinde aynı kazanımı tekrar tekrar ölçme.
+- Beş soruluk bir sette mümkünse farklı alt kazanımlar kullan.
+`.trim();
+
+  const rules = {
+    beginner: `
+BAŞLANGIÇ SEVİYESİ:
+
+- Konuya kısa tanım ve temel kavramlarla başla.
+- Teknik terimi ilk kullanımda açıkla.
+- Tek adımlı ve doğrudan örnekler kullan.
+- Sorularda temel kazanımı ölç.
+- Güçlü çeldiriciler yerine öğretici ve ayırt edilebilir seçenekler kullan.
+- Çözümde hiçbir temel adımı atlama.
+- Kullanıcı istemedikçe ileri seviye istisna ekleme.
+`.trim(),
+
+    easy: `
+KOLAY SEVİYE:
+
+- Temel bilgiyi kısa hatırlat.
+- Bir veya iki adımlı sorular üret.
+- Günlük yaşam bağlantısı kullanılabilir.
+- Çeldiriciler yaygın temel hatalara dayansın.
+- Çözüm açık fakat gereksiz uzun olmasın.
+`.trim(),
+
+    medium: `
+ORTA SEVİYE:
+
+- Temel bilgi ile yorum becerisini birlikte ölç.
+- Sorular iki kazanımı ilişkilendirebilir.
+- Çeldiriciler gerçek öğrenci hatalarına dayansın.
+- Çözümde kullanılan yöntemin nedenini açıkla.
+- Soru setinde kolaydan zora doğal geçiş yap.
+`.trim(),
+
+    hard: `
+ZOR SEVİYE:
+
+- Ezberden çok analiz, yorum ve bağlantı kurma ölç.
+- Sorunun zorluğu uzun metinden değil düşünme gereksiniminden gelsin.
+- Yakın ve güçlü çeldiriciler kullan fakat belirsizlik oluşturma.
+- Çok adımlı sorularda bütün verilerin gerekli olduğundan emin ol.
+- Çözümde kritik karar noktalarını açıkla.
+- Müfredat dışına çıkmadan ÖSYM düzeyinde seçicilik sağla.
+`.trim(),
+
+    advanced: `
+İLERİ SEVİYE:
+
+- Konunun sınav kapsamındaki en seçici bağlantılarını ölç.
+- Birden fazla kazanımı doğal biçimde birleştir.
+- Çeldiriciler ileri düzey kavram yanılgılarına dayansın.
+- Yine de yalnızca bir doğru cevap bulunduğunu kesin olarak doğrula.
+- Gereksiz üniversite düzeyi bilgi kullanma.
+- Çözümde alternatif kontrol yöntemi kullan.
+`.trim(),
+  } as const;
+
+  return [
+    shared,
+    `ALGILANAN SEVİYE: ${level.toUpperCase()}`,
+    rules[level],
+  ].join("\n\n");
+}
+
 function getNvidiaOptions(
   feature: AIFeature,
   requestData: Record<string, unknown>,
@@ -779,6 +907,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
     prompt = [
       prompt,
       getSubjectExpertRules(parsed.data),
+      getStudentLevelRules(parsed.data),
     ].join("\n\n");
 
     if (
