@@ -152,6 +152,116 @@ ${answer}
 `.trim();
 }
 
+function isValidationSuccessful(
+  validation: string,
+): boolean {
+  const normalized = validation
+    .trim()
+    .toUpperCase();
+
+  return (
+    normalized === "VALID" ||
+    normalized.endsWith("FINAL: VALID") ||
+    normalized.includes("\nFINAL: VALID")
+  );
+}
+
+function buildSubjectAuditPrompt(
+  originalPrompt: string,
+  answer: string,
+): string {
+  return `
+Aşağıdaki soru setini soruları üreten öğretmenden bağımsız,
+çok sıkı bir YKS editörü olarak denetle.
+
+ÖNEMLİ:
+- Soru üretme.
+- Önce bütün soruları kendin çöz.
+- Cevap anahtarına güvenme.
+- Her seçeneği ayrı ayrı incele.
+- Benzer görünen seçenekleri eş değerlik açısından kontrol et.
+- Tam olarak bir doğru seçenek yoksa set geçersizdir.
+- Bilimsel veya matematiksel olarak tartışmalı ifade varsa set geçersizdir.
+- Müfredat dışı veya sınav türüne uygun olmayan soru varsa set geçersizdir.
+- Çözüm yarım, çelişkili veya cevap anahtarıyla uyumsuzsa set geçersizdir.
+
+MATEMATİK:
+- Her işlemi bağımsız yeniden yap.
+- Yüzde, kâr, indirim ve karışım sorularında oranın hangi büyüklük üzerinden alındığını kontrol et.
+- Birim, yuvarlama, tanım kümesi ve özel durumları kontrol et.
+- Aynı değeri veren iki farklı seçenek bulunup bulunmadığını kontrol et.
+- Geometri sorularında verilenlerin tek bir sonuca yetip yetmediğini kontrol et.
+
+FİZİK:
+- Net kuvvet, yön, işaret, vektör ve birimleri kontrol et.
+- Yaklaşık değer ile tam değerin iki ayrı doğru seçenek oluşturup oluşturmadığını kontrol et.
+- Şekil olmadan çözülemeyen soru varsa geçersiz say.
+- TYT sorusunda gereksiz ileri düzey içerik varsa belirt.
+
+KİMYA:
+- Bütün seçeneklerde yükseltgenme basamaklarını ayrı ayrı kontrol et.
+- Birden fazla redoks, çökelme veya doğru tepkime bulunup bulunmadığını kontrol et.
+- Denklemde atom ve yük denkliğini kontrol et.
+- TYT kapsamını aşan kompleks iyon veya ileri ayrıntıyı kontrol et.
+- "Her zaman", "tümü" gibi genellemelerin istisnalarını kontrol et.
+
+BİYOLOJİ:
+- Organellerin birden fazla işlevi olabileceğini dikkate al.
+- Kloroplastta ATP üretimi gibi bilimsel istisnaları kontrol et.
+- "Kesinlikle", "yalnızca", "her zaman" ifadelerini kontrol et.
+- Birden fazla doğru yoruma izin veren seçenek varsa geçersiz say.
+
+TÜRKÇE VE EDEBİYAT:
+- Doğru cevap yalnızca metinden çıkarılabilmeli.
+- Yakın anlamlı iki seçeneğin birlikte doğru olup olmadığını kontrol et.
+- Yazım ve dil bilgisi sorularında bütün seçenekleri ayrı ayrı çöz.
+- Olumsuz soru kökünü ve cevap anahtarını kontrol et.
+
+TARİH:
+- Tarih, devlet, kişi, antlaşma ve olay eşleşmelerini kontrol et.
+- Kronolojiyi bağımsız olarak sırala.
+- Tartışmalı yorumu kesin bilgi gibi sunan soruyu geçersiz say.
+
+COĞRAFYA:
+- Ölçek ve birim dönüşümünü bağımsız hesapla.
+- Projeksiyon, yön, izohips ve harita sembollerini kontrol et.
+- Harita veya şekil olmadan çözülemeyen soruyu geçersiz say.
+- Genellemelerin istisnalarını kontrol et.
+
+ZORUNLU DENETİM ÇIKTISI:
+
+QUESTION 1
+A: TRUE veya FALSE
+B: TRUE veya FALSE
+C: TRUE veya FALSE
+D: TRUE veya FALSE
+E: TRUE veya FALSE
+TARGET_COUNT: sayı
+ANSWER_KEY_MATCH: YES veya NO
+ISSUE: yoksa NONE, varsa kısa hata
+
+Aynı düzeni bütün sorular için uygula.
+
+En son yalnızca şu iki sonuçtan biriyle bitir:
+
+FINAL: VALID
+
+veya
+
+FINAL: INVALID
+REASONS:
+- Soru numarası: hata
+
+ORİJİNAL İSTEK:
+
+${originalPrompt}
+
+DENETLENECEK SORULAR:
+
+${answer}
+`.trim();
+}
+
 function buildQuestionValidationPrompt(
   answer: string,
 ): string {
@@ -234,7 +344,7 @@ async function generateVerifiedQuestionAnswer(
 
   const validationPrompt = isDeDaQuestion
     ? buildDeDaValidationPrompt(draft)
-    : buildQuestionValidationPrompt(draft);
+    : buildSubjectAuditPrompt(prompt, draft);
 
   const firstValidation = await askNvidia(
     validationPrompt,
@@ -248,7 +358,7 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
-  if (firstValidation.trim().toUpperCase() === "VALID") {
+  if (isValidationSuccessful(firstValidation)) {
     return draft;
   }
 
@@ -270,7 +380,7 @@ async function generateVerifiedQuestionAnswer(
   const secondValidation = await askNvidia(
     isDeDaQuestion
       ? buildDeDaValidationPrompt(repaired)
-      : buildQuestionValidationPrompt(repaired),
+      : buildSubjectAuditPrompt(prompt, repaired),
     [],
     [],
     {
@@ -281,26 +391,17 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
-  if (secondValidation.trim().toUpperCase() === "VALID") {
+  if (isValidationSuccessful(secondValidation)) {
     return repaired;
   }
 
-  const finalRepair = await askNvidia(
-    buildQuestionRepairPrompt(
-      prompt,
-      repaired,
-      secondValidation,
-    ),
-    [],
-    attachments,
-    {
-      temperature: 0.08,
-      topP: 0.55,
-      maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
-    },
+  throw new Error(
+    [
+      "Üretilen sorular ikinci kalite kontrolünden geçemedi.",
+      "Yanlış veya birden fazla doğru cevap içeren soru kullanıcıya gösterilmedi.",
+      "Lütfen isteği yeniden gönderin.",
+    ].join(" "),
   );
-
-  return finalRepair;
 }
 
 const DE_DA_QUESTION_RULES = `
