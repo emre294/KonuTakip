@@ -786,6 +786,109 @@ ZOR SEVİYE:
   ].join("\n\n");
 }
 
+function getAdaptiveTeachingRules(
+  requestData: Record<string, unknown>,
+): string {
+  const requestText = String(
+    requestData.userQuestion ??
+    requestData.message ??
+    requestData.prompt ??
+    "",
+  ).toLocaleLowerCase("tr-TR");
+
+  const wantsShort =
+    /kısa|özet|özetle|kısaca|tek cümle/.test(requestText);
+
+  const wantsDetailed =
+    /detaylı|ayrıntılı|adım adım|sıfırdan|mantığıyla/.test(
+      requestText,
+    );
+
+  const wantsExamples =
+    /örnek|örneklerle|uygulama|soru çöz/.test(requestText);
+
+  const wantsExamFocus =
+    /ösym|tyt|ayt|sınav|deneme|çıkmış soru|yeni nesil/.test(
+      requestText,
+    );
+
+  const rules = `
+UYARLANABİLİR ÖĞRETİM KURALLARI:
+
+- Öğrencinin isteğine doğrudan cevap ver.
+- Bilgiyi ezberletmek yerine neden-sonuç ilişkisi kur.
+- Yeni kavramı bilinen bir kavramla ilişkilendir.
+- Ön koşul bilgi gerekiyorsa en fazla 2 cümleyle hatırlat.
+- Bir kavramı açıklarken tanım, mantık ve uygulama sırasını koru.
+- Öğrencinin sık yapabileceği kavram yanılgılarını önceden belirt.
+- Yanlış bir yaklaşımı yalnızca "yanlış" diye işaretleme; neden yanlış olduğunu açıkla.
+- Aynı konuyu tekrar anlatırken önceki cevabı birebir tekrarlama.
+- Karmaşık anlatımı kısa parçalara böl.
+- Her bölümde tek ana fikir kullan.
+- Gereksiz emoji, süs cümlesi ve uzun motivasyon paragrafı kullanma.
+- Öğrenciye küçümseyici, yargılayıcı veya aşırı resmi dil kullanma.
+- Emin olmadığın bilgiyi kesinmiş gibi sunma.
+- Müfredat dışı ayrıntıyı ana cevaba ekleme.
+- Cevabın başında veya sonunda gereksiz boşluk bırakma.
+`.trim();
+
+  const outputRules: string[] = [];
+
+  if (wantsShort) {
+    outputRules.push(`
+KISA CEVAP MODU:
+- En önemli bilgiyi doğrudan ver.
+- Gereksiz başlık kullanma.
+- En fazla 5 kısa madde veya 2 kısa paragraf kullan.
+- Kullanıcı istemedikçe örnek ve ayrıntılı çözüm ekleme.
+`.trim());
+  }
+  else if (wantsDetailed) {
+    outputRules.push(`
+DETAYLI ÖĞRETİM MODU:
+- Konuyu sıfırdan anlaşılabilir biçimde kur.
+- Tanım, mantık, temel kurallar, örnek ve sık hata sırasını kullan.
+- Önemli ara adımları atlama.
+- Her formülün veya kuralın ne zaman kullanıldığını açıkla.
+- Sonunda kısa tekrar özeti ver.
+`.trim());
+  }
+  else {
+    outputRules.push(`
+DENGELİ ANLATIM MODU:
+- Cevabı yeterince açıklayıcı fakat gereksiz uzun olmayacak şekilde yaz.
+- Temel mantığı, gerekli kuralı ve kısa örneği birlikte ver.
+- Tekrar eden bölümler oluşturma.
+`.trim());
+  }
+
+  if (wantsExamples) {
+    outputRules.push(`
+ÖRNEK ODAKLI MOD:
+- En az bir doğru ve öğretici örnek kullan.
+- Örneğin çözümünde kritik adımları açıkla.
+- Örnek ile anlatılan kuralın doğrudan ilişkili olmasını sağla.
+- Örnek sonucunu kısa bir kontrolle doğrula.
+`.trim());
+  }
+
+  if (wantsExamFocus) {
+    outputRules.push(`
+SINAV ODAKLI MOD:
+- Konunun TYT veya AYT'de nasıl ölçüldüğünü belirt.
+- Gereksiz akademik ayrıntı yerine sınav kazanımına odaklan.
+- Sık yapılan sınav hatalarını açıkla.
+- ÖSYM tarzı soru üretirken uzunlukla değil düşünme gereksinimiyle seçicilik sağla.
+- İpucu verirken cevabı ele verme.
+`.trim());
+  }
+
+  return [
+    rules,
+    ...outputRules,
+  ].join("\n\n");
+}
+
 function getNvidiaOptions(
   feature: AIFeature,
   requestData: Record<string, unknown>,
@@ -908,6 +1011,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       prompt,
       getSubjectExpertRules(parsed.data),
       getStudentLevelRules(parsed.data),
+      getAdaptiveTeachingRules(parsed.data),
     ].join("\n\n");
 
     if (
