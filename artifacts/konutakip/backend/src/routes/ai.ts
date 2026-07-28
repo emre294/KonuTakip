@@ -31,14 +31,16 @@ function isAIFeature(value: string): value is AIFeature {
 }
 
 const QUESTION_GENERATION_PATTERNS = [
-  /soru\s*(hazırla|oluştur|üret|yaz)/i,
-  /test\s*(hazırla|oluştur|üret)/i,
-  /mini\s*(sınav|deneme)/i,
-  /\b\d+\s*(adet|tane)?\s*soru\b/i,
-  /çoktan\s*seçmeli/i,
-  /5\s*şık/i,
-  /beş\s*şık/i,
-  /pratik\s*soru/i,
+  /\bsoru(?:su|ları|lar|luk|lik)?\b[\s\S]{0,60}\b(hazırla|oluştur|üret|yaz|sor)\b/i,
+  /\b(hazırla|oluştur|üret|yaz)\b[\s\S]{0,60}\bsoru(?:su|ları|lar|luk|lik)?\b/i,
+  /\b\d+\s*(?:adet|tane)?[\s\S]{0,40}\bsoru(?:su|ları|lar|luk|lik)?\b/i,
+  /\btest\b[\s\S]{0,40}\b(hazırla|oluştur|üret|yaz)\b/i,
+  /\bmini\s*(sınav|deneme)\b/i,
+  /\bçoktan\s*seçmeli\b/i,
+  /\b5\s*şık(?:lı)?\b/i,
+  /\bbeş\s*şık(?:lı)?\b/i,
+  /\bpratik\s*soru(?:su)?\b/i,
+  /\bcevap\s*anahtarı\b/i,
 ];
 
 function isQuestionGenerationRequest(
