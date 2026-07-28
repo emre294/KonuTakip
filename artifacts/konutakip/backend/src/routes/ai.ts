@@ -166,6 +166,110 @@ function isValidationSuccessful(
   );
 }
 
+function buildFinalSafeQuestionPrompt(
+  originalPrompt: string,
+  previousAnswer: string,
+  validation: string,
+): string {
+  return `
+Aşağıdaki soru üretim isteğini sıfırdan yeniden hazırla.
+
+Bu son ve en sıkı üretim turudur.
+
+ORİJİNAL İSTEK:
+
+${originalPrompt}
+
+ÖNCEKİ HATALI TASLAK:
+
+${previousAnswer}
+
+DENETİM HATALARI:
+
+${validation}
+
+ZORUNLU KURALLAR:
+
+- Önceki taslağı düzeltmeye çalışma; soruyu tamamen yeniden üret.
+- İstenen soru sayısına tam uy.
+- Her soru A, B, C, D ve E olmak üzere 5 seçenekli olsun.
+- Her soruda tam olarak bir doğru cevap bulunsun.
+- Bütün seçenekleri tek tek çözmeden cevabı gönderme.
+- Cevap anahtarı ile çözüm birebir uyumlu olsun.
+- Tartışmalı, istisnalı veya birden fazla yoruma açık soru kullanma.
+- Şekil olmadan çözülemeyen soru üretme.
+- Müfredat dışı ayrıntı kullanma.
+- Soru zorluğunu uzunlukla değil düşünme gereksinimiyle oluştur.
+- Cevabı soru kökünde ele verme.
+- Çözümü kısa, doğru ve yeterli yaz.
+- Yalnızca nihai soruları göster.
+- Denetim notlarını kullanıcıya gösterme.
+
+MATEMATİK:
+- Sonucu yeniden hesapla.
+- Yüzde, kâr, indirim ve karışım oranlarının hangi değer üzerinden alındığını kontrol et.
+- Geometri sorusunda verilenlerin tek sonuca yettiğini doğrula.
+- Aynı sayısal değeri veren iki seçenek oluşturma.
+
+FİZİK:
+- TYT düzeyinde günlük yaşam, grafik ve temel yorum ağırlıklı soru üret.
+- Kullanıcı özellikle istemedikçe eğik düzlem sürtünmesi, basit harmonik hareket veya ileri işlem kullanma.
+- Yön, işaret, vektör ve birimleri kontrol et.
+- Tam değer ile yaklaşık değeri iki farklı doğru seçenek hâline getirme.
+
+KİMYA:
+- TYT sorularında kompleks iyon, ileri denge veya tartışmalı moleküller arası etkileşim örnekleri kullanma.
+- Atom, yük ve denklem denkliğini kontrol et.
+- Redoks sorusunda bütün seçeneklerin yükseltgenme basamaklarını ayrı ayrı kontrol et.
+- Birden fazla doğru tepkime oluşturma.
+
+BİYOLOJİ:
+- Salt ezber yerine kısa deney, gözlem veya neden-sonuç yorumu kullan.
+- Organelleri yalnızca tek göreve sahipmiş gibi anlatma.
+- Kloroplast ve mitokondride ATP üretimi gibi bilimsel ayrıntıları yanlış sınıflandırma.
+- "Her zaman", "yalnızca" ve "kesinlikle" ifadelerini dikkatle kontrol et.
+
+TÜRKÇE:
+- Doğru cevap yalnızca metinden çıkarılabilsin.
+- Yakın anlamlı iki seçenek birlikte doğru olmasın.
+- Dil bilgisi sorularında bütün seçenekleri TDK kuralına göre kontrol et.
+
+TARİH:
+- Yalnızca doğruluğundan emin olduğun tarih, olay, kişi ve devlet bilgilerini kullan.
+- Kronoloji sorusunda sıralamayı yeniden kontrol et.
+- Tartışmalı yorumu kesin bilgi gibi sunma.
+- Ezber ayrıntısı yerine neden-sonuç ve kavram bilgisi ölç.
+
+COĞRAFYA:
+- Ölçek ve birim dönüşümünü yeniden hesapla.
+- Harita, yön ve projeksiyon sorularında genellemeleri kontrol et.
+- Görsel olmadan çözülemeyen soru üretme.
+- "Kuzey her zaman üsttedir" gibi istisnası bulunan genellemeleri kesin kural gibi kullanma.
+
+ÇIKTI DÜZENİ:
+
+## Sorular
+
+### 1. Soru
+Soru metni
+
+A) ...
+B) ...
+C) ...
+D) ...
+E) ...
+
+## Cevap Anahtarı
+
+1. X
+
+## Çözümler
+
+### 1. Soru Çözümü
+Kısa ve doğrulanmış çözüm.
+`.trim();
+}
+
 function buildSubjectAuditPrompt(
   originalPrompt: string,
   answer: string,
@@ -395,11 +499,44 @@ async function generateVerifiedQuestionAnswer(
     return repaired;
   }
 
+  const finalSafeAnswer = await askNvidia(
+    buildFinalSafeQuestionPrompt(
+      prompt,
+      repaired,
+      secondValidation,
+    ),
+    [],
+    attachments,
+    {
+      temperature: 0.06,
+      topP: 0.45,
+      maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
+    },
+  );
+
+  const thirdValidation = await askNvidia(
+    isDeDaQuestion
+      ? buildDeDaValidationPrompt(finalSafeAnswer)
+      : buildSubjectAuditPrompt(prompt, finalSafeAnswer),
+    [],
+    [],
+    {
+      temperature: 0.02,
+      topP: 0.25,
+      maxTokens: 4096,
+      allowReasoningValidationFallback: true,
+    },
+  );
+
+  if (isValidationSuccessful(thirdValidation)) {
+    return finalSafeAnswer;
+  }
+
   throw new Error(
     [
-      "Üretilen sorular ikinci kalite kontrolünden geçemedi.",
-      "Yanlış veya birden fazla doğru cevap içeren soru kullanıcıya gösterilmedi.",
-      "Lütfen isteği yeniden gönderin.",
+      "Soru seti üç bağımsız kalite kontrolünden geçemedi.",
+      "Hatalı soru kullanıcıya gösterilmedi.",
+      "Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
     ].join(" "),
   );
 }
