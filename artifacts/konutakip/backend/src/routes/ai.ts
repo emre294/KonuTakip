@@ -448,6 +448,216 @@ D seçeneği yanlıştır. Burada bulunma anlamı vardır ve ek kelimeye bitişi
 `.trim();
 }
 
+function normalizeSubjectName(value: unknown): string {
+  return String(value ?? "")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .trim();
+}
+
+function getSubjectExpertRules(
+  requestData: Record<string, unknown>,
+): string {
+  const subject = normalizeSubjectName(
+    requestData.subjectName ??
+    requestData.lessonName ??
+    requestData.courseName,
+  );
+
+  const topic = String(
+    requestData.topicName ??
+    requestData.topic ??
+    "",
+  );
+
+  const examType = String(
+    requestData.examType ??
+    "TYT",
+  ).toUpperCase();
+
+  const commonRules = `
+DERS UZMANI ORTAK KURALLARI:
+
+- Öğrencinin seviyesine uygun, anlaşılır ve öğretici ol.
+- TYT ve AYT kapsamını birbirine karıştırma.
+- Sorular kazanım ölçsün; yalnızca ezber veya işlem kalabalığı oluşturmasın.
+- Her soruda tam olarak bir doğru cevap bulunsun.
+- Soruyu göndermeden önce sessizce çöz ve bütün seçenekleri kontrol et.
+- Çeldiricileri öğrencilerin gerçek hata türlerinden üret.
+- Gereksiz zorlaştırma, tartışmalı bilgi ve müfredat dışı ayrıntı kullanma.
+- Kolay sorularda temel kazanımı, orta sorularda iki kazanımı, zor sorularda yorum ve bağlantı kurmayı ölç.
+- Çözümde yalnızca doğru cevabı değil, kullanılan mantığı da açıkla.
+- Gereksiz uzun çözüm ve aynı bilginin tekrarından kaçın.
+- Öğrencinin isteği soru üretmekse cevap anahtarı ve çözümleri sorulardan sonra ayrı bölümlerde ver.
+- Öğrencinin isteği konu anlatımıysa önce temel mantığı, sonra kuralları, ardından örnek ve sık hataları açıkla.
+- Kullanıcının istemediği ileri seviye ayrıntıları ana anlatıma ekleme.
+- Konu: ${topic || "Belirtilmedi"}
+- Sınav türü: ${examType}
+`.trim();
+
+  let subjectRules = "";
+
+  if (
+    subject.includes("matematik") ||
+    subject.includes("geometri")
+  ) {
+    subjectRules = `
+MATEMATİK VE GEOMETRİ UZMANI:
+
+- İşlem ezberinden çok problem çözme, akıl yürütme ve modelleme becerisini ölç.
+- Yeni nesil sorularda gereksiz uzun hikâye kullanma.
+- Verilen bilgilerin tamamı gerekli ve tutarlı olsun.
+- Sayısal sonucu bağımsız olarak yeniden hesapla.
+- Mümkünse ters işlem, yerine koyma veya farklı yöntemle doğrula.
+- Tanım kümesi, işaret, birim, özel durum ve yaklaşık değerleri kontrol et.
+- Geometri sorularında şekil yoksa bütün geometrik bilgileri açıkça yaz.
+- Şekle bağlı ama şekilsiz çözülemeyen soru üretme.
+- TYT sorularında temel kavram ve yorum; AYT sorularında fonksiyonel düşünme ve bağlantı kurma öne çıksın.
+- Problemler sorularında gerçekçi sayılar kullan ve sonuçların seçeneklerde tam karşılığını ver.
+- Yuvarlama gerekiyorsa soru kökünde açıkça belirt.
+`.trim();
+  }
+  else if (subject.includes("fizik")) {
+    subjectRules = `
+FİZİK UZMANI:
+
+- Formül ezberinden çok fiziksel yorum, grafik okuma ve günlük yaşam bağlantısı ölç.
+- TYT düzeyinde gereksiz üniversite fiziği ayrıntısı kullanma.
+- AYT düzeyinde kavramlar arası bağlantı ve çok adımlı yorum kullan.
+- Kuvvet yönü, işaret, referans noktası, birim ve vektörel büyüklükleri kontrol et.
+- Sürtünme, eğik düzlem, elektrik ve hareket sorularında bütün gerekli bilgileri ver.
+- Şekil olmadan çözülemeyen soru üretme; şekil gerekiyorsa durumu metinle eksiksiz tanımla.
+- Sonucu fiziksel mantıkla da kontrol et.
+- Aynı soruda birden fazla fiziksel yorumun doğru olmasına izin verme.
+- Çözümlerde önce kavramı, sonra işlemi açıkla.
+`.trim();
+  }
+  else if (subject.includes("kimya")) {
+    subjectRules = `
+KİMYA UZMANI:
+
+- TYT ve AYT kimya kapsamını ayır.
+- Tepkime, çözünürlük, periyodik özellik ve bağ sorularında bilimsel doğruluğu kontrol et.
+- Denklem kullanılıyorsa atom ve yük denkliğini doğrula.
+- Çözünürlük, asit-baz ve redoks sorularında istisnaları gözden geçir.
+- Birden fazla doğru cevap doğurabilecek genel ifadeler kullanma.
+- Kompleks iyon, ileri organik kimya veya üniversite düzeyi ayrıntıları TYT sorularına gereksiz yere ekleme.
+- Günlük yaşam örneklerini bilimsel olarak doğru ve müfredata uygun seç.
+- Çözümlerde kavramı açıklamadan yalnızca ezber kural yazma.
+- Şıklardaki bileşik, iyon ve tepkime gösterimlerini kontrol et.
+`.trim();
+  }
+  else if (subject.includes("biyoloji")) {
+    subjectRules = `
+BİYOLOJİ UZMANI:
+
+- Salt ezber yerine bilgi, yorum, karşılaştırma ve neden-sonuç ilişkisini birlikte ölç.
+- Kesinlik bildiren "her zaman", "yalnızca", "tüm canlılar" gibi ifadeleri dikkatle kontrol et.
+- Canlı grupları, organeller, metabolizma ve genetik konularındaki istisnaları gözden geçir.
+- TYT sorularında temel biyoloji ve günlük yaşam bağlantısı; AYT sorularında sistemler arası ilişki ve deney yorumu kullan.
+- Grafik veya deney sorusunda değişkenleri açıkça tanımla.
+- Şekil olmadan çözülemeyen soru üretme.
+- Organelleri tek işlevle sınırlandıran yanıltıcı ve bilimsel açıdan eksik ifadelerden kaçın.
+- Çözümde diğer seçeneklerin neden uygun olmadığını kısa biçimde açıkla.
+`.trim();
+  }
+  else if (
+    subject.includes("turkce") ||
+    subject.includes("edebiyat")
+  ) {
+    subjectRules = `
+TÜRKÇE VE EDEBİYAT UZMANI:
+
+- Yazım ve dil bilgisi sorularında bütün seçenekleri TDK kurallarına göre tek tek kontrol et.
+- Birden fazla doğru cevap doğurabilecek tartışmalı örnek kullanma.
+- Paragraf sorularında doğru cevap metinden çıkarılabilir olsun.
+- Çeldiriciler metindeki yakın anlamlardan oluşsun ancak yalnızca biri tam karşılık versin.
+- Paragrafları doğal, özgün ve yaş grubuna uygun yaz.
+- Ana düşünce, yardımcı düşünce, çıkarım ve sözcük anlamını birbirine karıştırma.
+- Edebiyat sorularında dönem, sanatçı ve eser bilgisini doğrula.
+- Kullanıcı istemedikçe aşırı uzun paragraf üretme.
+- Soru kökünü olumsuz yapıyorsan "değildir", "çıkarılamaz" veya "söylenemez" ifadesini görünür biçimde kullan.
+`.trim();
+  }
+  else if (subject.includes("tarih")) {
+    subjectRules = `
+TARİH UZMANI:
+
+- Kronoloji, neden-sonuç, değişim-süreklilik ve kavram bilgisini dengeli ölç.
+- Tarih, devlet, antlaşma, kişi ve olay bilgilerini doğrula.
+- Tartışmalı tarih yorumlarını kesin bilgi gibi sunma.
+- Aynı döneme ait olmayan olayları yanlış biçimde ilişkilendirme.
+- TYT sorularında temel kavram ve yorum; AYT sorularında dönemler arası bağlantı ve kaynak yorumu kullan.
+- Uzun ezber listeleri yerine olayların anlamını ve sonuçlarını ölç.
+- Cevap seçenekleri aynı dönem ve bağlam içinde mantıklı çeldiriciler olsun.
+- Kronoloji sorularında tarih sırasını yeniden kontrol et.
+- Bilgi kesin değilse uydurma ayrıntı üretme.
+`.trim();
+  }
+  else if (subject.includes("cografya")) {
+    subjectRules = `
+COĞRAFYA UZMANI:
+
+- Harita, grafik, tablo ve günlük yaşam yorumunu öne çıkar.
+- Şekil olmadan çözülemeyen soru üretme.
+- Ölçek sorularında birim dönüşümlerini iki kez kontrol et.
+- Harita projeksiyonu, iklim, nüfus ve yer şekilleri sorularında genellemeleri dikkatle kullan.
+- "Her zaman", "kesinlikle" gibi ifadelerin istisnalarını kontrol et.
+- TYT sorularında temel harita ve çevre yorumu; AYT sorularında bölgesel analiz ve bağlantı kurma kullan.
+- Ezber bilgi yerine konum, dağılış, neden ve sonuç ilişkisi ölç.
+- Türkiye coğrafyası verilerinde güncelliğe bağlı sayı kullanmak yerine kalıcı kavramları tercih et.
+`.trim();
+  }
+  else if (subject.includes("felsefe")) {
+    subjectRules = `
+FELSEFE UZMANI:
+
+- Kavramları filozofların görüşleriyle doğru eşleştir.
+- Görüşleri aşırı genelleyerek veya birbirine karıştırarak sunma.
+- Parçada verilen düşünceyi esas al; dışarıdan gereksiz bilgi isteme.
+- Çeldiricileri yakın felsefi kavramlardan oluştur ancak yalnızca biri parçaya tam uysun.
+- Bilgi sorularında dönem, akım, filozof ve temel görüşü doğrula.
+- Çözümde kavramın ayırt edici özelliğini açıkla.
+`.trim();
+  }
+  else if (
+    subject.includes("din") ||
+    subject.includes("din kulturu")
+  ) {
+    subjectRules = `
+DİN KÜLTÜRÜ UZMANI:
+
+- TYT müfredatındaki kavram, değer ve temel bilgileri esas al.
+- Mezhepsel veya tartışmalı yorumları kesin ve tek doğru bilgi gibi sunma.
+- Ayet veya hadis aktarımında emin olunmayan ifadeyi doğrudan alıntı gibi yazma.
+- Soruları bilgi, anlam ve günlük yaşam bağlantısı üzerinden oluştur.
+- Kavramları birbirine karıştırma.
+- Saygılı, tarafsız ve öğretici dil kullan.
+`.trim();
+  }
+  else {
+    subjectRules = `
+GENEL DERS UZMANI:
+
+- Konunun temel kazanımlarını belirle.
+- Bilgi, uygulama ve yorum sorularını dengeli dağıt.
+- Müfredat dışı ayrıntı ve tartışmalı bilgi kullanma.
+- Her soruyu bağımsız olarak çöz ve doğrula.
+- Öğrencinin seviyesine uygun, açık ve doğal dil kullan.
+`.trim();
+  }
+
+  return [
+    commonRules,
+    subjectRules,
+  ].join("\n\n");
+}
+
 function getNvidiaOptions(
   feature: AIFeature,
   requestData: Record<string, unknown>,
@@ -565,6 +775,11 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
     }
 
     let prompt = buildFeaturePrompt(feature, parsed.data);
+
+    prompt = [
+      prompt,
+      getSubjectExpertRules(parsed.data),
+    ].join("\n\n");
 
     if (
       feature === "teach-topic" &&
