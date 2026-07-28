@@ -13,6 +13,12 @@ type ChatMessage = {
   content: string;
 };
 
+export type NvidiaRequestOptions = {
+  temperature?: number;
+  topP?: number;
+  maxTokens?: number;
+};
+
 export type NvidiaAttachment = {
   kind: "image" | "pdf";
   mimeType: string;
@@ -58,6 +64,17 @@ const NVIDIA_VISION_MODEL =
 const REQUEST_TIMEOUT_MS = 60_000;
 const MAX_PDF_BYTES = 8 * 1024 * 1024;
 const MAX_PDF_TEXT_LENGTH = 50_000;
+
+function normalizeModelAnswer(value: string): string {
+  return value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/^\n+/, "")
+    .replace(/\n+$/, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 const nvidiaHttpsAgent = new https.Agent({
   family: 4,
@@ -151,6 +168,7 @@ export async function askNvidia(
   message: string,
   history: ChatMessage[] = [],
   attachments: NvidiaAttachment[] = [],
+  options: NvidiaRequestOptions = {},
 ): Promise<string> {
   const apiKey = process.env.NVIDIA_API_KEY?.trim();
 
@@ -182,9 +200,9 @@ export async function askNvidia(
             content: await buildUserContent(message, attachments),
           },
         ],
-        temperature: 0.7,
-        top_p: 0.9,
-        max_tokens: 1536,
+        temperature: options.temperature ?? 0.55,
+        top_p: options.topP ?? 0.9,
+        max_tokens: options.maxTokens ?? 1800,
         stream: false,
       },
       {
@@ -200,8 +218,13 @@ export async function askNvidia(
       },
     );
 
+    const rawAnswer =
+      response.data.choices?.[0]?.message?.content;
+
     const answer =
-      response.data.choices?.[0]?.message?.content?.trim();
+      typeof rawAnswer === "string"
+        ? normalizeModelAnswer(rawAnswer)
+        : "";
 
     if (!answer) {
       throw new Error(

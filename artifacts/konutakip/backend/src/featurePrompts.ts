@@ -1,4 +1,4 @@
-﻿export type AIFeature =
+export type AIFeature =
   | "generate-questions"
   | "evaluate-question"
   | "teach-topic"
@@ -51,12 +51,34 @@ Verilen öğrenci, ders, konu, sınav türü, seviye ve adet bilgilerine göre �
 
 Kurallar:
 - TYT veya AYT seviyesine uygun ol.
-- Her soru 5 seçenekli olsun.
-- Yalnızca bir doğru cevap bulunsun.
-- Çeldiriciler mantıklı olsun.
-- Her soruda doğru cevap ve adım adım çözüm yer alsın.
+- İstenen soru sayısına tam uy.
+- Her soru A, B, C, D ve E olmak üzere 5 seçenekli olsun.
+- Her soruda tam olarak bir doğru cevap bulunsun.
+- Soruyu göndermeden önce sessizce çöz ve bütün seçenekleri tek tek kontrol et.
+- Birden fazla doğru seçenek varsa soruyu yeniden oluştur.
+- Hiç doğru seçenek yoksa soruyu yeniden oluştur.
+- Doğru cevabı soru kökünde, başlıkta, açıklamada veya biçimlendirmede ele verme.
+- Soru metnine "doğru cevap", "cevap", "çözüm" veya seçeneği açık eden not ekleme.
+- Aynı, eş anlamlı veya birbirini kapsayan seçenekler üretme.
+- "Hepsi", "Hiçbiri" ve benzeri toplu seçenekleri kullanma.
+- Seçenek uzunluklarını ve anlatım biçimlerini birbirine yakın tut.
+- Çeldiricileri öğrencinin yapabileceği gerçek hatalara dayandır.
+- Çözüm ile cevap anahtarının aynı sonucu verdiğini doğrula.
 - Gerçek ÖSYM sorularını birebir kopyalama.
 - Ham LaTeX kullanma.
+
+Türkçe sorularında:
+- Bağlaç olan "de/da" ayrı yazılır.
+- Bulunma hâl eki "-de/-da/-te/-ta" bitişik yazılır.
+- Bağlaç ile hâl ekini birbirine karıştırma.
+- Bağlaç olan "ki" ayrı, ek olan "-ki" bitişik yazılır.
+- "mi" soru edatı ayrı yazılır.
+- Tartışmalı veya birden fazla doğru cevaba yol açabilecek örnek kullanma.
+
+Matematik ve fen sorularında:
+- Sayısal sonucu işlem yaparak doğrula.
+- Mümkünse yerine koyma veya ters işlemle kontrol et.
+- Birim, işaret, koşul ve tanım kümesini kontrol et.
 `,
 
   "evaluate-question": `
@@ -77,6 +99,8 @@ Kullanıcının isteğini önce sınıflandır:
 
 1. Kullanıcı bir soru, denklem, işlem, fotoğraf veya PDF çözümü istiyorsa konu anlatımı yapma. Doğrudan adım adım soru çözümü üret.
 2. Kullanıcı açıkça bir konuyu anlatmanı istiyorsa konu anlatımı formatını kullan.
+3. Kullanıcı yalnızca selam veriyorsa kısa, doğal ve tek paragraflık cevap ver.
+4. Kullanıcının istemediği ek konu, test veya uzun açıklama üretme.
 
 SORU ÇÖZÜMÜ İSTENDİYSE:
 ${STEP_BY_STEP_RULES}
@@ -84,34 +108,41 @@ ${STEP_BY_STEP_RULES}
 KONU ANLATIMI İSTENDİYSE:
 
 ## Konu Başlığı
+Konunun adını kısa yaz.
 
-### Kısa Özet
+## Kısa Tanım
+Konuyu 2–3 cümleyle tanımla.
 
-Konuyu 2–3 cümleyle özetle.
+## Mantığı
+Konunun temel mantığını sade biçimde açıkla.
 
-### Temel Kavramlar
+## Temel Kavramlar
+- Her kavramı ayrı maddede açıkla.
+- Gereksiz uzun cümle kullanma.
 
-Kavramları kısa ve anlaşılır biçimde açıkla.
+## Formüller ve Kurallar
+- Formülleri okunabilir düz metin ve Unicode ile yaz.
+- Her formülün ne zaman kullanıldığını belirt.
 
-### Formüller ve Kurallar
+## Adım Adım Anlatım
+- Mantıksal sırayla ilerle.
+- Her adımda tek ana fikir anlat.
+- Gereksiz tekrar yapma.
 
-Formülleri okunabilir düz metin ve Unicode ile yaz.
+## Çözümlü Örnek
+- Tipik bir örnek seç.
+- Hiçbir önemli işlemi atlama.
+- Sonucu kısa kontrolle doğrula.
 
-### Adım Adım Anlatım
+## Sık Yapılan Hatalar
+- Gerçek ve konuya özgü hataları yaz.
+- Genel ve boş ifadeler kullanma.
 
-Konuyu mantıksal sırayla anlat.
+## ÖSYM İpucu
+- Konunun sınavda nasıl ölçüldüğünü kısa açıkla.
 
-### Çözümlü Örnek
-
-Tipik bir soruyu hiçbir önemli işlemi atlamadan çöz.
-
-### Sık Yapılan Hatalar
-
-En yaygın hataları listele.
-
-### Kısa Tekrar Önerisi
-
-Öğrencinin konuyu pekiştirmesi için kısa öneri ver.
+## Kısa Tekrar Önerisi
+- En fazla 3 maddelik uygulanabilir öneri ver.
 
 DOSYA VE GÖRSEL:
 - Yüklenen görsel veya PDF'deki metni gerçekten incele.
@@ -120,11 +151,19 @@ DOSYA VE GÖRSEL:
 - Ardından adım adım çöz.
 - Birden fazla soru varsa ilk okunabilir sorudan başla.
 
-Kurallar:
+YAZIM VE DÜZEN:
+- Cevabın başında boş satır bırakma.
+- İlk karakter doğrudan metin veya başlık olsun.
+- Başlıklar arasında yalnızca bir boş satır bırak.
+- Paragraflar arasında gereksiz boşluk bırakma.
+- Her maddeyi ayrı satırda göster.
+- Aynı başlığı iki kez kullanma.
+- Tek cümlelik cevaplarda başlık kullanma.
+- Selamlaşma cevabında Markdown başlığı kullanma.
 - Yalnızca Markdown metni üret.
 - JSON, HTML veya kod bloğu üretme.
 - Ham LaTeX kullanma.
-- Gereksiz uzun giriş yapma.
+- Gereksiz giriş, sonuç tekrarı veya motivasyon paragrafı ekleme.
 `,
 
   "explain-question": `
@@ -160,12 +199,25 @@ Verilen konu ve seviyeye göre tek bir özgün pratik sorusu üret.
 
 Kurallar:
 - TYT veya AYT seviyesine uygun ol.
-- 5 seçenek oluştur.
-- Yalnızca bir doğru cevap bulunsun.
-- Doğru cevabı belirt.
-- Çözümü adım adım göster.
-- Çeldiriciler mantıklı olsun.
+- A, B, C, D ve E olmak üzere tam 5 seçenek oluştur.
+- Tam olarak bir doğru cevap bulunsun.
+- Soruyu göndermeden önce sessizce çöz ve bütün seçenekleri tek tek kontrol et.
+- Birden fazla doğru seçenek varsa soruyu yeniden oluştur.
+- Hiç doğru seçenek yoksa soruyu yeniden oluştur.
+- Doğru cevabı soru kökünde veya açıklamada ele verme.
+- Soru metnine çözüm, cevap veya öğretici not ekleme.
+- Aynı, eş anlamlı veya birbirini kapsayan seçenekler oluşturma.
+- "Hepsi" ve "Hiçbiri" seçeneklerini kullanma.
+- Çeldiricileri öğrencinin yapabileceği gerçek hatalara dayandır.
+- Çözüm ile doğru seçeneğin aynı sonucu verdiğini doğrula.
 - Ham LaTeX kullanma.
+
+Türkçe sorularında:
+- Bağlaç olan "de/da" ayrı yazılır.
+- Bulunma hâl eki "-de/-da/-te/-ta" bitişik yazılır.
+- Bağlaç ile hâl ekini birbirine karıştırma.
+- Bütün seçenekleri kurala göre ayrı ayrı kontrol et.
+- Birden fazla doğru cevap doğurabilecek örnek kullanma.
 
 ${STEP_BY_STEP_RULES}
 `,
@@ -198,12 +250,20 @@ Kurallar:
 Verilen zayıf konu ve derslere göre uyarlanabilir mini sınav hazırla.
 
 Kurallar:
-- İstenen soru sayısına uy.
+- İstenen soru sayısına tam uy.
 - TYT veya AYT seviyesine uygun ol.
-- Her soru 5 seçenekli olsun.
-- Her sorunun tek doğru cevabı olsun.
+- Her soru A, B, C, D ve E olmak üzere 5 seçenekli olsun.
+- Her soruda tam olarak bir doğru cevap bulunsun.
+- Her soruyu göndermeden önce sessizce çöz.
+- Bütün seçenekleri tek tek kontrol et.
+- Birden fazla doğru seçenek varsa soruyu yeniden oluştur.
+- Hiç doğru seçenek yoksa soruyu yeniden oluştur.
 - Sorular farklı kazanımları ölçsün.
-- Cevap anahtarı ve adım adım çözümler ekle.
+- Doğru cevabı soru kökünde veya açıklamada ele verme.
+- Cevap anahtarını sorulardan sonra ayrı bölümde ver.
+- Çözümleri cevap anahtarından sonra ayrı bölümde ver.
+- Aynı veya eş anlamlı seçenekleri tekrar etme.
+- Çeldiricileri gerçek öğrenci hatalarına dayandır.
 - Ham LaTeX kullanma.
 `,
 
@@ -255,6 +315,26 @@ const JSON_OUTPUT_RULES = `
 - Ham LaTeX kullanma.
 `.trim();
 
+const FINAL_QUALITY_GATE = `
+GÖNDERMEDEN ÖNCE ZORUNLU SESSİZ KONTROL:
+
+1. Kullanıcının isteğini doğru sınıflandırdım mı?
+2. Gereksiz giriş, tekrar veya boş paragraf var mı?
+3. Türkçe doğal ve dil bilgisi açısından doğru mu?
+4. Soru üretildiyse tam olarak bir doğru cevap var mı?
+5. Bütün seçenekleri tek tek kontrol ettim mi?
+6. Doğru cevap soru kökünde veya açıklamada sızıyor mu?
+7. Çözüm ile cevap anahtarı aynı sonucu veriyor mu?
+8. Türkçe sorusunda bağlaç, ek ve yazım kuralı doğru mu?
+9. Matematik veya fen sorusunda işlem, birim ve işaret doğru mu?
+10. Birden fazla doğru cevap ihtimali veya belirsizlik var mı?
+11. Ham LaTeX, HTML, bozuk karakter veya gereksiz sembol var mı?
+12. Cevabın başında veya sonunda boş satır var mı?
+
+Bu kontrollerden biri başarısızsa cevabı göndermeden önce düzelt.
+Bu kontrol listesini kullanıcıya gösterme.
+`.trim();
+
 export function buildFeaturePrompt(
   feature: AIFeature,
   requestData: Record<string, unknown>
@@ -275,5 +355,7 @@ UYGULAMADAN GELEN İSTEK VERİSİ:
 ${JSON.stringify(requestData, null, 2)}
 
 ${outputRules}
+
+${FINAL_QUALITY_GATE}
 `.trim();
 }
