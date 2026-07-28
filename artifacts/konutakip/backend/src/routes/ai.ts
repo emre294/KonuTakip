@@ -350,6 +350,104 @@ Bu örnekte yalnızca E yanlıştır. Çünkü bağlaç olan "de" ayrı yazılma
 Bu örneği birebir kopyalama; aynı kesinlikte özgün sorular üret.
 `.trim();
 
+function buildDeterministicDeDaQuiz(): string {
+  return `
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de yarın sizinle geleceğim.
+B) Kitaplar masada duruyor.
+C) Ankara'da hava oldukça soğuktu.
+D) O da bu fikri destekledi.
+E) Kardeşimde bizimle sinemaya geldi.
+
+### 2. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı doğrudur?
+
+A) Ali de bu projeye katıldı.
+B) Okul da ders başladı.
+C) Kardeşimde gelmek istiyor.
+D) Bahçe de çiçekler açtı.
+E) İstanbul da çok kalabalıktı.
+
+### 3. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de seni bekliyordum.
+B) Evde kimse yoktu.
+C) Ankara da yeni bir müze açıldı.
+D) Parkta çocuklar oynuyordu.
+E) O da kitabı dikkatle okudu.
+
+### 4. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı doğrudur?
+
+A) Sınıfta ders işleniyor.
+B) Masa da kitaplar var.
+C) Okul da sınav yapılacak.
+D) Bahçe de çocuklar oynuyor.
+E) Ankara da hava soğuk.
+
+### 5. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de yarın gelirim.
+B) Köprüde yoğunluk vardı.
+C) Sokakta çocuklar oynuyordu.
+D) Ev de bugün temizlenmiş.
+E) Bahçede çiçekler açtı.
+
+## Cevap Anahtarı
+
+1. E
+2. A
+3. C
+4. A
+5. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+E seçeneği yanlıştır. Buradaki "de" bağlaçtır ve ayrı yazılmalıdır:
+
+**Kardeşim de bizimle sinemaya geldi.**
+
+### 2. Soru Çözümü
+A seçeneği doğrudur. "De" bağlaçtır ve ayrı yazılmıştır:
+
+**Ali de bu projeye katıldı.**
+
+Diğer seçeneklerde bulunma hâl eki kelimeye bitişik yazılmalıdır:
+
+- Okulda
+- Kardeşim de
+- Bahçede
+- İstanbul'da
+
+### 3. Soru Çözümü
+C seçeneği yanlıştır. Özel ada gelen bulunma hâl eki kesme işaretiyle ayrılır:
+
+**Ankara'da yeni bir müze açıldı.**
+
+### 4. Soru Çözümü
+A seçeneği doğrudur. "Sınıfta" kelimesindeki "-ta" bulunma hâl ekidir ve kelimeye bitişik yazılır.
+
+Diğer seçeneklerin doğru biçimleri:
+
+- Masada
+- Okulda
+- Bahçede
+- Ankara'da
+
+### 5. Soru Çözümü
+D seçeneği yanlıştır. Burada bulunma anlamı vardır ve ek kelimeye bitişik yazılmalıdır:
+
+**Evde bugün temizlenmiş.**
+`.trim();
+}
+
 function getNvidiaOptions(
   feature: AIFeature,
   requestData: Record<string, unknown>,
@@ -445,6 +543,24 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       return response.status(400).json({
         error: "GeÃ§ersiz istek.",
         details: parsed.error.flatten(),
+      });
+    }
+
+    const requestTextForDeterministicQuiz =
+      JSON.stringify(parsed.data);
+
+    const isDeDaQuizRequest =
+      isQuestionGenerationRequest(feature, parsed.data) &&
+      /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+        requestTextForDeterministicQuiz,
+      );
+
+    if (isDeDaQuizRequest) {
+      return response.json({
+        content: buildDeterministicDeDaQuiz(),
+        provider: "local_verified",
+        model: "konutakip-de-da-v1",
+        usage: null,
       });
     }
 
