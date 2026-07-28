@@ -200,7 +200,7 @@ async function generateVerifiedQuestionAnswer(
     {
       temperature: 0.05,
       topP: 0.35,
-      maxTokens: 900,
+      maxTokens: 4096,
     },
   );
 
@@ -219,7 +219,7 @@ async function generateVerifiedQuestionAnswer(
     {
       temperature: 0.12,
       topP: 0.65,
-      maxTokens: Math.max(options.maxTokens ?? 2600, 2600),
+      maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
     },
   );
 
@@ -230,7 +230,7 @@ async function generateVerifiedQuestionAnswer(
     {
       temperature: 0.03,
       topP: 0.3,
-      maxTokens: 900,
+      maxTokens: 4096,
     },
   );
 
@@ -249,7 +249,7 @@ async function generateVerifiedQuestionAnswer(
     {
       temperature: 0.08,
       topP: 0.55,
-      maxTokens: Math.max(options.maxTokens ?? 2800, 2800),
+      maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
     },
   );
 

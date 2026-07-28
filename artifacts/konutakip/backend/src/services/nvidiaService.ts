@@ -42,7 +42,9 @@ type NvidiaResponse = {
   choices?: Array<{
     message?: {
       content?: string | null;
+      reasoning_content?: string | null;
     };
+    finish_reason?: string | null;
   }>;
   error?: {
     message?: string;
@@ -202,7 +204,7 @@ export async function askNvidia(
         ],
         temperature: options.temperature ?? 0.55,
         top_p: options.topP ?? 0.9,
-        max_tokens: options.maxTokens ?? 1800,
+        max_tokens: options.maxTokens ?? 4096,
         stream: false,
       },
       {
@@ -218,21 +220,42 @@ export async function askNvidia(
       },
     );
 
-    const rawAnswer =
-      response.data.choices?.[0]?.message?.content;
+    const choice = response.data.choices?.[0];
+    const rawAnswer = choice?.message?.content;
 
     const answer =
       typeof rawAnswer === "string"
         ? normalizeModelAnswer(rawAnswer)
         : "";
 
-    if (!answer) {
-      throw new Error(
-        "NVIDIA yanıt üretti ancak cevap metni boş geldi.",
+    if (answer) {
+      return answer;
+    }
+
+    const reasoning =
+      typeof choice?.message?.reasoning_content === "string"
+        ? choice.message.reasoning_content.trim()
+        : "";
+
+    if ((options.maxTokens ?? 0) < 4096) {
+      return askNvidia(
+        message,
+        history,
+        attachments,
+        {
+          ...options,
+          temperature: Math.min(options.temperature ?? 0.3, 0.3),
+          topP: Math.min(options.topP ?? 0.8, 0.8),
+          maxTokens: 4096,
+        },
       );
     }
 
-    return answer;
+    throw new Error(
+      reasoning
+        ? "NVIDIA düşünme çıktısı üretti ancak nihai cevap metni boş kaldı."
+        : "NVIDIA yanıt üretti ancak cevap metni boş geldi.",
+    );
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<NvidiaResponse>;
