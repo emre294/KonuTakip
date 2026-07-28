@@ -120,6 +120,38 @@ JSON, HTML veya kod bloğu üretme.
 Cevabın başında boş satır bırakma.
 `.trim();
 
+function buildDeDaValidationPrompt(
+  answer: string,
+): string {
+  return `
+Aşağıdaki de/da sorularını çok sıkı biçimde denetle.
+
+HER SORU İÇİN:
+1. Soru kökü "doğrudur" mu, "yanlıştır" mı belirle.
+2. A, B, C, D ve E seçeneklerini tek tek çöz.
+3. Her seçeneği DOĞRU veya YANLIŞ diye sınıflandır.
+4. "Yanlıştır" sorusunda tam olarak 1 yanlış ve 4 doğru olmalı.
+5. "Doğrudur" sorusunda tam olarak 1 doğru ve 4 yanlış olmalı.
+6. İki veya daha fazla hedef seçenek varsa INVALID yaz.
+7. Hiç hedef seçenek yoksa INVALID yaz.
+8. Anlatım bozukluğu veya doğal olmayan cümle varsa INVALID yaz.
+9. Cevap anahtarı çözümle uyuşmuyorsa INVALID yaz.
+10. "de/da" bağlacı ayrı, bulunma hâl eki bitişik yazılmalıdır.
+11. Özel adlara gelen ek kesme işaretiyle ayrılmalıdır.
+12. Bağlaç olan de/da hiçbir zaman te/ta olmaz.
+
+YANIT:
+- Bütün sorular kusursuzsa yalnızca VALID yaz.
+- Sorun varsa INVALID: ile başla.
+- Hatalı soru numarasını, hedef seçenek sayısını ve hatalı seçenekleri yaz.
+- Başka açıklama ekleme.
+
+SORULAR:
+
+${answer}
+`.trim();
+}
+
 function buildQuestionValidationPrompt(
   answer: string,
 ): string {
@@ -197,8 +229,15 @@ async function generateVerifiedQuestionAnswer(
     options,
   );
 
+  const isDeDaQuestion =
+    /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(prompt);
+
+  const validationPrompt = isDeDaQuestion
+    ? buildDeDaValidationPrompt(draft)
+    : buildQuestionValidationPrompt(draft);
+
   const firstValidation = await askNvidia(
-    buildQuestionValidationPrompt(draft),
+    validationPrompt,
     [],
     [],
     {
@@ -228,7 +267,9 @@ async function generateVerifiedQuestionAnswer(
   );
 
   const secondValidation = await askNvidia(
-    buildQuestionValidationPrompt(repaired),
+    isDeDaQuestion
+      ? buildDeDaValidationPrompt(repaired)
+      : buildQuestionValidationPrompt(repaired),
     [],
     [],
     {
@@ -271,7 +312,13 @@ DE/DA SORULARI İÇİN ÖZEL ZORUNLU FORMAT:
   1. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı yanlıştır?"
   2. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı doğrudur?"
 - Her soruda yalnızca bir seçenek hedeflenen cevaba uymalıdır.
-- Diğer dört seçenek kesin ve tartışmasız biçimde yanlış veya doğru olmalıdır.
+- Diğer dört seçenek kesin ve tartışmasız biçimde karşıt durumda olmalıdır.
+- "Yanlıştır" sorusunda yalnızca bir yanlış, dört doğru seçenek bulunmalıdır.
+- "Doğrudur" sorusunda yalnızca bir doğru, dört yanlış seçenek bulunmalıdır.
+- Her seçeneği ayrı ayrı çözmeden soruyu gönderme.
+- İkinci bir yanlış veya doğru seçenek varsa soruyu tamamen yeniden yaz.
+- "Bahçe de çiçekler açtı", "Kardeşimde bizimle geldi" gibi birden fazla hatalı seçeneği aynı soruda kullanma.
+- Doğru seçenek dışındaki cümleler de doğal, anlamlı ve dil bilgisi açısından eksiksiz olmalıdır.
 - Bağlaç olan "de/da" ayrı yazılır.
 - Bulunma hâl eki "-de/-da/-te/-ta" kelimeye bitişik yazılır.
 - Özel adlara gelen bulunma hâl eki kesme işaretiyle ayrılır: Ankara'da, İstanbul'da.
