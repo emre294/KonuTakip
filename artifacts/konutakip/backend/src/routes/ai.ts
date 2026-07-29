@@ -270,6 +270,92 @@ Kısa ve doğrulanmış çözüm.
 `.trim();
 }
 
+function isQuestionValidationAccepted(
+  validation: string,
+  strictMode = false,
+): boolean {
+  if (isValidationSuccessful(validation)) {
+    return true;
+  }
+
+  if (strictMode) {
+    return false;
+  }
+
+  const normalized = validation
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  const hardFailurePatterns = [
+    /birden fazla doğru/,
+    /iki doğru/,
+    /çoklu doğru/,
+    /doğru seçenek yok/,
+    /hiç doğru seçenek yok/,
+    /tam olarak bir doğru değil/,
+    /answer_key_match:\s*no/,
+    /cevap anahtarı.*uyuşm/,
+    /çözüm.*uyuşm/,
+    /yanlış cevap anahtarı/,
+    /bilimsel hata/,
+    /matematiksel hata/,
+    /hesaplama hatası/,
+    /işlem hatası/,
+    /kavram hatası/,
+    /müfredat dışı/,
+    /a-e seçeneklerinden.*eksik/,
+    /seçenek eksik/,
+    /çözüm eksik/,
+    /cevap anahtarı eksik/,
+    /soru kökü belirsiz/,
+    /iki seçeneğin.*eş değer/,
+    /aynı değeri veren iki seçenek/,
+    /şekil olmadan çözülemez/,
+    /doğal olmayan.*anlamı boz/,
+    /yanlış bilgi/,
+  ];
+
+  if (
+    hardFailurePatterns.some((pattern) =>
+      pattern.test(normalized),
+    )
+  ) {
+    return false;
+  }
+
+  const softIssuePatterns = [
+    /ifade geliştirilebilir/,
+    /daha açık yazılabilir/,
+    /çeldirici güçlendirilebilir/,
+    /çözüm daha kısa olabilir/,
+    /çözüm daha ayrıntılı olabilir/,
+    /seviye biraz kolay/,
+    /seviye biraz zor/,
+    /dil sadeleştirilebilir/,
+    /biçim/,
+    /stil/,
+    /başlık/,
+    /gereksiz uzun/,
+    /kısa açıklama/,
+    /minor/,
+  ];
+
+  if (
+    softIssuePatterns.some((pattern) =>
+      pattern.test(normalized),
+    )
+  ) {
+    return true;
+  }
+
+  const explicitInvalid =
+    /final:\s*invalid/i.test(validation) ||
+    /^invalid\b/i.test(validation.trim());
+
+  return !explicitInvalid;
+}
+
 function buildSubjectAuditPrompt(
   originalPrompt: string,
   answer: string,
@@ -280,6 +366,9 @@ Aşağıdaki soru setini soruları üreten öğretmenden bağımsız,
 
 ÖNEMLİ:
 - Soru üretme.
+- Yalnızca öğrenciyi yanlış yönlendirecek gerçek hatalarda INVALID kararı ver.
+- Üslup, uzunluk, başlık, küçük ifade tercihi veya çeldirici gücü gibi küçük sorunlarda INVALID verme.
+- Tek doğru cevap, bilimsel doğruluk, cevap anahtarı ve çözüm doğruysa FINAL: VALID ile bitir.
 - Önce bütün soruları kendin çöz.
 - Cevap anahtarına güvenme.
 - Her seçeneği ayrı ayrı incele.
@@ -287,7 +376,9 @@ Aşağıdaki soru setini soruları üreten öğretmenden bağımsız,
 - Tam olarak bir doğru seçenek yoksa set geçersizdir.
 - Bilimsel veya matematiksel olarak tartışmalı ifade varsa set geçersizdir.
 - Müfredat dışı veya sınav türüne uygun olmayan soru varsa set geçersizdir.
-- Çözüm yarım, çelişkili veya cevap anahtarıyla uyumsuzsa set geçersizdir.
+- Çözüm yanlış, çelişkili veya cevap anahtarıyla uyumsuzsa set geçersizdir.
+- Çözüm doğru cevabı harf olarak açıkça tekrar etmese bile mantıksal olarak doğru seçeneği kanıtlıyorsa geçerli kabul et.
+- Küçük anlatım ve biçim sorunlarını ISSUE alanına yaz fakat seti geçersiz sayma.
 
 MATEMATİK:
 - Her işlemi bağımsız yeniden yap.
@@ -462,7 +553,7 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
-  if (isValidationSuccessful(firstValidation)) {
+  if (isQuestionValidationAccepted(firstValidation, isDeDaQuestion)) {
     return draft;
   }
 
@@ -495,7 +586,7 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
-  if (isValidationSuccessful(secondValidation)) {
+  if (isQuestionValidationAccepted(secondValidation, isDeDaQuestion)) {
     return repaired;
   }
 
@@ -528,7 +619,7 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
-  if (isValidationSuccessful(thirdValidation)) {
+  if (isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)) {
     return finalSafeAnswer;
   }
 
