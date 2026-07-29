@@ -605,77 +605,168 @@ ZORUNLU DÜZELTME:
 `.trim();
 }
 
-function isQuestionResponseStructurallyComplete(
+function analyzeQuestionStructure(
   answer: string,
-): boolean {
+): {
+  complete: boolean;
+  questionCount: number;
+  solutionCount: number;
+  answerKeyCount: number;
+  missingSections: string[];
+  missingOptions: string[];
+} {
   const normalized = answer
     .replace(/\r\n/g, "\n")
     .trim();
 
-  if (!normalized) {
-    return false;
+  const missingSections: string[] = [];
+
+  if (!/^##\s+Sorular\s*$/im.test(normalized)) {
+    missingSections.push("Sorular");
   }
 
-  if (
-    !/##\s*Sorular/i.test(normalized) ||
-    !/##\s*Cevap Anahtarı/i.test(normalized) ||
-    !/##\s*Çözümler/i.test(normalized)
-  ) {
-    return false;
+  if (!/^##\s+Cevap Anahtarı\s*$/im.test(normalized)) {
+    missingSections.push("Cevap Anahtari");
   }
 
-  const questionCount =
-    normalized.match(/###\s*\d+\.\s*Soru(?:\s|$)/gi)?.length ?? 0;
-
-  const solutionCount =
-    normalized.match(/###\s*\d+\.\s*Soru Çözümü/gi)?.length ?? 0;
-
-  if (questionCount === 0 || solutionCount !== questionCount) {
-    return false;
+  if (!/^##\s+Çözümler\s*$/im.test(normalized)) {
+    missingSections.push("Cozumler");
   }
 
   const questionArea =
-    normalized.split(/##\s*Cevap Anahtarı/i)[0] ?? "";
-
-  for (const letter of ["A", "B", "C", "D", "E"]) {
-    const count =
-      questionArea.match(
-        new RegExp(
-          `(?:^|\\n)\\s*${letter}\\)\\s+`,
-          "gm",
-        ),
-      )?.length ?? 0;
-
-    if (count !== questionCount) {
-      return false;
-    }
-  }
+    normalized.split(
+      /^##\s+Cevap Anahtarı\s*$/im,
+    )[0] ?? "";
 
   const answerKeyArea =
     normalized
-      .split(/##\s*Cevap Anahtarı/i)[1]
-      ?.split(/##\s*Çözümler/i)[0] ?? "";
+      .split(/^##\s+Cevap Anahtarı\s*$/im)[1]
+      ?.split(/^##\s+Çözümler\s*$/im)[0] ?? "";
 
-  const answerKeyCount =
-    answerKeyArea.match(
-      /(?:^|\n)\s*\d+[.)]\s*[A-E]\b/gm,
-    )?.length ?? 0;
+  const solutionArea =
+    normalized.split(
+      /^##\s+Çözümler\s*$/im,
+    )[1] ?? "";
 
-  if (answerKeyCount !== questionCount) {
-    return false;
-  }
+  const questionMatches = [
+    ...questionArea.matchAll(
+      /^###\s+(\d+)\.\s+Soru\s*$/gim,
+    ),
+  ];
 
-  const ending = normalized.slice(-300);
+  const solutionMatches = [
+    ...solutionArea.matchAll(
+      /^###\s+(\d+)\.\s+Soru Çözümü\s*$/gim,
+    ),
+  ];
 
-  if (
-    /(?:^|\n)\s*[-*]?\s*\*\*[A-Za-zÇĞİÖŞÜçğıöşü]+$/u.test(
-      ending,
-    )
+  const answerKeyMatches = [
+    ...answerKeyArea.matchAll(
+      /^\s*(\d+)[.)]\s*([A-E])\s*$/gim,
+    ),
+  ];
+
+  const questionCount = questionMatches.length;
+  const solutionCount = solutionMatches.length;
+  const answerKeyCount = answerKeyMatches.length;
+
+  const missingOptions: string[] = [];
+
+  for (
+    let questionIndex = 0;
+    questionIndex < questionMatches.length;
+    questionIndex += 1
   ) {
-    return false;
+    const current = questionMatches[questionIndex];
+    const next = questionMatches[questionIndex + 1];
+
+    const sectionStart =
+      (current.index ?? 0) + current[0].length;
+
+    const sectionEnd =
+      next?.index ?? questionArea.length;
+
+    const section = questionArea.slice(
+      sectionStart,
+      sectionEnd,
+    );
+
+    const questionNumber = current[1];
+
+    for (const letter of ["A", "B", "C", "D", "E"]) {
+      const optionPattern = new RegExp(
+        `^\\s*${letter}\\)\\s+\\S.+$`,
+        "im",
+      );
+
+      if (!optionPattern.test(section)) {
+        missingOptions.push(
+          `Soru ${questionNumber}: ${letter} eksik`,
+        );
+      }
+    }
   }
 
-  return true;
+  const questionNumbers = questionMatches.map(
+    (match) => match[1],
+  );
+
+  const solutionNumbers = solutionMatches.map(
+    (match) => match[1],
+  );
+
+  const answerKeyNumbers = answerKeyMatches.map(
+    (match) => match[1],
+  );
+
+  const numberingMatches =
+    JSON.stringify(questionNumbers) ===
+      JSON.stringify(solutionNumbers) &&
+    JSON.stringify(questionNumbers) ===
+      JSON.stringify(answerKeyNumbers);
+
+  const complete =
+    normalized.length > 0 &&
+    missingSections.length === 0 &&
+    questionCount > 0 &&
+    solutionCount === questionCount &&
+    answerKeyCount === questionCount &&
+    missingOptions.length === 0 &&
+    numberingMatches;
+
+  return {
+    complete,
+    questionCount,
+    solutionCount,
+    answerKeyCount,
+    missingSections,
+    missingOptions,
+  };
+}
+
+function getQuestionStructureIssue(
+  answer: string,
+): string {
+  const result = analyzeQuestionStructure(answer);
+
+  return [
+    `complete=${result.complete}`,
+    `questionCount=${result.questionCount}`,
+    `solutionCount=${result.solutionCount}`,
+    `answerKeyCount=${result.answerKeyCount}`,
+    result.missingSections.length > 0
+      ? `missingSections=${result.missingSections.join(",")}`
+      : "missingSections=NONE",
+    result.missingOptions.length > 0
+      ? `missingOptions=${result.missingOptions.join(" | ")}`
+      : "missingOptions=NONE",
+  ].join("; ");
+}
+
+function isQuestionResponseStructurallyComplete(
+  answer: string,
+): boolean {
+  return analyzeQuestionStructure(answer).complete;
 }
 
 async function generateVerifiedQuestionAnswer(
