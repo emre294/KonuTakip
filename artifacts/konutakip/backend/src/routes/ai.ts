@@ -272,88 +272,47 @@ Kısa ve doğrulanmış çözüm.
 
 function isQuestionValidationAccepted(
   validation: string,
-  strictMode = false,
+  _strictMode = false,
 ): boolean {
-  if (isValidationSuccessful(validation)) {
-    return true;
-  }
+  return isValidationSuccessful(validation);
+}
 
-  if (strictMode) {
-    return false;
-  }
-
-  const normalized = validation
-    .toLocaleLowerCase("tr-TR")
+function compactValidationLog(
+  validation: string,
+): string {
+  return validation
     .replace(/\r\n/g, "\n")
-    .trim();
+    .replace(/[ \t]+$/gm, "")
+    .trim()
+    .slice(0, 12_000);
+}
 
-  const hardFailurePatterns = [
-    /birden fazla doğru/,
-    /iki doğru/,
-    /çoklu doğru/,
-    /doğru seçenek yok/,
-    /hiç doğru seçenek yok/,
-    /tam olarak bir doğru değil/,
-    /answer_key_match:\s*no/,
-    /cevap anahtarı.*uyuşm/,
-    /çözüm.*uyuşm/,
-    /yanlış cevap anahtarı/,
-    /bilimsel hata/,
-    /matematiksel hata/,
-    /hesaplama hatası/,
-    /işlem hatası/,
-    /kavram hatası/,
-    /müfredat dışı/,
-    /a-e seçeneklerinden.*eksik/,
-    /seçenek eksik/,
-    /çözüm eksik/,
-    /cevap anahtarı eksik/,
-    /soru kökü belirsiz/,
-    /iki seçeneğin.*eş değer/,
-    /aynı değeri veren iki seçenek/,
-    /şekil olmadan çözülemez/,
-    /doğal olmayan.*anlamı boz/,
-    /yanlış bilgi/,
-  ];
+function logValidationResult(
+  stage: "FIRST" | "SECOND" | "THIRD",
+  prompt: string,
+  validation: string,
+): void {
+  const subjectMatch = prompt.match(
+    /(?:Ders|subjectName|DERS):\s*([^\n]+)/i,
+  );
 
-  if (
-    hardFailurePatterns.some((pattern) =>
-      pattern.test(normalized),
-    )
-  ) {
-    return false;
-  }
+  const topicMatch = prompt.match(
+    /(?:Konu|topicName|KONU):\s*([^\n]+)/i,
+  );
 
-  const softIssuePatterns = [
-    /ifade geliştirilebilir/,
-    /daha açık yazılabilir/,
-    /çeldirici güçlendirilebilir/,
-    /çözüm daha kısa olabilir/,
-    /çözüm daha ayrıntılı olabilir/,
-    /seviye biraz kolay/,
-    /seviye biraz zor/,
-    /dil sadeleştirilebilir/,
-    /biçim/,
-    /stil/,
-    /başlık/,
-    /gereksiz uzun/,
-    /kısa açıklama/,
-    /minor/,
-  ];
-
-  if (
-    softIssuePatterns.some((pattern) =>
-      pattern.test(normalized),
-    )
-  ) {
-    return true;
-  }
-
-  const explicitInvalid =
-    /final:\s*invalid/i.test(validation) ||
-    /^invalid\b/i.test(validation.trim());
-
-  return !explicitInvalid;
+  console.log(
+    [
+      "",
+      "============================================================",
+      `[AI VALIDATION ${stage}]`,
+      `SUBJECT: ${subjectMatch?.[1]?.trim() ?? "UNKNOWN"}`,
+      `TOPIC: ${topicMatch?.[1]?.trim() ?? "UNKNOWN"}`,
+      "RESULT:",
+      compactValidationLog(validation),
+      "============================================================",
+      "",
+    ].join("\n"),
+  );
 }
 
 function buildSubjectAuditPrompt(
@@ -553,6 +512,12 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
+  logValidationResult(
+    "FIRST",
+    prompt,
+    firstValidation,
+  );
+
   if (isQuestionValidationAccepted(firstValidation, isDeDaQuestion)) {
     return draft;
   }
@@ -584,6 +549,12 @@ async function generateVerifiedQuestionAnswer(
       maxTokens: 4096,
       allowReasoningValidationFallback: true,
     },
+  );
+
+  logValidationResult(
+    "SECOND",
+    prompt,
+    secondValidation,
   );
 
   if (isQuestionValidationAccepted(secondValidation, isDeDaQuestion)) {
@@ -619,15 +590,27 @@ async function generateVerifiedQuestionAnswer(
     },
   );
 
+  logValidationResult(
+    "THIRD",
+    prompt,
+    thirdValidation,
+  );
+
   if (isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)) {
     return finalSafeAnswer;
   }
+
+  const finalReason = compactValidationLog(
+    thirdValidation,
+  )
+    .replace(/\s+/g, " ")
+    .slice(0, 1500);
 
   throw new Error(
     [
       "Soru seti üç bağımsız kalite kontrolünden geçemedi.",
       "Hatalı soru kullanıcıya gösterilmedi.",
-      "Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      `Son denetim sonucu: ${finalReason}`,
     ].join(" "),
   );
 }
