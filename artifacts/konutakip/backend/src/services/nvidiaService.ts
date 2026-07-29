@@ -264,8 +264,43 @@ export async function askNvidia(
         ? normalizeModelAnswer(rawAnswer)
         : "";
 
-    if (answer) {
+    if (
+      answer &&
+      choice?.finish_reason !== "length"
+    ) {
       return answer;
+    }
+
+    if (
+      choice?.finish_reason === "length" &&
+      (options.maxTokens ?? 0) < 8192
+    ) {
+      return askNvidia(
+        message,
+        history,
+        attachments,
+        {
+          ...options,
+          temperature: Math.min(
+            options.temperature ?? 0.25,
+            0.25,
+          ),
+          topP: Math.min(
+            options.topP ?? 0.75,
+            0.75,
+          ),
+          maxTokens: 8192,
+        },
+      );
+    }
+
+    if (
+      answer &&
+      choice?.finish_reason === "length"
+    ) {
+      throw new Error(
+        "NVIDIA cevabı token sınırında yarım kaldı ve tamamlanamadı.",
+      );
     }
 
     const reasoning =

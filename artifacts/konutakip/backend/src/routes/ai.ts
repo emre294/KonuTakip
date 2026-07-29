@@ -605,10 +605,84 @@ ZORUNLU DÜZELTME:
 `.trim();
 }
 
+function isQuestionResponseStructurallyComplete(
+  answer: string,
+): boolean {
+  const normalized = answer
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  if (!normalized) {
+    return false;
+  }
+
+  if (
+    !/##\s*Sorular/i.test(normalized) ||
+    !/##\s*Cevap Anahtarı/i.test(normalized) ||
+    !/##\s*Çözümler/i.test(normalized)
+  ) {
+    return false;
+  }
+
+  const questionCount =
+    normalized.match(/###\s*\d+\.\s*Soru(?:\s|$)/gi)?.length ?? 0;
+
+  const solutionCount =
+    normalized.match(/###\s*\d+\.\s*Soru Çözümü/gi)?.length ?? 0;
+
+  if (questionCount === 0 || solutionCount !== questionCount) {
+    return false;
+  }
+
+  const questionArea =
+    normalized.split(/##\s*Cevap Anahtarı/i)[0] ?? "";
+
+  for (const letter of ["A", "B", "C", "D", "E"]) {
+    const count =
+      questionArea.match(
+        new RegExp(
+          `(?:^|\\n)\\s*${letter}\\)\\s+`,
+          "gm",
+        ),
+      )?.length ?? 0;
+
+    if (count !== questionCount) {
+      return false;
+    }
+  }
+
+  const answerKeyArea =
+    normalized
+      .split(/##\s*Cevap Anahtarı/i)[1]
+      ?.split(/##\s*Çözümler/i)[0] ?? "";
+
+  const answerKeyCount =
+    answerKeyArea.match(
+      /(?:^|\n)\s*\d+[.)]\s*[A-E]\b/gm,
+    )?.length ?? 0;
+
+  if (answerKeyCount !== questionCount) {
+    return false;
+  }
+
+  const ending = normalized.slice(-300);
+
+  if (
+    /(?:^|\n)\s*[-*]?\s*\*\*[A-Za-zÇĞİÖŞÜçğıöşü]+$/u.test(
+      ending,
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 async function generateVerifiedQuestionAnswer(
   prompt: string,
   attachments: NvidiaAttachment[],
   options: NvidiaRequestOptions,
+  isDeDaQuestion: boolean,
 ): Promise<string> {
   const draft = await askNvidia(
     prompt,
@@ -616,9 +690,6 @@ async function generateVerifiedQuestionAnswer(
     attachments,
     options,
   );
-
-  const isDeDaQuestion =
-    /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(prompt);
 
   const validationPrompt = isDeDaQuestion
     ? buildDeDaValidationPrompt(draft)
@@ -642,11 +713,15 @@ async function generateVerifiedQuestionAnswer(
     firstValidation,
   );
 
-  if (isQuestionValidationAccepted(firstValidation, isDeDaQuestion)) {
+  if (
+    isQuestionResponseStructurallyComplete(draft) &&
+    isQuestionValidationAccepted(firstValidation, isDeDaQuestion)
+  ) {
     return draft;
   }
 
   if (
+    isQuestionResponseStructurallyComplete(draft) &&
     !isDeDaQuestion &&
     await adjudicateInconclusiveValidation(
       prompt,
@@ -692,11 +767,15 @@ async function generateVerifiedQuestionAnswer(
     secondValidation,
   );
 
-  if (isQuestionValidationAccepted(secondValidation, isDeDaQuestion)) {
+  if (
+    isQuestionResponseStructurallyComplete(repaired) &&
+    isQuestionValidationAccepted(secondValidation, isDeDaQuestion)
+  ) {
     return repaired;
   }
 
   if (
+    isQuestionResponseStructurallyComplete(repaired) &&
     !isDeDaQuestion &&
     await adjudicateInconclusiveValidation(
       prompt,
@@ -742,11 +821,15 @@ async function generateVerifiedQuestionAnswer(
     thirdValidation,
   );
 
-  if (isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)) {
+  if (
+    isQuestionResponseStructurallyComplete(finalSafeAnswer) &&
+    isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)
+  ) {
     return finalSafeAnswer;
   }
 
   if (
+    isQuestionResponseStructurallyComplete(finalSafeAnswer) &&
     !isDeDaQuestion &&
     await adjudicateInconclusiveValidation(
       prompt,
@@ -1366,7 +1449,7 @@ function getNvidiaOptions(
     return {
       temperature: 0.22,
       topP: 0.78,
-      maxTokens: 2600,
+      maxTokens: 4096,
     };
   }
 
@@ -1522,6 +1605,9 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
           prompt,
           attachments,
           options,
+          /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+            requestText,
+          ),
         )
       : await askNvidia(
           prompt,
