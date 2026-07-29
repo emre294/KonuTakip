@@ -175,6 +175,11 @@ interface AppContextValue {
   setProfile: (p: UserProfile) => void;
   topicCompletion: Record<string, boolean>;
   toggleTopic: (topicId: string) => void;
+  subtopicCompletion: Record<string, boolean>;
+  toggleSubtopic: (
+    topicId: string,
+    subtopicId: string,
+  ) => void;
   sessions: DailySession[];
   addSession: (s: Omit<DailySession, "id">) => void;
   updateSession: (id: string, updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>) => void;
@@ -237,6 +242,55 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 const STORAGE_KEY = "konutakip_v3";
+const SUBTOPIC_MIGRATION_VERSION = 1;
+
+function findTytTopicById(topicId: string) {
+  return TYT_SUBJECTS
+    .flatMap((subject) => subject.topics)
+    .find((topic) => topic.id === topicId);
+}
+
+function migrateSubtopicCompletion(
+  topicCompletion: Record<string, boolean>,
+  existingSubtopicCompletion: Record<string, boolean> = {},
+  storedVersion = 0,
+): {
+  subtopicCompletion: Record<string, boolean>;
+  migrationVersion: number;
+  changed: boolean;
+} {
+  if (storedVersion >= SUBTOPIC_MIGRATION_VERSION) {
+    return {
+      subtopicCompletion: existingSubtopicCompletion,
+      migrationVersion: storedVersion,
+      changed: false,
+    };
+  }
+
+  const migrated = {
+    ...existingSubtopicCompletion,
+  };
+
+  for (const subject of TYT_SUBJECTS) {
+    for (const topic of subject.topics) {
+      if (!topicCompletion[topic.id]) {
+        continue;
+      }
+
+      for (const subtopic of topic.subtopics ?? []) {
+        if (migrated[subtopic.id] === undefined) {
+          migrated[subtopic.id] = true;
+        }
+      }
+    }
+  }
+
+  return {
+    subtopicCompletion: migrated,
+    migrationVersion: SUBTOPIC_MIGRATION_VERSION,
+    changed: true,
+  };
+}
 
 export function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
@@ -275,6 +329,10 @@ function mergeAchievements(saved: Achievement[], template: Achievement[]): Achie
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfileState] = useState<UserProfile | null>(null);
   const [topicCompletion, setTopicCompletion] = useState<Record<string, boolean>>({});
+  const [
+    subtopicCompletion,
+    setSubtopicCompletionState,
+  ] = useState<Record<string, boolean>>({});
   const [sessions, setSessions] = useState<DailySession[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [mockExamResults, setMockExamResults] = useState<MockExamResult[]>([]);
@@ -333,7 +391,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           const old = JSON.parse(oldRaw);
           // persistedDataRef starts as {} — first user action will start writing v3
           if (old.profile) setProfileState(old.profile);
-          if (old.topicCompletion) setTopicCompletion(old.topicCompletion);
+          if (old.topicCompletion) {
+            const loadedTopicCompletion =
+              old.topicCompletion as Record<string, boolean>;
+
+            const migratedOldSubtopics =
+              migrateSubtopicCompletion(
+                loadedTopicCompletion,
+                {},
+                0,
+              );
+
+            setTopicCompletion(loadedTopicCompletion);
+            setSubtopicCompletionState(
+              migratedOldSubtopics.subtopicCompletion,
+            );
+          }
           if (old.sessions) setSessions(
             (old.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
           );
@@ -347,8 +420,48 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const data = JSON.parse(raw);
         // Seed the shadow ref so saveData never needs to read from disk again.
         persistedDataRef.current = data;
-        if (data.profile) setProfileState(data.profile);
-        if (data.topicCompletion) setTopicCompletion(data.topicCompletion);
+
+        if (data.profile) {
+          setProfileState(data.profile);
+        }
+
+        const loadedTopicCompletion =
+          (data.topicCompletion ?? {}) as Record<string, boolean>;
+
+        const loadedSubtopicCompletion =
+          (data.subtopicCompletion ?? {}) as Record<string, boolean>;
+
+        const subtopicMigration =
+          migrateSubtopicCompletion(
+            loadedTopicCompletion,
+            loadedSubtopicCompletion,
+            typeof data.subtopicMigrationVersion === "number"
+              ? data.subtopicMigrationVersion
+              : 0,
+          );
+
+        setTopicCompletion(loadedTopicCompletion);
+        setSubtopicCompletionState(
+          subtopicMigration.subtopicCompletion,
+        );
+
+        if (subtopicMigration.changed) {
+          const migratedData = {
+            ...data,
+            topicCompletion: loadedTopicCompletion,
+            subtopicCompletion:
+              subtopicMigration.subtopicCompletion,
+            subtopicMigrationVersion:
+              subtopicMigration.migrationVersion,
+          };
+
+          persistedDataRef.current = migratedData;
+
+          await AsyncStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(migratedData),
+          );
+        }
         if (data.sessions) setSessions(
           (data.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
         );
@@ -427,6 +540,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   function saveData(updates: Partial<{
     profile: UserProfile | null;
     topicCompletion: Record<string, boolean>;
+    subtopicCompletion: Record<string, boolean>;
+    subtopicMigrationVersion: number;
     sessions: DailySession[];
     questions: Question[];
     mockExamResults: MockExamResult[];
@@ -633,6 +748,54 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // ── Subtopic completion ────────────────────────────────────────────────────
+
+  const toggleSubtopic = useCallback((
+    topicId: string,
+    subtopicId: string,
+  ) => {
+    const topic = findTytTopicById(topicId);
+
+    if (!topic?.subtopics?.length) {
+      return;
+    }
+
+    setSubtopicCompletionState((previous) => {
+      const nextValue = !previous[subtopicId];
+
+      const nextSubtopics = {
+        ...previous,
+        [subtopicId]: nextValue,
+      };
+
+      const allSubtopicsCompleted =
+        topic.subtopics!.every(
+          (subtopic) =>
+            !!nextSubtopics[subtopic.id],
+        );
+
+      setTopicCompletion((previousTopics) => {
+        const nextTopics = {
+          ...previousTopics,
+          [topicId]: allSubtopicsCompleted,
+        };
+
+        saveData({
+          topicCompletion: nextTopics,
+          subtopicCompletion: nextSubtopics,
+          subtopicMigrationVersion:
+            SUBTOPIC_MIGRATION_VERSION,
+        });
+
+        return nextTopics;
+      });
+
+      return nextSubtopics;
+    });
+
+    markStudyDay();
+  }, [markStudyDay]);
+
   // ── Topic reminders ──────────────────────────────────────────────────────────
 
   const setTopicReminderCtx = useCallback(async (
@@ -672,8 +835,48 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const toggleTopic = useCallback((topicId: string) => {
     setTopicCompletion(prev => {
       const wasCompleted = !!prev[topicId];
-      const next = { ...prev, [topicId]: !prev[topicId] };
-      saveData({ topicCompletion: next });
+      const nextValue = !prev[topicId];
+      const next = {
+        ...prev,
+        [topicId]: nextValue,
+      };
+
+      const topicForSubtopicSync =
+        findTytTopicById(topicId);
+
+      if (
+        topicForSubtopicSync?.subtopics?.length
+      ) {
+        setSubtopicCompletionState(
+          (previousSubtopics) => {
+            const nextSubtopics = {
+              ...previousSubtopics,
+            };
+
+            for (
+              const subtopic of
+              topicForSubtopicSync.subtopics ?? []
+            ) {
+              nextSubtopics[subtopic.id] =
+                nextValue;
+            }
+
+            saveData({
+              topicCompletion: next,
+              subtopicCompletion: nextSubtopics,
+              subtopicMigrationVersion:
+                SUBTOPIC_MIGRATION_VERSION,
+            });
+
+            return nextSubtopics;
+          },
+        );
+      }
+      else {
+        saveData({
+          topicCompletion: next,
+        });
+      }
       // Auto-cancel reminder when topic is marked complete
       if (!wasCompleted) {
         cancelTopicReminder(topicId).catch(() => {});
@@ -1157,6 +1360,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AppContextValue>(() => ({
     profile, setProfile,
     topicCompletion, toggleTopic,
+    subtopicCompletion, toggleSubtopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
     questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
     runWatchdogSync,
@@ -1176,6 +1380,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }), [
     profile, setProfile,
     topicCompletion, toggleTopic,
+    subtopicCompletion, toggleSubtopic,
     sessions, addSession, updateSession, completeSession, deleteSession,
     questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
     runWatchdogSync,
