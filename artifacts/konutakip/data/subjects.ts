@@ -1,3 +1,5 @@
+import { TYT_SUBTOPICS_BY_TOPIC_ID } from "./tytSubtopics";
+
 export type StudyField = "sayisal" | "esitAgirlik" | "sozel";
 
 export interface Subtopic {
@@ -43,12 +45,17 @@ function makeTopic(
   name: string,
   subtopicNames: string[] = [],
 ): Topic {
+  const resolvedSubtopics =
+    subtopicNames.length > 0
+      ? subtopicNames
+      : TYT_SUBTOPICS_BY_TOPIC_ID[id] ?? [];
+
   return {
     id,
     name,
     subtopics:
-      subtopicNames.length > 0
-        ? makeSubtopics(id, subtopicNames)
+      resolvedSubtopics.length > 0
+        ? makeSubtopics(id, resolvedSubtopics)
         : undefined,
   };
 }
