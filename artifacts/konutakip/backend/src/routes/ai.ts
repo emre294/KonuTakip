@@ -288,7 +288,7 @@ function compactValidationLog(
 }
 
 function logValidationResult(
-  stage: "FIRST" | "SECOND" | "THIRD",
+  stage: "FIRST" | "SECOND" | "THIRD" | "ADJUDICATION",
   prompt: string,
   validation: string,
 ): void {
@@ -313,6 +313,130 @@ function logValidationResult(
       "",
     ].join("\n"),
   );
+}
+
+function isInconclusiveZeroTargetValidation(
+  validation: string,
+): boolean {
+  const normalized = validation
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\r\n/g, "\n")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const hasZeroTarget =
+    /target_count:\s*0\b/.test(normalized) ||
+    /hedef seçenek sayısı\s*0\b/.test(normalized) ||
+    /0 hedef seçenek\b/.test(normalized);
+
+  const hasNoConcreteFault =
+    /hatalı seçenek(?:ler)?\s*[-:]*\s*(?:yok|-|none)\b/.test(
+      normalized,
+    ) ||
+    /issue:\s*none\b/.test(normalized) ||
+    /hatalı seçenek yok\b/.test(normalized);
+
+  return hasZeroTarget && hasNoConcreteFault;
+}
+
+function buildQuestionAdjudicationPrompt(
+  originalPrompt: string,
+  answer: string,
+  previousValidation: string,
+): string {
+  return `
+Sen önceki validatordan tamamen bağımsız son karar hakemisin.
+
+ÖNCEKİ VALIDATOR KARARSIZ SONUÇ ÜRETTİ:
+
+${previousValidation}
+
+Bu sonuçta "0 hedef seçenek" denmesine rağmen somut hatalı seçenek
+gösterilmemiş olabilir. Önceki karara güvenme.
+
+ZORUNLU İŞLEM:
+
+1. Soru kökünü dikkatle oku.
+2. Soru "hangisi doğrudur" diyorsa doğru seçenekleri say.
+3. Soru "hangisi yanlıştır" diyorsa yanlış seçenekleri say.
+4. A, B, C, D ve E seçeneklerini bağımsız biçimde çöz.
+5. Her seçeneğin neden doğru veya yanlış olduğunu içinden doğrula.
+6. Cevap anahtarına güvenmeden kendi cevabını bul.
+7. Kendi cevabını cevap anahtarıyla karşılaştır.
+8. Çözümün kendi bulduğun cevabı desteklediğini kontrol et.
+9. Bilimsel, matematiksel veya dil bilgisel hata varsa INVALID ver.
+10. Tam olarak bir hedef seçenek varsa, cevap anahtarı ve çözüm de
+    onunla uyumluysa VALID ver.
+11. Emin değilsen VALID verme.
+
+YANIT BİÇİMİ:
+
+QUESTION 1
+STEM_TARGET: TRUE veya FALSE
+A: TRUE veya FALSE
+B: TRUE veya FALSE
+C: TRUE veya FALSE
+D: TRUE veya FALSE
+E: TRUE veya FALSE
+STEM_TARGET: TRUE veya FALSE
+TARGET_COUNT: sayı
+INDEPENDENT_ANSWER: A-E
+ANSWER_KEY_MATCH: YES veya NO
+SOLUTION_MATCH: YES veya NO
+ISSUE: NONE veya somut hata
+
+En son yalnızca şu satırlardan biriyle bitir:
+
+FINAL: VALID
+
+veya
+
+FINAL: INVALID
+REASONS:
+- Somut hata
+
+ORİJİNAL İSTEK:
+
+${originalPrompt}
+
+DENETLENECEK SORU:
+
+${answer}
+`.trim();
+}
+
+async function adjudicateInconclusiveValidation(
+  prompt: string,
+  answer: string,
+  validation: string,
+): Promise<boolean> {
+  if (!isInconclusiveZeroTargetValidation(validation)) {
+    return false;
+  }
+
+  const adjudication = await askNvidia(
+    buildQuestionAdjudicationPrompt(
+      prompt,
+      answer,
+      validation,
+    ),
+    [],
+    [],
+    {
+      temperature: 0.01,
+      topP: 0.2,
+      maxTokens: 4096,
+      allowReasoningValidationFallback: true,
+    },
+  );
+
+  logValidationResult(
+    "ADJUDICATION",
+    prompt,
+    adjudication,
+  );
+
+  return isValidationSuccessful(adjudication);
 }
 
 function buildSubjectAuditPrompt(
@@ -522,6 +646,17 @@ async function generateVerifiedQuestionAnswer(
     return draft;
   }
 
+  if (
+    !isDeDaQuestion &&
+    await adjudicateInconclusiveValidation(
+      prompt,
+      draft,
+      firstValidation,
+    )
+  ) {
+    return draft;
+  }
+
   const repaired = await askNvidia(
     buildQuestionRepairPrompt(
       prompt,
@@ -561,6 +696,17 @@ async function generateVerifiedQuestionAnswer(
     return repaired;
   }
 
+  if (
+    !isDeDaQuestion &&
+    await adjudicateInconclusiveValidation(
+      prompt,
+      repaired,
+      secondValidation,
+    )
+  ) {
+    return repaired;
+  }
+
   const finalSafeAnswer = await askNvidia(
     buildFinalSafeQuestionPrompt(
       prompt,
@@ -597,6 +743,17 @@ async function generateVerifiedQuestionAnswer(
   );
 
   if (isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)) {
+    return finalSafeAnswer;
+  }
+
+  if (
+    !isDeDaQuestion &&
+    await adjudicateInconclusiveValidation(
+      prompt,
+      finalSafeAnswer,
+      thirdValidation,
+    )
+  ) {
     return finalSafeAnswer;
   }
 
