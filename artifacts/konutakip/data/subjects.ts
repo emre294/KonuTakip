@@ -1,8 +1,14 @@
 export type StudyField = "sayisal" | "esitAgirlik" | "sozel";
 
+export interface Subtopic {
+  id: string;
+  name: string;
+}
+
 export interface Topic {
   id: string;
   name: string;
+  subtopics?: Subtopic[];
 }
 
 export interface Subject {
@@ -20,6 +26,31 @@ export interface ExamSection {
 
 function makeTopics(subjectId: string, names: string[]): Topic[] {
   return names.map((name, i) => ({ id: `${subjectId}-${i}`, name }));
+}
+
+function makeSubtopics(
+  topicId: string,
+  names: string[],
+): Subtopic[] {
+  return names.map((name, index) => ({
+    id: `${topicId}-sub-${index}`,
+    name,
+  }));
+}
+
+function makeTopic(
+  id: string,
+  name: string,
+  subtopicNames: string[] = [],
+): Topic {
+  return {
+    id,
+    name,
+    subtopics:
+      subtopicNames.length > 0
+        ? makeSubtopics(id, subtopicNames)
+        : undefined,
+  };
 }
 
 export const TYT_SUBJECTS: Subject[] = [
