@@ -84,6 +84,9 @@ ZORUNLU KURALLAR:
 - Cevap anahtarını bütün sorulardan sonra ayrı bölümde ver.
 - Çözümleri cevap anahtarından sonra ayrı bölümde ver.
 - Çözüm ile cevap anahtarının aynı sonucu verdiğini doğrula.
+- Her çözümün son satırında "**Doğru cevap: X**" yaz.
+- X yerine cevap anahtarındaki gerçek A-E harfini kullan.
+- Cevap harfini yazmadan çözümü bitirme.
 
 TÜRKÇE SORULARINDA:
 - Bağlaç olan "de/da" ayrı yazılır.
@@ -156,14 +159,29 @@ function isValidationSuccessful(
   validation: string,
 ): boolean {
   const normalized = validation
-    .trim()
-    .toUpperCase();
+    .replace(/^\uFEFF/, "")
+    .replace(/[\u200B-\u200D\u2060]/g, "")
+    .replace(/：/g, ":")
+    .replace(/\r\n/g, "\n")
+    .replace(/[\*_\x60]/g, "")
+    .trim();
 
-  return (
-    normalized === "VALID" ||
-    normalized.endsWith("FINAL: VALID") ||
-    normalized.includes("\nFINAL: VALID")
-  );
+  const verdictMatches = [
+    ...normalized.matchAll(
+      /(?:^|\n)\s*(?:FINAL\s*:\s*)?(VALID|INVALID)\s*(?=\n|$)/gi,
+    ),
+  ];
+
+  if (verdictMatches.length === 0) {
+    return false;
+  }
+
+  const lastVerdict =
+    verdictMatches[
+      verdictMatches.length - 1
+    ][1].toUpperCase();
+
+  return lastVerdict === "VALID";
 }
 
 function buildFinalSafeQuestionPrompt(
@@ -202,6 +220,8 @@ ZORUNLU KURALLAR:
 - Soru zorluğunu uzunlukla değil düşünme gereksinimiyle oluştur.
 - Cevabı soru kökünde ele verme.
 - Çözümü kısa, doğru ve yeterli yaz.
+- Her çözümün sonunda cevap anahtarındaki harfi "**Doğru cevap: X**" biçiminde yaz.
+- Cevap harfi cevap anahtarıyla birebir aynı olmalıdır.
 - Yalnızca nihai soruları göster.
 - Denetim notlarını kullanıcıya gösterme.
 
@@ -460,7 +480,9 @@ Aşağıdaki soru setini soruları üreten öğretmenden bağımsız,
 - Bilimsel veya matematiksel olarak tartışmalı ifade varsa set geçersizdir.
 - Müfredat dışı veya sınav türüne uygun olmayan soru varsa set geçersizdir.
 - Çözüm yanlış, çelişkili veya cevap anahtarıyla uyumsuzsa set geçersizdir.
-- Çözüm doğru cevabı harf olarak açıkça tekrar etmese bile mantıksal olarak doğru seçeneği kanıtlıyorsa geçerli kabul et.
+- Çözümün matematiksel, bilimsel veya mantıksal sonucu cevap anahtarıyla uyumlu olmalıdır.
+- Çözüm sonunda bulunan "Doğru cevap: X" satırı cevap anahtarıyla aynı olmalıdır.
+- Harf etiketi eksikse yalnızca biçim sorunu olarak belirt; çözüm ve cevap anahtarı doğruysa INVALID verme.
 - Küçük anlatım ve biçim sorunlarını ISSUE alanına yaz fakat seti geçersiz sayma.
 
 MATEMATİK:
@@ -520,7 +542,13 @@ ISSUE: yoksa NONE, varsa kısa hata
 
 Aynı düzeni bütün sorular için uygula.
 
-En son yalnızca şu iki sonuçtan biriyle bitir:
+En son mutlaka tek bir nihai karar ver.
+
+Karar son satırda olmalıdır.
+Karardan sonra hiçbir karakter veya açıklama yazma.
+VALID ve INVALID kararlarını aynı yanıtta birlikte kullanma.
+
+Yalnızca:
 
 FINAL: VALID
 
@@ -600,6 +628,8 @@ ZORUNLU DÜZELTME:
 - Her soruda tam olarak bir doğru seçenek bulunduğunu doğrula.
 - Cevabı soru kökünde ele verme.
 - Cevap anahtarı ve çözümleri sorulardan sonra ayrı bölümlerde ver.
+- Her düzeltilmiş çözümün son satırına "**Doğru cevap: X**" ekle.
+- X harfi cevap anahtarıyla aynı olmalıdır.
 - Denetim sonucunu kullanıcıya gösterme.
 - Yalnızca düzeltilmiş nihai soruları üret.
 `.trim();
@@ -769,17 +799,131 @@ function isQuestionResponseStructurallyComplete(
   return analyzeQuestionStructure(answer).complete;
 }
 
+function ensureSolutionAnswerLabels(
+  answer: string,
+): string {
+  const normalized = answer
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  const answerKeyParts =
+    normalized.split(
+      /^##\s+Cevap Anahtarı\s*$/im,
+    );
+
+  if (answerKeyParts.length < 2) {
+    return normalized;
+  }
+
+  const answerKeyBlock =
+    answerKeyParts[1]
+      ?.split(/^##\s+Çözümler\s*$/im)[0] ?? "";
+
+  const answerMap = new Map<string, string>();
+
+  for (
+    const match of answerKeyBlock.matchAll(
+      /^\s*(\d+)[.)]\s*([A-E])\s*$/gim,
+    )
+  ) {
+    answerMap.set(
+      match[1],
+      match[2].toUpperCase(),
+    );
+  }
+
+  if (answerMap.size === 0) {
+    return normalized;
+  }
+
+  const solutionParts =
+    normalized.split(
+      /^##\s+Çözümler\s*$/im,
+    );
+
+  if (solutionParts.length < 2) {
+    return normalized;
+  }
+
+  const beforeSolutions =
+    solutionParts[0].trimEnd();
+
+  const solutionArea =
+    solutionParts
+      .slice(1)
+      .join("\n## Çözümler\n");
+
+  const headings = [
+    ...solutionArea.matchAll(
+      /^###\s+(\d+)\.\s+Soru Çözümü\s*$/gim,
+    ),
+  ];
+
+  if (headings.length === 0) {
+    return normalized;
+  }
+
+  let rebuilt = "";
+
+  for (
+    let index = 0;
+    index < headings.length;
+    index += 1
+  ) {
+    const current = headings[index];
+    const next = headings[index + 1];
+
+    const start = current.index ?? 0;
+    const end =
+      next?.index ?? solutionArea.length;
+
+    let section = solutionArea.slice(
+      start,
+      end,
+    );
+
+    const questionNumber = current[1];
+    const answerLetter =
+      answerMap.get(questionNumber);
+
+    if (
+      answerLetter &&
+      !/doğru\s+cevap\s*:\s*[A-E]\b/i.test(
+        section,
+      )
+    ) {
+      section =
+        section.trimEnd() +
+        "\n\n**Doğru cevap: " +
+        answerLetter +
+        "**\n";
+    }
+
+    rebuilt += section;
+  }
+
+  return (
+    beforeSolutions +
+    "\n\n## Çözümler\n\n" +
+    rebuilt.trim()
+  )
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 async function generateVerifiedQuestionAnswer(
   prompt: string,
   attachments: NvidiaAttachment[],
   options: NvidiaRequestOptions,
   isDeDaQuestion: boolean,
 ): Promise<string> {
-  const draft = await askNvidia(
-    prompt,
-    [],
-    attachments,
-    options,
+  let draft = ensureSolutionAnswerLabels(
+    await askNvidia(
+      prompt,
+      [],
+      attachments,
+      options,
+      )
   );
 
   const validationPrompt = isDeDaQuestion
@@ -823,19 +967,21 @@ async function generateVerifiedQuestionAnswer(
     return draft;
   }
 
-  const repaired = await askNvidia(
-    buildQuestionRepairPrompt(
+  let repaired = ensureSolutionAnswerLabels(
+    await askNvidia(
+      buildQuestionRepairPrompt(
       prompt,
       draft,
       firstValidation,
-    ),
-    [],
-    attachments,
-    {
+      ),
+      [],
+      attachments,
+      {
       temperature: 0.12,
       topP: 0.65,
       maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
-    },
+      },
+      )
   );
 
   const secondValidation = await askNvidia(
@@ -877,19 +1023,21 @@ async function generateVerifiedQuestionAnswer(
     return repaired;
   }
 
-  const finalSafeAnswer = await askNvidia(
-    buildFinalSafeQuestionPrompt(
+  let finalSafeAnswer = ensureSolutionAnswerLabels(
+    await askNvidia(
+      buildFinalSafeQuestionPrompt(
       prompt,
       repaired,
       secondValidation,
-    ),
-    [],
-    attachments,
-    {
+      ),
+      [],
+      attachments,
+      {
       temperature: 0.06,
       topP: 0.45,
       maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
-    },
+      },
+      )
   );
 
   const thirdValidation = await askNvidia(
