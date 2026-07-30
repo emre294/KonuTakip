@@ -26,6 +26,7 @@ import { useApp } from "@/contexts/AppContext";
 import { AYT_SUBJECTS_BY_FIELD, FIELD_LABELS, Subject, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 
+import { getSubjectProgressUnits, getSubjectsProgressUnits } from "@/utils/progress/curriculumProgress";
 // ─── Reminder modal ────────────────────────────────────────────────────────────
 
 interface ReminderModalProps {
@@ -509,9 +510,24 @@ function SubjectCard({
     onSetSolved(topicId, count);
   }
 
-  const completed = subject.topics.filter((t) => topicCompletion[t.id]).length;
-  const remaining = subject.topics.length - completed;
-  const pct = subject.topics.length > 0 ? Math.round((completed / subject.topics.length) * 100) : 0;
+  const subjectProgress =
+    getSubjectProgressUnits(
+      subject,
+      topicCompletion,
+      subtopicCompletion,
+    );
+
+  const completed =
+    subjectProgress.completed;
+
+  const total =
+    subjectProgress.total;
+
+  const remaining =
+    total - completed;
+
+  const pct =
+    subjectProgress.percentage;
   const height = useSharedValue(0);
   const opacity = useSharedValue(0);
   // Measured from the real rendered content — the topics list is always mounted
@@ -668,10 +684,24 @@ function ExamSection({
   colors,
 }: ExamSectionProps) {
   const [open, setOpen] = useState(true);
-  const allTopics = subjects.flatMap((s) => s.topics);
-  const done = allTopics.filter((t) => topicCompletion[t.id]).length;
-  const remaining = allTopics.length - done;
-  const pct = allTopics.length > 0 ? Math.round((done / allTopics.length) * 100) : 0;
+  const examProgress =
+    getSubjectsProgressUnits(
+      subjects,
+      topicCompletion,
+      subtopicCompletion,
+    );
+
+  const done =
+    examProgress.completed;
+
+  const total =
+    examProgress.total;
+
+  const remaining =
+    total - done;
+
+  const pct =
+    examProgress.percentage;
 
   return (
     <View style={styles.examSection}>
@@ -684,7 +714,7 @@ function ExamSection({
           <Text style={[styles.examTitle, { color: "#fff" }]}>{title}</Text>
           <View style={styles.examMetaRow}>
             <Text style={[styles.examPct, { color: "rgba(255,255,255,0.9)" }]}>
-              {done}/{allTopics.length} konu{pct > 0 ? ` • %${pct}` : ""}
+              {done}/{total} kazanım{pct > 0 ? ` • %${pct}` : ""}
             </Text>
             {remaining > 0 && (
               <View style={styles.examRemainingBadge}>

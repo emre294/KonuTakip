@@ -30,6 +30,7 @@ import { AYT_EXAM_DATE, AYT_SUBJECTS_BY_FIELD, TYT_EXAM_DATE, TYT_SUBJECTS } fro
 import { getRandomQuote, Quote } from "@/data/quotes";
 import { useColors } from "@/hooks/useColors";
 
+import { getSubjectsProgressUnits } from "@/utils/progress/curriculumProgress";
 /**
  * Compute a font size that guarantees the formatted number fits in its cell
  * without truncation. Steps down in fixed tiers so siblings stay visually
@@ -593,23 +594,51 @@ function MotivationBanner({ tytPct, aytPct, colors }: {
   );
 }
 
-function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSolvedQuestions, colors }: {
+function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion,
+  subtopicCompletion,
+  totalSolvedQuestions, colors }: {
   tytPct: number; aytPct: number;
   profile: import("@/contexts/AppContext").UserProfile | null;
   topicCompletion: Record<string, boolean>;
+  subtopicCompletion: Record<string, boolean>;
   totalSolvedQuestions: number;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
-  const { tytTotal, tytDone, aytTotal, aytDone } = useMemo(() => {
-    const tytTopics = TYT_SUBJECTS.flatMap(s => s.topics);
-    const aytTopics = profile ? (AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? []).flatMap(s => s.topics) : [];
+  const {
+    tytTotal,
+    tytDone,
+    aytTotal,
+    aytDone,
+  } = useMemo(() => {
+    const tyt =
+      getSubjectsProgressUnits(
+        TYT_SUBJECTS,
+        topicCompletion,
+        subtopicCompletion,
+      );
+
+    const ayt =
+      getSubjectsProgressUnits(
+        profile
+          ? AYT_SUBJECTS_BY_FIELD[
+              profile.studyField
+            ] ?? []
+          : [],
+        topicCompletion,
+        subtopicCompletion,
+      );
+
     return {
-      tytTotal: tytTopics.length,
-      tytDone: tytTopics.filter(t => topicCompletion[t.id]).length,
-      aytTotal: aytTopics.length,
-      aytDone: aytTopics.filter(t => topicCompletion[t.id]).length,
+      tytTotal: tyt.total,
+      tytDone: tyt.completed,
+      aytTotal: ayt.total,
+      aytDone: ayt.completed,
     };
-  }, [profile, topicCompletion]);
+  }, [
+    profile,
+    topicCompletion,
+    subtopicCompletion,
+  ]);
 
   const totalDone = tytDone + aytDone;
   const totalAll = tytTotal + aytTotal;
@@ -631,14 +660,14 @@ function RemainingTopicsCard({ tytPct, aytPct, profile, topicCompletion, totalSo
           <Text style={[styles.remainingValue, { color: colors.success, fontSize: responsiveFontSize(String(totalDone), 24) }]}>
             {totalDone}
           </Text>
-          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Tamamlanan</Text>
+          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Tamamlanan kazanım</Text>
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
           <Text style={[styles.remainingValue, { color: colors.warning, fontSize: responsiveFontSize(String(totalRemaining), 24) }]}>
             {totalRemaining}
           </Text>
-          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Kalan</Text>
+          <Text style={[styles.remainingLabel, { color: colors.mutedForeground }]}>Kalan kazanım</Text>
         </View>
         <View style={[styles.remainingDivider, { backgroundColor: colors.border }]} />
         <View style={styles.remainingItem}>
@@ -709,7 +738,7 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { isPremium } = usePremium();
-  const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion, totalSolvedQuestions } = useApp();
+  const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion, subtopicCompletion, totalSolvedQuestions } = useApp();
   const [quote] = useState<Quote>(getRandomQuote);
 
   const today = new Date().toISOString().split("T")[0];
@@ -846,6 +875,7 @@ export default function HomeScreen() {
           aytPct={aytProgress}
           profile={profile}
           topicCompletion={topicCompletion}
+          subtopicCompletion={subtopicCompletion}
           totalSolvedQuestions={totalSolvedQuestions}
           colors={colors}
         />

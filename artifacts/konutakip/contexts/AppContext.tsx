@@ -1,4 +1,4 @@
-﻿import { recordCompletedSession, recordCompletedTopic, recordExamResult, addAINote } from "@/utils/coach";
+import { recordCompletedSession, recordCompletedTopic, recordExamResult, addAINote } from "@/utils/coach";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
@@ -25,6 +25,7 @@ import {
   syncNotifications,
 } from "@/utils/notifications";
 
+import { getSubjectsProgressUnits } from "@/utils/progress/curriculumProgress";
 export interface UserProfile {
   name: string;
   grade: "12" | "mezun";
@@ -565,17 +566,33 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const tytProgress = useMemo(() => {
-    const all = TYT_SUBJECTS.flatMap(s => s.topics);
-    if (!all.length) return 0;
-    return Math.round((all.filter(t => topicCompletion[t.id]).length / all.length) * 100);
-  }, [topicCompletion]);
+    return getSubjectsProgressUnits(
+      TYT_SUBJECTS,
+      topicCompletion,
+      subtopicCompletion,
+    ).percentage;
+  }, [
+    topicCompletion,
+    subtopicCompletion,
+  ]);
 
   const aytProgress = useMemo(() => {
-    if (!profile) return 0;
-    const all = (AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? []).flatMap(s => s.topics);
-    if (!all.length) return 0;
-    return Math.round((all.filter(t => topicCompletion[t.id]).length / all.length) * 100);
-  }, [topicCompletion, profile]);
+    if (!profile) {
+      return 0;
+    }
+
+    return getSubjectsProgressUnits(
+      AYT_SUBJECTS_BY_FIELD[
+        profile.studyField
+      ] ?? [],
+      topicCompletion,
+      subtopicCompletion,
+    ).percentage;
+  }, [
+    profile,
+    topicCompletion,
+    subtopicCompletion,
+  ]);
 
   const totalTopicsCompleted = useMemo(
     () => Object.values(topicCompletion).filter(Boolean).length,
@@ -1403,10 +1420,3 @@ export function useApp() {
   if (!ctx) throw new Error("useApp must be used within AppProvider");
   return ctx;
 }
-
-
-
-
-
-
-
