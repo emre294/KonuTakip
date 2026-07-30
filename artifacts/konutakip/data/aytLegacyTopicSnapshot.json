@@ -1,0 +1,524 @@
+{
+  "generatedAt": "2026-07-30T23:30:52.343Z",
+  "sourceFile": "data/subjects.ts",
+  "fields": {
+    "sayisal": [
+      "ayt-matematik",
+      "ayt-fizik",
+      "ayt-kimya",
+      "ayt-biyoloji"
+    ],
+    "esitAgirlik": [
+      "ayt-matematik",
+      "ayt-edebiyat",
+      "ayt-tarih1",
+      "ayt-cografya1"
+    ],
+    "sozel": [
+      "ayt-edebiyat",
+      "ayt-tarih1",
+      "ayt-cografya1",
+      "ayt-tarih2",
+      "ayt-cografya2",
+      "ayt-felsefe",
+      "ayt-din"
+    ]
+  },
+  "subjects": [
+    {
+      "id": "ayt-matematik",
+      "topics": [
+        {
+          "id": "ayt-matematik-0",
+          "name": "Mantık"
+        },
+        {
+          "id": "ayt-matematik-1",
+          "name": "Kümeler"
+        },
+        {
+          "id": "ayt-matematik-2",
+          "name": "Fonksiyonlar"
+        },
+        {
+          "id": "ayt-matematik-3",
+          "name": "Denklemler"
+        },
+        {
+          "id": "ayt-matematik-4",
+          "name": "İkinci Dereceden Denklemler"
+        },
+        {
+          "id": "ayt-matematik-5",
+          "name": "Trigonometri"
+        },
+        {
+          "id": "ayt-matematik-6",
+          "name": "Analitik Geometri - Doğru"
+        },
+        {
+          "id": "ayt-matematik-7",
+          "name": "Analitik Geometri - Çember"
+        },
+        {
+          "id": "ayt-matematik-8",
+          "name": "Logaritma"
+        },
+        {
+          "id": "ayt-matematik-9",
+          "name": "Diziler"
+        },
+        {
+          "id": "ayt-matematik-10",
+          "name": "Limit ve Süreklilik"
+        },
+        {
+          "id": "ayt-matematik-11",
+          "name": "Türev"
+        },
+        {
+          "id": "ayt-matematik-12",
+          "name": "İntegral"
+        },
+        {
+          "id": "ayt-matematik-13",
+          "name": "Olasılık ve İstatistik"
+        }
+      ]
+    },
+    {
+      "id": "ayt-fizik",
+      "topics": [
+        {
+          "id": "ayt-fizik-0",
+          "name": "Vektörler"
+        },
+        {
+          "id": "ayt-fizik-1",
+          "name": "Kinematik"
+        },
+        {
+          "id": "ayt-fizik-2",
+          "name": "Dinamik"
+        },
+        {
+          "id": "ayt-fizik-3",
+          "name": "İş-Enerji-Güç"
+        },
+        {
+          "id": "ayt-fizik-4",
+          "name": "Momentum ve İmpuls"
+        },
+        {
+          "id": "ayt-fizik-5",
+          "name": "Basit Harmonik Hareket"
+        },
+        {
+          "id": "ayt-fizik-6",
+          "name": "Dalgalar"
+        },
+        {
+          "id": "ayt-fizik-7",
+          "name": "Elektrik Alanı"
+        },
+        {
+          "id": "ayt-fizik-8",
+          "name": "Manyetizma"
+        },
+        {
+          "id": "ayt-fizik-9",
+          "name": "Optik"
+        },
+        {
+          "id": "ayt-fizik-10",
+          "name": "Modern Fizik"
+        },
+        {
+          "id": "ayt-fizik-11",
+          "name": "Elektromanyetik İndüksiyon"
+        }
+      ]
+    },
+    {
+      "id": "ayt-kimya",
+      "topics": [
+        {
+          "id": "ayt-kimya-0",
+          "name": "Kimyasal Türler ve Tepkimeler"
+        },
+        {
+          "id": "ayt-kimya-1",
+          "name": "Asit-Baz Dengesi"
+        },
+        {
+          "id": "ayt-kimya-2",
+          "name": "Çözünürlük Dengesi"
+        },
+        {
+          "id": "ayt-kimya-3",
+          "name": "Elektrokimya"
+        },
+        {
+          "id": "ayt-kimya-4",
+          "name": "Organik Kimya"
+        },
+        {
+          "id": "ayt-kimya-5",
+          "name": "Karbon Kimyası"
+        },
+        {
+          "id": "ayt-kimya-6",
+          "name": "Makromoleküller"
+        },
+        {
+          "id": "ayt-kimya-7",
+          "name": "Reaksiyon Hızı"
+        },
+        {
+          "id": "ayt-kimya-8",
+          "name": "Kimyasal Denge"
+        },
+        {
+          "id": "ayt-kimya-9",
+          "name": "Gazlar Teorisi"
+        },
+        {
+          "id": "ayt-kimya-10",
+          "name": "Endüstriyel Kimya"
+        },
+        {
+          "id": "ayt-kimya-11",
+          "name": "Çevre Kimyası"
+        }
+      ]
+    },
+    {
+      "id": "ayt-biyoloji",
+      "topics": [
+        {
+          "id": "ayt-biyoloji-0",
+          "name": "Hücre Biyolojisi"
+        },
+        {
+          "id": "ayt-biyoloji-1",
+          "name": "Hücre Bölünmesi"
+        },
+        {
+          "id": "ayt-biyoloji-2",
+          "name": "Kalıtım"
+        },
+        {
+          "id": "ayt-biyoloji-3",
+          "name": "DNA ve Genetik Kod"
+        },
+        {
+          "id": "ayt-biyoloji-4",
+          "name": "Evrim"
+        },
+        {
+          "id": "ayt-biyoloji-5",
+          "name": "Ekosistem ve Çevre"
+        },
+        {
+          "id": "ayt-biyoloji-6",
+          "name": "Sindirim Sistemi"
+        },
+        {
+          "id": "ayt-biyoloji-7",
+          "name": "Dolaşım Sistemi"
+        },
+        {
+          "id": "ayt-biyoloji-8",
+          "name": "Solunum Sistemi"
+        },
+        {
+          "id": "ayt-biyoloji-9",
+          "name": "Boşaltım Sistemi"
+        },
+        {
+          "id": "ayt-biyoloji-10",
+          "name": "Bitki Biyolojisi"
+        },
+        {
+          "id": "ayt-biyoloji-11",
+          "name": "Biyoteknoloji"
+        }
+      ]
+    },
+    {
+      "id": "ayt-edebiyat",
+      "topics": [
+        {
+          "id": "ayt-edebiyat-0",
+          "name": "Divan Edebiyatı"
+        },
+        {
+          "id": "ayt-edebiyat-1",
+          "name": "Halk Edebiyatı"
+        },
+        {
+          "id": "ayt-edebiyat-2",
+          "name": "Tanzimat Dönemi"
+        },
+        {
+          "id": "ayt-edebiyat-3",
+          "name": "Servet-i Fünun"
+        },
+        {
+          "id": "ayt-edebiyat-4",
+          "name": "Fecr-i Ati"
+        },
+        {
+          "id": "ayt-edebiyat-5",
+          "name": "Milli Edebiyat"
+        },
+        {
+          "id": "ayt-edebiyat-6",
+          "name": "Cumhuriyet Dönemi"
+        },
+        {
+          "id": "ayt-edebiyat-7",
+          "name": "Roman ve Hikaye"
+        },
+        {
+          "id": "ayt-edebiyat-8",
+          "name": "Şiir Bilgisi"
+        },
+        {
+          "id": "ayt-edebiyat-9",
+          "name": "Tiyatro"
+        },
+        {
+          "id": "ayt-edebiyat-10",
+          "name": "Deneme-Makale"
+        },
+        {
+          "id": "ayt-edebiyat-11",
+          "name": "Dil Bilgisi"
+        }
+      ]
+    },
+    {
+      "id": "ayt-tarih1",
+      "topics": [
+        {
+          "id": "ayt-tarih1-0",
+          "name": "Osmanlı Devleti'nin Kuruluşu"
+        },
+        {
+          "id": "ayt-tarih1-1",
+          "name": "Yükselme Dönemi"
+        },
+        {
+          "id": "ayt-tarih1-2",
+          "name": "Duraklama Dönemi"
+        },
+        {
+          "id": "ayt-tarih1-3",
+          "name": "Gerileme Dönemi"
+        },
+        {
+          "id": "ayt-tarih1-4",
+          "name": "Tanzimat Dönemi"
+        },
+        {
+          "id": "ayt-tarih1-5",
+          "name": "I. Meşrutiyet"
+        },
+        {
+          "id": "ayt-tarih1-6",
+          "name": "II. Meşrutiyet"
+        },
+        {
+          "id": "ayt-tarih1-7",
+          "name": "Osmanlı'nın Çöküşü"
+        }
+      ]
+    },
+    {
+      "id": "ayt-cografya1",
+      "topics": [
+        {
+          "id": "ayt-cografya1-0",
+          "name": "Nüfus ve Yerleşme"
+        },
+        {
+          "id": "ayt-cografya1-1",
+          "name": "Ulaşım"
+        },
+        {
+          "id": "ayt-cografya1-2",
+          "name": "Tarım"
+        },
+        {
+          "id": "ayt-cografya1-3",
+          "name": "Sanayi"
+        },
+        {
+          "id": "ayt-cografya1-4",
+          "name": "Enerji Kaynakları"
+        },
+        {
+          "id": "ayt-cografya1-5",
+          "name": "Türkiye'nin İklimi"
+        },
+        {
+          "id": "ayt-cografya1-6",
+          "name": "Bitkiler ve Toprak"
+        },
+        {
+          "id": "ayt-cografya1-7",
+          "name": "Doğal Afetler"
+        }
+      ]
+    },
+    {
+      "id": "ayt-tarih2",
+      "topics": [
+        {
+          "id": "ayt-tarih2-0",
+          "name": "Fransız Devrimi"
+        },
+        {
+          "id": "ayt-tarih2-1",
+          "name": "Sanayi Devrimi"
+        },
+        {
+          "id": "ayt-tarih2-2",
+          "name": "Milliyetçilik Hareketleri"
+        },
+        {
+          "id": "ayt-tarih2-3",
+          "name": "I. Dünya Savaşı"
+        },
+        {
+          "id": "ayt-tarih2-4",
+          "name": "Kurtuluş Savaşı"
+        },
+        {
+          "id": "ayt-tarih2-5",
+          "name": "Atatürk İlkeleri"
+        },
+        {
+          "id": "ayt-tarih2-6",
+          "name": "II. Dünya Savaşı"
+        },
+        {
+          "id": "ayt-tarih2-7",
+          "name": "Soğuk Savaş"
+        }
+      ]
+    },
+    {
+      "id": "ayt-cografya2",
+      "topics": [
+        {
+          "id": "ayt-cografya2-0",
+          "name": "Ülkeler ve Bölgeler"
+        },
+        {
+          "id": "ayt-cografya2-1",
+          "name": "Küreselleşme"
+        },
+        {
+          "id": "ayt-cografya2-2",
+          "name": "Çevre Sorunları"
+        },
+        {
+          "id": "ayt-cografya2-3",
+          "name": "Kalkınma"
+        },
+        {
+          "id": "ayt-cografya2-4",
+          "name": "Nüfus Sorunları"
+        },
+        {
+          "id": "ayt-cografya2-5",
+          "name": "Göç"
+        },
+        {
+          "id": "ayt-cografya2-6",
+          "name": "Enerji Politikaları"
+        },
+        {
+          "id": "ayt-cografya2-7",
+          "name": "Kıtalar Coğrafyası"
+        }
+      ]
+    },
+    {
+      "id": "ayt-felsefe",
+      "topics": [
+        {
+          "id": "ayt-felsefe-0",
+          "name": "Psikolojiye Giriş"
+        },
+        {
+          "id": "ayt-felsefe-1",
+          "name": "Davranış Psikolojisi"
+        },
+        {
+          "id": "ayt-felsefe-2",
+          "name": "Sosyolojiye Giriş"
+        },
+        {
+          "id": "ayt-felsefe-3",
+          "name": "Toplumsal Yapı"
+        },
+        {
+          "id": "ayt-felsefe-4",
+          "name": "Mantık"
+        },
+        {
+          "id": "ayt-felsefe-5",
+          "name": "Felsefenin Alanları"
+        },
+        {
+          "id": "ayt-felsefe-6",
+          "name": "Bilgi ve Gerçeklik"
+        },
+        {
+          "id": "ayt-felsefe-7",
+          "name": "Siyaset Felsefesi"
+        }
+      ]
+    },
+    {
+      "id": "ayt-din",
+      "topics": [
+        {
+          "id": "ayt-din-0",
+          "name": "İslam'ın Temel Kaynakları"
+        },
+        {
+          "id": "ayt-din-1",
+          "name": "Hz. Muhammed'in Hayatı"
+        },
+        {
+          "id": "ayt-din-2",
+          "name": "İslam'ın İbadetleri"
+        },
+        {
+          "id": "ayt-din-3",
+          "name": "Ahlak ve Değerler"
+        },
+        {
+          "id": "ayt-din-4",
+          "name": "Dinler Tarihi"
+        },
+        {
+          "id": "ayt-din-5",
+          "name": "Türk-İslam Düşünürleri"
+        },
+        {
+          "id": "ayt-din-6",
+          "name": "Değerler Eğitimi"
+        },
+        {
+          "id": "ayt-din-7",
+          "name": "Çağdaş Dini Akımlar"
+        }
+      ]
+    }
+  ]
+}
