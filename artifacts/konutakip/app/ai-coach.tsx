@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/contexts/AppContext";
+import { TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 import { sendAIMessage, type AIMessage } from "@/services/aiService";
 import { PremiumFeature } from "@/utils/premium";
@@ -149,9 +150,110 @@ function isQuestionRequest(text: string): boolean {
   );
 }
 
+function buildCoachCurriculumSnapshot(
+  topicCompletion: Record<string, boolean>,
+  subtopicCompletion: Record<string, boolean>,
+): string {
+  const topicStates = TYT_SUBJECTS.flatMap(
+    (subject) =>
+      subject.topics.map((topic) => {
+        const subtopics = topic.subtopics ?? [];
+
+        const completedSubtopics =
+          subtopics.filter(
+            (subtopic) =>
+              !!subtopicCompletion[
+                subtopic.id
+              ],
+          );
+
+        const incompleteSubtopics =
+          subtopics.filter(
+            (subtopic) =>
+              !subtopicCompletion[
+                subtopic.id
+              ],
+          );
+
+        return {
+          subjectName: subject.name,
+          topicName: topic.name,
+          topicCompleted:
+            !!topicCompletion[topic.id],
+          completedCount:
+            completedSubtopics.length,
+          totalCount: subtopics.length,
+          incompleteNames:
+            incompleteSubtopics.map(
+              (subtopic) => subtopic.name,
+            ),
+        };
+      }),
+  );
+
+  const activeWeakAreas = topicStates
+    .filter(
+      (item) =>
+        !item.topicCompleted &&
+        item.totalCount > 0 &&
+        item.completedCount > 0,
+    )
+    .sort(
+      (a, b) =>
+        b.completedCount - a.completedCount,
+    );
+
+  const untouchedAreas = topicStates.filter(
+    (item) =>
+      !item.topicCompleted &&
+      item.totalCount > 0 &&
+      item.completedCount === 0,
+  );
+
+  const selected = [
+    ...activeWeakAreas,
+    ...untouchedAreas,
+  ].slice(0, 12);
+
+  const completedTopicCount =
+    topicStates.filter(
+      (item) => item.topicCompleted,
+    ).length;
+
+  return [
+    "KAZANIM DURUMU:",
+    `Tamamlanan TYT ana konu: ${completedTopicCount}/${topicStates.length}`,
+    selected.length > 0
+      ? "Öncelikli eksik ana konu ve alt kazanımlar:"
+      : "Listelenebilir eksik alt kazanım bulunmuyor.",
+    ...selected.map((item) => {
+      const missing =
+        item.incompleteNames
+          .slice(0, 5)
+          .join(", ");
+
+      return (
+        `- ${item.subjectName} / ${item.topicName}: ` +
+        `${item.completedCount}/${item.totalCount} tamamlandı. ` +
+        `Eksikler: ${missing}`
+      );
+    }),
+    "Çalışma önerilerini öncelikle tamamlanmamış alt kazanımlara dayandır.",
+    "Tamamlanan kazanımları gereksiz yere ana hedef olarak önerme.",
+  ].join("\n");
+}
+
 function AICoachContent() {
   const colors = useColors();
-  const { profile } = useApp();
+  const {
+    profile,
+    topicCompletion,
+    subtopicCompletion,
+    tytProgress,
+    aytProgress,
+    studyStreak,
+    totalTopicsCompleted,
+  } = useApp();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -249,10 +351,26 @@ function AICoachContent() {
       return;
     }
     try {
+      const curriculumSnapshot =
+        buildCoachCurriculumSnapshot(
+          topicCompletion,
+          subtopicCompletion,
+        );
+
+      const learnerSummary = [
+        "ÖĞRENCİ İLERLEME ÖZETİ:",
+        `TYT genel ilerleme: %${tytProgress}`,
+        `AYT genel ilerleme: %${aytProgress}`,
+        `Çalışma serisi: ${studyStreak} gün`,
+        `Tamamlanan ana konu: ${totalTopicsCompleted}`,
+      ].join("\n");
+
       const personalizedMessage = [
           profile?.name?.trim()
             ? `Öğrencinin adı: ${profile.name.trim()}`
             : "",
+          learnerSummary,
+          curriculumSnapshot,
           cleanMessage,
           "Öğrencinin adını her cevapta tekrar etme. Yalnızca doğal ve gerekli olduğunda kullan.",
         ]

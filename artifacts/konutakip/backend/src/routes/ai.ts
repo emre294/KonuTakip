@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import {
   askNvidia,
   type NvidiaAttachment,
@@ -1251,6 +1251,54 @@ function normalizeSubjectName(value: unknown): string {
     .trim();
 }
 
+function getCurriculumHierarchyRules(
+  requestData: Record<string, unknown>,
+): string {
+  const requestText = String(
+    requestData.userQuestion ??
+    requestData.message ??
+    requestData.prompt ??
+    "",
+  );
+
+  const subjectName = String(
+    requestData.subjectName ??
+    requestData.lessonName ??
+    requestData.courseName ??
+    "",
+  ).trim();
+
+  const topicName = String(
+    requestData.topicName ??
+    requestData.topic ??
+    "",
+  ).trim();
+
+  const hasCurriculumContext =
+    /MÜFREDAT BAĞLAMI:|KAZANIM DURUMU:|Alt kazanımlar:|Eksikler:/i.test(
+      requestText,
+    );
+
+  if (!hasCurriculumContext && !topicName) {
+    return "";
+  }
+
+  return `
+ANA KONU VE ALT KAZANIM KURALLARI:
+
+- Ders: ${subjectName || "Belirtilmedi"}
+- Ana konu: ${topicName || "Kullanıcı mesajından belirle"}
+- MÜFREDAT BAĞLAMI içindeki ana konu ve alt kazanımları temel kapsam kabul et.
+- Kullanıcının özellikle sorduğu alt kazanımı önce ele al.
+- Konu anlatımını ve soru üretimini ilgili kazanım sınırında tut.
+- Soru üretirken ölçülen alt kazanımı sessizce belirle.
+- Çeldiricileri ilgili kazanımdaki gerçek kavram yanılgılarından üret.
+- Çözümde kullanılan ana konu ve alt kazanım mantığını açıkla.
+- AI Koç isteklerinde tamamlanmamış alt kazanımları önceliklendir.
+- Tamamlanan kazanımları gereksiz yere yeniden ana hedef yapma.
+`.trim();
+}
+
 function getSubjectExpertRules(
   requestData: Record<string, unknown>,
 ): string {
@@ -1800,10 +1848,15 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     prompt = [
       prompt,
+      getCurriculumHierarchyRules(
+        parsed.data,
+      ),
       getSubjectExpertRules(parsed.data),
       getStudentLevelRules(parsed.data),
       getAdaptiveTeachingRules(parsed.data),
-    ].join("\n\n");
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
     if (
       feature === "teach-topic" &&

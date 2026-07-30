@@ -50,12 +50,157 @@ import { PREMIUM_COLOR } from "@/components/PremiumBadge";
 import { PremiumBadge } from "@/components/PremiumBadge";
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/contexts/AppContext";
+import { TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 import { AIError, AIManager } from "@/utils/ai";
 import type { AITeacherResponse } from "@/utils/ai";
 import { PremiumFeature } from "@/utils/premium";
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+type MatchedCurriculumContext = {
+  subjectId: string;
+  subjectName: string;
+  topicId: string;
+  topicName: string;
+  subtopicNames: string[];
+};
+
+function normalizeCurriculumText(
+  value: string,
+): string {
+  return String(value ?? "")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildTytCurriculumContext(
+  userText: string,
+): MatchedCurriculumContext | null {
+  const normalizedText =
+    normalizeCurriculumText(userText);
+
+  if (!normalizedText) {
+    return null;
+  }
+
+  let bestMatch:
+    | {
+        score: number;
+        context: MatchedCurriculumContext;
+      }
+    | null = null;
+
+  for (const subject of TYT_SUBJECTS) {
+    const normalizedSubject =
+      normalizeCurriculumText(subject.name);
+
+    for (const topic of subject.topics) {
+      const normalizedTopic =
+        normalizeCurriculumText(topic.name);
+
+      const matchingSubtopics =
+        (topic.subtopics ?? []).filter(
+          (subtopic) => {
+            const normalizedSubtopic =
+              normalizeCurriculumText(
+                subtopic.name,
+              );
+
+            return (
+              normalizedSubtopic.length >= 4 &&
+              normalizedText.includes(
+                normalizedSubtopic,
+              )
+            );
+          },
+        );
+
+      let score = 0;
+
+      if (
+        normalizedTopic.length >= 4 &&
+        normalizedText.includes(normalizedTopic)
+      ) {
+        score += 100;
+      }
+
+      if (
+        normalizedSubject.length >= 4 &&
+        normalizedText.includes(
+          normalizedSubject,
+        )
+      ) {
+        score += 15;
+      }
+
+      score += matchingSubtopics.length * 140;
+
+      if (score <= 0) {
+        continue;
+      }
+
+      const selectedSubtopics =
+        matchingSubtopics.length > 0
+          ? matchingSubtopics.map(
+              (subtopic) => subtopic.name,
+            )
+          : (topic.subtopics ?? []).map(
+              (subtopic) => subtopic.name,
+            );
+
+      if (!bestMatch || score > bestMatch.score) {
+        bestMatch = {
+          score,
+          context: {
+            subjectId: subject.id,
+            subjectName: subject.name,
+            topicId: topic.id,
+            topicName: topic.name,
+            subtopicNames: selectedSubtopics,
+          },
+        };
+      }
+    }
+  }
+
+  return bestMatch?.context ?? null;
+}
+
+function formatCurriculumContext(
+  context: MatchedCurriculumContext | null,
+): string {
+  if (!context) {
+    return "";
+  }
+
+  return [
+    "MÜFREDAT BAĞLAMI:",
+    `Ders: ${context.subjectName}`,
+    `Ana konu: ${context.topicName}`,
+    context.subtopicNames.length > 0
+      ? [
+          "Alt kazanımlar:",
+          ...context.subtopicNames.map(
+            (name) => `- ${name}`,
+          ),
+        ].join("\n")
+      : "",
+    "Yanıtı bu ana konu ve alt kazanım sınırında hazırla.",
+    "Kullanıcının özellikle belirttiği alt kazanımı önceliklendir.",
+    "Gereksiz şekilde TYT kapsamı dışına çıkma.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 interface ChatMessage {
   id: string;
@@ -676,8 +821,24 @@ const [selectedAttachments, setSelectedAttachments] = useState<
 
           const studentName = profile?.name?.trim() || "Ã–ÄŸrenci";
 
+          const curriculumContext =
+            buildTytCurriculumContext(
+              [
+                recentConversation,
+                trimmed,
+              ]
+                .filter(Boolean)
+                .join("\n\n"),
+            );
+
+          const curriculumPrompt =
+            formatCurriculumContext(
+              curriculumContext,
+            );
+
           const contextualQuestion = [
             `Ã–ÄŸrencinin adÄ±: ${studentName}`,
+            curriculumPrompt,
             recentConversation
               ? `Ã–nceki konuÅŸma:\n${recentConversation}`
               : "",
@@ -693,9 +854,15 @@ const [selectedAttachments, setSelectedAttachments] = useState<
           const res = await AIManager.teachTopic({
           feature: "ai_teacher",
           requestedAt: new Date().toISOString(),
-          topicId: `chat_${Date.now()}`,
-          topicName: trimmed,
-          subjectName: "Genel",
+          topicId:
+            curriculumContext?.topicId ??
+            `chat_${Date.now()}`,
+          topicName:
+            curriculumContext?.topicName ??
+            trimmed,
+          subjectName:
+            curriculumContext?.subjectName ??
+            "Genel",
           examType: "TYT",
           userQuestion: contextualQuestion,
           attachments: attachmentsToSend,
