@@ -1249,21 +1249,56 @@ function getRequestedQuestionCount(
     .replace(/ğ/g, "g")
     .replace(/ü/g, "u")
     .replace(/ö/g, "o")
-    .replace(/ç/g, "c");
+    .replace(/ç/g, "c")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const numericMatch = normalized.match(
-    /(?:yalnizca\s+|sadece\s+)?([1-5])\s*(?:adet\s*)?(?:soru|test)/i,
-  );
+  const directQuestionMatch =
+    normalized.match(
+      /\b([1-5])\s*(?:adet\s*)?(?:soru|test)\b/i,
+    );
 
-  if (numericMatch) {
-    return Math.max(
-      1,
-      Math.min(5, Number(numericMatch[1])),
+  if (directQuestionMatch) {
+    return Number(directQuestionMatch[1]);
+  }
+
+  const descriptiveQuestionMatch =
+    normalized.match(
+      /\b([1-5])\s*(?:adet)?\b(?=[\s\S]{0,120}\bsoru\b)/i,
+    );
+
+  if (descriptiveQuestionMatch) {
+    return Number(
+      descriptiveQuestionMatch[1],
+    );
+  }
+
+  const writtenNumberMatch =
+    normalized.match(
+      /\b(bir|iki|uc|dort|bes)\s*(?:adet\s*)?(?:[^.!?]{0,100})?\bsoru\b/i,
+    );
+
+  if (writtenNumberMatch) {
+    const writtenNumbers: Record<
+      string,
+      number
+    > = {
+      bir: 1,
+      iki: 2,
+      uc: 3,
+      dort: 4,
+      bes: 5,
+    };
+
+    return (
+      writtenNumbers[
+        writtenNumberMatch[1]
+      ] ?? 5
     );
   }
 
   if (
-    /\btek\s+(?:bir\s+)?soru\b|\bbir\s+(?:adet\s+)?soru\b/i.test(
+    /\btek\s+(?:bir\s+)?soru\b/i.test(
       normalized,
     )
   ) {
