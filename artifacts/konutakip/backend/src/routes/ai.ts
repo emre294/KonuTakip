@@ -1239,6 +1239,183 @@ D seçeneği yanlıştır. Burada bulunma anlamı vardır ve ek kelimeye bitişi
 `.trim();
 }
 
+function getRequestedQuestionCount(
+  requestText: string,
+): number {
+  const normalized = requestText
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+
+  const numericMatch = normalized.match(
+    /(?:yalnizca\s+|sadece\s+)?([1-5])\s*(?:adet\s*)?(?:soru|test)/i,
+  );
+
+  if (numericMatch) {
+    return Math.max(
+      1,
+      Math.min(5, Number(numericMatch[1])),
+    );
+  }
+
+  if (
+    /\btek\s+(?:bir\s+)?soru\b|\bbir\s+(?:adet\s+)?soru\b/i.test(
+      normalized,
+    )
+  ) {
+    return 1;
+  }
+
+  return 5;
+}
+
+function shouldExplainDeDaRule(
+  requestText: string,
+): boolean {
+  return /kural(?:i|ını|ini)?\s*(?:anlat|acikla)|anlat(?:ir|im)?|acikla|ogret|karsilastir/i.test(
+    requestText
+      .toLocaleLowerCase("tr-TR")
+      .replace(/ı/g, "i")
+      .replace(/ş/g, "s")
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c"),
+  );
+}
+
+function extractNumberedMarkdownBlocks(
+  section: string,
+  titleSuffix: string,
+): string[] {
+  const escapedSuffix = titleSuffix.replace(
+    /[.*+?^$(){}|[]\]/g,
+    "\\$&",
+  );
+
+  const pattern = new RegExp(
+    `###\\s+(\\d+)\\.\\s+${escapedSuffix}\\s*\\n[\\s\\S]*?(?=\\n###\\s+\\d+\\.\\s+${escapedSuffix}|$)`,
+    "g",
+  );
+
+  return [
+    ...section.matchAll(pattern),
+  ].map((match) => match[0].trim());
+}
+
+function buildInstructionAwareDeDaResponse(
+  requestText: string,
+): string {
+  const fullQuiz =
+    buildDeterministicDeDaQuiz();
+
+  const requestedCount =
+    getRequestedQuestionCount(requestText);
+
+  const questionsMatch = fullQuiz.match(
+    /## Sorular\s*\n([\s\S]*?)\n## Cevap Anahtarı/,
+  );
+
+  const answersMatch = fullQuiz.match(
+    /## Cevap Anahtarı\s*\n([\s\S]*?)\n## Çözümler/,
+  );
+
+  const solutionsMatch = fullQuiz.match(
+    /## Çözümler\s*\n([\s\S]*)$/,
+  );
+
+  if (
+    !questionsMatch ||
+    !answersMatch ||
+    !solutionsMatch
+  ) {
+    throw new Error(
+      "Yerel de/da soru paketi ayrıştırılamadı",
+    );
+  }
+
+  const questionBlocks =
+    extractNumberedMarkdownBlocks(
+      questionsMatch[1],
+      "Soru",
+    ).slice(0, requestedCount);
+
+  const solutionBlocks =
+    extractNumberedMarkdownBlocks(
+      solutionsMatch[1],
+      "Soru Çözümü",
+    ).slice(0, requestedCount);
+
+  const answerLines = [
+    ...answersMatch[1].matchAll(
+      /^(\d+)\.\s*([A-E])\s*$/gm,
+    ),
+  ]
+    .slice(0, requestedCount)
+    .map(
+      (match) =>
+        `${match[1]}. ${match[2]}`,
+    );
+
+  if (
+    questionBlocks.length !== requestedCount
+  ) {
+    throw new Error(
+      "İstenen sayıda de/da sorusu seçilemedi",
+    );
+  }
+
+  if (
+    solutionBlocks.length !== requestedCount
+  ) {
+    throw new Error(
+      "İstenen sayıda de/da çözümü seçilemedi",
+    );
+  }
+
+  const explanation =
+    shouldExplainDeDaRule(requestText)
+      ? `## Kural Anlatımı
+
+Bağlaç olan **de/da** cümleye ekleme anlamı katar ve ayrı yazılır. Cümleden çıkarıldığında temel anlam büyük ölçüde korunur:
+
+- Ben **de** geleceğim.
+- O **da** kitabı okudu.
+
+Bulunma hâl eki olan **-de/-da/-te/-ta** yer, zaman veya bulunma anlamı verir ve kelimeye bitişik yazılır:
+
+- Ev**de**
+- Park**ta**
+- Ankara'**da**
+
+Bağlaç olan de/da hiçbir zaman te/ta biçimine dönüşmez. Özel adlara gelen bulunma hâl eki ise kesme işaretiyle ayrılır.
+
+`
+      : "";
+
+  return [
+    explanation.trim(),
+    "## Sorular",
+    "",
+    questionBlocks.join("\n\n"),
+    "",
+    "## Cevap Anahtarı",
+    "",
+    answerLines.join("\n"),
+    "",
+    "## Çözümler",
+    "",
+    solutionBlocks.join("\n\n"),
+  ]
+    .filter(Boolean)
+    .join("\n")
+    .trim();
+}
+
 function normalizeSubjectName(value: unknown): string {
   return String(value ?? "")
     .toLocaleLowerCase("tr-TR")
@@ -1292,6 +1469,8 @@ ANA KONU VE ALT KAZANIM KURALLARI:
 - Kullanıcının özellikle sorduğu alt kazanımı önce ele al.
 - Konu anlatımını ve soru üretimini ilgili kazanım sınırında tut.
 - Soru üretirken ölçülen alt kazanımı sessizce belirle.
+- ALT KAZANIM TYT SINIRI: TYT isteğinde AYT'ye ait yöntem, kavram veya çözüm tekniğini kullanıcı açıkça istemedikçe kullanma.
+- Özellikle TYT Üslü İfadeler konusunda logaritma yöntemini önerme; üs kuralları ve taban eşitleme kullan.
 - Çeldiricileri ilgili kazanımdaki gerçek kavram yanılgılarından üret.
 - Çözümde kullanılan ana konu ve alt kazanım mantığını açıkla.
 - AI Koç isteklerinde tamamlanmamış alt kazanımları önceliklendir.
@@ -1324,6 +1503,10 @@ DERS UZMANI ORTAK KURALLARI:
 
 - Öğrencinin seviyesine uygun, anlaşılır ve öğretici ol.
 - TYT ve AYT kapsamını birbirine karıştırma.
+- İstek TYT ise kullanıcı açıkça istemedikçe logaritma, türev, integral, ileri trigonometri, limit veya başka AYT yöntemlerini çözüm ve çalışma tekniği olarak önerme.
+- TYT Üslü İfadeler ve Üslü Denklemler çalışmalarında yalnızca üs kuralları, taban eşitleme, ortak üs, çarpanlara ayırma ve TYT düzeyindeki cebirsel yöntemleri kullan.
+- Bir TYT kazanımı daha ileri bir yöntemle çözülebiliyor olsa bile öğrenciyi müfredat dışı yönteme yönlendirme.
+- AI Koç çalışma planında önerilen her yöntem, ilgili sınav türü ve listelenen alt kazanımla doğrudan uyumlu olmalıdır.
 - Sorular kazanım ölçsün; yalnızca ezber veya işlem kalabalığı oluşturmasın.
 - Her soruda tam olarak bir doğru cevap bulunsun.
 - Soruyu göndermeden önce sessizce çöz ve bütün seçenekleri kontrol et.
@@ -1837,9 +2020,12 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     if (isDeDaQuizRequest) {
       return response.json({
-        content: buildDeterministicDeDaQuiz(),
+        content:
+          buildInstructionAwareDeDaResponse(
+            requestTextForDeterministicQuiz,
+          ),
         provider: "local_verified",
-        model: "konutakip-de-da-v1",
+        model: "konutakip-de-da-v2",
         usage: null,
       });
     }
