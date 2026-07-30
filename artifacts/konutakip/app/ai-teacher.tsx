@@ -1,14 +1,14 @@
 /**
- * AI Teacher screen — ChatGPT-style conversational AI tutor.
+ * AI Teacher screen â€” ChatGPT-style conversational AI tutor.
  *
  * Architecture:
- *  • PremiumGate wraps the entire feature — free users see the locked state.
- *  • Messages are stored in local component state (session only).
- *  • All AI calls go through AIManager.teachTopic() — no direct provider imports.
- *  • Swapping the provider in AIManager is the only change needed for real AI.
+ *  â€¢ PremiumGate wraps the entire feature â€” free users see the locked state.
+ *  â€¢ Messages are stored in local component state (session only).
+ *  â€¢ All AI calls go through AIManager.teachTopic() â€” no direct provider imports.
+ *  â€¢ Swapping the provider in AIManager is the only change needed for real AI.
  *
  * Layout:
- *   Header → ScrollView (empty state | messages) → Input bar
+ *   Header â†’ ScrollView (empty state | messages) â†’ Input bar
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +20,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
+  ActivityIndicator,
   Alert,
   Platform,
   ScrollView,
@@ -54,7 +55,7 @@ import { AIError, AIManager } from "@/utils/ai";
 import type { AITeacherResponse } from "@/utils/ai";
 import { PremiumFeature } from "@/utils/premium";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface ChatMessage {
   id: string;
@@ -62,11 +63,11 @@ interface ChatMessage {
   content: string;
   timestamp: Date;
   isError?: boolean;
-  /** Original user text — used for retry on error messages */
+  /** Original user text â€” used for retry on error messages */
   retryText?: string;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const SUGGESTIONS = [
   "Parabol nedir?",
@@ -120,7 +121,7 @@ function serializeTeacherMessages(messages: ChatMessage[]): string {
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function formatTime(date: Date): string {
   return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
@@ -128,7 +129,7 @@ function formatTime(date: Date): string {
 
 /**
  * The real AI response lands in `res.summary` as a raw Markdown string.
- * We display it directly — the Markdown renderer handles all formatting.
+ * We display it directly â€” the Markdown renderer handles all formatting.
  */
 function normalizeAIText(value: string): string {
   let result = value
@@ -142,23 +143,23 @@ function normalizeAIText(value: string): string {
 
   result = result
     .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
-    .replace(/\\sqrt\s*\{([^{}]+)\}/g, "√($1)")
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, "âˆš($1)")
     .replace(/\\lim_\{([^{}]+)\}/g, "limit ($1)")
     .replace(/\\lim/g, "limit")
     .replace(/\\text\s*\{([^{}]+)\}/g, "$1")
     .replace(/\\boxed\s*\{([^{}]+)\}/g, "$1")
     .replace(/\\overline\s*\{([^{}]+)\}/g, "$1")
     .replace(/\\left|\\right/g, "")
-    .replace(/\\cdot|\\times/g, "×")
-    .replace(/\\div/g, "÷")
-    .replace(/\\neq/g, "≠")
-    .replace(/\\leq?/g, "≤")
-    .replace(/\\geq?/g, "≥")
-    .replace(/\\to/g, "→")
-    .replace(/\\Delta/g, "Δ")
-    .replace(/\\pi/g, "π")
-    .replace(/\\pm/g, "±")
-    .replace(/\\infty/g, "∞")
+    .replace(/\\cdot|\\times/g, "Ã—")
+    .replace(/\\div/g, "Ã·")
+    .replace(/\\neq/g, "â‰ ")
+    .replace(/\\leq?/g, "â‰¤")
+    .replace(/\\geq?/g, "â‰¥")
+    .replace(/\\to/g, "â†’")
+    .replace(/\\Delta/g, "Î”")
+    .replace(/\\pi/g, "Ï€")
+    .replace(/\\pm/g, "Â±")
+    .replace(/\\infty/g, "âˆž")
     .replace(/\\begin\{[^}]+\}|\\end\{[^}]+\}/g, "")
     .replace(/\\qquad|\\quad/g, " ")
     .replace(/\\\\/g, "\n")
@@ -166,17 +167,17 @@ function normalizeAIText(value: string): string {
     .replace(/&/g, " ");
 
   const superscripts: Record<string, string> = {
-    "0": "⁰",
-    "1": "¹",
-    "2": "²",
-    "3": "³",
-    "4": "⁴",
-    "5": "⁵",
-    "6": "⁶",
-    "7": "⁷",
-    "8": "⁸",
-    "9": "⁹",
-    "-": "⁻",
+    "0": "â°",
+    "1": "Â¹",
+    "2": "Â²",
+    "3": "Â³",
+    "4": "â´",
+    "5": "âµ",
+    "6": "â¶",
+    "7": "â·",
+    "8": "â¸",
+    "9": "â¹",
+    "-": "â»",
   };
 
   result = result.replace(
@@ -194,8 +195,24 @@ function normalizeAIText(value: string): string {
     .trim();
 }
 
+function cleanMarkdownSpacing(value: string): string {
+  return value
+    .replace(/^\uFEFF/, "")
+    .replace(/^[ \t]+/gm, "")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/^\s*\n+/, "")
+    .replace(/\n+\s*$/, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/^(#{1,3}\s+.+)\n{2,}/gm, "$1\n")
+    .replace(/\n{2,}(-\s+)/g, "\n$1")
+    .replace(/(-\s+.+)\n{2,}(-\s+)/g, "$1\n$2")
+    .trim();
+}
+
 function formatAIResponse(res: AITeacherResponse): string {
-  const normalized = normalizeAIText(res.summary ?? "");
+  const normalized = cleanMarkdownSpacing(
+    normalizeAIText(res.summary ?? "")
+  );
 
   if (!normalized) {
     return "Yanıt oluşturuldu ancak açıklama metni boş geldi. Lütfen tekrar dene.";
@@ -204,7 +221,7 @@ function formatAIResponse(res: AITeacherResponse): string {
   return normalized;
 }
 
-// ─── Typing indicator ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Typing indicator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function TypingDot({
   delay,
@@ -253,30 +270,41 @@ function TypingIndicator({
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }) {
   return (
-    <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
+    <Animated.View
+      entering={FadeInLeft.duration(300)}
+      style={styles.aiBubbleRow}
+    >
       <View style={styles.aiAvatarWrap}>
-        <View style={[styles.aiAvatar, { backgroundColor: AI_COLOR + "22" }]}>
+        <View style={styles.aiAvatar}>
           <Feather name="zap" size={15} color="#FFFFFF" />
         </View>
       </View>
-      <View style={[styles.aiBubble, { backgroundColor: colors.card }]}>
-        <View style={styles.typingRow}>
-          <TypingDot delay={0} color={colors.mutedForeground} />
-          <TypingDot delay={150} color={colors.mutedForeground} />
-          <TypingDot delay={300} color={colors.mutedForeground} />
-          <Text
-            style={[styles.typingLabel, { color: colors.mutedForeground }]}
-            accessibilityLabel="AI yanıt hazırlıyor"
-          >
-            AI düşünüyor...
-          </Text>
-        </View>
+
+      <View
+        style={[
+          styles.loadingBubble,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <ActivityIndicator size="small" color={AI_COLOR} />
+
+        <Text
+          style={[
+            styles.loadingText,
+            { color: colors.mutedForeground },
+          ]}
+        >
+          AI düşünüyor...
+        </Text>
       </View>
     </Animated.View>
   );
 }
 
-// ─── Message bubble ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Message bubble â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function UserBubble({
   message,
@@ -305,7 +333,9 @@ function UserBubble({
   );
 }
 
-function buildMarkdownStyles(colors: ReturnType<typeof import("@/hooks/useColors").useColors>) {
+function buildMarkdownStyles(
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>
+) {
   return {
     body: {
       color: colors.foreground,
@@ -313,18 +343,28 @@ function buildMarkdownStyles(colors: ReturnType<typeof import("@/hooks/useColors
       fontFamily: "Inter_400Regular",
       lineHeight: 23,
     },
+    heading1: {
+      color: colors.foreground,
+      fontSize: 20,
+      lineHeight: 27,
+      fontFamily: "Inter_700Bold",
+      marginTop: 8,
+      marginBottom: 4,
+    },
     heading2: {
       color: colors.foreground,
       fontSize: 17,
+      lineHeight: 24,
       fontFamily: "Inter_700Bold",
-      marginTop: 14,
-      marginBottom: 4,
+      marginTop: 8,
+      marginBottom: 3,
     },
     heading3: {
       color: colors.foreground,
       fontSize: 15,
+      lineHeight: 22,
       fontFamily: "Inter_600SemiBold",
-      marginTop: 10,
+      marginTop: 6,
       marginBottom: 2,
     },
     strong: {
@@ -336,8 +376,20 @@ function buildMarkdownStyles(colors: ReturnType<typeof import("@/hooks/useColors
       fontStyle: "italic" as const,
       color: colors.foreground,
     },
+    paragraph: {
+      marginTop: 0,
+      marginBottom: 4,
+    },
     bullet_list: {
-      marginVertical: 4,
+      marginTop: 3,
+      marginBottom: 8,
+    },
+    ordered_list: {
+      marginTop: 3,
+      marginBottom: 8,
+    },
+    list_item: {
+      marginBottom: 4,
     },
     bullet_list_icon: {
       color: AI_COLOR,
@@ -356,8 +408,9 @@ function buildMarkdownStyles(colors: ReturnType<typeof import("@/hooks/useColors
       borderLeftWidth: 3,
       paddingHorizontal: 12,
       paddingVertical: 8,
-      borderRadius: 6,
-      marginVertical: 6,
+      borderRadius: 8,
+      marginTop: 6,
+      marginBottom: 8,
     },
     code_inline: {
       backgroundColor: colors.muted,
@@ -369,16 +422,17 @@ function buildMarkdownStyles(colors: ReturnType<typeof import("@/hooks/useColors
     },
     fence: {
       backgroundColor: colors.muted,
+      color: colors.foreground,
+      borderColor: colors.border,
+      borderWidth: 1,
       borderRadius: 10,
       padding: 12,
+      fontSize: 14,
+      lineHeight: 21,
     },
     hr: {
       backgroundColor: colors.border,
       marginVertical: 8,
-    },
-    paragraph: {
-      marginTop: 0,
-      marginBottom: 6,
     },
   };
 }
@@ -458,7 +512,7 @@ function AIBubble({
   );
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function EmptyState({
   colors,
@@ -508,7 +562,7 @@ function EmptyState({
   );
 }
 
-// ─── Main content (inside PremiumGate) ───────────────────────────────────────
+// â”€â”€â”€ Main content (inside PremiumGate) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AITeacherContent() {
   const colors = useColors();
@@ -600,7 +654,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         role: "user",
         content:
           trimmed ||
-          attachmentsToSend.map((item) => `📎 ${item.fileName}`).join("\n"),
+          attachmentsToSend.map((item) => `ðŸ“Ž ${item.fileName}`).join("\n"),
         timestamp: new Date(),
       };
 
@@ -614,24 +668,24 @@ const [selectedAttachments, setSelectedAttachments] = useState<
             .slice(-10)
             .map((message) => {
               const speaker =
-                message.role === "user" ? "Öğrenci" : "AI Öğretmen";
+                message.role === "user" ? "Ã–ÄŸrenci" : "AI Ã–ÄŸretmen";
 
               return `${speaker}: ${message.content}`;
             })
             .join("\n\n");
 
-          const studentName = profile?.name?.trim() || "Öğrenci";
+          const studentName = profile?.name?.trim() || "Ã–ÄŸrenci";
 
           const contextualQuestion = [
-            `Öğrencinin adı: ${studentName}`,
+            `Ã–ÄŸrencinin adÄ±: ${studentName}`,
             recentConversation
-              ? `Önceki konuşma:\n${recentConversation}`
+              ? `Ã–nceki konuÅŸma:\n${recentConversation}`
               : "",
             `Yeni istek: ${
               trimmed ||
-              "Yüklenen soru veya dosyayı analiz et, adım adım çöz ve açıkla."
+              "YÃ¼klenen soru veya dosyayÄ± analiz et, adÄ±m adÄ±m Ã§Ã¶z ve aÃ§Ä±kla."
             }`,
-            "Öğrencinin adını her cevapta tekrar etme. Yalnızca doğal ve gerekli olduğunda kullan.",
+            "Ã–ÄŸrencinin adÄ±nÄ± her cevapta tekrar etme. YalnÄ±zca doÄŸal ve gerekli olduÄŸunda kullan.",
           ]
             .filter(Boolean)
             .join("\n\n");
@@ -656,12 +710,12 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         setMessages((prev) => [...prev, aiMsg]);
 
         // Announce to screen readers
-        AccessibilityInfo.announceForAccessibility("AI yanıtı hazır");
+        AccessibilityInfo.announceForAccessibility("AI yanÄ±tÄ± hazÄ±r");
       } catch (err) {
         const userMessage =
           err instanceof AIError
             ? err.toUserMessage()
-            : "Yanıt alınamadı.";
+            : "YanÄ±t alÄ±namadÄ±.";
 
         const errorMsg: ChatMessage = {
           id: `err_${Date.now()}`,
@@ -701,8 +755,8 @@ const [selectedAttachments, setSelectedAttachments] = useState<
 
     if (!permission.granted) {
       Alert.alert(
-        "Kamera İzni Gerekli",
-        "Soru fotoğrafı çekebilmek için kamera izni vermelisin."
+        "Kamera Ä°zni Gerekli",
+        "Soru fotoÄŸrafÄ± Ã§ekebilmek iÃ§in kamera izni vermelisin."
       );
       return;
     }
@@ -717,7 +771,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
       const image = result.assets[0];
 
       if (!image.base64) {
-        Alert.alert("Hata", "Fotoğraf okunamadı.");
+        Alert.alert("Hata", "FotoÄŸraf okunamadÄ±.");
         return;
       }
 
@@ -731,7 +785,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         },
       ]);
 
-      setInputText("Bu soru fotoğrafını adım adım çöz ve açıkla.");
+      setInputText("Bu soru fotoÄŸrafÄ±nÄ± adÄ±m adÄ±m Ã§Ã¶z ve aÃ§Ä±kla.");
     }
   }, []);
 
@@ -740,8 +794,8 @@ const [selectedAttachments, setSelectedAttachments] = useState<
 
     if (!permission.granted) {
       Alert.alert(
-        "Galeri İzni Gerekli",
-        "Galeriden soru seçebilmek için fotoğraf izni vermelisin."
+        "Galeri Ä°zni Gerekli",
+        "Galeriden soru seÃ§ebilmek iÃ§in fotoÄŸraf izni vermelisin."
       );
       return;
     }
@@ -757,7 +811,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
       const image = result.assets[0];
 
       if (!image.base64) {
-        Alert.alert("Hata", "Görsel okunamadı.");
+        Alert.alert("Hata", "GÃ¶rsel okunamadÄ±.");
         return;
       }
 
@@ -771,7 +825,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         },
       ]);
 
-      setInputText("Bu soru görselini adım adım çöz ve açıkla.");
+      setInputText("Bu soru gÃ¶rselini adÄ±m adÄ±m Ã§Ã¶z ve aÃ§Ä±kla.");
     }
   }, []);
 
@@ -786,7 +840,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
       const document = result.assets[0];
 
       if (document.size && document.size > 8 * 1024 * 1024) {
-        Alert.alert("Dosya Çok Büyük", "En fazla 8 MB dosya yükleyebilirsin.");
+        Alert.alert("Dosya Ã‡ok BÃ¼yÃ¼k", "En fazla 8 MB dosya yÃ¼kleyebilirsin.");
         return;
       }
 
@@ -804,26 +858,26 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         },
       ]);
 
-      setInputText("Bu dosyadaki soruyu adım adım çöz ve açıkla.");
+      setInputText("Bu dosyadaki soruyu adÄ±m adÄ±m Ã§Ã¶z ve aÃ§Ä±kla.");
     }
   }, []);
 
   const handleAttachment = useCallback(() => {
-    Alert.alert("Soru Yükle", "Yükleme yöntemini seç.", [
+    Alert.alert("Soru YÃ¼kle", "YÃ¼kleme yÃ¶ntemini seÃ§.", [
       {
-        text: "Kamerayla Çek",
+        text: "Kamerayla Ã‡ek",
         onPress: () => void openCamera(),
       },
       {
-        text: "Galeriden Seç",
+        text: "Galeriden SeÃ§",
         onPress: () => void openGallery(),
       },
       {
-        text: "PDF veya Dosya Seç",
+        text: "PDF veya Dosya SeÃ§",
         onPress: () => void openDocument(),
       },
       {
-        text: "İptal",
+        text: "Ä°ptal",
         style: "cancel",
       },
     ]);
@@ -835,7 +889,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
-      {/* ── Header ── */}
+      {/* â”€â”€ Header â”€â”€ */}
       <Animated.View
         entering={FadeIn.duration(300)}
         style={[
@@ -881,7 +935,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         </View>
       </Animated.View>
 
-      {/* ── Chat area + input ── */}
+      {/* â”€â”€ Chat area + input â”€â”€ */}
       <KeyboardAvoidingView
         style={styles.flex}
         behavior="translate-with-padding"
@@ -919,7 +973,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
           )}
         </ScrollView>
 
-        {/* ── Input bar ── */}
+        {/* â”€â”€ Input bar â”€â”€ */}
         <View
           style={[
             styles.inputBar,
@@ -1024,8 +1078,8 @@ const [selectedAttachments, setSelectedAttachments] = useState<
               placeholder="Bir soru sor..."
               placeholderTextColor={colors.mutedForeground}
               multiline
-              numberOfLines={1}
-              maxLength={500}
+              textAlignVertical="top"
+              maxLength={2000}
               returnKeyType="default"
               blurOnSubmit={false}
               accessibilityLabel="Mesaj yaz"
@@ -1057,7 +1111,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
   );
 }
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function AITeacherScreen() {
   return (
@@ -1067,7 +1121,7 @@ export default function AITeacherScreen() {
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
@@ -1135,19 +1189,20 @@ const styles = StyleSheet.create({
   userBubbleRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginBottom: 14,
+    marginBottom: 8,
   },
   userBubbleGroup: {
-    maxWidth: "80%",
-    gap: 4,
+    maxWidth: "88%",
+    gap: 2,
     alignItems: "flex-end",
   },
   userBubble: {
-    maxWidth: "86%",
-    borderRadius: 20,
-    borderTopRightRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    width: "100%",
+    maxWidth: "100%",
+    borderRadius: 18,
+    borderTopRightRadius: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 11,
     shadowColor: "#2563EB",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
@@ -1164,7 +1219,7 @@ const styles = StyleSheet.create({
   aiBubbleRow: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    marginBottom: 14,
+    marginBottom: 10,
     gap: 8,
     alignItems: "flex-end",
   },
@@ -1187,18 +1242,18 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   aiBubbleGroup: {
-    maxWidth: "80%",
-    gap: 4,
+    maxWidth: "88%",
+    gap: 2,
     alignItems: "flex-start",
     flex: 1,
   },
   aiBubble: {
-    flex: 1,
-    maxWidth: "88%",
-    borderRadius: 20,
-    borderTopLeftRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    width: "100%",
+    maxWidth: "100%",
+    borderRadius: 18,
+    borderTopLeftRadius: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: "rgba(124,58,237,0.28)",
     shadowColor: "#7C3AED",
@@ -1215,7 +1270,7 @@ const styles = StyleSheet.create({
 
   // Error bubble
   errorBubbleGroup: {
-    maxWidth: "80%",
+    maxWidth: "88%",
     gap: 6,
     alignItems: "flex-start",
     flex: 1,
@@ -1260,6 +1315,7 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 11,
     fontFamily: "Inter_400Regular",
+    lineHeight: 14,
   },
 
   // Typing indicator
@@ -1285,6 +1341,22 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
     marginLeft: 4,
     letterSpacing: 0.2,
+  },
+  loadingBubble: {
+    minHeight: 44,
+    borderRadius: 18,
+    borderBottomLeftRadius: 5,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  loadingText: {
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: "Inter_400Regular",
   },
 
   // Empty state
@@ -1343,12 +1415,15 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   inputWrap: {
+    minHeight: 54,
+    maxHeight: 140,
     flexDirection: "row",
     alignItems: "flex-end",
     borderWidth: 1,
-    borderRadius: 22,
-    paddingHorizontal: 8,
-    paddingVertical: 7,
+    borderRadius: 18,
+    paddingLeft: 8,
+    paddingRight: 7,
+    paddingVertical: 6,
     gap: 7,
     borderColor: "rgba(124,58,237,0.28)",
     shadowColor: "#7C3AED",
@@ -1389,12 +1464,14 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
+    minHeight: 40,
+    maxHeight: 120,
+    paddingTop: 9,
+    paddingBottom: 8,
     fontSize: 15,
     fontFamily: "Inter_400Regular",
     lineHeight: 22,
-    maxHeight: 132, // ~6 lines @ 22px lineHeight
-    paddingTop: Platform.OS === "ios" ? 6 : 4,
-    paddingBottom: Platform.OS === "ios" ? 6 : 4,
+    textAlignVertical: "top",
   },
   sendBtn: {
     width: 40,
