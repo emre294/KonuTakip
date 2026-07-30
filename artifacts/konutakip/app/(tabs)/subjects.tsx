@@ -185,22 +185,312 @@ function TopicRow({
   );
 }
 
+interface TopicWithSubtopicsProps {
+  topicId: string;
+  topicName: string;
+  subtopics?: Array<{
+    id: string;
+    name: string;
+  }>;
+  completed: boolean;
+  solvedCount: number;
+  hasReminder: boolean;
+  subtopicCompletion: Record<string, boolean>;
+  onToggle: () => void;
+  onToggleSubtopic: (
+    topicId: string,
+    subtopicId: string,
+  ) => void;
+  onSetSolved: (count: number) => void;
+  onBellPress: () => void;
+  colors: ReturnType<
+    typeof import("@/hooks/useColors").useColors
+  >;
+}
+
+function TopicWithSubtopics({
+  topicId,
+  topicName,
+  subtopics,
+  completed,
+  solvedCount,
+  hasReminder,
+  subtopicCompletion,
+  onToggle,
+  onToggleSubtopic,
+  onSetSolved,
+  onBellPress,
+  colors,
+}: TopicWithSubtopicsProps) {
+  const [expanded, setExpanded] =
+    useState(false);
+
+  const hasSubtopics =
+    Array.isArray(subtopics) &&
+    subtopics.length > 0;
+
+  const completedCount =
+    subtopics?.filter(
+      (subtopic) =>
+        !!subtopicCompletion[subtopic.id],
+    ).length ?? 0;
+
+  const percentage =
+    hasSubtopics
+      ? Math.round(
+          (completedCount /
+            subtopics!.length) *
+            100,
+        )
+      : completed
+        ? 100
+        : 0;
+
+  return (
+    <View>
+      <TopicRow
+        topicId={topicId}
+        topicName={topicName}
+        completed={completed}
+        solvedCount={solvedCount}
+        hasReminder={hasReminder}
+        onToggle={onToggle}
+        onSetSolved={onSetSolved}
+        onBellPress={onBellPress}
+        colors={colors}
+      />
+
+      {hasSubtopics && (
+        <>
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={() => {
+              setExpanded(
+                (previous) => !previous,
+              );
+
+              Haptics.impactAsync(
+                Haptics
+                  .ImpactFeedbackStyle
+                  .Light,
+              );
+            }}
+            style={[
+              styles.subtopicToggle,
+              {
+                backgroundColor:
+                  colors.secondary + "66",
+                borderBottomColor:
+                  colors.border,
+              },
+            ]}
+          >
+            <View
+              style={
+                styles.subtopicToggleLeft
+              }
+            >
+              <Ionicons
+                name="list-outline"
+                size={14}
+                color={
+                  completedCount > 0
+                    ? colors.primary
+                    : colors.mutedForeground
+                }
+              />
+
+              <Text
+                style={[
+                  styles.subtopicToggleText,
+                  {
+                    color:
+                      completedCount > 0
+                        ? colors.primary
+                        : colors.mutedForeground,
+                  },
+                ]}
+              >
+                {completedCount}/
+                {subtopics!.length} alt kazanım
+              </Text>
+            </View>
+
+            <View
+              style={
+                styles.subtopicToggleRight
+              }
+            >
+              <View
+                style={[
+                  styles.subtopicMiniTrack,
+                  {
+                    backgroundColor:
+                      colors.border,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.subtopicMiniFill,
+                    {
+                      width: `${percentage}%`,
+                      backgroundColor:
+                        completed
+                          ? colors.success
+                          : colors.primary,
+                    },
+                  ]}
+                />
+              </View>
+
+              <Ionicons
+                name={
+                  expanded
+                    ? "chevron-up"
+                    : "chevron-down"
+                }
+                size={15}
+                color={
+                  colors.mutedForeground
+                }
+              />
+            </View>
+          </TouchableOpacity>
+
+          {expanded && (
+            <Animated.View
+              entering={FadeIn.duration(180)}
+              style={[
+                styles.subtopicList,
+                {
+                  backgroundColor:
+                    colors.secondary + "33",
+                  borderBottomColor:
+                    colors.border,
+                },
+              ]}
+            >
+              {subtopics!.map(
+                (subtopic, index) => {
+                  const isCompleted =
+                    !!subtopicCompletion[
+                      subtopic.id
+                    ];
+
+                  return (
+                    <TouchableOpacity
+                      key={subtopic.id}
+                      activeOpacity={0.72}
+                      onPress={() => {
+                        onToggleSubtopic(
+                          topicId,
+                          subtopic.id,
+                        );
+
+                        Haptics.impactAsync(
+                          Haptics
+                            .ImpactFeedbackStyle
+                            .Light,
+                        );
+                      }}
+                      style={[
+                        styles.subtopicRow,
+                        index <
+                          subtopics!.length -
+                            1 && {
+                          borderBottomWidth:
+                            StyleSheet
+                              .hairlineWidth,
+                          borderBottomColor:
+                            colors.border,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.subtopicCheck,
+                          {
+                            borderColor:
+                              isCompleted
+                                ? colors.success
+                                : colors.border,
+                            backgroundColor:
+                              isCompleted
+                                ? colors.success
+                                : colors.card,
+                          },
+                        ]}
+                      >
+                        {isCompleted && (
+                          <Feather
+                            name="check"
+                            size={10}
+                            color="#FFFFFF"
+                          />
+                        )}
+                      </View>
+
+                      <Text
+                        style={[
+                          styles.subtopicName,
+                          {
+                            color:
+                              isCompleted
+                                ? colors
+                                    .mutedForeground
+                                : colors
+                                    .foreground,
+                            textDecorationLine:
+                              isCompleted
+                                ? "line-through"
+                                : "none",
+                          },
+                        ]}
+                      >
+                        {subtopic.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                },
+              )}
+            </Animated.View>
+          )}
+        </>
+      )}
+    </View>
+  );
+}
+
 // ─── Subject card ──────────────────────────────────────────────────────────────
 
 interface SubjectCardProps {
   subject: Subject;
   topicCompletion: Record<string, boolean>;
+  subtopicCompletion: Record<string, boolean>;
   topicSolvedQuestions: Record<string, number>;
   topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
   onToggle: (id: string) => void;
+  onToggleSubtopic: (
+    topicId: string,
+    subtopicId: string,
+  ) => void;
   onSetSolved: (topicId: string, count: number) => void;
   onBellPress: (topicId: string, topicName: string, subjectName: string) => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
 }
 
 function SubjectCard({
-  subject, topicCompletion, topicSolvedQuestions, topicReminders,
-  onToggle, onSetSolved, onBellPress, colors,
+  subject,
+  topicCompletion,
+  subtopicCompletion,
+  topicSolvedQuestions,
+  topicReminders,
+  onToggle,
+  onToggleSubtopic,
+  onSetSolved,
+  onBellPress,
+  colors,
 }: SubjectCardProps) {
   const { hasCompletedSessionTodayForSubject } = useApp();
   const [expanded, setExpanded] = useState(false);
@@ -297,16 +587,43 @@ function SubjectCard({
           onLayout={(e) => handleContentLayout(e.nativeEvent.layout.height)}
         >
           {subject.topics.map((t) => (
-            <TopicRow
+            <TopicWithSubtopics
               key={t.id}
               topicId={t.id}
               topicName={t.name}
-              completed={!!topicCompletion[t.id]}
-              solvedCount={topicSolvedQuestions[t.id] ?? 0}
-              hasReminder={!!topicReminders[t.id]}
-              onToggle={() => onToggle(t.id)}
-              onSetSolved={(count) => handleSetSolved(t.id, count)}
-              onBellPress={() => onBellPress(t.id, t.name, subject.name)}
+              subtopics={t.subtopics}
+              completed={
+                !!topicCompletion[t.id]
+              }
+              solvedCount={
+                topicSolvedQuestions[t.id] ??
+                0
+              }
+              hasReminder={
+                !!topicReminders[t.id]
+              }
+              subtopicCompletion={
+                subtopicCompletion
+              }
+              onToggle={() =>
+                onToggle(t.id)
+              }
+              onToggleSubtopic={
+                onToggleSubtopic
+              }
+              onSetSolved={(count) =>
+                handleSetSolved(
+                  t.id,
+                  count,
+                )
+              }
+              onBellPress={() =>
+                onBellPress(
+                  t.id,
+                  t.name,
+                  subject.name,
+                )
+              }
               colors={colors}
             />
           ))}
@@ -322,9 +639,14 @@ interface ExamSectionProps {
   title: string;
   subjects: Subject[];
   topicCompletion: Record<string, boolean>;
+  subtopicCompletion: Record<string, boolean>;
   topicSolvedQuestions: Record<string, number>;
   topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
   onToggle: (id: string) => void;
+  onToggleSubtopic: (
+    topicId: string,
+    subtopicId: string,
+  ) => void;
   onSetSolved: (topicId: string, count: number) => void;
   onBellPress: (topicId: string, topicName: string, subjectName: string) => void;
   accentColor: string;
@@ -332,8 +654,18 @@ interface ExamSectionProps {
 }
 
 function ExamSection({
-  title, subjects, topicCompletion, topicSolvedQuestions, topicReminders,
-  onToggle, onSetSolved, onBellPress, accentColor, colors,
+  title,
+  subjects,
+  topicCompletion,
+  subtopicCompletion,
+  topicSolvedQuestions,
+  topicReminders,
+  onToggle,
+  onToggleSubtopic,
+  onSetSolved,
+  onBellPress,
+  accentColor,
+  colors,
 }: ExamSectionProps) {
   const [open, setOpen] = useState(true);
   const allTopics = subjects.flatMap((s) => s.topics);
@@ -371,9 +703,11 @@ function ExamSection({
               key={s.id}
               subject={s}
               topicCompletion={topicCompletion}
+              subtopicCompletion={subtopicCompletion}
               topicSolvedQuestions={topicSolvedQuestions}
               topicReminders={topicReminders}
               onToggle={onToggle}
+              onToggleSubtopic={onToggleSubtopic}
               onSetSolved={onSetSolved}
               onBellPress={onBellPress}
               colors={colors}
@@ -391,9 +725,16 @@ export default function SubjectsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const {
-    profile, topicCompletion, toggleTopic,
-    topicSolvedQuestions, setTopicSolvedQuestion,
-    topicReminders, setTopicReminder, removeTopicReminder,
+    profile,
+    topicCompletion,
+    toggleTopic,
+    subtopicCompletion,
+    toggleSubtopic,
+    topicSolvedQuestions,
+    setTopicSolvedQuestion,
+    topicReminders,
+    setTopicReminder,
+    removeTopicReminder,
   } = useApp();
 
   const aytSubjects = useMemo(() => profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [], [profile]);
@@ -441,9 +782,11 @@ export default function SubjectsScreen() {
           title="TYT — Temel Yeterlilik"
           subjects={TYT_SUBJECTS}
           topicCompletion={topicCompletion}
+          subtopicCompletion={subtopicCompletion}
           topicSolvedQuestions={topicSolvedQuestions}
           topicReminders={topicReminders}
           onToggle={toggleTopic}
+          onToggleSubtopic={toggleSubtopic}
           onSetSolved={setTopicSolvedQuestion}
           onBellPress={handleBellPress}
           accentColor="#2563EB"
@@ -454,9 +797,11 @@ export default function SubjectsScreen() {
           title={`AYT — ${fieldLabel}`}
           subjects={aytSubjects}
           topicCompletion={topicCompletion}
+          subtopicCompletion={subtopicCompletion}
           topicSolvedQuestions={topicSolvedQuestions}
           topicReminders={topicReminders}
           onToggle={toggleTopic}
+          onToggleSubtopic={toggleSubtopic}
           onSetSolved={setTopicSolvedQuestion}
           onBellPress={handleBellPress}
           accentColor="#7C3AED"
@@ -532,6 +877,73 @@ const styles = StyleSheet.create({
     textAlign: "center", paddingHorizontal: 2,
   },
   soruLabel: { fontSize: 11, fontFamily: "Inter_400Regular", flexShrink: 0 },
+
+  subtopicToggle: {
+    minHeight: 38,
+    paddingLeft: 46,
+    paddingRight: 14,
+    paddingVertical: 8,
+    borderBottomWidth:
+      StyleSheet.hairlineWidth,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  subtopicToggleLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flex: 1,
+  },
+  subtopicToggleText: {
+    fontSize: 11,
+    fontFamily: "Inter_500Medium",
+  },
+  subtopicToggleRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  subtopicMiniTrack: {
+    width: 62,
+    height: 4,
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  subtopicMiniFill: {
+    height: "100%",
+    borderRadius: 2,
+  },
+  subtopicList: {
+    paddingLeft: 46,
+    paddingRight: 14,
+    paddingBottom: 5,
+    borderBottomWidth:
+      StyleSheet.hairlineWidth,
+  },
+  subtopicRow: {
+    minHeight: 42,
+    paddingHorizontal: 4,
+    paddingVertical: 9,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  subtopicCheck: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  subtopicName: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: "Inter_400Regular",
+  },
 });
 
 const rStyles = StyleSheet.create({
