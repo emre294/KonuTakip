@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/contexts/AppContext";
-import { TYT_SUBJECTS } from "@/data/subjects";
+import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 import { sendAIMessage, type AIMessage } from "@/services/aiService";
 import { PremiumFeature } from "@/utils/premium";
@@ -153,76 +153,129 @@ function isQuestionRequest(text: string): boolean {
 function buildCoachCurriculumSnapshot(
   topicCompletion: Record<string, boolean>,
   subtopicCompletion: Record<string, boolean>,
+  studyField?: StudyField,
 ): string {
-  const topicStates = TYT_SUBJECTS.flatMap(
-    (subject) =>
-      subject.topics.map((topic) => {
-        const subtopics = topic.subtopics ?? [];
+  const curriculumGroups = [
+    {
+      examType: "TYT" as const,
+      subjects: TYT_SUBJECTS,
+    },
+    {
+      examType: "AYT" as const,
+      subjects: studyField
+        ? AYT_SUBJECTS_BY_FIELD[
+            studyField
+          ] ?? []
+        : [],
+    },
+  ];
 
-        const completedSubtopics =
-          subtopics.filter(
-            (subtopic) =>
-              !!subtopicCompletion[
-                subtopic.id
-              ],
-          );
+  const topicStates =
+    curriculumGroups.flatMap(
+      (curriculumGroup) =>
+        curriculumGroup.subjects.flatMap(
+          (subject) =>
+            subject.topics.map(
+              (topic) => {
+                const subtopics =
+                  topic.subtopics ?? [];
 
-        const incompleteSubtopics =
-          subtopics.filter(
-            (subtopic) =>
-              !subtopicCompletion[
-                subtopic.id
-              ],
-          );
+                const completedSubtopics =
+                  subtopics.filter(
+                    (subtopic) =>
+                      !!subtopicCompletion[
+                        subtopic.id
+                      ],
+                  );
 
-        return {
-          subjectName: subject.name,
-          topicName: topic.name,
-          topicCompleted:
-            !!topicCompletion[topic.id],
-          completedCount:
-            completedSubtopics.length,
-          totalCount: subtopics.length,
-          incompleteNames:
-            incompleteSubtopics.map(
-              (subtopic) => subtopic.name,
+                const incompleteSubtopics =
+                  subtopics.filter(
+                    (subtopic) =>
+                      !subtopicCompletion[
+                        subtopic.id
+                      ],
+                  );
+
+                return {
+                  examType:
+                    curriculumGroup.examType,
+                  subjectName:
+                    subject.name,
+                  topicName: topic.name,
+                  topicCompleted:
+                    !!topicCompletion[
+                      topic.id
+                    ],
+                  completedCount:
+                    completedSubtopics.length,
+                  totalCount:
+                    subtopics.length,
+                  incompleteNames:
+                    incompleteSubtopics.map(
+                      (subtopic) =>
+                        subtopic.name,
+                    ),
+                };
+              },
             ),
-        };
-      }),
-  );
+        ),
+    );
 
-  const activeWeakAreas = topicStates
-    .filter(
+  const activeWeakAreas =
+    topicStates
+      .filter(
+        (item) =>
+          !item.topicCompleted &&
+          item.totalCount > 0 &&
+          item.completedCount > 0,
+      )
+      .sort(
+        (a, b) =>
+          b.completedCount -
+          a.completedCount,
+      );
+
+  const untouchedAreas =
+    topicStates.filter(
       (item) =>
         !item.topicCompleted &&
         item.totalCount > 0 &&
-        item.completedCount > 0,
-    )
-    .sort(
-      (a, b) =>
-        b.completedCount - a.completedCount,
+        item.completedCount === 0,
     );
-
-  const untouchedAreas = topicStates.filter(
-    (item) =>
-      !item.topicCompleted &&
-      item.totalCount > 0 &&
-      item.completedCount === 0,
-  );
 
   const selected = [
     ...activeWeakAreas,
     ...untouchedAreas,
-  ].slice(0, 12);
+  ].slice(0, 16);
 
-  const completedTopicCount =
+  const tytStates =
     topicStates.filter(
+      (item) =>
+        item.examType === "TYT",
+    );
+
+  const aytStates =
+    topicStates.filter(
+      (item) =>
+        item.examType === "AYT",
+    );
+
+  const completedTytCount =
+    tytStates.filter(
+      (item) => item.topicCompleted,
+    ).length;
+
+  const completedAytCount =
+    aytStates.filter(
       (item) => item.topicCompleted,
     ).length;
 
   return [
     "KAZANIM DURUMU:",
-    `Tamamlanan TYT ana konu: ${completedTopicCount}/${topicStates.length}`,
+    `Tamamlanan TYT ana konu: ${completedTytCount}/${tytStates.length}`,
+    aytStates.length > 0
+      ? `Tamamlanan AYT ana konu: ${completedAytCount}/${aytStates.length}`
+      : "",
     selected.length > 0
       ? "Öncelikli eksik ana konu ve alt kazanımlar:"
       : "Listelenebilir eksik alt kazanım bulunmuyor.",
@@ -233,14 +286,20 @@ function buildCoachCurriculumSnapshot(
           .join(", ");
 
       return (
-        `- ${item.subjectName} / ${item.topicName}: ` +
+        `- [${item.examType}] ` +
+        `${item.subjectName} / ${item.topicName}: ` +
         `${item.completedCount}/${item.totalCount} tamamlandı. ` +
         `Eksikler: ${missing}`
       );
     }),
     "Çalışma önerilerini öncelikle tamamlanmamış alt kazanımlara dayandır.",
     "Tamamlanan kazanımları gereksiz yere ana hedef olarak önerme.",
-  ].join("\n");
+    "TYT ve AYT yöntemlerini birbirine karıştırma.",
+    "AYT hedeflerinde öğrencinin seçili alanındaki kazanımları esas al.",
+    "TYT hedeflerinde kullanıcı istemedikçe AYT yöntemi önerme.",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function AICoachContent() {
@@ -355,6 +414,7 @@ function AICoachContent() {
         buildCoachCurriculumSnapshot(
           topicCompletion,
           subtopicCompletion,
+          profile?.studyField,
         );
 
       const learnerSummary = [
@@ -370,6 +430,7 @@ function AICoachContent() {
             ? `Öğrencinin adı: ${profile.name.trim()}`
             : "",
           learnerSummary,
+          `Seçili AYT alanı: ${profile?.studyField ?? "Belirtilmedi"}`,
           curriculumSnapshot,
           cleanMessage,
           "Öğrencinin adını her cevapta tekrar etme. Yalnızca doğal ve gerekli olduğunda kullan.",

@@ -50,7 +50,7 @@ import { PREMIUM_COLOR } from "@/components/PremiumBadge";
 import { PremiumBadge } from "@/components/PremiumBadge";
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/contexts/AppContext";
-import { TYT_SUBJECTS } from "@/data/subjects";
+import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
 import { useColors } from "@/hooks/useColors";
 import { AIError, AIManager } from "@/utils/ai";
 import type { AITeacherResponse } from "@/utils/ai";
@@ -59,6 +59,7 @@ import { PremiumFeature } from "@/utils/premium";
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type MatchedCurriculumContext = {
+  examType: "TYT" | "AYT";
   subjectId: string;
   subjectName: string;
   topicId: string;
@@ -82,8 +83,27 @@ function normalizeCurriculumText(
     .trim();
 }
 
-function buildTytCurriculumContext(
+function inferExamTypeFromText(
+  value: string,
+): "TYT" | "AYT" {
+  const normalized =
+    normalizeCurriculumText(value);
+
+  if (
+    /\bayt\b/.test(normalized) ||
+    /turev|integral|limit|logaritma|parabol|trigonometri/.test(
+      normalized,
+    )
+  ) {
+    return "AYT";
+  }
+
+  return "TYT";
+}
+
+function buildCurriculumContext(
   userText: string,
+  studyField?: StudyField,
 ): MatchedCurriculumContext | null {
   const normalizedText =
     normalizeCurriculumText(userText);
@@ -92,6 +112,26 @@ function buildTytCurriculumContext(
     return null;
   }
 
+  const curriculumGroups: Array<{
+    examType: "TYT" | "AYT";
+    subjects: typeof TYT_SUBJECTS;
+  }> = [
+    {
+      examType: "TYT",
+      subjects: TYT_SUBJECTS,
+    },
+    {
+      examType: "AYT",
+      subjects: studyField
+        ? AYT_SUBJECTS_BY_FIELD[
+            studyField
+          ] ?? []
+        : Object.values(
+            AYT_SUBJECTS_BY_FIELD,
+          ).flat(),
+    },
+  ];
+
   let bestMatch:
     | {
         score: number;
@@ -99,75 +139,110 @@ function buildTytCurriculumContext(
       }
     | null = null;
 
-  for (const subject of TYT_SUBJECTS) {
-    const normalizedSubject =
-      normalizeCurriculumText(subject.name);
-
-    for (const topic of subject.topics) {
-      const normalizedTopic =
-        normalizeCurriculumText(topic.name);
-
-      const matchingSubtopics =
-        (topic.subtopics ?? []).filter(
-          (subtopic) => {
-            const normalizedSubtopic =
-              normalizeCurriculumText(
-                subtopic.name,
-              );
-
-            return (
-              normalizedSubtopic.length >= 4 &&
-              normalizedText.includes(
-                normalizedSubtopic,
-              )
-            );
-          },
+  for (
+    const curriculumGroup of
+    curriculumGroups
+  ) {
+    for (
+      const subject of
+      curriculumGroup.subjects
+    ) {
+      const normalizedSubject =
+        normalizeCurriculumText(
+          subject.name,
         );
 
-      let score = 0;
+      for (const topic of subject.topics) {
+        const normalizedTopic =
+          normalizeCurriculumText(
+            topic.name,
+          );
 
-      if (
-        normalizedTopic.length >= 4 &&
-        normalizedText.includes(normalizedTopic)
-      ) {
-        score += 100;
-      }
+        const matchingSubtopics =
+          (topic.subtopics ?? []).filter(
+            (subtopic) => {
+              const normalizedSubtopic =
+                normalizeCurriculumText(
+                  subtopic.name,
+                );
 
-      if (
-        normalizedSubject.length >= 4 &&
-        normalizedText.includes(
-          normalizedSubject,
-        )
-      ) {
-        score += 15;
-      }
+              return (
+                normalizedSubtopic.length >=
+                  4 &&
+                normalizedText.includes(
+                  normalizedSubtopic,
+                )
+              );
+            },
+          );
 
-      score += matchingSubtopics.length * 140;
+        let score = 0;
 
-      if (score <= 0) {
-        continue;
-      }
+        if (
+          normalizedTopic.length >= 4 &&
+          normalizedText.includes(
+            normalizedTopic,
+          )
+        ) {
+          score += 100;
+        }
 
-      const selectedSubtopics =
-        matchingSubtopics.length > 0
-          ? matchingSubtopics.map(
-              (subtopic) => subtopic.name,
-            )
-          : (topic.subtopics ?? []).map(
-              (subtopic) => subtopic.name,
-            );
+        if (
+          normalizedSubject.length >= 4 &&
+          normalizedText.includes(
+            normalizedSubject,
+          )
+        ) {
+          score += 15;
+        }
 
-      if (!bestMatch || score > bestMatch.score) {
-        bestMatch = {
-          score,
-          context: {
-            subjectId: subject.id,
-            subjectName: subject.name,
-            topicId: topic.id,
-            topicName: topic.name,
-            subtopicNames: selectedSubtopics,
-          },
-        };
+        if (
+          normalizedText.includes(
+            curriculumGroup.examType
+              .toLocaleLowerCase(
+                "tr-TR",
+              ),
+          )
+        ) {
+          score += 25;
+        }
+
+        score +=
+          matchingSubtopics.length * 140;
+
+        if (score <= 0) {
+          continue;
+        }
+
+        const selectedSubtopics =
+          matchingSubtopics.length > 0
+            ? matchingSubtopics.map(
+                (subtopic) =>
+                  subtopic.name,
+              )
+            : (topic.subtopics ?? []).map(
+                (subtopic) =>
+                  subtopic.name,
+              );
+
+        if (
+          !bestMatch ||
+          score > bestMatch.score
+        ) {
+          bestMatch = {
+            score,
+            context: {
+              examType:
+                curriculumGroup.examType,
+              subjectId: subject.id,
+              subjectName: subject.name,
+              topicId: topic.id,
+              topicName: topic.name,
+              subtopicNames:
+                selectedSubtopics,
+            },
+          };
+        }
       }
     }
   }
@@ -184,6 +259,7 @@ function formatCurriculumContext(
 
   return [
     "MÜFREDAT BAĞLAMI:",
+    `Sınav türü: ${context.examType}`,
     `Ders: ${context.subjectName}`,
     `Ana konu: ${context.topicName}`,
     context.subtopicNames.length > 0
@@ -196,7 +272,7 @@ function formatCurriculumContext(
       : "",
     "Yanıtı bu ana konu ve alt kazanım sınırında hazırla.",
     "Kullanıcının özellikle belirttiği alt kazanımı önceliklendir.",
-    "Gereksiz şekilde TYT kapsamı dışına çıkma.",
+    `${context.examType} müfredat sınırını koru; diğer sınav türünün yöntemlerini gereksiz yere kullanma.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -822,13 +898,14 @@ const [selectedAttachments, setSelectedAttachments] = useState<
           const studentName = profile?.name?.trim() || "Ã–ÄŸrenci";
 
           const curriculumContext =
-            buildTytCurriculumContext(
+            buildCurriculumContext(
               [
                 recentConversation,
                 trimmed,
               ]
                 .filter(Boolean)
                 .join("\n\n"),
+              profile?.studyField,
             );
 
           const curriculumPrompt =
@@ -863,7 +940,16 @@ const [selectedAttachments, setSelectedAttachments] = useState<
           subjectName:
             curriculumContext?.subjectName ??
             "Genel",
-          examType: "TYT",
+          examType:
+            curriculumContext?.examType ??
+            inferExamTypeFromText(
+              [
+                recentConversation,
+                trimmed,
+              ]
+                .filter(Boolean)
+                .join("\n\n"),
+            ),
           userQuestion: contextualQuestion,
           attachments: attachmentsToSend,
         });
@@ -897,7 +983,13 @@ const [selectedAttachments, setSelectedAttachments] = useState<
         setIsLoading(false);
       }
     },
-    [isLoading, messages, profile?.name, selectedAttachments]
+    [
+      isLoading,
+      messages,
+      profile?.name,
+      profile?.studyField,
+      selectedAttachments,
+    ]
   );
 
   const handleSuggestion = useCallback(
