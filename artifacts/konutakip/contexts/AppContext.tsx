@@ -243,12 +243,33 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 const STORAGE_KEY = "konutakip_v3";
-const SUBTOPIC_MIGRATION_VERSION = 1;
+const SUBTOPIC_MIGRATION_VERSION = 2;
 
-function findTytTopicById(topicId: string) {
-  return TYT_SUBJECTS
-    .flatMap((subject) => subject.topics)
-    .find((topic) => topic.id === topicId);
+const ALL_CURRICULUM_TOPICS = [
+  ...TYT_SUBJECTS.flatMap(
+    (subject) => subject.topics,
+  ),
+  ...Object.values(
+    AYT_SUBJECTS_BY_FIELD,
+  ).flatMap((subjects) =>
+    subjects.flatMap(
+      (subject) => subject.topics,
+    ),
+  ),
+].filter(
+  (topic, index, topics) =>
+    topics.findIndex(
+      (candidate) =>
+        candidate.id === topic.id,
+    ) === index,
+);
+
+function findTopicById(
+  topicId: string,
+) {
+  return ALL_CURRICULUM_TOPICS.find(
+    (topic) => topic.id === topicId,
+  );
 }
 
 function migrateSubtopicCompletion(
@@ -272,16 +293,23 @@ function migrateSubtopicCompletion(
     ...existingSubtopicCompletion,
   };
 
-  for (const subject of TYT_SUBJECTS) {
-    for (const topic of subject.topics) {
-      if (!topicCompletion[topic.id]) {
-        continue;
-      }
+  for (
+    const topic of
+    ALL_CURRICULUM_TOPICS
+  ) {
+    if (!topicCompletion[topic.id]) {
+      continue;
+    }
 
-      for (const subtopic of topic.subtopics ?? []) {
-        if (migrated[subtopic.id] === undefined) {
-          migrated[subtopic.id] = true;
-        }
+    for (
+      const subtopic of
+      topic.subtopics ?? []
+    ) {
+      if (
+        migrated[subtopic.id] ===
+        undefined
+      ) {
+        migrated[subtopic.id] = true;
       }
     }
   }
@@ -771,7 +799,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     topicId: string,
     subtopicId: string,
   ) => {
-    const topic = findTytTopicById(topicId);
+    const topic = findTopicById(topicId);
 
     if (!topic?.subtopics?.length) {
       return;
@@ -859,7 +887,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       };
 
       const topicForSubtopicSync =
-        findTytTopicById(topicId);
+        findTopicById(topicId);
 
       if (
         topicForSubtopicSync?.subtopics?.length
