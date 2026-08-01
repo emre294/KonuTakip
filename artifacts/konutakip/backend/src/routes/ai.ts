@@ -1492,12 +1492,37 @@ async function generateVerifiedQuestionAnswer(
     `missingOptions=${finalStructure.missingOptions.join(",") || "NONE"}`,
   ].join(" ");
 
+  const rawPreview = JSON.stringify(
+    String(finalSafeAnswer ?? "")
+      .slice(0, 3000),
+  );
+
+  const optionLikeTokens = [
+    ...String(finalSafeAnswer ?? "").matchAll(
+      /[A-Ea-e][^\p{L}\p{N}]{0,8}/gu,
+    ),
+  ]
+    .slice(0, 30)
+    .map((match) => match[0])
+    .join(" | ");
+
+  console.error(
+    "[AI QUESTION RAW DIAGNOSTIC]",
+    {
+      structureReason,
+      optionLikeTokens,
+      rawPreview,
+    },
+  );
+
   throw new Error(
     [
       "Soru seti üç bağımsız kalite kontrolünden geçemedi.",
       "Hatalı soru kullanıcıya gösterilmedi.",
       `Son denetim sonucu: ${finalReason}`,
       `Yapısal kontrol: ${structureReason}`,
+      `Secenek benzeri tokenlar: ${optionLikeTokens || "YOK"}`,
+      `Ham çıktı önizleme: ${rawPreview}`,
     ].join(" "),
   );
 }
