@@ -690,9 +690,12 @@ function analyzeQuestionStructure(
   missingSections: string[];
   missingOptions: string[];
 } {
-  const normalized = answer
-    .replace(/\r\n/g, "\n")
-    .trim();
+  const normalized =
+    normalizeQuestionResponseStructure(
+      answer,
+    )
+      .replace(/\r\n/g, "\n")
+      .trim();
 
   const missingSections: string[] = [];
 
@@ -965,6 +968,44 @@ function normalizeQuestionResponseStructure(
     .replace(/\r\n/g, "\n")
     .replace(/\u00A0/g, " ")
     .trim();
+
+  /*
+   * Model veya taşıma katmanı bazen gerçek satır sonu yerine
+   * metin olarak \\n döndürüyor. Yalnız satır/sekme kaçışlarını
+   * çözüyoruz; matematiksel ters eğik çizgilere dokunmuyoruz.
+   */
+  if (
+    !normalized.includes("\n") &&
+    /\\(?:r\\n|n)/.test(normalized)
+  ) {
+    normalized = normalized
+      .replace(/\\r\\n/g, "\n")
+      .replace(/\\n/g, "\n")
+      .replace(/\\t/g, " ");
+  }
+
+  /*
+   * JSON string biçiminde sarılmış tek bir cevap geldiyse,
+   * güvenli şekilde string değerini aç.
+   */
+  if (
+    normalized.startsWith('"') &&
+    normalized.endsWith('"')
+  ) {
+    try {
+      const decoded = JSON.parse(
+        normalized,
+      );
+
+      if (typeof decoded === "string") {
+        normalized = decoded
+          .replace(/\r\n/g, "\n")
+          .trim();
+      }
+    } catch {
+      // Normal metin işlemine devam et.
+    }
+  }
 
   normalized = normalized
     .replace(
