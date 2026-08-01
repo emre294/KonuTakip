@@ -158,7 +158,9 @@ ${answer}
 function isValidationSuccessful(
   validation: string,
 ): boolean {
-  const normalized = validation
+  const normalized = String(
+    validation ?? "",
+  )
     .replace(/^\uFEFF/, "")
     .replace(/[\u200B-\u200D\u2060]/g, "")
     .replace(/：/g, ":")
@@ -166,22 +168,41 @@ function isValidationSuccessful(
     .replace(/[\*_\x60]/g, "")
     .trim();
 
-  const verdictMatches = [
+  const finalVerdicts = [
     ...normalized.matchAll(
-      /(?:^|\n)\s*(?:FINAL\s*:\s*)?(VALID|INVALID)\s*(?=\n|$)/gi,
+      /\bFINAL\s*:\s*(VALID|INVALID)\b/gi,
     ),
   ];
 
-  if (verdictMatches.length === 0) {
+  if (finalVerdicts.length > 0) {
+    const lastFinalVerdict =
+      finalVerdicts[
+        finalVerdicts.length - 1
+      ][1].toUpperCase();
+
+    return lastFinalVerdict === "VALID";
+  }
+
+  const standaloneVerdicts = [
+    ...normalized.matchAll(
+      /(?:^|\n)\s*(VALID|INVALID)\s*(?=\n|$)/gi,
+    ),
+  ];
+
+  if (
+    standaloneVerdicts.length === 0
+  ) {
     return false;
   }
 
-  const lastVerdict =
-    verdictMatches[
-      verdictMatches.length - 1
+  const lastStandaloneVerdict =
+    standaloneVerdicts[
+      standaloneVerdicts.length - 1
     ][1].toUpperCase();
 
-  return lastVerdict === "VALID";
+  return (
+    lastStandaloneVerdict === "VALID"
+  );
 }
 
 function buildFinalSafeQuestionPrompt(
@@ -911,6 +932,61 @@ function ensureSolutionAnswerLabels(
     .trim();
 }
 
+function normalizeQuestionResponseStructure(
+  answer: string,
+): string {
+  let normalized = String(answer ?? "")
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  normalized = normalized
+    .replace(
+      /^\s*#{1,6}\s*(?:soru|sorular)\s*:?\s*$/gim,
+      "## Sorular",
+    )
+    .replace(
+      /^\s*(?:soru|sorular)\s*:?\s*$/gim,
+      "## Sorular",
+    )
+    .replace(
+      /^\s*#{1,6}\s*(?:cevaplar|cevap anahtarı|cevap anahtari)\s*:?\s*$/gim,
+      "## Cevap Anahtarı",
+    )
+    .replace(
+      /^\s*(?:cevaplar|cevap anahtarı|cevap anahtari)\s*:?\s*$/gim,
+      "## Cevap Anahtarı",
+    )
+    .replace(
+      /^\s*#{1,6}\s*(?:çözüm|çözümler|cozum|cozumler)\s*:?\s*$/gim,
+      "## Çözümler",
+    )
+    .replace(
+      /^\s*(?:çözüm|çözümler|cozum|cozumler)\s*:?\s*$/gim,
+      "## Çözümler",
+    )
+    .replace(
+      /^\s*#{1,6}\s*Soru\s+(\d+)\s*:?\s*$/gim,
+      "### $1. Soru",
+    )
+    .replace(
+      /^\s*(\d+)\.\s*Soru\s*:?\s*$/gim,
+      "### $1. Soru",
+    )
+    .replace(
+      /^\s*#{1,6}\s*(\d+)\.\s*Soru\s*Çözümü\s*:?\s*$/gim,
+      "### $1. Soru Çözümü",
+    )
+    .replace(
+      /^\s*Soru\s+(\d+)\s*Çözümü\s*:?\s*$/gim,
+      "### $1. Soru Çözümü",
+    )
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  return normalized;
+}
+
 async function generateVerifiedQuestionAnswer(
   prompt: string,
   attachments: NvidiaAttachment[],
@@ -923,8 +999,13 @@ async function generateVerifiedQuestionAnswer(
       [],
       attachments,
       options,
-      )
+    ),
   );
+
+  draft =
+    normalizeQuestionResponseStructure(
+      draft,
+    );
 
   const validationPrompt = isDeDaQuestion
     ? buildDeDaValidationPrompt(draft)
@@ -970,19 +1051,27 @@ async function generateVerifiedQuestionAnswer(
   let repaired = ensureSolutionAnswerLabels(
     await askNvidia(
       buildQuestionRepairPrompt(
-      prompt,
-      draft,
-      firstValidation,
+        prompt,
+        draft,
+        firstValidation,
       ),
       [],
       attachments,
       {
-      temperature: 0.12,
-      topP: 0.65,
-      maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
+        temperature: 0.12,
+        topP: 0.65,
+        maxTokens: Math.max(
+          options.maxTokens ?? 4096,
+          4096,
+        ),
       },
-      )
+    ),
   );
+
+  repaired =
+    normalizeQuestionResponseStructure(
+      repaired,
+    );
 
   const secondValidation = await askNvidia(
     isDeDaQuestion
@@ -1026,19 +1115,27 @@ async function generateVerifiedQuestionAnswer(
   let finalSafeAnswer = ensureSolutionAnswerLabels(
     await askNvidia(
       buildFinalSafeQuestionPrompt(
-      prompt,
-      repaired,
-      secondValidation,
+        prompt,
+        repaired,
+        secondValidation,
       ),
       [],
       attachments,
       {
-      temperature: 0.06,
-      topP: 0.45,
-      maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
+        temperature: 0.06,
+        topP: 0.45,
+        maxTokens: Math.max(
+          options.maxTokens ?? 4096,
+          4096,
+        ),
       },
-      )
+    ),
   );
+
+  finalSafeAnswer =
+    normalizeQuestionResponseStructure(
+      finalSafeAnswer,
+    );
 
   const thirdValidation = await askNvidia(
     isDeDaQuestion
@@ -1085,11 +1182,26 @@ async function generateVerifiedQuestionAnswer(
     .replace(/\s+/g, " ")
     .slice(0, 1500);
 
+  const finalStructure =
+    analyzeQuestionStructure(
+      finalSafeAnswer,
+    );
+
+  const structureReason = [
+    `complete=${finalStructure.complete}`,
+    `questionCount=${finalStructure.questionCount}`,
+    `answerKeyCount=${finalStructure.answerKeyCount}`,
+    `solutionCount=${finalStructure.solutionCount}`,
+    `missingSections=${finalStructure.missingSections.join(",") || "NONE"}`,
+    `missingOptions=${finalStructure.missingOptions.join(",") || "NONE"}`,
+  ].join(" ");
+
   throw new Error(
     [
       "Soru seti üç bağımsız kalite kontrolünden geçemedi.",
       "Hatalı soru kullanıcıya gösterilmedi.",
       `Son denetim sonucu: ${finalReason}`,
+      `Yapısal kontrol: ${structureReason}`,
     ].join(" "),
   );
 }
