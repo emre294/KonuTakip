@@ -175,12 +175,12 @@ function isValidationSuccessful(
   ];
 
   if (finalVerdicts.length > 0) {
-    const lastFinalVerdict =
+    const lastVerdict =
       finalVerdicts[
         finalVerdicts.length - 1
       ][1].toUpperCase();
 
-    return lastFinalVerdict === "VALID";
+    return lastVerdict === "VALID";
   }
 
   const standaloneVerdicts = [
@@ -190,18 +190,42 @@ function isValidationSuccessful(
   ];
 
   if (
-    standaloneVerdicts.length === 0
+    standaloneVerdicts.length > 0
   ) {
-    return false;
+    const lastVerdict =
+      standaloneVerdicts[
+        standaloneVerdicts.length - 1
+      ][1].toUpperCase();
+
+    return lastVerdict === "VALID";
   }
 
-  const lastStandaloneVerdict =
-    standaloneVerdicts[
-      standaloneVerdicts.length - 1
-    ][1].toUpperCase();
+  const targetCountMatch =
+    normalized.match(
+      /TARGET_COUNT\s*:\s*(\d+)/i,
+    );
+
+  const answerKeyMatch =
+    /ANSWER_KEY_MATCH\s*:\s*YES\b/i.test(
+      normalized,
+    );
+
+  const issueNone =
+    /ISSUE\s*:\s*(?:NONE|YOK)\b/i.test(
+      normalized,
+    );
+
+  const trueOptionCount = [
+    ...normalized.matchAll(
+      /(?:^|\n)\s*[A-E]\s*:\s*TRUE\b/gi,
+    ),
+  ].length;
 
   return (
-    lastStandaloneVerdict === "VALID"
+    targetCountMatch?.[1] === "1" &&
+    answerKeyMatch &&
+    issueNone &&
+    trueOptionCount === 1
   );
 }
 
@@ -937,7 +961,9 @@ function normalizeQuestionResponseStructure(
 ): string {
   let normalized = String(answer ?? "")
     .replace(/^\uFEFF/, "")
+    .replace(/[\u200B-\u200D\u2060]/g, "")
     .replace(/\r\n/g, "\n")
+    .replace(/\u00A0/g, " ")
     .trim();
 
   normalized = normalized
@@ -984,7 +1010,173 @@ function normalizeQuestionResponseStructure(
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  return normalized;
+  const alreadyCanonical =
+    /^##\s+Sorular\s*$/im.test(normalized) &&
+    /^##\s+Cevap Anahtarı\s*$/im.test(normalized) &&
+    /^##\s+Çözümler\s*$/im.test(normalized);
+
+  if (alreadyCanonical) {
+    return normalized;
+  }
+
+  const optionMatches = [
+    ...normalized.matchAll(
+      /^\s*([A-E])\s*[\).:\-]\s*(.+)$/gim,
+    ),
+  ];
+
+  const uniqueOptions = new Map();
+
+  for (const match of optionMatches) {
+    const letter =
+      match[1].toUpperCase();
+
+    if (!uniqueOptions.has(letter)) {
+      uniqueOptions.set(
+        letter,
+        match[2].trim(),
+      );
+    }
+  }
+
+  const hasFiveOptions =
+    ["A", "B", "C", "D", "E"].every(
+      (letter) =>
+        uniqueOptions.has(letter),
+    );
+
+  if (!hasFiveOptions) {
+    return normalized;
+  }
+
+  const firstOptionIndex =
+    normalized.search(
+      /^\s*A\s*[\).:\-]\s*/im,
+    );
+
+  if (firstOptionIndex === -1) {
+    return normalized;
+  }
+
+  let questionText =
+    normalized
+      .slice(0, firstOptionIndex)
+      .replace(
+        /^\s*#{1,6}\s*(?:soru|sorular|1\.\s*soru)\s*:?\s*$/gim,
+        "",
+      )
+      .replace(
+        /^\s*(?:soru|sorular|1\.\s*soru)\s*:?\s*$/gim,
+        "",
+      )
+      .trim();
+
+  const answerPatterns = [
+    /doğru\s*cevap\s*[:\-]\s*\**([A-E])\b/i,
+    /cevap\s*anahtarı[\s\S]{0,100}?\b1\s*[.)\-:]\s*\**([A-E])\b/i,
+    /cevap\s*[:\-]\s*\**([A-E])\b/i,
+    /\b1\s*[.)\-:]\s*\**([A-E])\b/i,
+  ];
+
+  let answerLetter = "";
+
+  for (const pattern of answerPatterns) {
+    const match =
+      normalized.match(pattern);
+
+    if (match?.[1]) {
+      answerLetter =
+        match[1].toUpperCase();
+
+      break;
+    }
+  }
+
+  if (!answerLetter) {
+    return normalized;
+  }
+
+  const solutionMarker =
+    normalized.search(
+      /(?:^|\n)\s*(?:#{1,6}\s*)?(?:çözüm|çözümler|cozum|cozumler|1\.\s*soru\s*çözümü)\s*:?\s*(?:\n|$)/i,
+    );
+
+  let solutionText = "";
+
+  if (solutionMarker !== -1) {
+    solutionText =
+      normalized
+        .slice(solutionMarker)
+        .replace(
+          /^\s*(?:#{1,6}\s*)?(?:çözüm|çözümler|cozum|cozumler|1\.\s*soru\s*çözümü)\s*:?\s*/i,
+          "",
+        )
+        .trim();
+  }
+
+  if (!solutionText) {
+    const lastOption =
+      optionMatches
+        .filter(
+          (match) =>
+            match[1].toUpperCase() === "E",
+        )
+        .at(-1);
+
+    if (lastOption?.index !== undefined) {
+      const afterOption =
+        normalized.slice(
+          lastOption.index +
+          lastOption[0].length,
+        );
+
+      solutionText = afterOption
+        .replace(
+          /(?:^|\n)\s*(?:cevap|cevap anahtarı|doğru cevap)\s*[:\-]?[\s\S]{0,30}?\b[A-E]\b/i,
+          "",
+        )
+        .trim();
+    }
+  }
+
+  if (!solutionText) {
+    solutionText =
+      "Doğru seçenek, soru kökü ve seçenekler karşılaştırılarak belirlenir.";
+  }
+
+  if (
+    !/doğru\s*cevap\s*:\s*[A-E]\b/i.test(
+      solutionText,
+    )
+  ) {
+    solutionText =
+      solutionText.trimEnd() +
+      `\n\n**Doğru cevap: ${answerLetter}**`;
+  }
+
+  return [
+    "## Sorular",
+    "",
+    "### 1. Soru",
+    questionText,
+    "",
+    ...["A", "B", "C", "D", "E"].map(
+      (letter) =>
+        `${letter}) ${uniqueOptions.get(letter)}`,
+    ),
+    "",
+    "## Cevap Anahtarı",
+    "",
+    `1. ${answerLetter}`,
+    "",
+    "## Çözümler",
+    "",
+    "### 1. Soru Çözümü",
+    solutionText,
+  ]
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 async function generateVerifiedQuestionAnswer(
