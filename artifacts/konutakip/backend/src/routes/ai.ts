@@ -714,14 +714,55 @@ function analyzeQuestionStructure(
       normalized,
     );
 
-  const optionLetters = [
-    ...normalized.matchAll(
-      /(?:^|\n)\s*([A-E])\s*[).:\-]\s+.+/gi,
+  /*
+   * Seçenekler şu biçimlerin tamamında algılanır:
+   *
+   * A) Metin
+   * **A)** Metin
+   * - A) Metin
+   * • **A.** Metin
+   * A - Metin
+   * A) ... B) ... C) ... aynı satır
+   */
+  let optionScanText = normalized;
+
+  const lineOptionPattern =
+    /^(?:\s*[-•*]\s*)?(?:\*\*)?\s*([A-E])\s*(?:\*\*)?\s*[).:\-]\s*.+$/gim;
+
+  let optionLetters = [
+    ...optionScanText.matchAll(
+      lineOptionPattern,
     ),
   ].map(
     (match) =>
       match[1].toUpperCase(),
   );
+
+  if (
+    new Set(optionLetters).size < 5
+  ) {
+    /*
+     * Model seçenekleri tek satırda döndürdüyse her seçenek
+     * etiketinin önüne gerçek satır sonu ekle.
+     *
+     * Yalnız A-E etiketi ve hemen arkasında ayraç bulunan
+     * kalıplara dokunulur; normal metindeki harfler etkilenmez.
+     */
+    optionScanText =
+      optionScanText.replace(
+        /[ \t]+(?=(?:\*\*)?\s*[A-E]\s*(?:\*\*)?\s*[).:\-]\s+)/g,
+        "\n",
+      );
+
+    optionLetters = [
+      ...optionScanText.matchAll(
+        lineOptionPattern,
+      ),
+    ].map(
+      (match) =>
+        match[1].toUpperCase(),
+    );
+  }
 
   const uniqueOptionLetters = [
     ...new Set(optionLetters),
@@ -1054,6 +1095,24 @@ function normalizeQuestionResponseStructure(
     )
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+  /*
+   * Aynı satırdaki A-E seçeneklerini standart satırlara ayır.
+   * Markdown kalın işaretleri ve madde işaretleri korunabilir;
+   * yapı analiz motoru bunları okuyabilir.
+   */
+  const inlineOptionCount = [
+    ...normalized.matchAll(
+      /(?:^|\s)(?:\*\*)?\s*([A-E])\s*(?:\*\*)?\s*[).:\-]\s+/g,
+    ),
+  ].length;
+
+  if (inlineOptionCount >= 5) {
+    normalized = normalized.replace(
+      /[ \t]+(?=(?:\*\*)?\s*[A-E]\s*(?:\*\*)?\s*[).:\-]\s+)/g,
+      "\n",
+    );
+  }
 
   const alreadyCanonical =
     /^##\s+Sorular\s*$/im.test(normalized) &&
