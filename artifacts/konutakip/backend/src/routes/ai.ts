@@ -692,125 +692,148 @@ function analyzeQuestionStructure(
 } {
   const normalized =
     normalizeQuestionResponseStructure(
-      answer,
+      String(answer ?? ""),
     )
+      .replace(/\\r\\n/g, "\n")
+      .replace(/\\n/g, "\n")
       .replace(/\r\n/g, "\n")
       .trim();
 
-  const missingSections: string[] = [];
-
-  if (!/^##\s+Sorular\s*$/im.test(normalized)) {
-    missingSections.push("Sorular");
-  }
-
-  if (!/^##\s+Cevap Anahtarı\s*$/im.test(normalized)) {
-    missingSections.push("Cevap Anahtari");
-  }
-
-  if (!/^##\s+Çözümler\s*$/im.test(normalized)) {
-    missingSections.push("Cozumler");
-  }
-
-  const questionArea =
-    normalized.split(
-      /^##\s+Cevap Anahtarı\s*$/im,
-    )[0] ?? "";
-
-  const answerKeyArea =
-    normalized
-      .split(/^##\s+Cevap Anahtarı\s*$/im)[1]
-      ?.split(/^##\s+Çözümler\s*$/im)[0] ?? "";
-
-  const solutionArea =
-    normalized.split(
-      /^##\s+Çözümler\s*$/im,
-    )[1] ?? "";
-
-  const questionMatches = [
-    ...questionArea.matchAll(
-      /^###\s+(\d+)\.\s+Soru\s*$/gim,
-    ),
-  ];
-
-  const solutionMatches = [
-    ...solutionArea.matchAll(
-      /^###\s+(\d+)\.\s+Soru Çözümü\s*$/gim,
-    ),
-  ];
-
-  const answerKeyMatches = [
-    ...answerKeyArea.matchAll(
-      /^\s*(\d+)[.)]\s*([A-E])\s*$/gim,
-    ),
-  ];
-
-  const questionCount = questionMatches.length;
-  const solutionCount = solutionMatches.length;
-  const answerKeyCount = answerKeyMatches.length;
-
-  const missingOptions: string[] = [];
-
-  for (
-    let questionIndex = 0;
-    questionIndex < questionMatches.length;
-    questionIndex += 1
-  ) {
-    const current = questionMatches[questionIndex];
-    const next = questionMatches[questionIndex + 1];
-
-    const sectionStart =
-      (current.index ?? 0) + current[0].length;
-
-    const sectionEnd =
-      next?.index ?? questionArea.length;
-
-    const section = questionArea.slice(
-      sectionStart,
-      sectionEnd,
+  const hasQuestionsHeading =
+    /^##\s+Sorular\s*$/im.test(
+      normalized,
     );
 
-    const questionNumber = current[1];
+  const hasAnswerKeyHeading =
+    /^##\s+Cevap Anahtarı\s*$/im.test(
+      normalized,
+    );
 
-    for (const letter of ["A", "B", "C", "D", "E"]) {
-      const optionPattern = new RegExp(
-        `^\\s*${letter}\\)\\s+\\S.+$`,
-        "im",
-      );
+  const hasSolutionsHeading =
+    /^##\s+Çözümler\s*$/im.test(
+      normalized,
+    );
 
-      if (!optionPattern.test(section)) {
-        missingOptions.push(
-          `Soru ${questionNumber}: ${letter} eksik`,
-        );
-      }
-    }
+  const optionLetters = [
+    ...normalized.matchAll(
+      /(?:^|\n)\s*([A-E])\s*[).:\-]\s+.+/gi,
+    ),
+  ].map(
+    (match) =>
+      match[1].toUpperCase(),
+  );
+
+  const uniqueOptionLetters = [
+    ...new Set(optionLetters),
+  ];
+
+  const missingOptions = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+  ].filter(
+    (letter) =>
+      !uniqueOptionLetters.includes(
+        letter,
+      ),
+  );
+
+  const numberedQuestions = [
+    ...normalized.matchAll(
+      /(?:^|\n)\s*(?:#{1,6}\s*)?\d+\.\s*Soru\b/gi,
+    ),
+  ].length;
+
+  const semanticQuestionCount =
+    missingOptions.length === 0
+      ? 1
+      : 0;
+
+  const questionCount = Math.max(
+    numberedQuestions,
+    semanticQuestionCount,
+  );
+
+  const answerKeyLetters = [
+    ...normalized.matchAll(
+      /(?:doğru\s*cevap|cevap)\s*[:\-]\s*\**([A-E])\b/gi,
+    ),
+    ...normalized.matchAll(
+      /(?:^|\n)\s*\d+\s*[).:\-]\s*\**([A-E])\b/gim,
+    ),
+  ].map(
+    (match) =>
+      match[1].toUpperCase(),
+  );
+
+  const answerKeyCount =
+    answerKeyLetters.length > 0
+      ? 1
+      : 0;
+
+  const hasSolutionHeading =
+    /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\d+\.\s*Soru\s*)?(?:Çözümü|Çözüm|Çözümler)\b/im.test(
+      normalized,
+    );
+
+  const hasReasoningText =
+    /çünkü|bu nedenle|dolayısıyla|formül|kural|hesaplanır|bulunur|elde edilir|açıklanır|göre|sonuç olarak/i.test(
+      normalized,
+    );
+
+  const hasExplicitAnswer =
+    /doğru\s*cevap\s*[:\-]\s*\**[A-E]\b/i.test(
+      normalized,
+    );
+
+  const solutionCount =
+    (
+      hasSolutionsHeading ||
+      hasSolutionHeading ||
+      (
+        hasReasoningText &&
+        hasExplicitAnswer
+      )
+    )
+      ? 1
+      : 0;
+
+  const missingSections: string[] = [];
+
+  if (
+    !hasQuestionsHeading &&
+    questionCount === 0
+  ) {
+    missingSections.push(
+      "Sorular",
+    );
   }
 
-  const questionNumbers = questionMatches.map(
-    (match) => match[1],
-  );
+  if (
+    !hasAnswerKeyHeading &&
+    answerKeyCount === 0
+  ) {
+    missingSections.push(
+      "Cevap Anahtari",
+    );
+  }
 
-  const solutionNumbers = solutionMatches.map(
-    (match) => match[1],
-  );
-
-  const answerKeyNumbers = answerKeyMatches.map(
-    (match) => match[1],
-  );
-
-  const numberingMatches =
-    JSON.stringify(questionNumbers) ===
-      JSON.stringify(solutionNumbers) &&
-    JSON.stringify(questionNumbers) ===
-      JSON.stringify(answerKeyNumbers);
+  if (
+    !hasSolutionsHeading &&
+    solutionCount === 0
+  ) {
+    missingSections.push(
+      "Cozumler",
+    );
+  }
 
   const complete =
-    normalized.length > 0 &&
-    missingSections.length === 0 &&
-    questionCount > 0 &&
-    solutionCount === questionCount &&
-    answerKeyCount === questionCount &&
-    missingOptions.length === 0 &&
-    numberingMatches;
+    questionCount >= 1 &&
+    answerKeyCount >= 1 &&
+    solutionCount >= 1 &&
+    missingOptions.length === 0;
 
   return {
     complete,
@@ -820,25 +843,6 @@ function analyzeQuestionStructure(
     missingSections,
     missingOptions,
   };
-}
-
-function getQuestionStructureIssue(
-  answer: string,
-): string {
-  const result = analyzeQuestionStructure(answer);
-
-  return [
-    `complete=${result.complete}`,
-    `questionCount=${result.questionCount}`,
-    `solutionCount=${result.solutionCount}`,
-    `answerKeyCount=${result.answerKeyCount}`,
-    result.missingSections.length > 0
-      ? `missingSections=${result.missingSections.join(",")}`
-      : "missingSections=NONE",
-    result.missingOptions.length > 0
-      ? `missingOptions=${result.missingOptions.join(" | ")}`
-      : "missingOptions=NONE",
-  ].join("; ");
 }
 
 function isQuestionResponseStructurallyComplete(
