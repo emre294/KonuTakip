@@ -1,4 +1,4 @@
-import { Router } from "express";
+﻿import { Router } from "express";
 import {
   askNvidia,
   type NvidiaAttachment,
@@ -31,16 +31,16 @@ function isAIFeature(value: string): value is AIFeature {
 }
 
 const QUESTION_GENERATION_PATTERNS = [
-  /\bsoru(?:su|ları|lar|luk|lik)?\b[\s\S]{0,60}\b(hazırla|oluştur|üret|yaz|sor)\b/i,
-  /\b(hazırla|oluştur|üret|yaz)\b[\s\S]{0,60}\bsoru(?:su|ları|lar|luk|lik)?\b/i,
-  /\b\d+\s*(?:adet|tane)?[\s\S]{0,40}\bsoru(?:su|ları|lar|luk|lik)?\b/i,
-  /\btest\b[\s\S]{0,40}\b(hazırla|oluştur|üret|yaz)\b/i,
-  /\bmini\s*(sınav|deneme)\b/i,
-  /\bçoktan\s*seçmeli\b/i,
-  /\b5\s*şık(?:lı)?\b/i,
-  /\bbeş\s*şık(?:lı)?\b/i,
+  /\bsoru(?:su|larÄ±|lar|luk|lik)?\b[\s\S]{0,60}\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz|sor)\b/i,
+  /\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz)\b[\s\S]{0,60}\bsoru(?:su|larÄ±|lar|luk|lik)?\b/i,
+  /\b\d+\s*(?:adet|tane)?[\s\S]{0,40}\bsoru(?:su|larÄ±|lar|luk|lik)?\b/i,
+  /\btest\b[\s\S]{0,40}\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz)\b/i,
+  /\bmini\s*(sÄ±nav|deneme)\b/i,
+  /\bÃ§oktan\s*seÃ§meli\b/i,
+  /\b5\s*ÅŸÄ±k(?:lÄ±)?\b/i,
+  /\bbeÅŸ\s*ÅŸÄ±k(?:lÄ±)?\b/i,
   /\bpratik\s*soru(?:su)?\b/i,
-  /\bcevap\s*anahtarı\b/i,
+  /\bcevap\s*anahtarÄ±\b/i,
 ];
 
 function isQuestionGenerationRequest(
@@ -63,41 +63,41 @@ function isQuestionGenerationRequest(
 }
 
 const TEACHER_QUESTION_GENERATION_RULES = `
-AI ÖĞRETMEN SORU ÜRETİM MODU:
+AI Ã–ÄžRETMEN SORU ÃœRETÄ°M MODU:
 
-Kullanıcı soru, test, mini sınav veya çoktan seçmeli alıştırma istiyor.
+KullanÄ±cÄ± soru, test, mini sÄ±nav veya Ã§oktan seÃ§meli alÄ±ÅŸtÄ±rma istiyor.
 
 ZORUNLU KURALLAR:
-- İstenen soru sayısına tam uy.
-- Her soru A, B, C, D ve E olmak üzere 5 seçenekli olsun.
-- Her soruda tam olarak bir doğru cevap bulunsun.
-- Her soruyu göndermeden önce sessizce çöz.
-- Bütün seçenekleri tek tek kontrol et.
-- Birden fazla doğru seçenek varsa soruyu yeniden oluştur.
-- Hiç doğru seçenek yoksa soruyu yeniden oluştur.
-- Doğru cevabı soru kökünde, başlıkta veya seçenek biçiminde ele verme.
-- Soru metnine çözüm, cevap veya öğretici ipucu ekleme.
-- Aynı, eş anlamlı veya birbirini kapsayan seçenekler üretme.
-- "Hepsi", "Hiçbiri" ve benzeri toplu seçenekleri kullanma.
-- Çeldiricileri gerçek öğrenci hatalarına dayandır.
-- Seçenek uzunluklarını birbirine yakın tut.
-- Cevap anahtarını bütün sorulardan sonra ayrı bölümde ver.
-- Çözümleri cevap anahtarından sonra ayrı bölümde ver.
-- Çözüm ile cevap anahtarının aynı sonucu verdiğini doğrula.
-- Her çözümün son satırında "**Doğru cevap: X**" yaz.
-- X yerine cevap anahtarındaki gerçek A-E harfini kullan.
-- Cevap harfini yazmadan çözümü bitirme.
+- Ä°stenen soru sayÄ±sÄ±na tam uy.
+- Her soru A, B, C, D ve E olmak Ã¼zere 5 seÃ§enekli olsun.
+- Her soruda tam olarak bir doÄŸru cevap bulunsun.
+- Her soruyu gÃ¶ndermeden Ã¶nce sessizce Ã§Ã¶z.
+- BÃ¼tÃ¼n seÃ§enekleri tek tek kontrol et.
+- Birden fazla doÄŸru seÃ§enek varsa soruyu yeniden oluÅŸtur.
+- HiÃ§ doÄŸru seÃ§enek yoksa soruyu yeniden oluÅŸtur.
+- DoÄŸru cevabÄ± soru kÃ¶kÃ¼nde, baÅŸlÄ±kta veya seÃ§enek biÃ§iminde ele verme.
+- Soru metnine Ã§Ã¶zÃ¼m, cevap veya Ã¶ÄŸretici ipucu ekleme.
+- AynÄ±, eÅŸ anlamlÄ± veya birbirini kapsayan seÃ§enekler Ã¼retme.
+- "Hepsi", "HiÃ§biri" ve benzeri toplu seÃ§enekleri kullanma.
+- Ã‡eldiricileri gerÃ§ek Ã¶ÄŸrenci hatalarÄ±na dayandÄ±r.
+- SeÃ§enek uzunluklarÄ±nÄ± birbirine yakÄ±n tut.
+- Cevap anahtarÄ±nÄ± bÃ¼tÃ¼n sorulardan sonra ayrÄ± bÃ¶lÃ¼mde ver.
+- Ã‡Ã¶zÃ¼mleri cevap anahtarÄ±ndan sonra ayrÄ± bÃ¶lÃ¼mde ver.
+- Ã‡Ã¶zÃ¼m ile cevap anahtarÄ±nÄ±n aynÄ± sonucu verdiÄŸini doÄŸrula.
+- Her Ã§Ã¶zÃ¼mÃ¼n son satÄ±rÄ±nda "**DoÄŸru cevap: X**" yaz.
+- X yerine cevap anahtarÄ±ndaki gerÃ§ek A-E harfini kullan.
+- Cevap harfini yazmadan Ã§Ã¶zÃ¼mÃ¼ bitirme.
 
-TÜRKÇE SORULARINDA:
-- Bağlaç olan "de/da" ayrı yazılır.
-- Bulunma hâl eki "-de/-da/-te/-ta" bitişik yazılır.
-- Bağlaç ile hâl ekini birbirine karıştırma.
-- Bağlaç olan "ki" ayrı, ek olan "-ki" bitişik yazılır.
-- "mi" soru edatı ayrı yazılır.
-- Bütün seçenekleri kurala göre ayrı ayrı kontrol et.
-- Tartışmalı veya birden fazla doğru cevap doğurabilecek örnek kullanma.
+TÃœRKÃ‡E SORULARINDA:
+- BaÄŸlaÃ§ olan "de/da" ayrÄ± yazÄ±lÄ±r.
+- Bulunma hÃ¢l eki "-de/-da/-te/-ta" bitiÅŸik yazÄ±lÄ±r.
+- BaÄŸlaÃ§ ile hÃ¢l ekini birbirine karÄ±ÅŸtÄ±rma.
+- BaÄŸlaÃ§ olan "ki" ayrÄ±, ek olan "-ki" bitiÅŸik yazÄ±lÄ±r.
+- "mi" soru edatÄ± ayrÄ± yazÄ±lÄ±r.
+- BÃ¼tÃ¼n seÃ§enekleri kurala gÃ¶re ayrÄ± ayrÄ± kontrol et.
+- TartÄ±ÅŸmalÄ± veya birden fazla doÄŸru cevap doÄŸurabilecek Ã¶rnek kullanma.
 
-ÇIKTI DÜZENİ:
+Ã‡IKTI DÃœZENÄ°:
 ## Sorular
 
 ### 1. Soru
@@ -109,45 +109,45 @@ C) ...
 D) ...
 E) ...
 
-## Cevap Anahtarı
+## Cevap AnahtarÄ±
 
 1. X
 
-## Çözümler
+## Ã‡Ã¶zÃ¼mler
 
-### 1. Soru Çözümü
-Kısa, doğru ve adım adım çözüm.
+### 1. Soru Ã‡Ã¶zÃ¼mÃ¼
+KÄ±sa, doÄŸru ve adÄ±m adÄ±m Ã§Ã¶zÃ¼m.
 
-Yalnızca okunabilir Türkçe Markdown üret.
-JSON, HTML veya kod bloğu üretme.
-Cevabın başında boş satır bırakma.
+YalnÄ±zca okunabilir TÃ¼rkÃ§e Markdown Ã¼ret.
+JSON, HTML veya kod bloÄŸu Ã¼retme.
+CevabÄ±n baÅŸÄ±nda boÅŸ satÄ±r bÄ±rakma.
 `.trim();
 
 function buildDeDaValidationPrompt(
   answer: string,
 ): string {
   return `
-Aşağıdaki de/da sorularını çok sıkı biçimde denetle.
+AÅŸaÄŸÄ±daki de/da sorularÄ±nÄ± Ã§ok sÄ±kÄ± biÃ§imde denetle.
 
-HER SORU İÇİN:
-1. Soru kökü "doğrudur" mu, "yanlıştır" mı belirle.
-2. A, B, C, D ve E seçeneklerini tek tek çöz.
-3. Her seçeneği DOĞRU veya YANLIŞ diye sınıflandır.
-4. "Yanlıştır" sorusunda tam olarak 1 yanlış ve 4 doğru olmalı.
-5. "Doğrudur" sorusunda tam olarak 1 doğru ve 4 yanlış olmalı.
-6. İki veya daha fazla hedef seçenek varsa INVALID yaz.
-7. Hiç hedef seçenek yoksa INVALID yaz.
-8. Anlatım bozukluğu veya doğal olmayan cümle varsa INVALID yaz.
-9. Cevap anahtarı çözümle uyuşmuyorsa INVALID yaz.
-10. "de/da" bağlacı ayrı, bulunma hâl eki bitişik yazılmalıdır.
-11. Özel adlara gelen ek kesme işaretiyle ayrılmalıdır.
-12. Bağlaç olan de/da hiçbir zaman te/ta olmaz.
+HER SORU Ä°Ã‡Ä°N:
+1. Soru kÃ¶kÃ¼ "doÄŸrudur" mu, "yanlÄ±ÅŸtÄ±r" mÄ± belirle.
+2. A, B, C, D ve E seÃ§eneklerini tek tek Ã§Ã¶z.
+3. Her seÃ§eneÄŸi DOÄžRU veya YANLIÅž diye sÄ±nÄ±flandÄ±r.
+4. "YanlÄ±ÅŸtÄ±r" sorusunda tam olarak 1 yanlÄ±ÅŸ ve 4 doÄŸru olmalÄ±.
+5. "DoÄŸrudur" sorusunda tam olarak 1 doÄŸru ve 4 yanlÄ±ÅŸ olmalÄ±.
+6. Ä°ki veya daha fazla hedef seÃ§enek varsa INVALID yaz.
+7. HiÃ§ hedef seÃ§enek yoksa INVALID yaz.
+8. AnlatÄ±m bozukluÄŸu veya doÄŸal olmayan cÃ¼mle varsa INVALID yaz.
+9. Cevap anahtarÄ± Ã§Ã¶zÃ¼mle uyuÅŸmuyorsa INVALID yaz.
+10. "de/da" baÄŸlacÄ± ayrÄ±, bulunma hÃ¢l eki bitiÅŸik yazÄ±lmalÄ±dÄ±r.
+11. Ã–zel adlara gelen ek kesme iÅŸaretiyle ayrÄ±lmalÄ±dÄ±r.
+12. BaÄŸlaÃ§ olan de/da hiÃ§bir zaman te/ta olmaz.
 
 YANIT:
-- Bütün sorular kusursuzsa yalnızca VALID yaz.
-- Sorun varsa INVALID: ile başla.
-- Hatalı soru numarasını, hedef seçenek sayısını ve hatalı seçenekleri yaz.
-- Başka açıklama ekleme.
+- BÃ¼tÃ¼n sorular kusursuzsa yalnÄ±zca VALID yaz.
+- Sorun varsa INVALID: ile baÅŸla.
+- HatalÄ± soru numarasÄ±nÄ±, hedef seÃ§enek sayÄ±sÄ±nÄ± ve hatalÄ± seÃ§enekleri yaz.
+- BaÅŸka aÃ§Ä±klama ekleme.
 
 SORULAR:
 
@@ -163,7 +163,7 @@ function isValidationSuccessful(
   )
     .replace(/^\uFEFF/, "")
     .replace(/[\u200B-\u200D\u2060]/g, "")
-    .replace(/：/g, ":")
+    .replace(/ï¼š/g, ":")
     .replace(/\r\n/g, "\n")
     .replace(/[\*_\x60]/g, "")
     .trim();
@@ -235,83 +235,83 @@ function buildFinalSafeQuestionPrompt(
   validation: string,
 ): string {
   return `
-Aşağıdaki soru üretim isteğini sıfırdan yeniden hazırla.
+AÅŸaÄŸÄ±daki soru Ã¼retim isteÄŸini sÄ±fÄ±rdan yeniden hazÄ±rla.
 
-Bu son ve en sıkı üretim turudur.
+Bu son ve en sÄ±kÄ± Ã¼retim turudur.
 
-ORİJİNAL İSTEK:
+ORÄ°JÄ°NAL Ä°STEK:
 
 ${originalPrompt}
 
-ÖNCEKİ HATALI TASLAK:
+Ã–NCEKÄ° HATALI TASLAK:
 
 ${previousAnswer}
 
-DENETİM HATALARI:
+DENETÄ°M HATALARI:
 
 ${validation}
 
 ZORUNLU KURALLAR:
 
-- Önceki taslağı düzeltmeye çalışma; soruyu tamamen yeniden üret.
-- İstenen soru sayısına tam uy.
-- Her soru A, B, C, D ve E olmak üzere 5 seçenekli olsun.
-- Her soruda tam olarak bir doğru cevap bulunsun.
-- Bütün seçenekleri tek tek çözmeden cevabı gönderme.
-- Cevap anahtarı ile çözüm birebir uyumlu olsun.
-- Tartışmalı, istisnalı veya birden fazla yoruma açık soru kullanma.
-- Şekil olmadan çözülemeyen soru üretme.
-- Müfredat dışı ayrıntı kullanma.
-- Soru zorluğunu uzunlukla değil düşünme gereksinimiyle oluştur.
-- Cevabı soru kökünde ele verme.
-- Çözümü kısa, doğru ve yeterli yaz.
-- Her çözümün sonunda cevap anahtarındaki harfi "**Doğru cevap: X**" biçiminde yaz.
-- Cevap harfi cevap anahtarıyla birebir aynı olmalıdır.
-- Yalnızca nihai soruları göster.
-- Denetim notlarını kullanıcıya gösterme.
+- Ã–nceki taslaÄŸÄ± dÃ¼zeltmeye Ã§alÄ±ÅŸma; soruyu tamamen yeniden Ã¼ret.
+- Ä°stenen soru sayÄ±sÄ±na tam uy.
+- Her soru A, B, C, D ve E olmak Ã¼zere 5 seÃ§enekli olsun.
+- Her soruda tam olarak bir doÄŸru cevap bulunsun.
+- BÃ¼tÃ¼n seÃ§enekleri tek tek Ã§Ã¶zmeden cevabÄ± gÃ¶nderme.
+- Cevap anahtarÄ± ile Ã§Ã¶zÃ¼m birebir uyumlu olsun.
+- TartÄ±ÅŸmalÄ±, istisnalÄ± veya birden fazla yoruma aÃ§Ä±k soru kullanma.
+- Åžekil olmadan Ã§Ã¶zÃ¼lemeyen soru Ã¼retme.
+- MÃ¼fredat dÄ±ÅŸÄ± ayrÄ±ntÄ± kullanma.
+- Soru zorluÄŸunu uzunlukla deÄŸil dÃ¼ÅŸÃ¼nme gereksinimiyle oluÅŸtur.
+- CevabÄ± soru kÃ¶kÃ¼nde ele verme.
+- Ã‡Ã¶zÃ¼mÃ¼ kÄ±sa, doÄŸru ve yeterli yaz.
+- Her Ã§Ã¶zÃ¼mÃ¼n sonunda cevap anahtarÄ±ndaki harfi "**DoÄŸru cevap: X**" biÃ§iminde yaz.
+- Cevap harfi cevap anahtarÄ±yla birebir aynÄ± olmalÄ±dÄ±r.
+- YalnÄ±zca nihai sorularÄ± gÃ¶ster.
+- Denetim notlarÄ±nÄ± kullanÄ±cÄ±ya gÃ¶sterme.
 
-MATEMATİK:
+MATEMATÄ°K:
 - Sonucu yeniden hesapla.
-- Yüzde, kâr, indirim ve karışım oranlarının hangi değer üzerinden alındığını kontrol et.
-- Geometri sorusunda verilenlerin tek sonuca yettiğini doğrula.
-- Aynı sayısal değeri veren iki seçenek oluşturma.
+- YÃ¼zde, kÃ¢r, indirim ve karÄ±ÅŸÄ±m oranlarÄ±nÄ±n hangi deÄŸer Ã¼zerinden alÄ±ndÄ±ÄŸÄ±nÄ± kontrol et.
+- Geometri sorusunda verilenlerin tek sonuca yettiÄŸini doÄŸrula.
+- AynÄ± sayÄ±sal deÄŸeri veren iki seÃ§enek oluÅŸturma.
 
-FİZİK:
-- TYT düzeyinde günlük yaşam, grafik ve temel yorum ağırlıklı soru üret.
-- Kullanıcı özellikle istemedikçe eğik düzlem sürtünmesi, basit harmonik hareket veya ileri işlem kullanma.
-- Yön, işaret, vektör ve birimleri kontrol et.
-- Tam değer ile yaklaşık değeri iki farklı doğru seçenek hâline getirme.
+FÄ°ZÄ°K:
+- TYT dÃ¼zeyinde gÃ¼nlÃ¼k yaÅŸam, grafik ve temel yorum aÄŸÄ±rlÄ±klÄ± soru Ã¼ret.
+- KullanÄ±cÄ± Ã¶zellikle istemedikÃ§e eÄŸik dÃ¼zlem sÃ¼rtÃ¼nmesi, basit harmonik hareket veya ileri iÅŸlem kullanma.
+- YÃ¶n, iÅŸaret, vektÃ¶r ve birimleri kontrol et.
+- Tam deÄŸer ile yaklaÅŸÄ±k deÄŸeri iki farklÄ± doÄŸru seÃ§enek hÃ¢line getirme.
 
-KİMYA:
-- TYT sorularında kompleks iyon, ileri denge veya tartışmalı moleküller arası etkileşim örnekleri kullanma.
-- Atom, yük ve denklem denkliğini kontrol et.
-- Redoks sorusunda bütün seçeneklerin yükseltgenme basamaklarını ayrı ayrı kontrol et.
-- Birden fazla doğru tepkime oluşturma.
+KÄ°MYA:
+- TYT sorularÄ±nda kompleks iyon, ileri denge veya tartÄ±ÅŸmalÄ± molekÃ¼ller arasÄ± etkileÅŸim Ã¶rnekleri kullanma.
+- Atom, yÃ¼k ve denklem denkliÄŸini kontrol et.
+- Redoks sorusunda bÃ¼tÃ¼n seÃ§eneklerin yÃ¼kseltgenme basamaklarÄ±nÄ± ayrÄ± ayrÄ± kontrol et.
+- Birden fazla doÄŸru tepkime oluÅŸturma.
 
-BİYOLOJİ:
-- Salt ezber yerine kısa deney, gözlem veya neden-sonuç yorumu kullan.
-- Organelleri yalnızca tek göreve sahipmiş gibi anlatma.
-- Kloroplast ve mitokondride ATP üretimi gibi bilimsel ayrıntıları yanlış sınıflandırma.
-- "Her zaman", "yalnızca" ve "kesinlikle" ifadelerini dikkatle kontrol et.
+BÄ°YOLOJÄ°:
+- Salt ezber yerine kÄ±sa deney, gÃ¶zlem veya neden-sonuÃ§ yorumu kullan.
+- Organelleri yalnÄ±zca tek gÃ¶reve sahipmiÅŸ gibi anlatma.
+- Kloroplast ve mitokondride ATP Ã¼retimi gibi bilimsel ayrÄ±ntÄ±larÄ± yanlÄ±ÅŸ sÄ±nÄ±flandÄ±rma.
+- "Her zaman", "yalnÄ±zca" ve "kesinlikle" ifadelerini dikkatle kontrol et.
 
-TÜRKÇE:
-- Doğru cevap yalnızca metinden çıkarılabilsin.
-- Yakın anlamlı iki seçenek birlikte doğru olmasın.
-- Dil bilgisi sorularında bütün seçenekleri TDK kuralına göre kontrol et.
+TÃœRKÃ‡E:
+- DoÄŸru cevap yalnÄ±zca metinden Ã§Ä±karÄ±labilsin.
+- YakÄ±n anlamlÄ± iki seÃ§enek birlikte doÄŸru olmasÄ±n.
+- Dil bilgisi sorularÄ±nda bÃ¼tÃ¼n seÃ§enekleri TDK kuralÄ±na gÃ¶re kontrol et.
 
-TARİH:
-- Yalnızca doğruluğundan emin olduğun tarih, olay, kişi ve devlet bilgilerini kullan.
-- Kronoloji sorusunda sıralamayı yeniden kontrol et.
-- Tartışmalı yorumu kesin bilgi gibi sunma.
-- Ezber ayrıntısı yerine neden-sonuç ve kavram bilgisi ölç.
+TARÄ°H:
+- YalnÄ±zca doÄŸruluÄŸundan emin olduÄŸun tarih, olay, kiÅŸi ve devlet bilgilerini kullan.
+- Kronoloji sorusunda sÄ±ralamayÄ± yeniden kontrol et.
+- TartÄ±ÅŸmalÄ± yorumu kesin bilgi gibi sunma.
+- Ezber ayrÄ±ntÄ±sÄ± yerine neden-sonuÃ§ ve kavram bilgisi Ã¶lÃ§.
 
-COĞRAFYA:
-- Ölçek ve birim dönüşümünü yeniden hesapla.
-- Harita, yön ve projeksiyon sorularında genellemeleri kontrol et.
-- Görsel olmadan çözülemeyen soru üretme.
-- "Kuzey her zaman üsttedir" gibi istisnası bulunan genellemeleri kesin kural gibi kullanma.
+COÄžRAFYA:
+- Ã–lÃ§ek ve birim dÃ¶nÃ¼ÅŸÃ¼mÃ¼nÃ¼ yeniden hesapla.
+- Harita, yÃ¶n ve projeksiyon sorularÄ±nda genellemeleri kontrol et.
+- GÃ¶rsel olmadan Ã§Ã¶zÃ¼lemeyen soru Ã¼retme.
+- "Kuzey her zaman Ã¼sttedir" gibi istisnasÄ± bulunan genellemeleri kesin kural gibi kullanma.
 
-ÇIKTI DÜZENİ:
+Ã‡IKTI DÃœZENÄ°:
 
 ## Sorular
 
@@ -324,14 +324,14 @@ C) ...
 D) ...
 E) ...
 
-## Cevap Anahtarı
+## Cevap AnahtarÄ±
 
 1. X
 
-## Çözümler
+## Ã‡Ã¶zÃ¼mler
 
-### 1. Soru Çözümü
-Kısa ve doğrulanmış çözüm.
+### 1. Soru Ã‡Ã¶zÃ¼mÃ¼
+KÄ±sa ve doÄŸrulanmÄ±ÅŸ Ã§Ã¶zÃ¼m.
 `.trim();
 }
 
@@ -391,15 +391,15 @@ function isInconclusiveZeroTargetValidation(
 
   const hasZeroTarget =
     /target_count:\s*0\b/.test(normalized) ||
-    /hedef seçenek sayısı\s*0\b/.test(normalized) ||
-    /0 hedef seçenek\b/.test(normalized);
+    /hedef seÃ§enek sayÄ±sÄ±\s*0\b/.test(normalized) ||
+    /0 hedef seÃ§enek\b/.test(normalized);
 
   const hasNoConcreteFault =
-    /hatalı seçenek(?:ler)?\s*[-:]*\s*(?:yok|-|none)\b/.test(
+    /hatalÄ± seÃ§enek(?:ler)?\s*[-:]*\s*(?:yok|-|none)\b/.test(
       normalized,
     ) ||
     /issue:\s*none\b/.test(normalized) ||
-    /hatalı seçenek yok\b/.test(normalized);
+    /hatalÄ± seÃ§enek yok\b/.test(normalized);
 
   return hasZeroTarget && hasNoConcreteFault;
 }
@@ -410,31 +410,31 @@ function buildQuestionAdjudicationPrompt(
   previousValidation: string,
 ): string {
   return `
-Sen önceki validatordan tamamen bağımsız son karar hakemisin.
+Sen Ã¶nceki validatordan tamamen baÄŸÄ±msÄ±z son karar hakemisin.
 
-ÖNCEKİ VALIDATOR KARARSIZ SONUÇ ÜRETTİ:
+Ã–NCEKÄ° VALIDATOR KARARSIZ SONUÃ‡ ÃœRETTÄ°:
 
 ${previousValidation}
 
-Bu sonuçta "0 hedef seçenek" denmesine rağmen somut hatalı seçenek
-gösterilmemiş olabilir. Önceki karara güvenme.
+Bu sonuÃ§ta "0 hedef seÃ§enek" denmesine raÄŸmen somut hatalÄ± seÃ§enek
+gÃ¶sterilmemiÅŸ olabilir. Ã–nceki karara gÃ¼venme.
 
-ZORUNLU İŞLEM:
+ZORUNLU Ä°ÅžLEM:
 
-1. Soru kökünü dikkatle oku.
-2. Soru "hangisi doğrudur" diyorsa doğru seçenekleri say.
-3. Soru "hangisi yanlıştır" diyorsa yanlış seçenekleri say.
-4. A, B, C, D ve E seçeneklerini bağımsız biçimde çöz.
-5. Her seçeneğin neden doğru veya yanlış olduğunu içinden doğrula.
-6. Cevap anahtarına güvenmeden kendi cevabını bul.
-7. Kendi cevabını cevap anahtarıyla karşılaştır.
-8. Çözümün kendi bulduğun cevabı desteklediğini kontrol et.
+1. Soru kÃ¶kÃ¼nÃ¼ dikkatle oku.
+2. Soru "hangisi doÄŸrudur" diyorsa doÄŸru seÃ§enekleri say.
+3. Soru "hangisi yanlÄ±ÅŸtÄ±r" diyorsa yanlÄ±ÅŸ seÃ§enekleri say.
+4. A, B, C, D ve E seÃ§eneklerini baÄŸÄ±msÄ±z biÃ§imde Ã§Ã¶z.
+5. Her seÃ§eneÄŸin neden doÄŸru veya yanlÄ±ÅŸ olduÄŸunu iÃ§inden doÄŸrula.
+6. Cevap anahtarÄ±na gÃ¼venmeden kendi cevabÄ±nÄ± bul.
+7. Kendi cevabÄ±nÄ± cevap anahtarÄ±yla karÅŸÄ±laÅŸtÄ±r.
+8. Ã‡Ã¶zÃ¼mÃ¼n kendi bulduÄŸun cevabÄ± desteklediÄŸini kontrol et.
 9. Bilimsel, matematiksel veya dil bilgisel hata varsa INVALID ver.
-10. Tam olarak bir hedef seçenek varsa, cevap anahtarı ve çözüm de
+10. Tam olarak bir hedef seÃ§enek varsa, cevap anahtarÄ± ve Ã§Ã¶zÃ¼m de
     onunla uyumluysa VALID ver.
-11. Emin değilsen VALID verme.
+11. Emin deÄŸilsen VALID verme.
 
-YANIT BİÇİMİ:
+YANIT BÄ°Ã‡Ä°MÄ°:
 
 QUESTION 1
 STEM_TARGET: TRUE veya FALSE
@@ -444,13 +444,13 @@ C: TRUE veya FALSE
 D: TRUE veya FALSE
 E: TRUE veya FALSE
 STEM_TARGET: TRUE veya FALSE
-TARGET_COUNT: sayı
+TARGET_COUNT: sayÄ±
 INDEPENDENT_ANSWER: A-E
 ANSWER_KEY_MATCH: YES veya NO
 SOLUTION_MATCH: YES veya NO
 ISSUE: NONE veya somut hata
 
-En son yalnızca şu satırlardan biriyle bitir:
+En son yalnÄ±zca ÅŸu satÄ±rlardan biriyle bitir:
 
 FINAL: VALID
 
@@ -460,7 +460,7 @@ FINAL: INVALID
 REASONS:
 - Somut hata
 
-ORİJİNAL İSTEK:
+ORÄ°JÄ°NAL Ä°STEK:
 
 ${originalPrompt}
 
@@ -509,71 +509,71 @@ function buildSubjectAuditPrompt(
   answer: string,
 ): string {
   return `
-Aşağıdaki soru setini soruları üreten öğretmenden bağımsız,
-çok sıkı bir YKS editörü olarak denetle.
+AÅŸaÄŸÄ±daki soru setini sorularÄ± Ã¼reten Ã¶ÄŸretmenden baÄŸÄ±msÄ±z,
+Ã§ok sÄ±kÄ± bir YKS editÃ¶rÃ¼ olarak denetle.
 
-ÖNEMLİ:
-- Soru üretme.
-- Yalnızca öğrenciyi yanlış yönlendirecek gerçek hatalarda INVALID kararı ver.
-- Üslup, uzunluk, başlık, küçük ifade tercihi veya çeldirici gücü gibi küçük sorunlarda INVALID verme.
-- Tek doğru cevap, bilimsel doğruluk, cevap anahtarı ve çözüm doğruysa FINAL: VALID ile bitir.
-- Önce bütün soruları kendin çöz.
-- Cevap anahtarına güvenme.
-- Her seçeneği ayrı ayrı incele.
-- Benzer görünen seçenekleri eş değerlik açısından kontrol et.
-- Tam olarak bir doğru seçenek yoksa set geçersizdir.
-- Bilimsel veya matematiksel olarak tartışmalı ifade varsa set geçersizdir.
-- Müfredat dışı veya sınav türüne uygun olmayan soru varsa set geçersizdir.
-- Çözüm yanlış, çelişkili veya cevap anahtarıyla uyumsuzsa set geçersizdir.
-- Çözümün matematiksel, bilimsel veya mantıksal sonucu cevap anahtarıyla uyumlu olmalıdır.
-- Çözüm sonunda bulunan "Doğru cevap: X" satırı cevap anahtarıyla aynı olmalıdır.
-- Harf etiketi eksikse yalnızca biçim sorunu olarak belirt; çözüm ve cevap anahtarı doğruysa INVALID verme.
-- Küçük anlatım ve biçim sorunlarını ISSUE alanına yaz fakat seti geçersiz sayma.
+Ã–NEMLÄ°:
+- Soru Ã¼retme.
+- YalnÄ±zca Ã¶ÄŸrenciyi yanlÄ±ÅŸ yÃ¶nlendirecek gerÃ§ek hatalarda INVALID kararÄ± ver.
+- Ãœslup, uzunluk, baÅŸlÄ±k, kÃ¼Ã§Ã¼k ifade tercihi veya Ã§eldirici gÃ¼cÃ¼ gibi kÃ¼Ã§Ã¼k sorunlarda INVALID verme.
+- Tek doÄŸru cevap, bilimsel doÄŸruluk, cevap anahtarÄ± ve Ã§Ã¶zÃ¼m doÄŸruysa FINAL: VALID ile bitir.
+- Ã–nce bÃ¼tÃ¼n sorularÄ± kendin Ã§Ã¶z.
+- Cevap anahtarÄ±na gÃ¼venme.
+- Her seÃ§eneÄŸi ayrÄ± ayrÄ± incele.
+- Benzer gÃ¶rÃ¼nen seÃ§enekleri eÅŸ deÄŸerlik aÃ§Ä±sÄ±ndan kontrol et.
+- Tam olarak bir doÄŸru seÃ§enek yoksa set geÃ§ersizdir.
+- Bilimsel veya matematiksel olarak tartÄ±ÅŸmalÄ± ifade varsa set geÃ§ersizdir.
+- MÃ¼fredat dÄ±ÅŸÄ± veya sÄ±nav tÃ¼rÃ¼ne uygun olmayan soru varsa set geÃ§ersizdir.
+- Ã‡Ã¶zÃ¼m yanlÄ±ÅŸ, Ã§eliÅŸkili veya cevap anahtarÄ±yla uyumsuzsa set geÃ§ersizdir.
+- Ã‡Ã¶zÃ¼mÃ¼n matematiksel, bilimsel veya mantÄ±ksal sonucu cevap anahtarÄ±yla uyumlu olmalÄ±dÄ±r.
+- Ã‡Ã¶zÃ¼m sonunda bulunan "DoÄŸru cevap: X" satÄ±rÄ± cevap anahtarÄ±yla aynÄ± olmalÄ±dÄ±r.
+- Harf etiketi eksikse yalnÄ±zca biÃ§im sorunu olarak belirt; Ã§Ã¶zÃ¼m ve cevap anahtarÄ± doÄŸruysa INVALID verme.
+- KÃ¼Ã§Ã¼k anlatÄ±m ve biÃ§im sorunlarÄ±nÄ± ISSUE alanÄ±na yaz fakat seti geÃ§ersiz sayma.
 
-MATEMATİK:
-- Her işlemi bağımsız yeniden yap.
-- Yüzde, kâr, indirim ve karışım sorularında oranın hangi büyüklük üzerinden alındığını kontrol et.
-- Birim, yuvarlama, tanım kümesi ve özel durumları kontrol et.
-- Aynı değeri veren iki farklı seçenek bulunup bulunmadığını kontrol et.
-- Geometri sorularında verilenlerin tek bir sonuca yetip yetmediğini kontrol et.
+MATEMATÄ°K:
+- Her iÅŸlemi baÄŸÄ±msÄ±z yeniden yap.
+- YÃ¼zde, kÃ¢r, indirim ve karÄ±ÅŸÄ±m sorularÄ±nda oranÄ±n hangi bÃ¼yÃ¼klÃ¼k Ã¼zerinden alÄ±ndÄ±ÄŸÄ±nÄ± kontrol et.
+- Birim, yuvarlama, tanÄ±m kÃ¼mesi ve Ã¶zel durumlarÄ± kontrol et.
+- AynÄ± deÄŸeri veren iki farklÄ± seÃ§enek bulunup bulunmadÄ±ÄŸÄ±nÄ± kontrol et.
+- Geometri sorularÄ±nda verilenlerin tek bir sonuca yetip yetmediÄŸini kontrol et.
 
-FİZİK:
-- Net kuvvet, yön, işaret, vektör ve birimleri kontrol et.
-- Yaklaşık değer ile tam değerin iki ayrı doğru seçenek oluşturup oluşturmadığını kontrol et.
-- Şekil olmadan çözülemeyen soru varsa geçersiz say.
-- TYT sorusunda gereksiz ileri düzey içerik varsa belirt.
+FÄ°ZÄ°K:
+- Net kuvvet, yÃ¶n, iÅŸaret, vektÃ¶r ve birimleri kontrol et.
+- YaklaÅŸÄ±k deÄŸer ile tam deÄŸerin iki ayrÄ± doÄŸru seÃ§enek oluÅŸturup oluÅŸturmadÄ±ÄŸÄ±nÄ± kontrol et.
+- Åžekil olmadan Ã§Ã¶zÃ¼lemeyen soru varsa geÃ§ersiz say.
+- TYT sorusunda gereksiz ileri dÃ¼zey iÃ§erik varsa belirt.
 
-KİMYA:
-- Bütün seçeneklerde yükseltgenme basamaklarını ayrı ayrı kontrol et.
-- Birden fazla redoks, çökelme veya doğru tepkime bulunup bulunmadığını kontrol et.
-- Denklemde atom ve yük denkliğini kontrol et.
-- TYT kapsamını aşan kompleks iyon veya ileri ayrıntıyı kontrol et.
-- "Her zaman", "tümü" gibi genellemelerin istisnalarını kontrol et.
+KÄ°MYA:
+- BÃ¼tÃ¼n seÃ§eneklerde yÃ¼kseltgenme basamaklarÄ±nÄ± ayrÄ± ayrÄ± kontrol et.
+- Birden fazla redoks, Ã§Ã¶kelme veya doÄŸru tepkime bulunup bulunmadÄ±ÄŸÄ±nÄ± kontrol et.
+- Denklemde atom ve yÃ¼k denkliÄŸini kontrol et.
+- TYT kapsamÄ±nÄ± aÅŸan kompleks iyon veya ileri ayrÄ±ntÄ±yÄ± kontrol et.
+- "Her zaman", "tÃ¼mÃ¼" gibi genellemelerin istisnalarÄ±nÄ± kontrol et.
 
-BİYOLOJİ:
-- Organellerin birden fazla işlevi olabileceğini dikkate al.
-- Kloroplastta ATP üretimi gibi bilimsel istisnaları kontrol et.
-- "Kesinlikle", "yalnızca", "her zaman" ifadelerini kontrol et.
-- Birden fazla doğru yoruma izin veren seçenek varsa geçersiz say.
+BÄ°YOLOJÄ°:
+- Organellerin birden fazla iÅŸlevi olabileceÄŸini dikkate al.
+- Kloroplastta ATP Ã¼retimi gibi bilimsel istisnalarÄ± kontrol et.
+- "Kesinlikle", "yalnÄ±zca", "her zaman" ifadelerini kontrol et.
+- Birden fazla doÄŸru yoruma izin veren seÃ§enek varsa geÃ§ersiz say.
 
-TÜRKÇE VE EDEBİYAT:
-- Doğru cevap yalnızca metinden çıkarılabilmeli.
-- Yakın anlamlı iki seçeneğin birlikte doğru olup olmadığını kontrol et.
-- Yazım ve dil bilgisi sorularında bütün seçenekleri ayrı ayrı çöz.
-- Olumsuz soru kökünü ve cevap anahtarını kontrol et.
+TÃœRKÃ‡E VE EDEBÄ°YAT:
+- DoÄŸru cevap yalnÄ±zca metinden Ã§Ä±karÄ±labilmeli.
+- YakÄ±n anlamlÄ± iki seÃ§eneÄŸin birlikte doÄŸru olup olmadÄ±ÄŸÄ±nÄ± kontrol et.
+- YazÄ±m ve dil bilgisi sorularÄ±nda bÃ¼tÃ¼n seÃ§enekleri ayrÄ± ayrÄ± Ã§Ã¶z.
+- Olumsuz soru kÃ¶kÃ¼nÃ¼ ve cevap anahtarÄ±nÄ± kontrol et.
 
-TARİH:
-- Tarih, devlet, kişi, antlaşma ve olay eşleşmelerini kontrol et.
-- Kronolojiyi bağımsız olarak sırala.
-- Tartışmalı yorumu kesin bilgi gibi sunan soruyu geçersiz say.
+TARÄ°H:
+- Tarih, devlet, kiÅŸi, antlaÅŸma ve olay eÅŸleÅŸmelerini kontrol et.
+- Kronolojiyi baÄŸÄ±msÄ±z olarak sÄ±rala.
+- TartÄ±ÅŸmalÄ± yorumu kesin bilgi gibi sunan soruyu geÃ§ersiz say.
 
-COĞRAFYA:
-- Ölçek ve birim dönüşümünü bağımsız hesapla.
-- Projeksiyon, yön, izohips ve harita sembollerini kontrol et.
-- Harita veya şekil olmadan çözülemeyen soruyu geçersiz say.
-- Genellemelerin istisnalarını kontrol et.
+COÄžRAFYA:
+- Ã–lÃ§ek ve birim dÃ¶nÃ¼ÅŸÃ¼mÃ¼nÃ¼ baÄŸÄ±msÄ±z hesapla.
+- Projeksiyon, yÃ¶n, izohips ve harita sembollerini kontrol et.
+- Harita veya ÅŸekil olmadan Ã§Ã¶zÃ¼lemeyen soruyu geÃ§ersiz say.
+- Genellemelerin istisnalarÄ±nÄ± kontrol et.
 
-ZORUNLU DENETİM ÇIKTISI:
+ZORUNLU DENETÄ°M Ã‡IKTISI:
 
 QUESTION 1
 A: TRUE veya FALSE
@@ -581,19 +581,19 @@ B: TRUE veya FALSE
 C: TRUE veya FALSE
 D: TRUE veya FALSE
 E: TRUE veya FALSE
-TARGET_COUNT: sayı
+TARGET_COUNT: sayÄ±
 ANSWER_KEY_MATCH: YES veya NO
-ISSUE: yoksa NONE, varsa kısa hata
+ISSUE: yoksa NONE, varsa kÄ±sa hata
 
-Aynı düzeni bütün sorular için uygula.
+AynÄ± dÃ¼zeni bÃ¼tÃ¼n sorular iÃ§in uygula.
 
 En son mutlaka tek bir nihai karar ver.
 
-Karar son satırda olmalıdır.
-Karardan sonra hiçbir karakter veya açıklama yazma.
-VALID ve INVALID kararlarını aynı yanıtta birlikte kullanma.
+Karar son satÄ±rda olmalÄ±dÄ±r.
+Karardan sonra hiÃ§bir karakter veya aÃ§Ä±klama yazma.
+VALID ve INVALID kararlarÄ±nÄ± aynÄ± yanÄ±tta birlikte kullanma.
 
-Yalnızca:
+YalnÄ±zca:
 
 FINAL: VALID
 
@@ -601,9 +601,9 @@ veya
 
 FINAL: INVALID
 REASONS:
-- Soru numarası: hata
+- Soru numarasÄ±: hata
 
-ORİJİNAL İSTEK:
+ORÄ°JÄ°NAL Ä°STEK:
 
 ${originalPrompt}
 
@@ -617,32 +617,32 @@ function buildQuestionValidationPrompt(
   answer: string,
 ): string {
   return `
-Aşağıdaki çoktan seçmeli soruları bağımsız bir YKS soru denetçisi olarak kontrol et.
+AÅŸaÄŸÄ±daki Ã§oktan seÃ§meli sorularÄ± baÄŸÄ±msÄ±z bir YKS soru denetÃ§isi olarak kontrol et.
 
-DENETİM KURALLARI:
-- İstenen soru sayısı doğru mu?
-- Her soru A, B, C, D ve E olmak üzere 5 seçenekli mi?
-- Her soruda tam olarak bir doğru seçenek var mı?
-- Birden fazla doğru seçenek bulunuyor mu?
-- Hiç doğru seçenek bulunmayan soru var mı?
-- Cevap, soru kökünde veya açıklamada sızdırılmış mı?
-- Aynı veya eş anlamlı seçenekler var mı?
-- Soru kökü açık ve tek anlamlı mı?
-- Cevap anahtarı ile çözüm aynı sonucu veriyor mu?
-- Türkçe sorularında bağlaç olan "de/da" ile bulunma hâl eki doğru ayrılmış mı?
-- De/da sorularında seçenekler tam ve doğal cümlelerden mi oluşuyor?
-- "dey", "day", "hiçbiri", "hepsi" veya yalnızca eklerden oluşan seçenek var mı?
-- Bağlaç olan de/da yanlışlıkla te/ta biçiminde kullanılmış mı?
-- Özel adlara gelen eklerde kesme işareti doğru kullanılmış mı?
-- Yazım, noktalama veya anlatım bozukluğu var mı?
-- Matematik ve fen sorularında işlem, birim, işaret veya koşul hatası var mı?
+DENETÄ°M KURALLARI:
+- Ä°stenen soru sayÄ±sÄ± doÄŸru mu?
+- Her soru A, B, C, D ve E olmak Ã¼zere 5 seÃ§enekli mi?
+- Her soruda tam olarak bir doÄŸru seÃ§enek var mÄ±?
+- Birden fazla doÄŸru seÃ§enek bulunuyor mu?
+- HiÃ§ doÄŸru seÃ§enek bulunmayan soru var mÄ±?
+- Cevap, soru kÃ¶kÃ¼nde veya aÃ§Ä±klamada sÄ±zdÄ±rÄ±lmÄ±ÅŸ mÄ±?
+- AynÄ± veya eÅŸ anlamlÄ± seÃ§enekler var mÄ±?
+- Soru kÃ¶kÃ¼ aÃ§Ä±k ve tek anlamlÄ± mÄ±?
+- Cevap anahtarÄ± ile Ã§Ã¶zÃ¼m aynÄ± sonucu veriyor mu?
+- TÃ¼rkÃ§e sorularÄ±nda baÄŸlaÃ§ olan "de/da" ile bulunma hÃ¢l eki doÄŸru ayrÄ±lmÄ±ÅŸ mÄ±?
+- De/da sorularÄ±nda seÃ§enekler tam ve doÄŸal cÃ¼mlelerden mi oluÅŸuyor?
+- "dey", "day", "hiÃ§biri", "hepsi" veya yalnÄ±zca eklerden oluÅŸan seÃ§enek var mÄ±?
+- BaÄŸlaÃ§ olan de/da yanlÄ±ÅŸlÄ±kla te/ta biÃ§iminde kullanÄ±lmÄ±ÅŸ mÄ±?
+- Ã–zel adlara gelen eklerde kesme iÅŸareti doÄŸru kullanÄ±lmÄ±ÅŸ mÄ±?
+- YazÄ±m, noktalama veya anlatÄ±m bozukluÄŸu var mÄ±?
+- Matematik ve fen sorularÄ±nda iÅŸlem, birim, iÅŸaret veya koÅŸul hatasÄ± var mÄ±?
 
-YANIT BİÇİMİ:
-- Bütün sorular kusursuzsa yalnızca VALID yaz.
-- En az bir sorun varsa INVALID: ile başla.
-- Ardından soru numarasını ve hatayı kısa, açık biçimde yaz.
-- Soruları yeniden çözerek kontrol et.
-- Başka açıklama ekleme.
+YANIT BÄ°Ã‡Ä°MÄ°:
+- BÃ¼tÃ¼n sorular kusursuzsa yalnÄ±zca VALID yaz.
+- En az bir sorun varsa INVALID: ile baÅŸla.
+- ArdÄ±ndan soru numarasÄ±nÄ± ve hatayÄ± kÄ±sa, aÃ§Ä±k biÃ§imde yaz.
+- SorularÄ± yeniden Ã§Ã¶zerek kontrol et.
+- BaÅŸka aÃ§Ä±klama ekleme.
 
 DENETLENECEK TASLAK:
 
@@ -658,25 +658,25 @@ function buildQuestionRepairPrompt(
   return `
 ${originalPrompt}
 
-ÖNCEKİ TASLAK:
+Ã–NCEKÄ° TASLAK:
 
 ${draft}
 
-BAĞIMSIZ DENETİM SONUCU:
+BAÄžIMSIZ DENETÄ°M SONUCU:
 
 ${validation}
 
-ZORUNLU DÜZELTME:
-- Denetimde belirtilen bütün hataları düzelt.
-- Hatalı soruları tamamen yeniden yaz.
-- Her soruyu yeniden çöz.
-- Her soruda tam olarak bir doğru seçenek bulunduğunu doğrula.
-- Cevabı soru kökünde ele verme.
-- Cevap anahtarı ve çözümleri sorulardan sonra ayrı bölümlerde ver.
-- Her düzeltilmiş çözümün son satırına "**Doğru cevap: X**" ekle.
-- X harfi cevap anahtarıyla aynı olmalıdır.
-- Denetim sonucunu kullanıcıya gösterme.
-- Yalnızca düzeltilmiş nihai soruları üret.
+ZORUNLU DÃœZELTME:
+- Denetimde belirtilen bÃ¼tÃ¼n hatalarÄ± dÃ¼zelt.
+- HatalÄ± sorularÄ± tamamen yeniden yaz.
+- Her soruyu yeniden Ã§Ã¶z.
+- Her soruda tam olarak bir doÄŸru seÃ§enek bulunduÄŸunu doÄŸrula.
+- CevabÄ± soru kÃ¶kÃ¼nde ele verme.
+- Cevap anahtarÄ± ve Ã§Ã¶zÃ¼mleri sorulardan sonra ayrÄ± bÃ¶lÃ¼mlerde ver.
+- Her dÃ¼zeltilmiÅŸ Ã§Ã¶zÃ¼mÃ¼n son satÄ±rÄ±na "**DoÄŸru cevap: X**" ekle.
+- X harfi cevap anahtarÄ±yla aynÄ± olmalÄ±dÄ±r.
+- Denetim sonucunu kullanÄ±cÄ±ya gÃ¶sterme.
+- YalnÄ±zca dÃ¼zeltilmiÅŸ nihai sorularÄ± Ã¼ret.
 `.trim();
 }
 
@@ -705,29 +705,29 @@ function analyzeQuestionStructure(
     );
 
   const hasAnswerKeyHeading =
-    /^##\s+Cevap Anahtarı\s*$/im.test(
+    /^##\s+Cevap AnahtarÄ±\s*$/im.test(
       normalized,
     );
 
   const hasSolutionsHeading =
-    /^##\s+Çözümler\s*$/im.test(
+    /^##\s+Ã‡Ã¶zÃ¼mler\s*$/im.test(
       normalized,
     );
 
   /*
-   * Seçenekler şu biçimlerin tamamında algılanır:
+   * SeÃ§enekler ÅŸu biÃ§imlerin tamamÄ±nda algÄ±lanÄ±r:
    *
    * A) Metin
    * **A)** Metin
    * - A) Metin
-   * • **A.** Metin
+   * â€¢ **A.** Metin
    * A - Metin
-   * A) ... B) ... C) ... aynı satır
+   * A) ... B) ... C) ... aynÄ± satÄ±r
    */
   let optionScanText = normalized;
 
   const lineOptionPattern =
-    /^(?:\s*[-•*]\s*)?(?:\*\*)?\s*([A-E])\s*(?:\*\*)?\s*[).:\-]\s*.+$/gim;
+    /^(?:\s*[-â€¢*]\s*)?(?:\*\*)?\s*([A-E])\s*(?:\*\*)?\s*[).:\-]\s*.+$/gim;
 
   let optionLetters = [
     ...optionScanText.matchAll(
@@ -742,11 +742,11 @@ function analyzeQuestionStructure(
     new Set(optionLetters).size < 5
   ) {
     /*
-     * Model seçenekleri tek satırda döndürdüyse her seçenek
-     * etiketinin önüne gerçek satır sonu ekle.
+     * Model seÃ§enekleri tek satÄ±rda dÃ¶ndÃ¼rdÃ¼yse her seÃ§enek
+     * etiketinin Ã¶nÃ¼ne gerÃ§ek satÄ±r sonu ekle.
      *
-     * Yalnız A-E etiketi ve hemen arkasında ayraç bulunan
-     * kalıplara dokunulur; normal metindeki harfler etkilenmez.
+     * YalnÄ±z A-E etiketi ve hemen arkasÄ±nda ayraÃ§ bulunan
+     * kalÄ±plara dokunulur; normal metindeki harfler etkilenmez.
      */
     optionScanText =
       optionScanText.replace(
@@ -799,7 +799,7 @@ function analyzeQuestionStructure(
 
   const answerKeyLetters = [
     ...normalized.matchAll(
-      /(?:doğru\s*cevap|cevap)\s*[:\-]\s*\**([A-E])\b/gi,
+      /(?:doÄŸru\s*cevap|cevap)\s*[:\-]\s*\**([A-E])\b/gi,
     ),
     ...normalized.matchAll(
       /(?:^|\n)\s*\d+\s*[).:\-]\s*\**([A-E])\b/gim,
@@ -815,17 +815,17 @@ function analyzeQuestionStructure(
       : 0;
 
   const hasSolutionHeading =
-    /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\d+\.\s*Soru\s*)?(?:Çözümü|Çözüm|Çözümler)\b/im.test(
+    /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\d+\.\s*Soru\s*)?(?:Ã‡Ã¶zÃ¼mÃ¼|Ã‡Ã¶zÃ¼m|Ã‡Ã¶zÃ¼mler)\b/im.test(
       normalized,
     );
 
   const hasReasoningText =
-    /çünkü|bu nedenle|dolayısıyla|formül|kural|hesaplanır|bulunur|elde edilir|açıklanır|göre|sonuç olarak/i.test(
+    /Ã§Ã¼nkÃ¼|bu nedenle|dolayÄ±sÄ±yla|formÃ¼l|kural|hesaplanÄ±r|bulunur|elde edilir|aÃ§Ä±klanÄ±r|gÃ¶re|sonuÃ§ olarak/i.test(
       normalized,
     );
 
   const hasExplicitAnswer =
-    /doğru\s*cevap\s*[:\-]\s*\**[A-E]\b/i.test(
+    /doÄŸru\s*cevap\s*[:\-]\s*\**[A-E]\b/i.test(
       normalized,
     );
 
@@ -901,7 +901,7 @@ function ensureSolutionAnswerLabels(
 
   const answerKeyParts =
     normalized.split(
-      /^##\s+Cevap Anahtarı\s*$/im,
+      /^##\s+Cevap AnahtarÄ±\s*$/im,
     );
 
   if (answerKeyParts.length < 2) {
@@ -910,7 +910,7 @@ function ensureSolutionAnswerLabels(
 
   const answerKeyBlock =
     answerKeyParts[1]
-      ?.split(/^##\s+Çözümler\s*$/im)[0] ?? "";
+      ?.split(/^##\s+Ã‡Ã¶zÃ¼mler\s*$/im)[0] ?? "";
 
   const answerMap = new Map<string, string>();
 
@@ -931,7 +931,7 @@ function ensureSolutionAnswerLabels(
 
   const solutionParts =
     normalized.split(
-      /^##\s+Çözümler\s*$/im,
+      /^##\s+Ã‡Ã¶zÃ¼mler\s*$/im,
     );
 
   if (solutionParts.length < 2) {
@@ -944,11 +944,11 @@ function ensureSolutionAnswerLabels(
   const solutionArea =
     solutionParts
       .slice(1)
-      .join("\n## Çözümler\n");
+      .join("\n## Ã‡Ã¶zÃ¼mler\n");
 
   const headings = [
     ...solutionArea.matchAll(
-      /^###\s+(\d+)\.\s+Soru Çözümü\s*$/gim,
+      /^###\s+(\d+)\.\s+Soru Ã‡Ã¶zÃ¼mÃ¼\s*$/gim,
     ),
   ];
 
@@ -981,13 +981,13 @@ function ensureSolutionAnswerLabels(
 
     if (
       answerLetter &&
-      !/doğru\s+cevap\s*:\s*[A-E]\b/i.test(
+      !/doÄŸru\s+cevap\s*:\s*[A-E]\b/i.test(
         section,
       )
     ) {
       section =
         section.trimEnd() +
-        "\n\n**Doğru cevap: " +
+        "\n\n**DoÄŸru cevap: " +
         answerLetter +
         "**\n";
     }
@@ -997,7 +997,7 @@ function ensureSolutionAnswerLabels(
 
   return (
     beforeSolutions +
-    "\n\n## Çözümler\n\n" +
+    "\n\n## Ã‡Ã¶zÃ¼mler\n\n" +
     rebuilt.trim()
   )
     .replace(/\n{3,}/g, "\n\n")
@@ -1015,9 +1015,9 @@ function normalizeQuestionResponseStructure(
     .trim();
 
   /*
-   * Model veya taşıma katmanı bazen gerçek satır sonu yerine
-   * metin olarak \\n döndürüyor. Yalnız satır/sekme kaçışlarını
-   * çözüyoruz; matematiksel ters eğik çizgilere dokunmuyoruz.
+   * Model veya taÅŸÄ±ma katmanÄ± bazen gerÃ§ek satÄ±r sonu yerine
+   * metin olarak \\n dÃ¶ndÃ¼rÃ¼yor. YalnÄ±z satÄ±r/sekme kaÃ§Ä±ÅŸlarÄ±nÄ±
+   * Ã§Ã¶zÃ¼yoruz; matematiksel ters eÄŸik Ã§izgilere dokunmuyoruz.
    */
   if (
     !normalized.includes("\n") &&
@@ -1030,8 +1030,8 @@ function normalizeQuestionResponseStructure(
   }
 
   /*
-   * JSON string biçiminde sarılmış tek bir cevap geldiyse,
-   * güvenli şekilde string değerini aç.
+   * JSON string biÃ§iminde sarÄ±lmÄ±ÅŸ tek bir cevap geldiyse,
+   * gÃ¼venli ÅŸekilde string deÄŸerini aÃ§.
    */
   if (
     normalized.startsWith('"') &&
@@ -1048,7 +1048,7 @@ function normalizeQuestionResponseStructure(
           .trim();
       }
     } catch {
-      // Normal metin işlemine devam et.
+      // Normal metin iÅŸlemine devam et.
     }
   }
 
@@ -1062,20 +1062,20 @@ function normalizeQuestionResponseStructure(
       "## Sorular",
     )
     .replace(
-      /^\s*#{1,6}\s*(?:cevaplar|cevap anahtarı|cevap anahtari)\s*:?\s*$/gim,
-      "## Cevap Anahtarı",
+      /^\s*#{1,6}\s*(?:cevaplar|cevap anahtarÄ±|cevap anahtari)\s*:?\s*$/gim,
+      "## Cevap AnahtarÄ±",
     )
     .replace(
-      /^\s*(?:cevaplar|cevap anahtarı|cevap anahtari)\s*:?\s*$/gim,
-      "## Cevap Anahtarı",
+      /^\s*(?:cevaplar|cevap anahtarÄ±|cevap anahtari)\s*:?\s*$/gim,
+      "## Cevap AnahtarÄ±",
     )
     .replace(
-      /^\s*#{1,6}\s*(?:çözüm|çözümler|cozum|cozumler)\s*:?\s*$/gim,
-      "## Çözümler",
+      /^\s*#{1,6}\s*(?:Ã§Ã¶zÃ¼m|Ã§Ã¶zÃ¼mler|cozum|cozumler)\s*:?\s*$/gim,
+      "## Ã‡Ã¶zÃ¼mler",
     )
     .replace(
-      /^\s*(?:çözüm|çözümler|cozum|cozumler)\s*:?\s*$/gim,
-      "## Çözümler",
+      /^\s*(?:Ã§Ã¶zÃ¼m|Ã§Ã¶zÃ¼mler|cozum|cozumler)\s*:?\s*$/gim,
+      "## Ã‡Ã¶zÃ¼mler",
     )
     .replace(
       /^\s*#{1,6}\s*Soru\s+(\d+)\s*:?\s*$/gim,
@@ -1086,20 +1086,20 @@ function normalizeQuestionResponseStructure(
       "### $1. Soru",
     )
     .replace(
-      /^\s*#{1,6}\s*(\d+)\.\s*Soru\s*Çözümü\s*:?\s*$/gim,
-      "### $1. Soru Çözümü",
+      /^\s*#{1,6}\s*(\d+)\.\s*Soru\s*Ã‡Ã¶zÃ¼mÃ¼\s*:?\s*$/gim,
+      "### $1. Soru Ã‡Ã¶zÃ¼mÃ¼",
     )
     .replace(
-      /^\s*Soru\s+(\d+)\s*Çözümü\s*:?\s*$/gim,
-      "### $1. Soru Çözümü",
+      /^\s*Soru\s+(\d+)\s*Ã‡Ã¶zÃ¼mÃ¼\s*:?\s*$/gim,
+      "### $1. Soru Ã‡Ã¶zÃ¼mÃ¼",
     )
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
   /*
-   * Aynı satırdaki A-E seçeneklerini standart satırlara ayır.
-   * Markdown kalın işaretleri ve madde işaretleri korunabilir;
-   * yapı analiz motoru bunları okuyabilir.
+   * AynÄ± satÄ±rdaki A-E seÃ§eneklerini standart satÄ±rlara ayÄ±r.
+   * Markdown kalÄ±n iÅŸaretleri ve madde iÅŸaretleri korunabilir;
+   * yapÄ± analiz motoru bunlarÄ± okuyabilir.
    */
   const inlineOptionCount = [
     ...normalized.matchAll(
@@ -1116,8 +1116,8 @@ function normalizeQuestionResponseStructure(
 
   const alreadyCanonical =
     /^##\s+Sorular\s*$/im.test(normalized) &&
-    /^##\s+Cevap Anahtarı\s*$/im.test(normalized) &&
-    /^##\s+Çözümler\s*$/im.test(normalized);
+    /^##\s+Cevap AnahtarÄ±\s*$/im.test(normalized) &&
+    /^##\s+Ã‡Ã¶zÃ¼mler\s*$/im.test(normalized);
 
   if (alreadyCanonical) {
     return normalized;
@@ -1176,8 +1176,8 @@ function normalizeQuestionResponseStructure(
       .trim();
 
   const answerPatterns = [
-    /doğru\s*cevap\s*[:\-]\s*\**([A-E])\b/i,
-    /cevap\s*anahtarı[\s\S]{0,100}?\b1\s*[.)\-:]\s*\**([A-E])\b/i,
+    /doÄŸru\s*cevap\s*[:\-]\s*\**([A-E])\b/i,
+    /cevap\s*anahtarÄ±[\s\S]{0,100}?\b1\s*[.)\-:]\s*\**([A-E])\b/i,
     /cevap\s*[:\-]\s*\**([A-E])\b/i,
     /\b1\s*[.)\-:]\s*\**([A-E])\b/i,
   ];
@@ -1202,7 +1202,7 @@ function normalizeQuestionResponseStructure(
 
   const solutionMarker =
     normalized.search(
-      /(?:^|\n)\s*(?:#{1,6}\s*)?(?:çözüm|çözümler|cozum|cozumler|1\.\s*soru\s*çözümü)\s*:?\s*(?:\n|$)/i,
+      /(?:^|\n)\s*(?:#{1,6}\s*)?(?:Ã§Ã¶zÃ¼m|Ã§Ã¶zÃ¼mler|cozum|cozumler|1\.\s*soru\s*Ã§Ã¶zÃ¼mÃ¼)\s*:?\s*(?:\n|$)/i,
     );
 
   let solutionText = "";
@@ -1212,7 +1212,7 @@ function normalizeQuestionResponseStructure(
       normalized
         .slice(solutionMarker)
         .replace(
-          /^\s*(?:#{1,6}\s*)?(?:çözüm|çözümler|cozum|cozumler|1\.\s*soru\s*çözümü)\s*:?\s*/i,
+          /^\s*(?:#{1,6}\s*)?(?:Ã§Ã¶zÃ¼m|Ã§Ã¶zÃ¼mler|cozum|cozumler|1\.\s*soru\s*Ã§Ã¶zÃ¼mÃ¼)\s*:?\s*/i,
           "",
         )
         .trim();
@@ -1236,7 +1236,7 @@ function normalizeQuestionResponseStructure(
 
       solutionText = afterOption
         .replace(
-          /(?:^|\n)\s*(?:cevap|cevap anahtarı|doğru cevap)\s*[:\-]?[\s\S]{0,30}?\b[A-E]\b/i,
+          /(?:^|\n)\s*(?:cevap|cevap anahtarÄ±|doÄŸru cevap)\s*[:\-]?[\s\S]{0,30}?\b[A-E]\b/i,
           "",
         )
         .trim();
@@ -1245,17 +1245,17 @@ function normalizeQuestionResponseStructure(
 
   if (!solutionText) {
     solutionText =
-      "Doğru seçenek, soru kökü ve seçenekler karşılaştırılarak belirlenir.";
+      "DoÄŸru seÃ§enek, soru kÃ¶kÃ¼ ve seÃ§enekler karÅŸÄ±laÅŸtÄ±rÄ±larak belirlenir.";
   }
 
   if (
-    !/doğru\s*cevap\s*:\s*[A-E]\b/i.test(
+    !/doÄŸru\s*cevap\s*:\s*[A-E]\b/i.test(
       solutionText,
     )
   ) {
     solutionText =
       solutionText.trimEnd() +
-      `\n\n**Doğru cevap: ${answerLetter}**`;
+      `\n\n**DoÄŸru cevap: ${answerLetter}**`;
   }
 
   return [
@@ -1269,13 +1269,13 @@ function normalizeQuestionResponseStructure(
         `${letter}) ${uniqueOptions.get(letter)}`,
     ),
     "",
-    "## Cevap Anahtarı",
+    "## Cevap AnahtarÄ±",
     "",
     `1. ${answerLetter}`,
     "",
-    "## Çözümler",
+    "## Ã‡Ã¶zÃ¼mler",
     "",
-    "### 1. Soru Çözümü",
+    "### 1. Soru Ã‡Ã¶zÃ¼mÃ¼",
     solutionText,
   ]
     .join("\n")
@@ -1517,61 +1517,61 @@ async function generateVerifiedQuestionAnswer(
 
   throw new Error(
     [
-      "Soru seti üç bağımsız kalite kontrolünden geçemedi.",
-      "Hatalı soru kullanıcıya gösterilmedi.",
+      "Soru seti Ã¼Ã§ baÄŸÄ±msÄ±z kalite kontrolÃ¼nden geÃ§emedi.",
+      "HatalÄ± soru kullanÄ±cÄ±ya gÃ¶sterilmedi.",
       `Son denetim sonucu: ${finalReason}`,
-      `Yapısal kontrol: ${structureReason}`,
+      `YapÄ±sal kontrol: ${structureReason}`,
       `Secenek benzeri tokenlar: ${optionLikeTokens || "YOK"}`,
-      `Ham çıktı önizleme: ${rawPreview}`,
+      `Ham Ã§Ä±ktÄ± Ã¶nizleme: ${rawPreview}`,
     ].join(" "),
   );
 }
 
 const DE_DA_QUESTION_RULES = `
-DE/DA SORULARI İÇİN ÖZEL ZORUNLU FORMAT:
+DE/DA SORULARI Ä°Ã‡Ä°N Ã–ZEL ZORUNLU FORMAT:
 
-- Boşluk doldurma sorusu üretme.
-- Seçenekleri yalnızca "de", "da", "te", "ta" veya uydurma sözcüklerden oluşturma.
-- "dey", "day", "hiçbiri", "hepsi" gibi seçenekler kesinlikle kullanma.
-- Her seçenekte doğal ve eksiksiz bir Türkçe cümle yaz.
-- Her soru şu iki kalıptan biriyle hazırlanmalı:
-  1. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı yanlıştır?"
-  2. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı doğrudur?"
-- Her soruda yalnızca bir seçenek hedeflenen cevaba uymalıdır.
-- Diğer dört seçenek kesin ve tartışmasız biçimde karşıt durumda olmalıdır.
-- "Yanlıştır" sorusunda yalnızca bir yanlış, dört doğru seçenek bulunmalıdır.
-- "Doğrudur" sorusunda yalnızca bir doğru, dört yanlış seçenek bulunmalıdır.
-- Her seçeneği ayrı ayrı çözmeden soruyu gönderme.
-- İkinci bir yanlış veya doğru seçenek varsa soruyu tamamen yeniden yaz.
-- "Bahçe de çiçekler açtı", "Kardeşimde bizimle geldi" gibi birden fazla hatalı seçeneği aynı soruda kullanma.
-- Doğru seçenek dışındaki cümleler de doğal, anlamlı ve dil bilgisi açısından eksiksiz olmalıdır.
-- Bağlaç olan "de/da" ayrı yazılır.
-- Bulunma hâl eki "-de/-da/-te/-ta" kelimeye bitişik yazılır.
-- Özel adlara gelen bulunma hâl eki kesme işaretiyle ayrılır: Ankara'da, İstanbul'da.
-- "de/da" bağlacı hiçbir zaman "te/ta" biçimine dönüşmez.
-- Ünsüz benzeşmesi yalnızca bulunma hâl ekinde görülür: sınıfta, parkta.
-- Her seçeneği cümleden "de/da" çıkarma yöntemiyle kontrol et.
-- Çıkarıldığında temel anlam bozulmuyorsa bağlaçtır ve ayrı yazılır.
-- Yer, zaman veya bulunma anlamı veriyorsa ektir ve bitişik yazılır.
-- Anlatım bozukluğu, eksik öge veya doğal olmayan cümle kullanma.
-- Cevap anahtarındaki harf ile çözümdeki harf aynı olmalıdır.
-- Çözümde yanlış cümleyi doğruymuş gibi savunma.
+- BoÅŸluk doldurma sorusu Ã¼retme.
+- SeÃ§enekleri yalnÄ±zca "de", "da", "te", "ta" veya uydurma sÃ¶zcÃ¼klerden oluÅŸturma.
+- "dey", "day", "hiÃ§biri", "hepsi" gibi seÃ§enekler kesinlikle kullanma.
+- Her seÃ§enekte doÄŸal ve eksiksiz bir TÃ¼rkÃ§e cÃ¼mle yaz.
+- Her soru ÅŸu iki kalÄ±ptan biriyle hazÄ±rlanmalÄ±:
+  1. "AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde de/da'nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?"
+  2. "AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde de/da'nÄ±n yazÄ±mÄ± doÄŸrudur?"
+- Her soruda yalnÄ±zca bir seÃ§enek hedeflenen cevaba uymalÄ±dÄ±r.
+- DiÄŸer dÃ¶rt seÃ§enek kesin ve tartÄ±ÅŸmasÄ±z biÃ§imde karÅŸÄ±t durumda olmalÄ±dÄ±r.
+- "YanlÄ±ÅŸtÄ±r" sorusunda yalnÄ±zca bir yanlÄ±ÅŸ, dÃ¶rt doÄŸru seÃ§enek bulunmalÄ±dÄ±r.
+- "DoÄŸrudur" sorusunda yalnÄ±zca bir doÄŸru, dÃ¶rt yanlÄ±ÅŸ seÃ§enek bulunmalÄ±dÄ±r.
+- Her seÃ§eneÄŸi ayrÄ± ayrÄ± Ã§Ã¶zmeden soruyu gÃ¶nderme.
+- Ä°kinci bir yanlÄ±ÅŸ veya doÄŸru seÃ§enek varsa soruyu tamamen yeniden yaz.
+- "BahÃ§e de Ã§iÃ§ekler aÃ§tÄ±", "KardeÅŸimde bizimle geldi" gibi birden fazla hatalÄ± seÃ§eneÄŸi aynÄ± soruda kullanma.
+- DoÄŸru seÃ§enek dÄ±ÅŸÄ±ndaki cÃ¼mleler de doÄŸal, anlamlÄ± ve dil bilgisi aÃ§Ä±sÄ±ndan eksiksiz olmalÄ±dÄ±r.
+- BaÄŸlaÃ§ olan "de/da" ayrÄ± yazÄ±lÄ±r.
+- Bulunma hÃ¢l eki "-de/-da/-te/-ta" kelimeye bitiÅŸik yazÄ±lÄ±r.
+- Ã–zel adlara gelen bulunma hÃ¢l eki kesme iÅŸaretiyle ayrÄ±lÄ±r: Ankara'da, Ä°stanbul'da.
+- "de/da" baÄŸlacÄ± hiÃ§bir zaman "te/ta" biÃ§imine dÃ¶nÃ¼ÅŸmez.
+- ÃœnsÃ¼z benzeÅŸmesi yalnÄ±zca bulunma hÃ¢l ekinde gÃ¶rÃ¼lÃ¼r: sÄ±nÄ±fta, parkta.
+- Her seÃ§eneÄŸi cÃ¼mleden "de/da" Ã§Ä±karma yÃ¶ntemiyle kontrol et.
+- Ã‡Ä±karÄ±ldÄ±ÄŸÄ±nda temel anlam bozulmuyorsa baÄŸlaÃ§tÄ±r ve ayrÄ± yazÄ±lÄ±r.
+- Yer, zaman veya bulunma anlamÄ± veriyorsa ektir ve bitiÅŸik yazÄ±lÄ±r.
+- AnlatÄ±m bozukluÄŸu, eksik Ã¶ge veya doÄŸal olmayan cÃ¼mle kullanma.
+- Cevap anahtarÄ±ndaki harf ile Ã§Ã¶zÃ¼mdeki harf aynÄ± olmalÄ±dÄ±r.
+- Ã‡Ã¶zÃ¼mde yanlÄ±ÅŸ cÃ¼mleyi doÄŸruymuÅŸ gibi savunma.
 
-ÖRNEK SORU YAPISI:
+Ã–RNEK SORU YAPISI:
 
 ### 1. Soru
-Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?
 
-A) Ben de seninle geleceğim.
+A) Ben de seninle geleceÄŸim.
 B) Kitaplar masada duruyor.
-C) Ankara'da hava soğuktu.
-D) Oda çok sessizdi.
-E) Kardeşimde bizimle geldi.
+C) Ankara'da hava soÄŸuktu.
+D) Oda Ã§ok sessizdi.
+E) KardeÅŸimde bizimle geldi.
 
-Bu örnekte yalnızca E yanlıştır. Çünkü bağlaç olan "de" ayrı yazılmalıdır:
-"Kardeşim de bizimle geldi."
+Bu Ã¶rnekte yalnÄ±zca E yanlÄ±ÅŸtÄ±r. Ã‡Ã¼nkÃ¼ baÄŸlaÃ§ olan "de" ayrÄ± yazÄ±lmalÄ±dÄ±r:
+"KardeÅŸim de bizimle geldi."
 
-Bu örneği birebir kopyalama; aynı kesinlikte özgün sorular üret.
+Bu Ã¶rneÄŸi birebir kopyalama; aynÄ± kesinlikte Ã¶zgÃ¼n sorular Ã¼ret.
 `.trim();
 
 function buildDeterministicDeDaQuiz(): string {
@@ -1579,51 +1579,51 @@ function buildDeterministicDeDaQuiz(): string {
 ## Sorular
 
 ### 1. Soru
-Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?
 
-A) Ben de yarın sizinle geleceğim.
+A) Ben de yarÄ±n sizinle geleceÄŸim.
 B) Kitaplar masada duruyor.
-C) Ankara'da hava oldukça soğuktu.
+C) Ankara'da hava oldukÃ§a soÄŸuktu.
 D) O da bu fikri destekledi.
-E) Kardeşimde bizimle sinemaya geldi.
+E) KardeÅŸimde bizimle sinemaya geldi.
 
 ### 2. Soru
-Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı doğrudur?
+AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± doÄŸrudur?
 
-A) Ali de bu projeye katıldı.
-B) Okul da ders başladı.
-C) Kardeşimde gelmek istiyor.
-D) Bahçe de çiçekler açtı.
-E) İstanbul da çok kalabalıktı.
+A) Ali de bu projeye katÄ±ldÄ±.
+B) Okul da ders baÅŸladÄ±.
+C) KardeÅŸimde gelmek istiyor.
+D) BahÃ§e de Ã§iÃ§ekler aÃ§tÄ±.
+E) Ä°stanbul da Ã§ok kalabalÄ±ktÄ±.
 
 ### 3. Soru
-Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?
 
 A) Ben de seni bekliyordum.
 B) Evde kimse yoktu.
-C) Ankara da yeni bir müze açıldı.
-D) Parkta çocuklar oynuyordu.
-E) O da kitabı dikkatle okudu.
+C) Ankara da yeni bir mÃ¼ze aÃ§Ä±ldÄ±.
+D) Parkta Ã§ocuklar oynuyordu.
+E) O da kitabÄ± dikkatle okudu.
 
 ### 4. Soru
-Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı doğrudur?
+AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± doÄŸrudur?
 
-A) Sınıfta ders işleniyor.
+A) SÄ±nÄ±fta ders iÅŸleniyor.
 B) Masa da kitaplar var.
-C) Okul da sınav yapılacak.
-D) Bahçe de çocuklar oynuyor.
-E) Ankara da hava soğuk.
+C) Okul da sÄ±nav yapÄ±lacak.
+D) BahÃ§e de Ã§ocuklar oynuyor.
+E) Ankara da hava soÄŸuk.
 
 ### 5. Soru
-Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?
 
-A) Ben de yarın gelirim.
-B) Köprüde yoğunluk vardı.
-C) Sokakta çocuklar oynuyordu.
-D) Ev de bugün temizlenmiş.
-E) Bahçede çiçekler açtı.
+A) Ben de yarÄ±n gelirim.
+B) KÃ¶prÃ¼de yoÄŸunluk vardÄ±.
+C) Sokakta Ã§ocuklar oynuyordu.
+D) Ev de bugÃ¼n temizlenmiÅŸ.
+E) BahÃ§ede Ã§iÃ§ekler aÃ§tÄ±.
 
-## Cevap Anahtarı
+## Cevap AnahtarÄ±
 
 1. E
 2. A
@@ -1631,44 +1631,44 @@ E) Bahçede çiçekler açtı.
 4. A
 5. D
 
-## Çözümler
+## Ã‡Ã¶zÃ¼mler
 
-### 1. Soru Çözümü
-E seçeneği yanlıştır. Buradaki "de" bağlaçtır ve ayrı yazılmalıdır:
+### 1. Soru Ã‡Ã¶zÃ¼mÃ¼
+E seÃ§eneÄŸi yanlÄ±ÅŸtÄ±r. Buradaki "de" baÄŸlaÃ§tÄ±r ve ayrÄ± yazÄ±lmalÄ±dÄ±r:
 
-**Kardeşim de bizimle sinemaya geldi.**
+**KardeÅŸim de bizimle sinemaya geldi.**
 
-### 2. Soru Çözümü
-A seçeneği doğrudur. "De" bağlaçtır ve ayrı yazılmıştır:
+### 2. Soru Ã‡Ã¶zÃ¼mÃ¼
+A seÃ§eneÄŸi doÄŸrudur. "De" baÄŸlaÃ§tÄ±r ve ayrÄ± yazÄ±lmÄ±ÅŸtÄ±r:
 
-**Ali de bu projeye katıldı.**
+**Ali de bu projeye katÄ±ldÄ±.**
 
-Diğer seçeneklerde bulunma hâl eki kelimeye bitişik yazılmalıdır:
+DiÄŸer seÃ§eneklerde bulunma hÃ¢l eki kelimeye bitiÅŸik yazÄ±lmalÄ±dÄ±r:
 
 - Okulda
-- Kardeşim de
-- Bahçede
-- İstanbul'da
+- KardeÅŸim de
+- BahÃ§ede
+- Ä°stanbul'da
 
-### 3. Soru Çözümü
-C seçeneği yanlıştır. Özel ada gelen bulunma hâl eki kesme işaretiyle ayrılır:
+### 3. Soru Ã‡Ã¶zÃ¼mÃ¼
+C seÃ§eneÄŸi yanlÄ±ÅŸtÄ±r. Ã–zel ada gelen bulunma hÃ¢l eki kesme iÅŸaretiyle ayrÄ±lÄ±r:
 
-**Ankara'da yeni bir müze açıldı.**
+**Ankara'da yeni bir mÃ¼ze aÃ§Ä±ldÄ±.**
 
-### 4. Soru Çözümü
-A seçeneği doğrudur. "Sınıfta" kelimesindeki "-ta" bulunma hâl ekidir ve kelimeye bitişik yazılır.
+### 4. Soru Ã‡Ã¶zÃ¼mÃ¼
+A seÃ§eneÄŸi doÄŸrudur. "SÄ±nÄ±fta" kelimesindeki "-ta" bulunma hÃ¢l ekidir ve kelimeye bitiÅŸik yazÄ±lÄ±r.
 
-Diğer seçeneklerin doğru biçimleri:
+DiÄŸer seÃ§eneklerin doÄŸru biÃ§imleri:
 
 - Masada
 - Okulda
-- Bahçede
+- BahÃ§ede
 - Ankara'da
 
-### 5. Soru Çözümü
-D seçeneği yanlıştır. Burada bulunma anlamı vardır ve ek kelimeye bitişik yazılmalıdır:
+### 5. Soru Ã‡Ã¶zÃ¼mÃ¼
+D seÃ§eneÄŸi yanlÄ±ÅŸtÄ±r. Burada bulunma anlamÄ± vardÄ±r ve ek kelimeye bitiÅŸik yazÄ±lmalÄ±dÄ±r:
 
-**Evde bugün temizlenmiş.**
+**Evde bugÃ¼n temizlenmiÅŸ.**
 `.trim();
 }
 
@@ -1677,12 +1677,12 @@ function getRequestedQuestionCount(
 ): number {
   const normalized = requestText
     .toLocaleLowerCase("tr-TR")
-    .replace(/ı/g, "i")
-    .replace(/ş/g, "s")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
+    .replace(/Ä±/g, "i")
+    .replace(/ÅŸ/g, "s")
+    .replace(/ÄŸ/g, "g")
+    .replace(/Ã¼/g, "u")
+    .replace(/Ã¶/g, "o")
+    .replace(/Ã§/g, "c")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -1744,15 +1744,15 @@ function getRequestedQuestionCount(
 function shouldExplainDeDaRule(
   requestText: string,
 ): boolean {
-  return /kural(?:i|ını|ini)?\s*(?:anlat|acikla)|anlat(?:ir|im)?|acikla|ogret|karsilastir/i.test(
+  return /kural(?:i|Ä±nÄ±|ini)?\s*(?:anlat|acikla)|anlat(?:ir|im)?|acikla|ogret|karsilastir/i.test(
     requestText
       .toLocaleLowerCase("tr-TR")
-      .replace(/ı/g, "i")
-      .replace(/ş/g, "s")
-      .replace(/ğ/g, "g")
-      .replace(/ü/g, "u")
-      .replace(/ö/g, "o")
-      .replace(/ç/g, "c"),
+      .replace(/Ä±/g, "i")
+      .replace(/ÅŸ/g, "s")
+      .replace(/ÄŸ/g, "g")
+      .replace(/Ã¼/g, "u")
+      .replace(/Ã¶/g, "o")
+      .replace(/Ã§/g, "c"),
   );
 }
 
@@ -1785,15 +1785,15 @@ function buildInstructionAwareDeDaResponse(
     getRequestedQuestionCount(requestText);
 
   const questionsMatch = fullQuiz.match(
-    /## Sorular\s*\n([\s\S]*?)\n## Cevap Anahtarı/,
+    /## Sorular\s*\n([\s\S]*?)\n## Cevap AnahtarÄ±/,
   );
 
   const answersMatch = fullQuiz.match(
-    /## Cevap Anahtarı\s*\n([\s\S]*?)\n## Çözümler/,
+    /## Cevap AnahtarÄ±\s*\n([\s\S]*?)\n## Ã‡Ã¶zÃ¼mler/,
   );
 
   const solutionsMatch = fullQuiz.match(
-    /## Çözümler\s*\n([\s\S]*)$/,
+    /## Ã‡Ã¶zÃ¼mler\s*\n([\s\S]*)$/,
   );
 
   if (
@@ -1802,7 +1802,7 @@ function buildInstructionAwareDeDaResponse(
     !solutionsMatch
   ) {
     throw new Error(
-      "Yerel de/da soru paketi ayrıştırılamadı",
+      "Yerel de/da soru paketi ayrÄ±ÅŸtÄ±rÄ±lamadÄ±",
     );
   }
 
@@ -1815,7 +1815,7 @@ function buildInstructionAwareDeDaResponse(
   const solutionBlocks =
     extractNumberedMarkdownBlocks(
       solutionsMatch[1],
-      "Soru Çözümü",
+      "Soru Ã‡Ã¶zÃ¼mÃ¼",
     ).slice(0, requestedCount);
 
   const answerLines = [
@@ -1833,7 +1833,7 @@ function buildInstructionAwareDeDaResponse(
     questionBlocks.length !== requestedCount
   ) {
     throw new Error(
-      "İstenen sayıda de/da sorusu seçilemedi",
+      "Ä°stenen sayÄ±da de/da sorusu seÃ§ilemedi",
     );
   }
 
@@ -1841,26 +1841,26 @@ function buildInstructionAwareDeDaResponse(
     solutionBlocks.length !== requestedCount
   ) {
     throw new Error(
-      "İstenen sayıda de/da çözümü seçilemedi",
+      "Ä°stenen sayÄ±da de/da Ã§Ã¶zÃ¼mÃ¼ seÃ§ilemedi",
     );
   }
 
   const explanation =
     shouldExplainDeDaRule(requestText)
-      ? `## Kural Anlatımı
+      ? `## Kural AnlatÄ±mÄ±
 
-Bağlaç olan **de/da** cümleye ekleme anlamı katar ve ayrı yazılır. Cümleden çıkarıldığında temel anlam büyük ölçüde korunur:
+BaÄŸlaÃ§ olan **de/da** cÃ¼mleye ekleme anlamÄ± katar ve ayrÄ± yazÄ±lÄ±r. CÃ¼mleden Ã§Ä±karÄ±ldÄ±ÄŸÄ±nda temel anlam bÃ¼yÃ¼k Ã¶lÃ§Ã¼de korunur:
 
-- Ben **de** geleceğim.
-- O **da** kitabı okudu.
+- Ben **de** geleceÄŸim.
+- O **da** kitabÄ± okudu.
 
-Bulunma hâl eki olan **-de/-da/-te/-ta** yer, zaman veya bulunma anlamı verir ve kelimeye bitişik yazılır:
+Bulunma hÃ¢l eki olan **-de/-da/-te/-ta** yer, zaman veya bulunma anlamÄ± verir ve kelimeye bitiÅŸik yazÄ±lÄ±r:
 
 - Ev**de**
 - Park**ta**
 - Ankara'**da**
 
-Bağlaç olan de/da hiçbir zaman te/ta biçimine dönüşmez. Özel adlara gelen bulunma hâl eki ise kesme işaretiyle ayrılır.
+BaÄŸlaÃ§ olan de/da hiÃ§bir zaman te/ta biÃ§imine dÃ¶nÃ¼ÅŸmez. Ã–zel adlara gelen bulunma hÃ¢l eki ise kesme iÅŸaretiyle ayrÄ±lÄ±r.
 
 `
       : "";
@@ -1871,11 +1871,11 @@ Bağlaç olan de/da hiçbir zaman te/ta biçimine dönüşmez. Özel adlara gele
     "",
     questionBlocks.join("\n\n"),
     "",
-    "## Cevap Anahtarı",
+    "## Cevap AnahtarÄ±",
     "",
     answerLines.join("\n"),
     "",
-    "## Çözümler",
+    "## Ã‡Ã¶zÃ¼mler",
     "",
     solutionBlocks.join("\n\n"),
   ]
@@ -1887,12 +1887,12 @@ Bağlaç olan de/da hiçbir zaman te/ta biçimine dönüşmez. Özel adlara gele
 function normalizeSubjectName(value: unknown): string {
   return String(value ?? "")
     .toLocaleLowerCase("tr-TR")
-    .replace(/ı/g, "i")
-    .replace(/ş/g, "s")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
+    .replace(/Ä±/g, "i")
+    .replace(/ÅŸ/g, "s")
+    .replace(/ÄŸ/g, "g")
+    .replace(/Ã¼/g, "u")
+    .replace(/Ã¶/g, "o")
+    .replace(/Ã§/g, "c")
     .trim();
 }
 
@@ -1920,7 +1920,7 @@ function getCurriculumHierarchyRules(
   ).trim();
 
   const hasCurriculumContext =
-    /MÜFREDAT BAĞLAMI:|KAZANIM DURUMU:|Alt kazanımlar:|Eksikler:/i.test(
+    /MÃœFREDAT BAÄžLAMI:|KAZANIM DURUMU:|Alt kazanÄ±mlar:|Eksikler:/i.test(
       requestText,
     );
 
@@ -1932,17 +1932,17 @@ function getCurriculumHierarchyRules(
 ANA KONU VE ALT KAZANIM KURALLARI:
 
 - Ders: ${subjectName || "Belirtilmedi"}
-- Ana konu: ${topicName || "Kullanıcı mesajından belirle"}
-- MÜFREDAT BAĞLAMI içindeki ana konu ve alt kazanımları temel kapsam kabul et.
-- Kullanıcının özellikle sorduğu alt kazanımı önce ele al.
-- Konu anlatımını ve soru üretimini ilgili kazanım sınırında tut.
-- Soru üretirken ölçülen alt kazanımı sessizce belirle.
-- ALT KAZANIM TYT SINIRI: TYT isteğinde AYT'ye ait yöntem, kavram veya çözüm tekniğini kullanıcı açıkça istemedikçe kullanma.
-- Özellikle TYT Üslü İfadeler konusunda logaritma yöntemini önerme; üs kuralları ve taban eşitleme kullan.
-- Çeldiricileri ilgili kazanımdaki gerçek kavram yanılgılarından üret.
-- Çözümde kullanılan ana konu ve alt kazanım mantığını açıkla.
-- AI Koç isteklerinde tamamlanmamış alt kazanımları önceliklendir.
-- Tamamlanan kazanımları gereksiz yere yeniden ana hedef yapma.
+- Ana konu: ${topicName || "KullanÄ±cÄ± mesajÄ±ndan belirle"}
+- MÃœFREDAT BAÄžLAMI iÃ§indeki ana konu ve alt kazanÄ±mlarÄ± temel kapsam kabul et.
+- KullanÄ±cÄ±nÄ±n Ã¶zellikle sorduÄŸu alt kazanÄ±mÄ± Ã¶nce ele al.
+- Konu anlatÄ±mÄ±nÄ± ve soru Ã¼retimini ilgili kazanÄ±m sÄ±nÄ±rÄ±nda tut.
+- Soru Ã¼retirken Ã¶lÃ§Ã¼len alt kazanÄ±mÄ± sessizce belirle.
+- ALT KAZANIM TYT SINIRI: TYT isteÄŸinde AYT'ye ait yÃ¶ntem, kavram veya Ã§Ã¶zÃ¼m tekniÄŸini kullanÄ±cÄ± aÃ§Ä±kÃ§a istemedikÃ§e kullanma.
+- Ã–zellikle TYT ÃœslÃ¼ Ä°fadeler konusunda logaritma yÃ¶ntemini Ã¶nerme; Ã¼s kurallarÄ± ve taban eÅŸitleme kullan.
+- Ã‡eldiricileri ilgili kazanÄ±mdaki gerÃ§ek kavram yanÄ±lgÄ±larÄ±ndan Ã¼ret.
+- Ã‡Ã¶zÃ¼mde kullanÄ±lan ana konu ve alt kazanÄ±m mantÄ±ÄŸÄ±nÄ± aÃ§Ä±kla.
+- AI KoÃ§ isteklerinde tamamlanmamÄ±ÅŸ alt kazanÄ±mlarÄ± Ã¶nceliklendir.
+- Tamamlanan kazanÄ±mlarÄ± gereksiz yere yeniden ana hedef yapma.
 `.trim();
 }
 
@@ -1969,25 +1969,25 @@ function getSubjectExpertRules(
   const commonRules = `
 DERS UZMANI ORTAK KURALLARI:
 
-- Öğrencinin seviyesine uygun, anlaşılır ve öğretici ol.
-- TYT ve AYT kapsamını birbirine karıştırma.
-- İstek TYT ise kullanıcı açıkça istemedikçe logaritma, türev, integral, ileri trigonometri, limit veya başka AYT yöntemlerini çözüm ve çalışma tekniği olarak önerme.
-- TYT Üslü İfadeler ve Üslü Denklemler çalışmalarında yalnızca üs kuralları, taban eşitleme, ortak üs, çarpanlara ayırma ve TYT düzeyindeki cebirsel yöntemleri kullan.
-- Bir TYT kazanımı daha ileri bir yöntemle çözülebiliyor olsa bile öğrenciyi müfredat dışı yönteme yönlendirme.
-- AI Koç çalışma planında önerilen her yöntem, ilgili sınav türü ve listelenen alt kazanımla doğrudan uyumlu olmalıdır.
-- Sorular kazanım ölçsün; yalnızca ezber veya işlem kalabalığı oluşturmasın.
-- Her soruda tam olarak bir doğru cevap bulunsun.
-- Soruyu göndermeden önce sessizce çöz ve bütün seçenekleri kontrol et.
-- Çeldiricileri öğrencilerin gerçek hata türlerinden üret.
-- Gereksiz zorlaştırma, tartışmalı bilgi ve müfredat dışı ayrıntı kullanma.
-- Kolay sorularda temel kazanımı, orta sorularda iki kazanımı, zor sorularda yorum ve bağlantı kurmayı ölç.
-- Çözümde yalnızca doğru cevabı değil, kullanılan mantığı da açıkla.
-- Gereksiz uzun çözüm ve aynı bilginin tekrarından kaçın.
-- Öğrencinin isteği soru üretmekse cevap anahtarı ve çözümleri sorulardan sonra ayrı bölümlerde ver.
-- Öğrencinin isteği konu anlatımıysa önce temel mantığı, sonra kuralları, ardından örnek ve sık hataları açıkla.
-- Kullanıcının istemediği ileri seviye ayrıntıları ana anlatıma ekleme.
+- Ã–ÄŸrencinin seviyesine uygun, anlaÅŸÄ±lÄ±r ve Ã¶ÄŸretici ol.
+- TYT ve AYT kapsamÄ±nÄ± birbirine karÄ±ÅŸtÄ±rma.
+- Ä°stek TYT ise kullanÄ±cÄ± aÃ§Ä±kÃ§a istemedikÃ§e logaritma, tÃ¼rev, integral, ileri trigonometri, limit veya baÅŸka AYT yÃ¶ntemlerini Ã§Ã¶zÃ¼m ve Ã§alÄ±ÅŸma tekniÄŸi olarak Ã¶nerme.
+- TYT ÃœslÃ¼ Ä°fadeler ve ÃœslÃ¼ Denklemler Ã§alÄ±ÅŸmalarÄ±nda yalnÄ±zca Ã¼s kurallarÄ±, taban eÅŸitleme, ortak Ã¼s, Ã§arpanlara ayÄ±rma ve TYT dÃ¼zeyindeki cebirsel yÃ¶ntemleri kullan.
+- Bir TYT kazanÄ±mÄ± daha ileri bir yÃ¶ntemle Ã§Ã¶zÃ¼lebiliyor olsa bile Ã¶ÄŸrenciyi mÃ¼fredat dÄ±ÅŸÄ± yÃ¶nteme yÃ¶nlendirme.
+- AI KoÃ§ Ã§alÄ±ÅŸma planÄ±nda Ã¶nerilen her yÃ¶ntem, ilgili sÄ±nav tÃ¼rÃ¼ ve listelenen alt kazanÄ±mla doÄŸrudan uyumlu olmalÄ±dÄ±r.
+- Sorular kazanÄ±m Ã¶lÃ§sÃ¼n; yalnÄ±zca ezber veya iÅŸlem kalabalÄ±ÄŸÄ± oluÅŸturmasÄ±n.
+- Her soruda tam olarak bir doÄŸru cevap bulunsun.
+- Soruyu gÃ¶ndermeden Ã¶nce sessizce Ã§Ã¶z ve bÃ¼tÃ¼n seÃ§enekleri kontrol et.
+- Ã‡eldiricileri Ã¶ÄŸrencilerin gerÃ§ek hata tÃ¼rlerinden Ã¼ret.
+- Gereksiz zorlaÅŸtÄ±rma, tartÄ±ÅŸmalÄ± bilgi ve mÃ¼fredat dÄ±ÅŸÄ± ayrÄ±ntÄ± kullanma.
+- Kolay sorularda temel kazanÄ±mÄ±, orta sorularda iki kazanÄ±mÄ±, zor sorularda yorum ve baÄŸlantÄ± kurmayÄ± Ã¶lÃ§.
+- Ã‡Ã¶zÃ¼mde yalnÄ±zca doÄŸru cevabÄ± deÄŸil, kullanÄ±lan mantÄ±ÄŸÄ± da aÃ§Ä±kla.
+- Gereksiz uzun Ã§Ã¶zÃ¼m ve aynÄ± bilginin tekrarÄ±ndan kaÃ§Ä±n.
+- Ã–ÄŸrencinin isteÄŸi soru Ã¼retmekse cevap anahtarÄ± ve Ã§Ã¶zÃ¼mleri sorulardan sonra ayrÄ± bÃ¶lÃ¼mlerde ver.
+- Ã–ÄŸrencinin isteÄŸi konu anlatÄ±mÄ±ysa Ã¶nce temel mantÄ±ÄŸÄ±, sonra kurallarÄ±, ardÄ±ndan Ã¶rnek ve sÄ±k hatalarÄ± aÃ§Ä±kla.
+- KullanÄ±cÄ±nÄ±n istemediÄŸi ileri seviye ayrÄ±ntÄ±larÄ± ana anlatÄ±ma ekleme.
 - Konu: ${topic || "Belirtilmedi"}
-- Sınav türü: ${examType}
+- SÄ±nav tÃ¼rÃ¼: ${examType}
 `.trim();
 
   let subjectRules = "";
@@ -1997,63 +1997,63 @@ DERS UZMANI ORTAK KURALLARI:
     subject.includes("geometri")
   ) {
     subjectRules = `
-MATEMATİK VE GEOMETRİ UZMANI:
+MATEMATÄ°K VE GEOMETRÄ° UZMANI:
 
-- İşlem ezberinden çok problem çözme, akıl yürütme ve modelleme becerisini ölç.
-- Yeni nesil sorularda gereksiz uzun hikâye kullanma.
-- Verilen bilgilerin tamamı gerekli ve tutarlı olsun.
-- Sayısal sonucu bağımsız olarak yeniden hesapla.
-- Mümkünse ters işlem, yerine koyma veya farklı yöntemle doğrula.
-- Tanım kümesi, işaret, birim, özel durum ve yaklaşık değerleri kontrol et.
-- Geometri sorularında şekil yoksa bütün geometrik bilgileri açıkça yaz.
-- Şekle bağlı ama şekilsiz çözülemeyen soru üretme.
-- TYT sorularında temel kavram ve yorum; AYT sorularında fonksiyonel düşünme ve bağlantı kurma öne çıksın.
-- Problemler sorularında gerçekçi sayılar kullan ve sonuçların seçeneklerde tam karşılığını ver.
-- Yuvarlama gerekiyorsa soru kökünde açıkça belirt.
+- Ä°ÅŸlem ezberinden Ã§ok problem Ã§Ã¶zme, akÄ±l yÃ¼rÃ¼tme ve modelleme becerisini Ã¶lÃ§.
+- Yeni nesil sorularda gereksiz uzun hikÃ¢ye kullanma.
+- Verilen bilgilerin tamamÄ± gerekli ve tutarlÄ± olsun.
+- SayÄ±sal sonucu baÄŸÄ±msÄ±z olarak yeniden hesapla.
+- MÃ¼mkÃ¼nse ters iÅŸlem, yerine koyma veya farklÄ± yÃ¶ntemle doÄŸrula.
+- TanÄ±m kÃ¼mesi, iÅŸaret, birim, Ã¶zel durum ve yaklaÅŸÄ±k deÄŸerleri kontrol et.
+- Geometri sorularÄ±nda ÅŸekil yoksa bÃ¼tÃ¼n geometrik bilgileri aÃ§Ä±kÃ§a yaz.
+- Åžekle baÄŸlÄ± ama ÅŸekilsiz Ã§Ã¶zÃ¼lemeyen soru Ã¼retme.
+- TYT sorularÄ±nda temel kavram ve yorum; AYT sorularÄ±nda fonksiyonel dÃ¼ÅŸÃ¼nme ve baÄŸlantÄ± kurma Ã¶ne Ã§Ä±ksÄ±n.
+- Problemler sorularÄ±nda gerÃ§ekÃ§i sayÄ±lar kullan ve sonuÃ§larÄ±n seÃ§eneklerde tam karÅŸÄ±lÄ±ÄŸÄ±nÄ± ver.
+- Yuvarlama gerekiyorsa soru kÃ¶kÃ¼nde aÃ§Ä±kÃ§a belirt.
 `.trim();
   }
   else if (subject.includes("fizik")) {
     subjectRules = `
-FİZİK UZMANI:
+FÄ°ZÄ°K UZMANI:
 
-- Formül ezberinden çok fiziksel yorum, grafik okuma ve günlük yaşam bağlantısı ölç.
-- TYT düzeyinde gereksiz üniversite fiziği ayrıntısı kullanma.
-- AYT düzeyinde kavramlar arası bağlantı ve çok adımlı yorum kullan.
-- Kuvvet yönü, işaret, referans noktası, birim ve vektörel büyüklükleri kontrol et.
-- Sürtünme, eğik düzlem, elektrik ve hareket sorularında bütün gerekli bilgileri ver.
-- Şekil olmadan çözülemeyen soru üretme; şekil gerekiyorsa durumu metinle eksiksiz tanımla.
-- Sonucu fiziksel mantıkla da kontrol et.
-- Aynı soruda birden fazla fiziksel yorumun doğru olmasına izin verme.
-- Çözümlerde önce kavramı, sonra işlemi açıkla.
+- FormÃ¼l ezberinden Ã§ok fiziksel yorum, grafik okuma ve gÃ¼nlÃ¼k yaÅŸam baÄŸlantÄ±sÄ± Ã¶lÃ§.
+- TYT dÃ¼zeyinde gereksiz Ã¼niversite fiziÄŸi ayrÄ±ntÄ±sÄ± kullanma.
+- AYT dÃ¼zeyinde kavramlar arasÄ± baÄŸlantÄ± ve Ã§ok adÄ±mlÄ± yorum kullan.
+- Kuvvet yÃ¶nÃ¼, iÅŸaret, referans noktasÄ±, birim ve vektÃ¶rel bÃ¼yÃ¼klÃ¼kleri kontrol et.
+- SÃ¼rtÃ¼nme, eÄŸik dÃ¼zlem, elektrik ve hareket sorularÄ±nda bÃ¼tÃ¼n gerekli bilgileri ver.
+- Åžekil olmadan Ã§Ã¶zÃ¼lemeyen soru Ã¼retme; ÅŸekil gerekiyorsa durumu metinle eksiksiz tanÄ±mla.
+- Sonucu fiziksel mantÄ±kla da kontrol et.
+- AynÄ± soruda birden fazla fiziksel yorumun doÄŸru olmasÄ±na izin verme.
+- Ã‡Ã¶zÃ¼mlerde Ã¶nce kavramÄ±, sonra iÅŸlemi aÃ§Ä±kla.
 `.trim();
   }
   else if (subject.includes("kimya")) {
     subjectRules = `
-KİMYA UZMANI:
+KÄ°MYA UZMANI:
 
-- TYT ve AYT kimya kapsamını ayır.
-- Tepkime, çözünürlük, periyodik özellik ve bağ sorularında bilimsel doğruluğu kontrol et.
-- Denklem kullanılıyorsa atom ve yük denkliğini doğrula.
-- Çözünürlük, asit-baz ve redoks sorularında istisnaları gözden geçir.
-- Birden fazla doğru cevap doğurabilecek genel ifadeler kullanma.
-- Kompleks iyon, ileri organik kimya veya üniversite düzeyi ayrıntıları TYT sorularına gereksiz yere ekleme.
-- Günlük yaşam örneklerini bilimsel olarak doğru ve müfredata uygun seç.
-- Çözümlerde kavramı açıklamadan yalnızca ezber kural yazma.
-- Şıklardaki bileşik, iyon ve tepkime gösterimlerini kontrol et.
+- TYT ve AYT kimya kapsamÄ±nÄ± ayÄ±r.
+- Tepkime, Ã§Ã¶zÃ¼nÃ¼rlÃ¼k, periyodik Ã¶zellik ve baÄŸ sorularÄ±nda bilimsel doÄŸruluÄŸu kontrol et.
+- Denklem kullanÄ±lÄ±yorsa atom ve yÃ¼k denkliÄŸini doÄŸrula.
+- Ã‡Ã¶zÃ¼nÃ¼rlÃ¼k, asit-baz ve redoks sorularÄ±nda istisnalarÄ± gÃ¶zden geÃ§ir.
+- Birden fazla doÄŸru cevap doÄŸurabilecek genel ifadeler kullanma.
+- Kompleks iyon, ileri organik kimya veya Ã¼niversite dÃ¼zeyi ayrÄ±ntÄ±larÄ± TYT sorularÄ±na gereksiz yere ekleme.
+- GÃ¼nlÃ¼k yaÅŸam Ã¶rneklerini bilimsel olarak doÄŸru ve mÃ¼fredata uygun seÃ§.
+- Ã‡Ã¶zÃ¼mlerde kavramÄ± aÃ§Ä±klamadan yalnÄ±zca ezber kural yazma.
+- ÅžÄ±klardaki bileÅŸik, iyon ve tepkime gÃ¶sterimlerini kontrol et.
 `.trim();
   }
   else if (subject.includes("biyoloji")) {
     subjectRules = `
-BİYOLOJİ UZMANI:
+BÄ°YOLOJÄ° UZMANI:
 
-- Salt ezber yerine bilgi, yorum, karşılaştırma ve neden-sonuç ilişkisini birlikte ölç.
-- Kesinlik bildiren "her zaman", "yalnızca", "tüm canlılar" gibi ifadeleri dikkatle kontrol et.
-- Canlı grupları, organeller, metabolizma ve genetik konularındaki istisnaları gözden geçir.
-- TYT sorularında temel biyoloji ve günlük yaşam bağlantısı; AYT sorularında sistemler arası ilişki ve deney yorumu kullan.
-- Grafik veya deney sorusunda değişkenleri açıkça tanımla.
-- Şekil olmadan çözülemeyen soru üretme.
-- Organelleri tek işlevle sınırlandıran yanıltıcı ve bilimsel açıdan eksik ifadelerden kaçın.
-- Çözümde diğer seçeneklerin neden uygun olmadığını kısa biçimde açıkla.
+- Salt ezber yerine bilgi, yorum, karÅŸÄ±laÅŸtÄ±rma ve neden-sonuÃ§ iliÅŸkisini birlikte Ã¶lÃ§.
+- Kesinlik bildiren "her zaman", "yalnÄ±zca", "tÃ¼m canlÄ±lar" gibi ifadeleri dikkatle kontrol et.
+- CanlÄ± gruplarÄ±, organeller, metabolizma ve genetik konularÄ±ndaki istisnalarÄ± gÃ¶zden geÃ§ir.
+- TYT sorularÄ±nda temel biyoloji ve gÃ¼nlÃ¼k yaÅŸam baÄŸlantÄ±sÄ±; AYT sorularÄ±nda sistemler arasÄ± iliÅŸki ve deney yorumu kullan.
+- Grafik veya deney sorusunda deÄŸiÅŸkenleri aÃ§Ä±kÃ§a tanÄ±mla.
+- Åžekil olmadan Ã§Ã¶zÃ¼lemeyen soru Ã¼retme.
+- Organelleri tek iÅŸlevle sÄ±nÄ±rlandÄ±ran yanÄ±ltÄ±cÄ± ve bilimsel aÃ§Ä±dan eksik ifadelerden kaÃ§Ä±n.
+- Ã‡Ã¶zÃ¼mde diÄŸer seÃ§eneklerin neden uygun olmadÄ±ÄŸÄ±nÄ± kÄ±sa biÃ§imde aÃ§Ä±kla.
 `.trim();
   }
   else if (
@@ -2061,58 +2061,58 @@ BİYOLOJİ UZMANI:
     subject.includes("edebiyat")
   ) {
     subjectRules = `
-TÜRKÇE VE EDEBİYAT UZMANI:
+TÃœRKÃ‡E VE EDEBÄ°YAT UZMANI:
 
-- Yazım ve dil bilgisi sorularında bütün seçenekleri TDK kurallarına göre tek tek kontrol et.
-- Birden fazla doğru cevap doğurabilecek tartışmalı örnek kullanma.
-- Paragraf sorularında doğru cevap metinden çıkarılabilir olsun.
-- Çeldiriciler metindeki yakın anlamlardan oluşsun ancak yalnızca biri tam karşılık versin.
-- Paragrafları doğal, özgün ve yaş grubuna uygun yaz.
-- Ana düşünce, yardımcı düşünce, çıkarım ve sözcük anlamını birbirine karıştırma.
-- Edebiyat sorularında dönem, sanatçı ve eser bilgisini doğrula.
-- Kullanıcı istemedikçe aşırı uzun paragraf üretme.
-- Soru kökünü olumsuz yapıyorsan "değildir", "çıkarılamaz" veya "söylenemez" ifadesini görünür biçimde kullan.
+- YazÄ±m ve dil bilgisi sorularÄ±nda bÃ¼tÃ¼n seÃ§enekleri TDK kurallarÄ±na gÃ¶re tek tek kontrol et.
+- Birden fazla doÄŸru cevap doÄŸurabilecek tartÄ±ÅŸmalÄ± Ã¶rnek kullanma.
+- Paragraf sorularÄ±nda doÄŸru cevap metinden Ã§Ä±karÄ±labilir olsun.
+- Ã‡eldiriciler metindeki yakÄ±n anlamlardan oluÅŸsun ancak yalnÄ±zca biri tam karÅŸÄ±lÄ±k versin.
+- ParagraflarÄ± doÄŸal, Ã¶zgÃ¼n ve yaÅŸ grubuna uygun yaz.
+- Ana dÃ¼ÅŸÃ¼nce, yardÄ±mcÄ± dÃ¼ÅŸÃ¼nce, Ã§Ä±karÄ±m ve sÃ¶zcÃ¼k anlamÄ±nÄ± birbirine karÄ±ÅŸtÄ±rma.
+- Edebiyat sorularÄ±nda dÃ¶nem, sanatÃ§Ä± ve eser bilgisini doÄŸrula.
+- KullanÄ±cÄ± istemedikÃ§e aÅŸÄ±rÄ± uzun paragraf Ã¼retme.
+- Soru kÃ¶kÃ¼nÃ¼ olumsuz yapÄ±yorsan "deÄŸildir", "Ã§Ä±karÄ±lamaz" veya "sÃ¶ylenemez" ifadesini gÃ¶rÃ¼nÃ¼r biÃ§imde kullan.
 `.trim();
   }
   else if (subject.includes("tarih")) {
     subjectRules = `
-TARİH UZMANI:
+TARÄ°H UZMANI:
 
-- Kronoloji, neden-sonuç, değişim-süreklilik ve kavram bilgisini dengeli ölç.
-- Tarih, devlet, antlaşma, kişi ve olay bilgilerini doğrula.
-- Tartışmalı tarih yorumlarını kesin bilgi gibi sunma.
-- Aynı döneme ait olmayan olayları yanlış biçimde ilişkilendirme.
-- TYT sorularında temel kavram ve yorum; AYT sorularında dönemler arası bağlantı ve kaynak yorumu kullan.
-- Uzun ezber listeleri yerine olayların anlamını ve sonuçlarını ölç.
-- Cevap seçenekleri aynı dönem ve bağlam içinde mantıklı çeldiriciler olsun.
-- Kronoloji sorularında tarih sırasını yeniden kontrol et.
-- Bilgi kesin değilse uydurma ayrıntı üretme.
+- Kronoloji, neden-sonuÃ§, deÄŸiÅŸim-sÃ¼reklilik ve kavram bilgisini dengeli Ã¶lÃ§.
+- Tarih, devlet, antlaÅŸma, kiÅŸi ve olay bilgilerini doÄŸrula.
+- TartÄ±ÅŸmalÄ± tarih yorumlarÄ±nÄ± kesin bilgi gibi sunma.
+- AynÄ± dÃ¶neme ait olmayan olaylarÄ± yanlÄ±ÅŸ biÃ§imde iliÅŸkilendirme.
+- TYT sorularÄ±nda temel kavram ve yorum; AYT sorularÄ±nda dÃ¶nemler arasÄ± baÄŸlantÄ± ve kaynak yorumu kullan.
+- Uzun ezber listeleri yerine olaylarÄ±n anlamÄ±nÄ± ve sonuÃ§larÄ±nÄ± Ã¶lÃ§.
+- Cevap seÃ§enekleri aynÄ± dÃ¶nem ve baÄŸlam iÃ§inde mantÄ±klÄ± Ã§eldiriciler olsun.
+- Kronoloji sorularÄ±nda tarih sÄ±rasÄ±nÄ± yeniden kontrol et.
+- Bilgi kesin deÄŸilse uydurma ayrÄ±ntÄ± Ã¼retme.
 `.trim();
   }
   else if (subject.includes("cografya")) {
     subjectRules = `
-COĞRAFYA UZMANI:
+COÄžRAFYA UZMANI:
 
-- Harita, grafik, tablo ve günlük yaşam yorumunu öne çıkar.
-- Şekil olmadan çözülemeyen soru üretme.
-- Ölçek sorularında birim dönüşümlerini iki kez kontrol et.
-- Harita projeksiyonu, iklim, nüfus ve yer şekilleri sorularında genellemeleri dikkatle kullan.
-- "Her zaman", "kesinlikle" gibi ifadelerin istisnalarını kontrol et.
-- TYT sorularında temel harita ve çevre yorumu; AYT sorularında bölgesel analiz ve bağlantı kurma kullan.
-- Ezber bilgi yerine konum, dağılış, neden ve sonuç ilişkisi ölç.
-- Türkiye coğrafyası verilerinde güncelliğe bağlı sayı kullanmak yerine kalıcı kavramları tercih et.
+- Harita, grafik, tablo ve gÃ¼nlÃ¼k yaÅŸam yorumunu Ã¶ne Ã§Ä±kar.
+- Åžekil olmadan Ã§Ã¶zÃ¼lemeyen soru Ã¼retme.
+- Ã–lÃ§ek sorularÄ±nda birim dÃ¶nÃ¼ÅŸÃ¼mlerini iki kez kontrol et.
+- Harita projeksiyonu, iklim, nÃ¼fus ve yer ÅŸekilleri sorularÄ±nda genellemeleri dikkatle kullan.
+- "Her zaman", "kesinlikle" gibi ifadelerin istisnalarÄ±nÄ± kontrol et.
+- TYT sorularÄ±nda temel harita ve Ã§evre yorumu; AYT sorularÄ±nda bÃ¶lgesel analiz ve baÄŸlantÄ± kurma kullan.
+- Ezber bilgi yerine konum, daÄŸÄ±lÄ±ÅŸ, neden ve sonuÃ§ iliÅŸkisi Ã¶lÃ§.
+- TÃ¼rkiye coÄŸrafyasÄ± verilerinde gÃ¼ncelliÄŸe baÄŸlÄ± sayÄ± kullanmak yerine kalÄ±cÄ± kavramlarÄ± tercih et.
 `.trim();
   }
   else if (subject.includes("felsefe")) {
     subjectRules = `
 FELSEFE UZMANI:
 
-- Kavramları filozofların görüşleriyle doğru eşleştir.
-- Görüşleri aşırı genelleyerek veya birbirine karıştırarak sunma.
-- Parçada verilen düşünceyi esas al; dışarıdan gereksiz bilgi isteme.
-- Çeldiricileri yakın felsefi kavramlardan oluştur ancak yalnızca biri parçaya tam uysun.
-- Bilgi sorularında dönem, akım, filozof ve temel görüşü doğrula.
-- Çözümde kavramın ayırt edici özelliğini açıkla.
+- KavramlarÄ± filozoflarÄ±n gÃ¶rÃ¼ÅŸleriyle doÄŸru eÅŸleÅŸtir.
+- GÃ¶rÃ¼ÅŸleri aÅŸÄ±rÄ± genelleyerek veya birbirine karÄ±ÅŸtÄ±rarak sunma.
+- ParÃ§ada verilen dÃ¼ÅŸÃ¼nceyi esas al; dÄ±ÅŸarÄ±dan gereksiz bilgi isteme.
+- Ã‡eldiricileri yakÄ±n felsefi kavramlardan oluÅŸtur ancak yalnÄ±zca biri parÃ§aya tam uysun.
+- Bilgi sorularÄ±nda dÃ¶nem, akÄ±m, filozof ve temel gÃ¶rÃ¼ÅŸÃ¼ doÄŸrula.
+- Ã‡Ã¶zÃ¼mde kavramÄ±n ayÄ±rt edici Ã¶zelliÄŸini aÃ§Ä±kla.
 `.trim();
   }
   else if (
@@ -2120,25 +2120,25 @@ FELSEFE UZMANI:
     subject.includes("din kulturu")
   ) {
     subjectRules = `
-DİN KÜLTÜRÜ UZMANI:
+DÄ°N KÃœLTÃœRÃœ UZMANI:
 
-- TYT müfredatındaki kavram, değer ve temel bilgileri esas al.
-- Mezhepsel veya tartışmalı yorumları kesin ve tek doğru bilgi gibi sunma.
-- Ayet veya hadis aktarımında emin olunmayan ifadeyi doğrudan alıntı gibi yazma.
-- Soruları bilgi, anlam ve günlük yaşam bağlantısı üzerinden oluştur.
-- Kavramları birbirine karıştırma.
-- Saygılı, tarafsız ve öğretici dil kullan.
+- TYT mÃ¼fredatÄ±ndaki kavram, deÄŸer ve temel bilgileri esas al.
+- Mezhepsel veya tartÄ±ÅŸmalÄ± yorumlarÄ± kesin ve tek doÄŸru bilgi gibi sunma.
+- Ayet veya hadis aktarÄ±mÄ±nda emin olunmayan ifadeyi doÄŸrudan alÄ±ntÄ± gibi yazma.
+- SorularÄ± bilgi, anlam ve gÃ¼nlÃ¼k yaÅŸam baÄŸlantÄ±sÄ± Ã¼zerinden oluÅŸtur.
+- KavramlarÄ± birbirine karÄ±ÅŸtÄ±rma.
+- SaygÄ±lÄ±, tarafsÄ±z ve Ã¶ÄŸretici dil kullan.
 `.trim();
   }
   else {
     subjectRules = `
 GENEL DERS UZMANI:
 
-- Konunun temel kazanımlarını belirle.
-- Bilgi, uygulama ve yorum sorularını dengeli dağıt.
-- Müfredat dışı ayrıntı ve tartışmalı bilgi kullanma.
-- Her soruyu bağımsız olarak çöz ve doğrula.
-- Öğrencinin seviyesine uygun, açık ve doğal dil kullan.
+- Konunun temel kazanÄ±mlarÄ±nÄ± belirle.
+- Bilgi, uygulama ve yorum sorularÄ±nÄ± dengeli daÄŸÄ±t.
+- MÃ¼fredat dÄ±ÅŸÄ± ayrÄ±ntÄ± ve tartÄ±ÅŸmalÄ± bilgi kullanma.
+- Her soruyu baÄŸÄ±msÄ±z olarak Ã§Ã¶z ve doÄŸrula.
+- Ã–ÄŸrencinin seviyesine uygun, aÃ§Ä±k ve doÄŸal dil kullan.
 `.trim();
   }
 
@@ -2172,7 +2172,7 @@ function getStudentLevelRules(
     "medium";
 
   if (
-    /başlangıç|temel|hiç bilmiyorum|sıfırdan|yeni başladım/.test(
+    /baÅŸlangÄ±Ã§|temel|hiÃ§ bilmiyorum|sÄ±fÄ±rdan|yeni baÅŸladÄ±m/.test(
       rawLevel + " " + rawQuestion,
     )
   ) {
@@ -2184,14 +2184,14 @@ function getStudentLevelRules(
     level = "easy";
   }
   else if (
-    /çok zor|ileri|üst düzey|derece/.test(
+    /Ã§ok zor|ileri|Ã¼st dÃ¼zey|derece/.test(
       rawLevel + " " + rawQuestion,
     )
   ) {
     level = "advanced";
   }
   else if (
-    /zor|orta-zor|ösym ayarında|ösym seviyesinde/.test(
+    /zor|orta-zor|Ã¶sym ayarÄ±nda|Ã¶sym seviyesinde/.test(
       rawLevel + " " + rawQuestion,
     )
   ) {
@@ -2199,79 +2199,79 @@ function getStudentLevelRules(
   }
 
   const shared = `
-ÖĞRENCİ SEVİYESİNE UYARLAMA:
+Ã–ÄžRENCÄ° SEVÄ°YESÄ°NE UYARLAMA:
 
-- Aynı konuyu her öğrenciye aynı zorlukta anlatma.
-- Öğrencinin isteğindeki seviye ifadesini dikkate al.
-- Bilinmeyen ön koşulları kısa biçimde hatırlat.
-- Öğrenciyi gereksiz ayrıntıyla boğma.
-- Anlatım ve soru zorluğu birbiriyle uyumlu olsun.
-- Çözümde seviyeye uygun miktarda ara adım göster.
-- Kolay soruyu yapay biçimde uzatma.
-- Zor soruda kritik düşünme adımlarını atlama.
-- Soru setinde aynı kazanımı tekrar tekrar ölçme.
-- Beş soruluk bir sette mümkünse farklı alt kazanımlar kullan.
+- AynÄ± konuyu her Ã¶ÄŸrenciye aynÄ± zorlukta anlatma.
+- Ã–ÄŸrencinin isteÄŸindeki seviye ifadesini dikkate al.
+- Bilinmeyen Ã¶n koÅŸullarÄ± kÄ±sa biÃ§imde hatÄ±rlat.
+- Ã–ÄŸrenciyi gereksiz ayrÄ±ntÄ±yla boÄŸma.
+- AnlatÄ±m ve soru zorluÄŸu birbiriyle uyumlu olsun.
+- Ã‡Ã¶zÃ¼mde seviyeye uygun miktarda ara adÄ±m gÃ¶ster.
+- Kolay soruyu yapay biÃ§imde uzatma.
+- Zor soruda kritik dÃ¼ÅŸÃ¼nme adÄ±mlarÄ±nÄ± atlama.
+- Soru setinde aynÄ± kazanÄ±mÄ± tekrar tekrar Ã¶lÃ§me.
+- BeÅŸ soruluk bir sette mÃ¼mkÃ¼nse farklÄ± alt kazanÄ±mlar kullan.
 `.trim();
 
   const rules = {
     beginner: `
-BAŞLANGIÇ SEVİYESİ:
+BAÅžLANGIÃ‡ SEVÄ°YESÄ°:
 
-- Konuya kısa tanım ve temel kavramlarla başla.
-- Teknik terimi ilk kullanımda açıkla.
-- Tek adımlı ve doğrudan örnekler kullan.
-- Sorularda temel kazanımı ölç.
-- Güçlü çeldiriciler yerine öğretici ve ayırt edilebilir seçenekler kullan.
-- Çözümde hiçbir temel adımı atlama.
-- Kullanıcı istemedikçe ileri seviye istisna ekleme.
+- Konuya kÄ±sa tanÄ±m ve temel kavramlarla baÅŸla.
+- Teknik terimi ilk kullanÄ±mda aÃ§Ä±kla.
+- Tek adÄ±mlÄ± ve doÄŸrudan Ã¶rnekler kullan.
+- Sorularda temel kazanÄ±mÄ± Ã¶lÃ§.
+- GÃ¼Ã§lÃ¼ Ã§eldiriciler yerine Ã¶ÄŸretici ve ayÄ±rt edilebilir seÃ§enekler kullan.
+- Ã‡Ã¶zÃ¼mde hiÃ§bir temel adÄ±mÄ± atlama.
+- KullanÄ±cÄ± istemedikÃ§e ileri seviye istisna ekleme.
 `.trim(),
 
     easy: `
-KOLAY SEVİYE:
+KOLAY SEVÄ°YE:
 
-- Temel bilgiyi kısa hatırlat.
-- Bir veya iki adımlı sorular üret.
-- Günlük yaşam bağlantısı kullanılabilir.
-- Çeldiriciler yaygın temel hatalara dayansın.
-- Çözüm açık fakat gereksiz uzun olmasın.
+- Temel bilgiyi kÄ±sa hatÄ±rlat.
+- Bir veya iki adÄ±mlÄ± sorular Ã¼ret.
+- GÃ¼nlÃ¼k yaÅŸam baÄŸlantÄ±sÄ± kullanÄ±labilir.
+- Ã‡eldiriciler yaygÄ±n temel hatalara dayansÄ±n.
+- Ã‡Ã¶zÃ¼m aÃ§Ä±k fakat gereksiz uzun olmasÄ±n.
 `.trim(),
 
     medium: `
-ORTA SEVİYE:
+ORTA SEVÄ°YE:
 
-- Temel bilgi ile yorum becerisini birlikte ölç.
-- Sorular iki kazanımı ilişkilendirebilir.
-- Çeldiriciler gerçek öğrenci hatalarına dayansın.
-- Çözümde kullanılan yöntemin nedenini açıkla.
-- Soru setinde kolaydan zora doğal geçiş yap.
+- Temel bilgi ile yorum becerisini birlikte Ã¶lÃ§.
+- Sorular iki kazanÄ±mÄ± iliÅŸkilendirebilir.
+- Ã‡eldiriciler gerÃ§ek Ã¶ÄŸrenci hatalarÄ±na dayansÄ±n.
+- Ã‡Ã¶zÃ¼mde kullanÄ±lan yÃ¶ntemin nedenini aÃ§Ä±kla.
+- Soru setinde kolaydan zora doÄŸal geÃ§iÅŸ yap.
 `.trim(),
 
     hard: `
-ZOR SEVİYE:
+ZOR SEVÄ°YE:
 
-- Ezberden çok analiz, yorum ve bağlantı kurma ölç.
-- Sorunun zorluğu uzun metinden değil düşünme gereksiniminden gelsin.
-- Yakın ve güçlü çeldiriciler kullan fakat belirsizlik oluşturma.
-- Çok adımlı sorularda bütün verilerin gerekli olduğundan emin ol.
-- Çözümde kritik karar noktalarını açıkla.
-- Müfredat dışına çıkmadan ÖSYM düzeyinde seçicilik sağla.
+- Ezberden Ã§ok analiz, yorum ve baÄŸlantÄ± kurma Ã¶lÃ§.
+- Sorunun zorluÄŸu uzun metinden deÄŸil dÃ¼ÅŸÃ¼nme gereksiniminden gelsin.
+- YakÄ±n ve gÃ¼Ã§lÃ¼ Ã§eldiriciler kullan fakat belirsizlik oluÅŸturma.
+- Ã‡ok adÄ±mlÄ± sorularda bÃ¼tÃ¼n verilerin gerekli olduÄŸundan emin ol.
+- Ã‡Ã¶zÃ¼mde kritik karar noktalarÄ±nÄ± aÃ§Ä±kla.
+- MÃ¼fredat dÄ±ÅŸÄ±na Ã§Ä±kmadan Ã–SYM dÃ¼zeyinde seÃ§icilik saÄŸla.
 `.trim(),
 
     advanced: `
-İLERİ SEVİYE:
+Ä°LERÄ° SEVÄ°YE:
 
-- Konunun sınav kapsamındaki en seçici bağlantılarını ölç.
-- Birden fazla kazanımı doğal biçimde birleştir.
-- Çeldiriciler ileri düzey kavram yanılgılarına dayansın.
-- Yine de yalnızca bir doğru cevap bulunduğunu kesin olarak doğrula.
-- Gereksiz üniversite düzeyi bilgi kullanma.
-- Çözümde alternatif kontrol yöntemi kullan.
+- Konunun sÄ±nav kapsamÄ±ndaki en seÃ§ici baÄŸlantÄ±larÄ±nÄ± Ã¶lÃ§.
+- Birden fazla kazanÄ±mÄ± doÄŸal biÃ§imde birleÅŸtir.
+- Ã‡eldiriciler ileri dÃ¼zey kavram yanÄ±lgÄ±larÄ±na dayansÄ±n.
+- Yine de yalnÄ±zca bir doÄŸru cevap bulunduÄŸunu kesin olarak doÄŸrula.
+- Gereksiz Ã¼niversite dÃ¼zeyi bilgi kullanma.
+- Ã‡Ã¶zÃ¼mde alternatif kontrol yÃ¶ntemi kullan.
 `.trim(),
   } as const;
 
   return [
     shared,
-    `ALGILANAN SEVİYE: ${level.toUpperCase()}`,
+    `ALGILANAN SEVÄ°YE: ${level.toUpperCase()}`,
     rules[level],
   ].join("\n\n");
 }
@@ -2287,39 +2287,39 @@ function getAdaptiveTeachingRules(
   ).toLocaleLowerCase("tr-TR");
 
   const wantsShort =
-    /kısa|özet|özetle|kısaca|tek cümle/.test(requestText);
+    /kÄ±sa|Ã¶zet|Ã¶zetle|kÄ±saca|tek cÃ¼mle/.test(requestText);
 
   const wantsDetailed =
-    /detaylı|ayrıntılı|adım adım|sıfırdan|mantığıyla/.test(
+    /detaylÄ±|ayrÄ±ntÄ±lÄ±|adÄ±m adÄ±m|sÄ±fÄ±rdan|mantÄ±ÄŸÄ±yla/.test(
       requestText,
     );
 
   const wantsExamples =
-    /örnek|örneklerle|uygulama|soru çöz/.test(requestText);
+    /Ã¶rnek|Ã¶rneklerle|uygulama|soru Ã§Ã¶z/.test(requestText);
 
   const wantsExamFocus =
-    /ösym|tyt|ayt|sınav|deneme|çıkmış soru|yeni nesil/.test(
+    /Ã¶sym|tyt|ayt|sÄ±nav|deneme|Ã§Ä±kmÄ±ÅŸ soru|yeni nesil/.test(
       requestText,
     );
 
   const rules = `
-UYARLANABİLİR ÖĞRETİM KURALLARI:
+UYARLANABÄ°LÄ°R Ã–ÄžRETÄ°M KURALLARI:
 
-- Öğrencinin isteğine doğrudan cevap ver.
-- Bilgiyi ezberletmek yerine neden-sonuç ilişkisi kur.
-- Yeni kavramı bilinen bir kavramla ilişkilendir.
-- Ön koşul bilgi gerekiyorsa en fazla 2 cümleyle hatırlat.
-- Bir kavramı açıklarken tanım, mantık ve uygulama sırasını koru.
-- Öğrencinin sık yapabileceği kavram yanılgılarını önceden belirt.
-- Yanlış bir yaklaşımı yalnızca "yanlış" diye işaretleme; neden yanlış olduğunu açıkla.
-- Aynı konuyu tekrar anlatırken önceki cevabı birebir tekrarlama.
-- Karmaşık anlatımı kısa parçalara böl.
-- Her bölümde tek ana fikir kullan.
-- Gereksiz emoji, süs cümlesi ve uzun motivasyon paragrafı kullanma.
-- Öğrenciye küçümseyici, yargılayıcı veya aşırı resmi dil kullanma.
-- Emin olmadığın bilgiyi kesinmiş gibi sunma.
-- Müfredat dışı ayrıntıyı ana cevaba ekleme.
-- Cevabın başında veya sonunda gereksiz boşluk bırakma.
+- Ã–ÄŸrencinin isteÄŸine doÄŸrudan cevap ver.
+- Bilgiyi ezberletmek yerine neden-sonuÃ§ iliÅŸkisi kur.
+- Yeni kavramÄ± bilinen bir kavramla iliÅŸkilendir.
+- Ã–n koÅŸul bilgi gerekiyorsa en fazla 2 cÃ¼mleyle hatÄ±rlat.
+- Bir kavramÄ± aÃ§Ä±klarken tanÄ±m, mantÄ±k ve uygulama sÄ±rasÄ±nÄ± koru.
+- Ã–ÄŸrencinin sÄ±k yapabileceÄŸi kavram yanÄ±lgÄ±larÄ±nÄ± Ã¶nceden belirt.
+- YanlÄ±ÅŸ bir yaklaÅŸÄ±mÄ± yalnÄ±zca "yanlÄ±ÅŸ" diye iÅŸaretleme; neden yanlÄ±ÅŸ olduÄŸunu aÃ§Ä±kla.
+- AynÄ± konuyu tekrar anlatÄ±rken Ã¶nceki cevabÄ± birebir tekrarlama.
+- KarmaÅŸÄ±k anlatÄ±mÄ± kÄ±sa parÃ§alara bÃ¶l.
+- Her bÃ¶lÃ¼mde tek ana fikir kullan.
+- Gereksiz emoji, sÃ¼s cÃ¼mlesi ve uzun motivasyon paragrafÄ± kullanma.
+- Ã–ÄŸrenciye kÃ¼Ã§Ã¼mseyici, yargÄ±layÄ±cÄ± veya aÅŸÄ±rÄ± resmi dil kullanma.
+- Emin olmadÄ±ÄŸÄ±n bilgiyi kesinmiÅŸ gibi sunma.
+- MÃ¼fredat dÄ±ÅŸÄ± ayrÄ±ntÄ±yÄ± ana cevaba ekleme.
+- CevabÄ±n baÅŸÄ±nda veya sonunda gereksiz boÅŸluk bÄ±rakma.
 `.trim();
 
   const outputRules: string[] = [];
@@ -2327,49 +2327,49 @@ UYARLANABİLİR ÖĞRETİM KURALLARI:
   if (wantsShort) {
     outputRules.push(`
 KISA CEVAP MODU:
-- En önemli bilgiyi doğrudan ver.
-- Gereksiz başlık kullanma.
-- En fazla 5 kısa madde veya 2 kısa paragraf kullan.
-- Kullanıcı istemedikçe örnek ve ayrıntılı çözüm ekleme.
+- En Ã¶nemli bilgiyi doÄŸrudan ver.
+- Gereksiz baÅŸlÄ±k kullanma.
+- En fazla 5 kÄ±sa madde veya 2 kÄ±sa paragraf kullan.
+- KullanÄ±cÄ± istemedikÃ§e Ã¶rnek ve ayrÄ±ntÄ±lÄ± Ã§Ã¶zÃ¼m ekleme.
 `.trim());
   }
   else if (wantsDetailed) {
     outputRules.push(`
-DETAYLI ÖĞRETİM MODU:
-- Konuyu sıfırdan anlaşılabilir biçimde kur.
-- Tanım, mantık, temel kurallar, örnek ve sık hata sırasını kullan.
-- Önemli ara adımları atlama.
-- Her formülün veya kuralın ne zaman kullanıldığını açıkla.
-- Sonunda kısa tekrar özeti ver.
+DETAYLI Ã–ÄžRETÄ°M MODU:
+- Konuyu sÄ±fÄ±rdan anlaÅŸÄ±labilir biÃ§imde kur.
+- TanÄ±m, mantÄ±k, temel kurallar, Ã¶rnek ve sÄ±k hata sÄ±rasÄ±nÄ± kullan.
+- Ã–nemli ara adÄ±mlarÄ± atlama.
+- Her formÃ¼lÃ¼n veya kuralÄ±n ne zaman kullanÄ±ldÄ±ÄŸÄ±nÄ± aÃ§Ä±kla.
+- Sonunda kÄ±sa tekrar Ã¶zeti ver.
 `.trim());
   }
   else {
     outputRules.push(`
-DENGELİ ANLATIM MODU:
-- Cevabı yeterince açıklayıcı fakat gereksiz uzun olmayacak şekilde yaz.
-- Temel mantığı, gerekli kuralı ve kısa örneği birlikte ver.
-- Tekrar eden bölümler oluşturma.
+DENGELÄ° ANLATIM MODU:
+- CevabÄ± yeterince aÃ§Ä±klayÄ±cÄ± fakat gereksiz uzun olmayacak ÅŸekilde yaz.
+- Temel mantÄ±ÄŸÄ±, gerekli kuralÄ± ve kÄ±sa Ã¶rneÄŸi birlikte ver.
+- Tekrar eden bÃ¶lÃ¼mler oluÅŸturma.
 `.trim());
   }
 
   if (wantsExamples) {
     outputRules.push(`
-ÖRNEK ODAKLI MOD:
-- En az bir doğru ve öğretici örnek kullan.
-- Örneğin çözümünde kritik adımları açıkla.
-- Örnek ile anlatılan kuralın doğrudan ilişkili olmasını sağla.
-- Örnek sonucunu kısa bir kontrolle doğrula.
+Ã–RNEK ODAKLI MOD:
+- En az bir doÄŸru ve Ã¶ÄŸretici Ã¶rnek kullan.
+- Ã–rneÄŸin Ã§Ã¶zÃ¼mÃ¼nde kritik adÄ±mlarÄ± aÃ§Ä±kla.
+- Ã–rnek ile anlatÄ±lan kuralÄ±n doÄŸrudan iliÅŸkili olmasÄ±nÄ± saÄŸla.
+- Ã–rnek sonucunu kÄ±sa bir kontrolle doÄŸrula.
 `.trim());
   }
 
   if (wantsExamFocus) {
     outputRules.push(`
 SINAV ODAKLI MOD:
-- Konunun TYT veya AYT'de nasıl ölçüldüğünü belirt.
-- Gereksiz akademik ayrıntı yerine sınav kazanımına odaklan.
-- Sık yapılan sınav hatalarını açıkla.
-- ÖSYM tarzı soru üretirken uzunlukla değil düşünme gereksinimiyle seçicilik sağla.
-- İpucu verirken cevabı ele verme.
+- Konunun TYT veya AYT'de nasÄ±l Ã¶lÃ§Ã¼ldÃ¼ÄŸÃ¼nÃ¼ belirt.
+- Gereksiz akademik ayrÄ±ntÄ± yerine sÄ±nav kazanÄ±mÄ±na odaklan.
+- SÄ±k yapÄ±lan sÄ±nav hatalarÄ±nÄ± aÃ§Ä±kla.
+- Ã–SYM tarzÄ± soru Ã¼retirken uzunlukla deÄŸil dÃ¼ÅŸÃ¼nme gereksinimiyle seÃ§icilik saÄŸla.
+- Ä°pucu verirken cevabÄ± ele verme.
 `.trim());
   }
 
@@ -2427,7 +2427,7 @@ aiRouter.post("/", aiRateLimiter, async (request, response, next) => {
 
     if (!parsed.success) {
       return response.status(400).json({
-        error: "GeÃ§ersiz istek.",
+        error: "GeÃƒÂ§ersiz istek.",
         details: parsed.error.flatten().fieldErrors,
       });
     }
@@ -2463,7 +2463,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     if (!feature || !isAIFeature(feature)) {
       return response.status(404).json({
-        error: "Desteklenmeyen AI Ã¶zelliÄŸi.",
+        error: "Desteklenmeyen AI ÃƒÂ¶zelliÃ„Å¸i.",
         feature,
       });
     }
@@ -2472,7 +2472,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     if (!parsed.success) {
       return response.status(400).json({
-        error: "GeÃ§ersiz istek.",
+        error: "GeÃƒÂ§ersiz istek.",
         details: parsed.error.flatten(),
       });
     }
@@ -2534,7 +2534,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       ].join("\n\n");
     }
 
-    console.log("[ROUTE] askNvidia baÅŸladÄ±");
+    console.log("[ROUTE] askNvidia baÃ…Å¸ladÃ„Â±");
 
     const attachments =
       feature === "teach-topic" && Array.isArray(parsed.data.attachments)
