@@ -705,15 +705,13 @@ function analyzeQuestionStructure(
     );
 
   const hasAnswerKeyHeading =
-    /^##\s+Cevap AnahtarÄ±\s*$/im.test(
+    /^##\s+Cevap\s+(?:Anahtarı|AnahtarÄ±)\s*$/im.test(
       normalized,
-    );
-
+    )
   const hasSolutionsHeading =
-    /^##\s+Ã‡Ã¶zÃ¼mler\s*$/im.test(
+    /^##\s+(?:Çözümler|Ã‡Ã¶zÃ¼mler)\s*$/im.test(
       normalized,
-    );
-
+    )
   /*
    * SeÃ§enekler ÅŸu biÃ§imlerin tamamÄ±nda algÄ±lanÄ±r:
    *
@@ -815,20 +813,17 @@ function analyzeQuestionStructure(
       : 0;
 
   const hasSolutionHeading =
-    /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\d+\.\s*Soru\s*)?(?:Ã‡Ã¶zÃ¼mÃ¼|Ã‡Ã¶zÃ¼m|Ã‡Ã¶zÃ¼mler)\b/im.test(
+    /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\d+\.\s*Soru\s*)?(?:Çözümü|Çözüm|Çözümler|Ã‡Ã¶zÃ¼mÃ¼|Ã‡Ã¶zÃ¼m|Ã‡Ã¶zÃ¼mler)\b/im.test(
       normalized,
-    );
-
+    )
   const hasReasoningText =
-    /Ã§Ã¼nkÃ¼|bu nedenle|dolayÄ±sÄ±yla|formÃ¼l|kural|hesaplanÄ±r|bulunur|elde edilir|aÃ§Ä±klanÄ±r|gÃ¶re|sonuÃ§ olarak/i.test(
+    /çünkü|Ã§Ã¼nkÃ¼|bu nedenle|dolayısıyla|dolayÄ±sÄ±yla|formül|formÃ¼l|kural|hesaplanır|hesaplanÄ±r|bulunur|elde edilir|açıklanır|aÃ§Ä±klanÄ±r|göre|gÃ¶re|sonuç olarak|sonuÃ§ olarak/i.test(
       normalized,
-    );
-
+    )
   const hasExplicitAnswer =
-    /doÄŸru\s*cevap\s*[:\-]\s*\**[A-E]\b/i.test(
+    /(?:doğru|doÄŸru)\s*cevap\s*[:\-]\s*\**[A-E]\b/i.test(
       normalized,
-    );
-
+    )
   const solutionCount =
     (
       hasSolutionsHeading ||
@@ -1004,6 +999,394 @@ function ensureSolutionAnswerLabels(
     .trim();
 }
 
+type AIQuestionJsonRecord =
+  Record<string, unknown>;
+
+function asAiQuestionRecord(
+  value: unknown,
+): AIQuestionJsonRecord | null {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    Array.isArray(value)
+  ) {
+    return null;
+  }
+
+  return value as AIQuestionJsonRecord;
+}
+
+function getIndexedJsonValue(
+  value: unknown,
+  index: number,
+): unknown {
+  if (Array.isArray(value)) {
+    return value[index];
+  }
+
+  const record =
+    asAiQuestionRecord(value);
+
+  if (!record) {
+    return undefined;
+  }
+
+  return (
+    record[String(index + 1)] ??
+    record[String(index)]
+  );
+}
+
+function getAiAnswerLetter(
+  value: unknown,
+): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return (
+    value
+      .trim()
+      .toUpperCase()
+      .match(/\b([A-E])\b/)
+      ?.[1] ??
+    ""
+  );
+}
+
+function getAiQuestionOptions(
+  value: unknown,
+): Record<string, string> | null {
+  const letters = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+  ];
+
+  const options:
+    Record<string, string> = {};
+
+  if (Array.isArray(value)) {
+    for (
+      let index = 0;
+      index < Math.min(
+        value.length,
+        letters.length,
+      );
+      index += 1
+    ) {
+      const item = value[index];
+
+      if (typeof item === "string") {
+        options[letters[index]] =
+          item.trim();
+
+        continue;
+      }
+
+      const itemRecord =
+        asAiQuestionRecord(item);
+
+      const text =
+        itemRecord?.text ??
+        itemRecord?.value ??
+        itemRecord?.option ??
+        itemRecord?.secenek;
+
+      if (typeof text === "string") {
+        options[letters[index]] =
+          text.trim();
+      }
+    }
+  }
+  else {
+    const record =
+      asAiQuestionRecord(value);
+
+    if (!record) {
+      return null;
+    }
+
+    for (const letter of letters) {
+      const option =
+        record[letter] ??
+        record[
+          letter.toLowerCase()
+        ];
+
+      if (typeof option === "string") {
+        options[letter] =
+          option.trim();
+      }
+    }
+  }
+
+  const complete =
+    letters.every(
+      (letter) =>
+        typeof options[letter] ===
+          "string" &&
+        options[letter].length > 0,
+    );
+
+  return complete
+    ? options
+    : null;
+}
+
+function convertAiQuestionJsonToMarkdown(
+  rawAnswer: string,
+): string | null {
+  let candidate =
+    String(rawAnswer ?? "")
+      .trim()
+      .replace(
+        /^\x60\x60\x60(?:json)?\s*/i,
+        "",
+      )
+      .replace(
+        /\s*\x60\x60\x60$/,
+        "",
+      )
+      .trim();
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(candidate);
+  }
+  catch {
+    return null;
+  }
+
+  if (typeof parsed === "string") {
+    try {
+      parsed = JSON.parse(parsed);
+    }
+    catch {
+      return null;
+    }
+  }
+
+  const root =
+    Array.isArray(parsed)
+      ? {
+          questions: parsed,
+        }
+      : asAiQuestionRecord(
+          parsed,
+        );
+
+  if (!root) {
+    return null;
+  }
+
+  const listedQuestions =
+    root.questions ??
+    root.sorular ??
+    root.items;
+
+  const isSingleQuestion =
+    (
+      typeof root.question ===
+        "string" ||
+      typeof root.soru ===
+        "string" ||
+      typeof root.text ===
+        "string" ||
+      typeof root.questionText ===
+        "string"
+    ) &&
+    (
+      root.options !==
+        undefined ||
+      root.secenekler !==
+        undefined ||
+      root.choices !==
+        undefined
+    );
+
+  const questions:
+    unknown[] | null =
+    Array.isArray(
+      listedQuestions,
+    )
+      ? listedQuestions
+      : isSingleQuestion
+        ? [root]
+        : null;
+
+  if (
+    !questions ||
+    questions.length === 0
+  ) {
+    return null;
+  }
+
+  const rootAnswerKey =
+    root.answerKey ??
+    root.answer_key ??
+    root.cevapAnahtari ??
+    root.cevap_anahtari;
+
+  const rootSolutions =
+    root.solutions ??
+    root.cozumler;
+
+  const questionBlocks:
+    string[] = [];
+
+  const answerLines:
+    string[] = [];
+
+  const solutionBlocks:
+    string[] = [];
+
+  for (
+    let index = 0;
+    index < questions.length;
+    index += 1
+  ) {
+    const question =
+      asAiQuestionRecord(
+        questions[index],
+      );
+
+    if (!question) {
+      return null;
+    }
+
+    const questionText =
+      question.question ??
+      question.soru ??
+      question.text ??
+      question.questionText;
+
+    if (
+      typeof questionText !==
+        "string" ||
+      !questionText.trim()
+    ) {
+      return null;
+    }
+
+    const options =
+      getAiQuestionOptions(
+        question.options ??
+        question.secenekler ??
+        question.choices,
+      );
+
+    if (!options) {
+      return null;
+    }
+
+    const indexedAnswer =
+      getIndexedJsonValue(
+        rootAnswerKey,
+        index,
+      );
+
+    const answerLetter =
+      getAiAnswerLetter(
+        question.answer ??
+        question.correctAnswer ??
+        question.correct_option ??
+        indexedAnswer,
+      );
+
+    if (!answerLetter) {
+      return null;
+    }
+
+    const indexedSolution =
+      getIndexedJsonValue(
+        rootSolutions,
+        index,
+      );
+
+    const solution =
+      question.solution ??
+      question.cozum ??
+      indexedSolution;
+
+    if (
+      typeof solution !==
+        "string" ||
+      !solution.trim()
+    ) {
+      return null;
+    }
+
+    const number =
+      index + 1;
+
+    questionBlocks.push(
+      [
+        `### ${number}. Soru`,
+        "",
+        questionText.trim(),
+        "",
+        `A) ${options.A}`,
+        `B) ${options.B}`,
+        `C) ${options.C}`,
+        `D) ${options.D}`,
+        `E) ${options.E}`,
+      ].join("\n"),
+    );
+
+    answerLines.push(
+      `${number}. ${answerLetter}`,
+    );
+
+    let solutionText =
+      solution.trim();
+
+    if (
+      !/doğru\s*cevap\s*:\s*\**[A-E]\b/i.test(
+        solutionText,
+      )
+    ) {
+      solutionText +=
+        `\n\n**Doğru cevap: ${answerLetter}**`;
+    }
+
+    solutionBlocks.push(
+      [
+        `### ${number}. Soru Çözümü`,
+        "",
+        solutionText,
+      ].join("\n"),
+    );
+  }
+
+  return [
+    "## Sorular",
+    "",
+    questionBlocks.join(
+      "\n\n",
+    ),
+    "",
+    "## Cevap Anahtarı",
+    "",
+    answerLines.join("\n"),
+    "",
+    "## Çözümler",
+    "",
+    solutionBlocks.join(
+      "\n\n",
+    ),
+  ]
+    .join("\n")
+    .replace(
+      /\n{3,}/g,
+      "\n\n",
+    )
+    .trim();
+}
+
 function normalizeQuestionResponseStructure(
   answer: string,
 ): string {
@@ -1050,6 +1433,15 @@ function normalizeQuestionResponseStructure(
     } catch {
       // Normal metin iÅŸlemine devam et.
     }
+  }
+
+  const jsonMarkdown =
+    convertAiQuestionJsonToMarkdown(
+      normalized,
+    );
+
+  if (jsonMarkdown) {
+    return jsonMarkdown;
   }
 
   normalized = normalized
