@@ -1,0 +1,30 @@
+## Kural Anlatımı
+
+Bağlaç olan **de/da** cümleye ekleme anlamı katar ve ayrı yazılır. Cümleden çıkarıldığında temel anlam büyük ölçüde korunur:
+
+- Ben **de** geleceğim.
+- O **da** kitabı okudu.
+
+Bulunma hâl eki olan **-de/-da/-te/-ta** yer, zaman veya bulunma anlamı verir ve kelimeye bitişik yazılır:
+
+- Ev**de**
+- Park**ta**
+- Ankara'**da**
+
+Bağlaç olan de/da hiçbir zaman te/ta biçimine dönüşmez. Özel adlara gelen bulunma hâl eki ise kesme işaretiyle ayrılır.
+## Sorular
+### 1. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de yarın sizinle geleceğim.
+B) Kitaplar masada duruyor.
+C) Ankara'da hava oldukça soğuktu.
+D) O da bu fikri destekledi.
+E) Kardeşimde bizimle sinemaya geldi.
+## Cevap Anahtarı
+1. E
+## Çözümler
+### 1. Soru Çözümü
+E seçeneği yanlıştır. Buradaki "de" bağlaçtır ve ayrı yazılmalıdır:
+
+**Kardeşim de bizimle sinemaya geldi.**

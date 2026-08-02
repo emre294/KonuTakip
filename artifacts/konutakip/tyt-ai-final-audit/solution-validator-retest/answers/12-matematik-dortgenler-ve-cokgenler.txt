@@ -1,0 +1,56 @@
+## Sorular
+
+### 1. Soru
+Bir dikdörtgenin alanı 48 cm² ve çevresi 28 cm’dir. Bu dikdörtgenin köşegen uzunluğunu bulunuz.
+
+A) 10 cm
+B) 8 cm
+C) 9 cm
+D) 11 cm
+E) 12 cm
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Alan = 48 cm², Çevre = 28 cm.
+- **İstenen:** Dikdörtgenin köşegen uzunluğu.
+- **Kullanılacak yöntem:** Alan ve çevreden kenar uzunluklarını bulup, Pisagor teoremi ile köşegeni hesaplamak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Dikdörtgenin kenarlarını a ve b olarak alalım. Alan denklemi a × b = 48.
+*Alan formülü kenarları ilişkilendirir.*
+
+### 2. Adım
+Çevre denklemi 2(a + b) = 28 → a + b = 14.
+*Çevre formülü toplam kenarı verir.*
+
+### 3. Adım
+a ve b, toplamı 14 ve çarpımı 48 olan iki sayıdır. Bu sayıları bulmak için t² − 14t + 48 = 0 denklemini çözelim.
+*İkinci dereceden denklem kökleri kenarları verir.*
+
+### 4. Adım
+Δ = 14² − 4·48 = 196 − 192 = 4, √Δ = 2.
+Kökler: t = (14 ± 2)/2 → t₁ = 8, t₂ = 6.
+*Pozitif kökler gerçek kenar uzunluklarıdır.*
+
+### 5. Adım
+Dolayısıyla a = 8 cm, b = 6 cm. Köşegen uzunluğu d = √(a² + b²) = √(8² + 6²) = √(64 + 36) = √100 = 10 cm.
+*Pisagor teoremi köşegeni verir.*
+
+## Sonuç
+Dikdörtgenin köşegen uzunluğu **10 cm**’dir.
+
+## Kontrol
+a + b = 8 + 6 = 14 → Çevre = 2·14 = 28 cm (verilenle aynı).
+a·b = 8·6 = 48 cm² (verilenle aynı).
+Köşegen = √(8² + 6²) = √100 = 10 cm, doğru.
+
+**Doğru cevap: A**

@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki sözcüklerden hangisi türemiş sözcük **değildir**?
+
+A) gözlem
+B) kitaplık
+C) çocukluk
+D) yazıcı
+E) masa
+
+## Cevap Anahtarı
+
+1. E
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: beş sözcük (gözlem, kitaplık, çocukluk, yazıcı, masa)
+- İstenen: türemiş (türetilmiş) olmayan sözcüğü seçmek
+- Kullanılacak yöntem: sözcük yapısını inceleyerek kök‑ek ilişkisini belirlemek
+
+## Adım Adım Çözüm
+
+### 1. Adım
+"gözlem" kelimesi "göz" kökü + "-lem" ekinden oluşur; bu yüzden türemiştir.
+
+### 2. Adım
+"kitaplık" kelimesi "kitap" kökü + "-lık" ekinden oluşur; türemiştir.
+
+### 3. Adım
+"çocukluk" kelimesi "çocuk" kökü + "-luk" ekinden oluşur; türemiştir.
+
+### 4. Adım
+"yazıcı" kelimesi "yaz" kökü + "-ıcı" ekinden oluşur; türemiştir.
+
+### 5. Adım
+"masa" kelimesi tek bir kökten oluşur, ek almaz; bu yüzden basit (türemiş olmayan) sözcüktür.
+
+## Sonuç
+
+Doğru seçenek **E) masa**dır.
+
+## Kontrol
+
+"Türemiş sözcük" tanımına göre kök + ek gerekir; "masa" kelimesinde ek yoktur, diğer dört kelimede ek vardır. Bu, seçimin doğruluğunu onaylar.

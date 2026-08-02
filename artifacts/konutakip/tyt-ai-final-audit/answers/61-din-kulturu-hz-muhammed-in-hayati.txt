@@ -1,0 +1,39 @@
+## Sorular
+
+### 1. Soru
+Hz. Muhammed'in (s.a.v.) doğum yeri ve hicret yılı aşağıdakilerden hangisinde doğru eşleştirilmiştir?
+
+A) Mekke — 622
+B) Medine — 622
+C) Mekke — 630
+D) Medine — 630
+E) Mekke — 610
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: Hz. Muhammed'in (s.a.v.) doğum yeri ve hicret yılı.
+- İstenen: Doğum yeri ve hicret yılı doğru eşleştirilmiş seçenek.
+- Kullanılacak yöntem: Tarihi bilgilerden doğum yeri ve hicret yılını hatırlayıp seçeneklerle karşılaştırma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Hz. Muhammed'in (s.a.v.) doğum yeri Mekke'dir. Bu bilgi temel tarihî bilgidir.
+
+### 2. Adım
+Hz. Muhammed'in (s.a.v.) hicreti Miladi 622 yılına denk gelir. Hicret, İslam tarihinin başlangıcı olarak kabul edilir.
+
+### 3. Adım
+Seçeneklerdeki “Mekke — 622” eşleşmesi doğru olduğu için A seçeneği doğru cevaptır. Diğer seçeneklerde ya doğum yeri ya da hicret yılı yanlıştır.
+
+## Sonuç
+Doğru seçenek **A** şıkkıdır: Mekke — 622.
+
+## Kontrol
+Doğum yeri Mekke ve hicret yılı 622, İslam tarih kitaplarında aynı şekilde verilmiştir; bu iki bilgi bir arada A seçeneğinde bulunur, diğer seçeneklerde bir ya da iki bilgi yanlıştır. Sonuç tutarlıdır.

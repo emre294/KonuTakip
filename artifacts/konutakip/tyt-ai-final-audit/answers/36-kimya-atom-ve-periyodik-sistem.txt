@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+Bir elementin elektron dizilimi **[Ne] 3s² 3p⁴** şeklindedir. Bu element periyodik tabloda hangi grup ve periyotta bulunur?
+
+A) 2A, 3. periyot
+B) 3A, 3. periyot
+C) 6A, 3. periyot
+D) 6A, 4. periyot
+E) 5A, 3. periyot
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** Elektron dizilimi [Ne] 3s² 3p⁴
+- **İstenen:** Elementin periyodik tablodaki grup ve periyot numarası
+- **Kullanılacak yöntem:** Elektron dizilimini periyodik tabloyla eşleştirerek dış kabuk (valans) elektron sayısını ve periyodu belirleme
+
+## Adım Adım Çözüm
+
+### 1. Adım
+[Ne] çekirdek elektron dizilimini gösterir; neonun (Z=10) son elektronları 1s² 2s² 2p⁶. Bu, dış kabuğun doldurulmadığını gösterir.
+
+### 2. Adım
+3s² 3p⁴ ifadesi, üçüncü enerji seviyesindeki (n=3) s ve p orbitallerinin dolu olduğunu gösterir. Toplam dış kabuk elektron sayısı 2 + 4 = 6’dır.
+
+### 3. Adım
+Periyodik tabloda aynı n değeri (3) periyodu belirler; dolayısıyla element 3. periyottadır.
+
+### 4. Adım
+Valans elektron sayısı 6 olduğundan element, p bloğunda yer alır ve grup numarası 16 (eski IUPAC’da 6A) olarak adlandırılır.
+
+## Sonuç
+
+Element **6A (IIA) grubunda ve 3. periyotta** bulunur.
+
+## Kontrol
+
+Valans elektron sayısı 6 → grup 16 (6A). Elektron diziliminde n=3 → 3. periyot. Sonuç tutarlı, seçenek C doğru.

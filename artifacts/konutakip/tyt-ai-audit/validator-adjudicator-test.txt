@@ -1,0 +1,40 @@
+﻿============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+STATUS: 500
+
+HAKEM SONUCU / HATA:
+{"error":"Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: INVALID: 1, hedef seçenek sayısı 0, hatalı seçenekler: soru de/da içermiyor."}
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+STATUS: 200
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+CEVAP:
+## Sorular
+
+### 1. Soru
+100 mL suya 40 g NaCl ve 30 g KCl eklenmiştir. Çözeltinin önce 25 °C’de doygunluğa ulaşması sağlanıp ardından sıcaklık 0 °C’ye düşürülür. 25 °C’de NaCl’in çözünürlüğü 36 g/100 mL, KCl’in çözünürlüğü 34 g/100 mL; 0 °C’de NaCl’in çözünürlüğü 28 g/100 mL, KCl’in çözünürlüğü 28 g/100 mL’dir. Soğuk suda çökelti olarak biriken toplam katı miktarı kaç gramdır?
+
+A) 10 g
+B) 12 g
+C) 14 g
+D) 16 g
+E) 18 g
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** 40 g NaCl, 30 g KCl, 100 mL su; 25 °C’de NaCl 36 g/100 mL, KCl 34 g/100 mL; 0 °C’de NaCl 28 g/100 mL, KCl 28 g/100 mL.
+- **İstenen:** 0 °C’de çökelti olarak biriken toplam katı miktarı (g).
+- **K
+
+

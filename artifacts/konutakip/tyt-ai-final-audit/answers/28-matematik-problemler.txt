@@ -1,0 +1,60 @@
+## Sorular
+
+### 1. Soru
+Bir otobüs, toplam 60 km’lik bir güzergâhı kat etmektedir. İlk 20 km’yi sabit 40 km/sa hızla, kalan 40 km’yi ise bu hızın %20 artırılmış hızıyla (yani aynı hızın 1,2 katı) ilerlemektedir. Otobüsün bu yolculuğu tamamlaması kaç dakika sürer?
+
+A) 70
+B) 75
+C) 80
+D) 85
+E) 90
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: toplam mesafe 60 km; ilk 20 km hızı 40 km/sa; kalan 40 km hızı %20 artışla 48 km/sa.
+- İstenen: toplam yolculuk süresi (dakika cinsinden).
+- Kullanılacak yöntem: hız‑mesafe‑zaman ilişkisi (zaman = mesafe ÷ hız) ve birim dönüşümü.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İlk 20 km için zamanı hesapla: 20 ÷ 40 = 0,5 saat.
+Neden: zaman = mesafe ÷ hız formülünü doğrudan uyguladık.
+
+### 2. Adım
+0,5 saat’i dakikaya çevir: 0,5 × 60 = 30 dakika.
+Neden: sonuç dakikada isteniyor, saat → dakika dönüşümü gerekir.
+
+### 3. Adım
+Kalan 40 km için artırılmış hızı bul: 40 km/sa × 1,2 = 48 km/sa.
+Neden: hız %20 artmış, bu da 1,2 katına eşittir.
+
+### 4. Adım
+Bu 40 km için zamanı hesapla: 40 ÷ 48 = 0,83333… saat.
+Neden: aynı zaman = mesafe ÷ hız formülünü kullandık.
+
+### 5. Adım
+0,83333… saat’i dakikaya çevir: 0,83333… × 60 ≈ 50 dakika.
+Neden: saat → dakika dönüşümü.
+
+### 6. Adım
+Toplam süreyi bul: 30 dakika + 50 dakika = 80 dakika.
+Neden: iki bölümün süreleri toplandı.
+
+## Sonuç
+
+Otobüsün 60 km’lik yolculuğu **80 dakika** sürer.
+
+## Kontrol
+
+İlk bölüm: 20 km ÷ 40 km/sa = 0,5 sa → 30 dk.
+İkinci bölüm: 40 km ÷ 48 km/sa = 5/6 sa → (5/6)×60 = 50 dk.
+Toplam: 30 dk + 50 dk = 80 dk. Hesaplamalar tutarlı, sonuç doğrulandı.

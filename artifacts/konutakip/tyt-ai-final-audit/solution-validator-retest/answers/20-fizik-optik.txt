@@ -1,0 +1,56 @@
+## Sorular
+
+### 1. Soru
+Bir ince, tek odaklı, odak uzaklığı 20 cm olan konveks mercek, nesneyi ana eksen üzerinde bir ekranda net bir görüntü oluşturacak şekilde yerleştiriliyor. Nesne ile ekran arasındaki toplam mesafe 80 cm’dir. Nesnenin merceğe olan uzaklığı kaç santimetredir?
+
+A) 30 cm
+B) 35 cm
+C) 40 cm
+D) 45 cm
+E) 50 cm
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** odak uzaklığı f = 20 cm, nesne‑ekran toplam mesafesi = 80 cm.
+- **İstenen:** nesnenin merceğe uzaklığı (do).
+- **Kullanılacak yöntem:** mercek formülü 1/f = 1/do + 1/di ve do + di = 80 cm.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Mercek formülünü yaz: 1/20 = 1/do + 1/di. (Nesne ve görüntü uzaklıkları pozitif alınır.)
+
+### 2. Adım
+Toplam mesafe koşulunu ekle: do + di = 80 cm. (di = 80 – do.)
+
+### 3. Adım
+di yerine 80 – do koyarak formülü bir değişkene indir:
+1/20 = 1/do + 1/(80 – do).
+
+### 4. Adım
+Ortak payda al: (80 – do + do) / [do(80 – do)] = 1/20 → 80 / [do(80 – do)] = 1/20.
+
+### 5. Adım
+Çapraz çarpım yap: 80 × 20 = do(80 – do) → 1600 = 80 do – do².
+
+### 6. Adım
+Denklemi düzenle: do² – 80 do + 1600 = 0.
+
+### 7. Adım
+Kare tamamlama: (do – 40)² = 0 → do = 40 cm.
+
+## Sonuç
+Nesnenin merceğe uzaklığı 40 cm’dir.
+
+## Kontrol
+do = 40 cm, di = 80 – 40 = 40 cm.
+1/do + 1/di = 1/40 + 1/40 = 2/40 = 1/20, ki bu da f = 20 cm’ye eşittir. Formül sağlanıyor, sonuç tutarlı.
+
+**Doğru cevap: C**

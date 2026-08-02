@@ -1,0 +1,23 @@
+## Soru Analizi
+
+- Verilen: C = 2 µF, V = 3 V
+- İstenen: Kondansatörde depolanan yük Q (µC) miktarı
+- Kullanılacak yöntem: Q = C × V (kapasitans‑gerilim ilişkisi)
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Q = C × V formülünü yazarız; çünkü bir kondansatördeki yük, kapasitans ile potansiyel farkın çarpımına eşittir.
+
+### 2. Adım
+C = 2 µF ve V = 3 V değerlerini yerine koyarız: Q = 2 µF × 3 V = 6 µC. Birimlerin uyumlu olduğunu (µF·V = µC) kontrol ederiz.
+
+## Sonuç
+
+Kondansatörde depolanan yük 6 µC’dir.
+
+## Kontrol
+
+Q = C × V formülüyle elde edilen sonuç 6 µC, seçenekler arasında C) 6 değerine karşılık gelir; diğer seçenekler formüle göre tutarsızdır.
+
+**Doğru cevap: C seçeneği**

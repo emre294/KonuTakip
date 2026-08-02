@@ -1,0 +1,44 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki maddelerden hangisi 25 °C ve 1 atm basınçta katı hâlde bulunur?
+
+A) O₂
+B) KCl
+C) H₂O
+D) N₂
+E) CO₂
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: 25 °C ve 1 atm basınçta maddelerin hâli.
+- İstenen: Katı hâlde bulunan madde.
+- Kullanılacak yöntem: Maddelerin erime noktalarını karşılaştırarak hangi maddenin erime noktasının 25 °C’den yüksek olduğunu bulmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Her maddenin erime noktasını (veya sublimasyon noktasını) not al:
+O₂ –183,8 °C, KCl 770 °C, H₂O 0 °C, N₂ –210 °C, CO₂ –78,5 °C (sublimasyon).
+Bu adım, hangi sıcaklıkta katıdan sıvıya geçtiğini gösterir.
+
+### 2. Adım
+Erime noktası 25 °C’den yüksek olan maddeleri belirle.
+KCl’nin erime noktası 770 °C > 25 °C, diğer maddelerin erime/sublimasyon noktaları 25 °C’den düşük.
+Bu adım, sadece KCl’in bu koşullarda katı kalacağını ortaya koyar.
+
+## Sonuç
+
+25 °C ve 1 atm’de katı hâlde bulunan madde **KCl**’dir. → **B şıkkı**.
+
+## Kontrol
+
+KCl’nin erime noktası 770 °C olduğundan 25 °C’de hâlâ katıdır; diğer maddeler ya sıvı (H₂O) ya da gaz (O₂, N₂, CO₂) hâlindedir. Sonuç tutarlı.

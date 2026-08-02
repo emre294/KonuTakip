@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlede “sınav sonuçlarını” ifadesi hangi ögeye örnek oluşturur?
+
+A) Özne
+B) Yüklem
+C) Belirtili nesne
+D) Belirtisiz nesne
+E) Zarf tümleci
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: “Öğrenciler, sınav sonuçlarını gördüklerinde çok mutlu oldular.” cümlesi ve “sınav sonuçlarını” ifadesi.
+- İstenen: “sınav sonuçlarını” ifadesinin cümle içindeki öge türü.
+- Kullanılacak yöntem: Cümledeki ögeleri belirleyerek, ilgili ifadenin görevini tespit etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Cümleyi iki ana bölüme ayıralım: “Öğrenciler, … çok mutlu oldular.” ve “… sınav sonuçlarını gördüklerinde …”. Alt cümledeki yüklem “gördüklerinde”dir.
+(Neden: Ögeyi bulmak için önce fiili (yüklemi) tespit ederiz.)
+
+### 2. Adım
+Alt cümlede “gördüklerinde” fiilinin nesnesi “sınav sonuçlarını” ifadesidir.
+(Neden: Nesne, fiilin etkilediği, genellikle akuzatif (‑ı/‑i) eki alan sözcüktür.)
+
+### 3. Adım
+“sınav sonuçlarını” sözcüğü “-ı” ekini almıştır; bu, belirtili nesne özelliğidir.
+(Neden: Belirtili nesne, tanımlı bir varlığı işaret eden ve akuzatif ek almış sözcük ya da sözcük grubudur.)
+
+## Sonuç
+“sınav sonuçlarını” ifadesi **belirtili nesne**dir.
+
+## Kontrol
+Akuzatif ek “‑ı” bulunduğu için nesne olduğu kesinleşir; ayrıca cümledeki fiil “gördüklerinde” bu nesneyi tamamlar. Dolayısıyla seçenek C doğru olur.

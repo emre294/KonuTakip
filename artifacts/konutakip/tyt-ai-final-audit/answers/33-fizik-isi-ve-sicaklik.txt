@@ -1,0 +1,40 @@
+## Sorular
+
+### 1. Soru
+500 g suyun sıcaklığı 15 °C’den 45 °C’ye yükseltiliyor. Su için özgül ısı 4.18 J/(g·°C) ise bu ısı transferi için gereken enerji miktarı kaç joule’dür?
+
+A) 4.18 × 10⁴ J
+B) 5.03 × 10⁴ J
+C) 6.27 × 10⁴ J
+D) 7.56 × 10⁴ J
+E) 8.36 × 10⁴ J
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** kütle m = 500 g, özgül ısı c = 4.18 J/(g·°C), başlangıç sıcaklığı T₁ = 15 °C, son sıcaklık T₂ = 45 °C
+- **İstenen:** ısı transferi Q (J)
+- **Kullanılacak yöntem:** Q = m · c · ΔT formülü
+
+## Adım Adım Çözüm
+
+### 1. Adım
+ΔT = T₂ − T₁ = 45 °C − 15 °C = 30 °C. Sıcaklık farkı bu yüzden bulunur.
+
+### 2. Adım
+Q = m · c · ΔT = 500 g · 4.18 J/(g·°C) · 30 °C. Formüle verilen değerler yerleştirilir.
+
+### 3. Adım
+İşlemi yap: 4.18 × 30 = 125.4 J/g, ardından 500 g × 125.4 J/g = 62 700 J.
+
+## Sonuç
+Gerekli ısı miktarı **6.27 × 10⁴ J**’dir.
+
+## Kontrol
+Q = m · c · ΔT formülü tekrar uygulanır: 500 × 4.18 × 30 = 62 700 J → 6.27 × 10⁴ J, sonuç tutarlı.

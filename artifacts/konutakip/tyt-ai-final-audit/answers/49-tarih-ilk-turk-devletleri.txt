@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerden hangisi, İlk Türk Devletleri döneminde doğrudur?
+
+A) Göktürk Kağanlığı’nın başkenti Karahan’dır.
+B) Uygur Kağanlığı döneminde resmi din olarak Budizm benimsenmiştir.
+C) Karahanlı Devleti, 9. yüzyılda İslamiyet’i resmi din olarak kabul etmiştir.
+D) Bilge Kağan, Orhun Yazıtları’nı Arap alfabesiyle kaleme almıştır.
+E) Kutluk Kağan, Göktürk Kağanlığı’nın en geniş sınırlarına ulaşmasını sağlamıştır.
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** İlk Türk Devletleriyle ilgili beş farklı tarihî ifade.
+- **İstenen:** Doğru olan ifadeyi belirlemek.
+- **Kullanılacak yöntem:** Tarihî bilgilerle ifadeleri karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A seçeneğini incele: Göktürk Kağanlığı’nın başkenti Karahan değildir; başkenti Ötüken (Mongolistan’da) olarak bilinir. Yanlış.
+
+### 2. Adım
+B seçeneğini incele: Uygur Kağanlığı 8. yüzyılda Budizm’i resmi din olarak benimsemiştir. Bu bilgi tarihî kaynaklarda yer alır ve doğrudur. Doğru seçenek.
+
+### 3. Adım
+C seçeneğini incele: Karahanlı Devleti İslamiyet’i 10. yüzyılda (c. 934) kabul etmiştir; 9. yüzyılda değil. Yanlış.
+
+### 4. Adım
+D seçeneğini incele: Orhun Yazıtları, Göktürk alfabesi (runik) ile yazılmıştır; Arap alfabesi kullanılmamıştır. Yanlış.
+
+### 5. Adım
+E seçeneğini incele: Göktürk Kağanlığı’nın en geniş sınırları Bilge Kağan ve İstemi Yabgu döneminde olmuştur; Kutluk Kağan dönemi daha sınırlıdır. Yanlış.
+
+## Sonuç
+
+Doğru ifade B) “Uygur Kağanlığı döneminde resmi din olarak Budizm benimsenmiştir.” seçeneğidir.
+
+## Kontrol
+
+Uygur Kağanlığı’nın Budizm’i resmi din olarak benimsediği, Orhun Yazıtları’nın runik alfabeyle yazıldığı ve Karahanlıların İslam’ı 10. yüzyılda kabul ettiği tarihî kaynaklarla doğrulanır; bu da yalnızca B seçeneğinin doğru olduğunu gösterir.

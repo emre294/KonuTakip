@@ -1,0 +1,264 @@
+﻿============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+STATUS: 200
+SURE: 56 saniye
+YAPISAL DURUM: BASARILI
+SORU SAYISI: 1
+COZUM SAYISI: 1
+CEVAP ANAHTARI SAYISI: 1
+A-E SECENEKLER: TAM
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+CEVAP:
+## Sorular
+
+### 1. Soru
+Aşağıdaki sayılardan 48, 180 ve 210'un ortak katı olan en küçük sayı kaçtır?
+
+A) 1260
+B) 2520
+C) 5040
+D) 7200
+E) 8400
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** 48, 180, 210
+- **İstenen:** Bu sayıların ortak katı olan en küçük sayı (EKOK)
+- **Kullanılacak yöntem:** Asal çarpanlara ayırma, her asal için en büyük üs alınarak EKOK bulunur
+
+## Adım Adım Çözüm
+
+### 1. Adım
+48 = 2⁴ × 3¹ olarak çarpanlara ayır. (Asal çarpanları bulmak için.)
+
+### 2. Adım
+180 = 2² × 3² × 5¹ olarak çarpanlara ayır. (Aynı amaçla.)
+
+### 3. Adım
+210 = 2¹ × 3¹ × 5¹ × 7¹ olarak çarpanlara ayır. (Aynı amaçla.)
+
+### 4. Adım
+Her asal için en büyük üs alın: 2⁴, 3², 5¹, 7¹. (EKOK, her sayının asal çarpanlarını en az bu üslerle içermelidir.)
+
+### 5. Adım
+Bu üsleri çarp: 2⁴ × 3² × 5 × 7 = 16 × 9 × 5 × 7 = 5040. (EKOK değeri elde edilir.)
+
+## Sonuç
+48, 180 ve 210 sayılarının ortak katı olan en küçük sayı **5040**’tır.
+
+## Kontrol
+5040 ÷ 48 = 105 (tam sayı)
+5040 ÷ 180 = 28 (tam sayı)
+5040 ÷ 210 = 24 (tam sayı)
+
+Tüm bölünmeler tam olduğundan sonuç doğrudur.
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+STATUS: 200
+SURE: 105 saniye
+YAPISAL DURUM: BASARILI
+SORU SAYISI: 1
+COZUM SAYISI: 1
+CEVAP ANAHTARI SAYISI: 1
+A-E SECENEKLER: TAM
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+CEVAP:
+## Sorular
+
+### 1. Soru
+Bir karışımda 80 g NaCl ve 30 g KCl bulunuyor. Bu karışıma 200 mL su 25 °C’de ekleniyor. Aynı sıcaklıkta NaCl’in çözünürlüğü 36 g/100 mL, KCl’in çözünürlüğü 34 g/100 mL’dür. Suyun içinde çözünebilen miktar aşıldığında fazladan kalan tuzlar çökelir. Bu durumda oluşan toplam çökelti miktarı kaç gramdır?
+
+A) 0 g
+B) 8 g
+C) 30 g
+D) 68 g
+E) 80 g
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** NaCl 80 g, KCl 30 g, su 200 mL, NaCl çözünürlüğü 36 g/100 mL, KCl çözünürlüğü 34 g/100 mL.
+- **İstenen:** Çökelti miktarı (gram).
+- **Kullanılacak yöntem:** Çözünürlük hesabı, fazlalık belirleme, toplam çökeltiyi bulma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+NaCl’in 200 mL suda maksimum çözünebilen miktarını bul: 36 g/100 mL × (200 mL ÷ 100 mL) = 36 g × 2 = 72 g.
+(Neden: aynı sıcaklıkta 100 mL’de 36 g çözünebilir, iki kat suda iki katı çözünebilir.)
+
+### 2. Adım
+Karışımdaki NaCl miktarı 80 g olduğundan, çözünebilen miktar 72 g, fazladan kalan NaCl = 80 g – 72 g = 8 g.
+(Neden: Çözünürlük sınırı aşıldığında fazla kısım çözünmez ve çökerek çökelti oluşturur.)
+
+### 3. Adım
+KCl’in 200 mL suda maksimum çözünebilen miktarını bul: 34 g/100 mL × 2 = 68 g.
+(Neden: aynı ölçekleme yöntemi.)
+
+### 4. Adım
+Karışımdaki KCl miktarı 30 g, bu değer 68 g’den küçük olduğundan KCl tamamen çözünür, çökelti oluşturmaz.
+(Neden: Çözünürlük sınırı aşılmadığı için fazladan tuz yoktur.)
+
+### 5. Adım
+Toplam çökelti miktarı yalnızca NaCl’in fazlası olduğundan 8 g.
+(Neden: Çökelti sadece çözünebilenin üzerindeki kütlelerden oluşur.)
+
+## Sonuç
+Oluşan çökelti miktarı **8 g**’dir.
+
+## Kontrol
+NaCl için maksimum çözünebilen = 36 g/100 mL × 2 = 72 g. Fazla = 80 g – 72 g = 8 g. KCl için fazlalık yok. Toplam 8 g, seçenek B ile aynı.
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+STATUS: 200
+SURE: 46 saniye
+YAPISAL DURUM: BASARILI
+SORU SAYISI: 1
+COZUM SAYISI: 1
+CEVAP ANAHTARI SAYISI: 1
+A-E SECENEKLER: TAM
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+CEVAP:
+## Sorular
+
+### 1. Soru
+\(x/2 + 3 = (3x - 4)/5\) eşitliğini sağlayan \(x\) değerini bulun.
+
+A) 38
+B) 22
+C) 30
+D) 40
+E) 34
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** \(x/2 + 3 = (3x - 4)/5\)
+- **İstenen:** \(x\) değeri
+- **Kullanılacak yöntem:** Paydaları yoketmek için eşitliğin iki tarafını ortak kat olan 10 ile çarpıp, lineer denklemi çözmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Her iki tarafı 10 ile çarp: \(10 \times (x/2 + 3) = 10 \times (3x - 4)/5\).
+Neden: 2 ve 5’in ortak katı 10’dur, bu sayede kesirler ortadan kalkar.
+
+### 2. Adım
+İşlemi yap: \(5x + 30 = 2(3x - 4)\).
+Neden: \(10 \times x/2 = 5x\) ve \(10 \times 3 = 30\); sağ tarafta \(10/5 = 2\).
+
+### 3. Adım
+Sağ tarafı dağıt: \(5x + 30 = 6x - 8\).
+Neden: Parantez içi çarpma.
+
+### 4. Adım
+\(x\) terimlerini bir tarafa, sabitleri diğer tarafa taşı: \(5x - 6x = -8 - 30\).
+Neden: Denklemde aynı tür terimleri toplamak.
+
+### 5. Adım
+Basitleştir: \(-x = -38\).
+Neden: \(5x - 6x = -x\) ve \(-8 - 30 = -38\).
+
+### 6. Adım
+Her iki tarafı \(-1\) ile çarp: \(x = 38\).
+Neden: Negatif işareti kaldırmak.
+
+## Sonuç
+\(x = 38\)
+
+## Kontrol
+\(x = 38\) değerini orijinal eşitliğe koy:
+\(38/2 + 3 = 19 + 3 = 22\)
+\((3·38 - 4)/5 = (114 - 4)/5 = 110/5 = 22\)
+İki taraf eşit, sonuç doğrudur.
+
+============================================================
+DERS: Fizik
+KONU: Optik
+STATUS: 200
+SURE: 56 saniye
+YAPISAL DURUM: BASARILI
+SORU SAYISI: 1
+COZUM SAYISI: 1
+CEVAP ANAHTARI SAYISI: 1
+A-E SECENEKLER: TAM
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+CEVAP:
+## Sorular
+
+### 1. Soru
+Bir ışın suyun yüzeyine (kırılma indisi n=1,33) 50° açı ile geldiğinde su–hava sınırında tam yansıma gerçekleşir. Aşağıdaki ifadelerden hangisi bu durumu en doğru şekilde açıklar?
+
+A) Işın suyun içinde kırılmadan yansır çünkü gelen açı kritik açıdan büyüktür.
+B) Işın suyun içinde kırılır ve havaya geçer çünkü gelen açı kritik açıdan küçüktür.
+C) Işın suyun içinde yansır ve havaya geçmez çünkü gelen açı kritik açıdan küçüktür.
+D) Işın suyun içinde kırılır ve yansıma olmaz çünkü suyun kırılma indisi 1,33'tür.
+E) Işın suyun içinde yansır ve havaya geçer çünkü suyun kırılma indisi 1,33'tür.
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** n₁ = 1,33 (su), n₂ = 1 (hava), gelen açı = 50°
+- **İstenen:** Tam yansıma koşulunu doğru açıklayan seçenek
+- **Kullanılacak yöntem:** Kritik açı hesabı ve açı karşılaştırması
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Kritik açı θc = arcsin(n₂/n₁) = arcsin(1/1,33) ≈ 48,75°.
+*Gerekçe:* Kritik açı, ışığın tam yansıma yapabilmesi için en büyük giriş açısıdır.
+
+### 2. Adım
+Gelen açı 50° > 48,75° olduğundan tam yansıma gerçekleşir; ışın su içinde yansır, havaya geçmez.
+*Gerekçe:* Açının kritik açıdan büyük olması yansıma şartını sağlar.
+
+### 3. Adım
+Seçenekleri incele:
+- A) “Işın suyun içinde kırılmadan yansır çünkü gelen açı kritik açıdan büyüktür.” → Yukarıdaki bulguyla tam uyumlu.
+- B), C), D), E) ifadeleri ya açı karşılaştırmasını yanlış yapar ya da yansıma/kırılma durumunu hatalı tanımlar.
+
+## Sonuç
+Doğru seçenek **A** şıkkıdır.
+
+## Kontrol
+θc ≈ 48,75°, 50° > θc → tam yansıma. Bu, A seçeneğinin ifadesiyle birebir örtüşür.
+
+

@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+AB = 7 cm, AC = 9 cm ve BC = 12 cm uzunluklarına sahip bir üçgen ABC verilmiştir. Bu üçgende en büyük açı kaç derecedir?
+
+A) 84°
+B) 96°
+C) 108°
+D) 120°
+E) 132°
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** AB = 7 cm, AC = 9 cm, BC = 12 cm.
+- **İstenen:** Üçgenin en büyük açısının ölçüsü (derece).
+- **Kullanılacak yöntem:** Uzun kenarın karşısındaki açıyı bulmak için kosinüs kanunu.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+En uzun kenar BC = 12 cm olduğundan, en büyük açı ∠A karşısında yer alır. Kosinüs kanununu uygulayalım:
+cos A = (AB² + AC² – BC²) / (2·AB·AC).
+
+### 2. Adım
+AB² = 7² = 49, AC² = 9² = 81, BC² = 12² = 144.
+cos A = (49 + 81 – 144) / (2·7·9) = (130 – 144) / 126 = (‑14) / 126 = –0,1111…
+
+### 3. Adım
+Açıyı bulmak için arccos alıyoruz:
+A = arccos(‑0,1111…) ≈ 96,4°.
+
+## Sonuç
+En büyük açı yaklaşık **96°**’dir.
+
+## Kontrol
+cos 96° ≈ –0,1045, cos 96,4° ≈ –0,1111; hesaplanan değerle uyumludur. Dolayısıyla seçenek B doğru cevaptır.

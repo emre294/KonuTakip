@@ -1,0 +1,45 @@
+AYT AI OGRETMEN SORU HAZIRLAMA VE COZME KALITE RAPORU
+
+TOPLAM DERS: 12
+TOPLAM TEST: 2
+BASARILI: 2
+KONTROL GEREKLI: 0
+HATA: 0
+
+SORU HAZIRLAMA TESTI: 1
+SORU COZME TESTI: 1
+
+============================================================
+1. TEST: AYT Matematik - SORU_HAZIRLAMA
+KONU: Türev
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 22 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+BULGULAR:
+YOK
+
+CEVAP: ayt-ai-teacher-quality-answers\01-matematik-generation.txt
+
+============================================================
+2. TEST: AYT Matematik - SORU_COZME
+KONU: Türev
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 5 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+BULGULAR:
+YOK
+
+CEVAP: ayt-ai-teacher-quality-answers\02-matematik-solution.txt
+
+============================================================
+SONUC: 24/24 TAMAM - AYT AI OGRETMEN SORU HAZIRLAMA VE COZME KALITESI BASARILI
+
+CEVAPLAR: C:\Users\arife\Desktop\KonuTakip\artifacts\konutakip\ayt-ai-teacher-quality-answers

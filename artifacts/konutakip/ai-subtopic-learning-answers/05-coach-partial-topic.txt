@@ -1,0 +1,24 @@
+## Hedef
+
+- Üslü ifadelerde negatif üs ve üslü denklemleri tamamlamak.
+- Optikte kırılma, mercekler ve renk konularını bitirmek.
+
+## Günlük Program
+
+### 1. Bölüm (30 dk)
+
+- **09:00–09:10 — Üslü İfadeler:** Negatif üs kurallarını tekrar et.
+- **09:10–09:20 — Üslü İfadeler:** Negatif üs içeren 3‑4 örnek soru çöz.
+- **09:20–09:30 — Üslü Denklemler:** Üs eşitleme ve logaritma yöntemiyle 2 soru uygula.
+
+### 2. Bölüm (30 dk)
+
+- **09:30–09:40 — Optik:** Kırılma kanunu ve Snell yasasını özetle.
+- **09:40–09:50 — Optik:** Kırılma ile ilgili 2‑3 sayısal soru çöz.
+- **09:50–10:00 — Optik:** Mercekler ve renk konusunun temel kavramlarını gözden geçir, kısa not al.
+
+### 3. Bölüm (30 dk)
+
+- **10:00–10:10 — Karma Çalışma:** Negatif üs ve üslü denklem karışık soru (10 dk).
+- **10:10–10:20 — Karma Çalışma:** Kırılma ve mercek ilişkili bir uygulama sorusu (10 dk).
+- **10:20–10:30 — Tekrar & Not:** Zorlandığın adımları not al, eksik noktaları belirle ve kısa tekrar yap.

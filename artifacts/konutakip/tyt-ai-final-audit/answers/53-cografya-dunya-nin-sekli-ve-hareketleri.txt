@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Dünya'nın şekli ve hareketleri hakkında aşağıdaki ifadelerden hangisi yanlıştır?
+
+A) Dünya, dönme hareketi nedeniyle ekvatorda kutup bölgesine göre daha büyük bir yarıçapa sahiptir.
+B) Dünya'nın eksen eğikliği 23,5°'dir ve bu eğiklik mevsimlerin oluşmasına neden olur.
+C) Dünya, kendi ekseni etrafında batıdan doğuya doğru döner; bu yüzden Güneş batıdan doğuya doğru hareket eder.
+D) Dünya, Güneş etrafında bir yıl süresince eliptik bir yörüngede döner.
+E) Dünya'nın dönüşü nedeniyle ekvator bölgesinde ağırlık, kutup bölgesine göre biraz daha azdır.
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** Beş adet doğru‑yanlış ifadesi.
+- **İstenen:** Yanlış olan ifadeyi belirlemek.
+- **Kullanılacak yöntem:** Her ifadeyi tek tek inceleyerek Dünya’nın şekli ve hareketleriyle ilgili temel coğrafi bilgileri kontrol etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A seçeneğini incele: Dünya’nın dönmesi nedeniyle ekvatorda merkezkaç kuvveti artar, bu da ekvator yarıçapının kutup yarıçapından büyük olmasına yol açar. Doğrudur.
+
+### 2. Adım
+B seçeneğini incele: Dünya ekseni 23,5° eğiktir; bu eğiklik Güneş ışınlarının farklı enlemlere farklı açılarla gelmesini sağlar ve mevsimleri oluşturur. Doğrudur.
+
+### 3. Adım
+C seçeneğini incele: Dünya batıdan doğuya (doğu yönünde) döner; bu yüzden Güneş gökyüzünde doğudan batıya doğru hareket eder. İfade “Güneş batıdan doğuya doğru hareket eder” yanlıştır.
+
+### 4. Adım
+D seçeneğini incele: Dünya, Güneş etrafında eliptik bir yörüngede bir yıl içinde döner. Bu, Kepler kanunlarıyla uyumludur. Doğrudur.
+
+### 5. Adım
+E seçeneğini incele: Dönme nedeniyle ekvator bölgesinde merkezkaç etkisi daha fazladır; bu da yerçekimi ivmesini biraz azaltır, yani ağırlık kutup bölgesine göre daha azdır. Doğrudur.
+
+## Sonuç
+
+Yanlış ifade C seçeneğidir.
+
+## Kontrol
+
+C seçeneği “Güneş batıdan doğuya doğru hareket eder” ifadesi, gözlemlenen doğu‑batı hareketiyle çelişir; diğer dört seçenek temel coğrafi gerçeklerle uyumludur. Bu nedenle cevap C kesin olarak doğrudur.

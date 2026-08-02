@@ -1,0 +1,52 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki iklim tiplerinden hangisi, yıl boyunca sıcaklık farkının en büyük olduğu iklim tipidir?
+
+A) Akdeniz iklimi
+B) Okyanus iklimi
+C) Karasal iklim
+D) Kutup iklimi
+E) Yarı kurak iklim
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: Beş farklı iklim tipi ve “sıcaklık farkı” (yaz‑kış arasındaki sıcaklık farkı) kavramı.
+- İstenen: En büyük sıcaklık farkına sahip iklim tipini belirlemek.
+- Kullanılacak yöntem: İklim tiplerinin karakteristik sıcaklık aralıklarını karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İklim tiplerinin tipik sıcaklık aralıklarını hatırlayalım.
+- Akdeniz iklimi: ılık kış, sıcak ama aşırı olmayan yaz.
+- Okyanus iklimi: yıl boyunca ılıman, dar sıcaklık aralığı.
+- Karasal iklim: sıcak yaz, çok soğuk kış; geniş sıcaklık farkı.
+- Kutup iklimi: yıl boyunca çok düşük sıcaklık, fark sınırlı.
+- Yarı kurak iklim: sıcak yaz, ılıman kış; fark orta seviyede.
+
+### 2. Adım
+Her iklim tipinin tipik sıcaklık farkını kıyaslayalım.
+- Akdeniz: ≈15 °C
+- Okyanus: ≈10 °C
+- Karasal: ≈35 °C (örnek: İç Anadolu’da yaz 35 °C, kış –5 °C)
+- Kutup: ≈20 °C (çok düşük değerler)
+- Yarı kurak: ≈20 °C
+
+En büyük fark, karasal iklimde görülür.
+
+## Sonuç
+
+C) Karasal iklim, yıl boyunca en büyük sıcaklık farkına sahiptir.
+
+## Kontrol
+
+Türkiye’nin İç Anadolu bölgesinde Karasal iklimde yaz 38 °C, kış –12 °C ölçülür; fark 50 °C’dır. Diğer iklim tiplerinde bu kadar yüksek bir fark elde edilmez. Sonuç tutarlı.

@@ -1,0 +1,938 @@
+AYT 5/7 SUBJECTS UI YAPI RAPORU
+
+TOPLAM SATIR: 1003
+BULUNAN BOLUM: 3
+
+============================================================
+BOLUM 1
+SATIR 8-71
+
+   8:   ScrollView,
+   9:   StyleSheet,
+  10:   Text,
+  11:   TextInput,
+  12:   TouchableOpacity,
+  13:   View,
+  14: } from "react-native";
+  15: import Animated, {
+  16:   Easing,
+  17:   FadeIn,
+  18:   FadeInDown,
+  19:   useAnimatedStyle,
+  20:   useSharedValue,
+  21:   withTiming,
+  22: } from "react-native-reanimated";
+  23: import { useSafeAreaInsets } from "react-native-safe-area-context";
+  24: 
+  25: import { useApp } from "@/contexts/AppContext";
+  26: import { AYT_SUBJECTS_BY_FIELD, FIELD_LABELS, Subject, TYT_SUBJECTS } from "@/data/subjects";
+  27: import { useColors } from "@/hooks/useColors";
+  28: 
+  29: import { getSubjectProgressUnits, getSubjectsProgressUnits } from "@/utils/progress/curriculumProgress";
+  30: // ─── Reminder modal ────────────────────────────────────────────────────────────
+  31: 
+  32: interface ReminderModalProps {
+  33:   visible: boolean;
+  34:   topicName: string;
+  35:   subjectName: string;
+  36:   currentInterval: 3 | 5 | 7 | null;
+  37:   onSelect: (interval: 3 | 5 | 7) => void;
+  38:   onRemove: () => void;
+  39:   onClose: () => void;
+  40:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  41: }
+  42: 
+  43: function ReminderModal({
+  44:   visible, topicName, subjectName, currentInterval,
+  45:   onSelect, onRemove, onClose, colors,
+  46: }: ReminderModalProps) {
+  47:   const intervals: (3 | 5 | 7)[] = [3, 5, 7];
+  48:   return (
+  49:     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+  50:       <TouchableOpacity style={rStyles.overlay} activeOpacity={1} onPress={onClose} />
+  51:       <View style={[rStyles.sheet, { backgroundColor: colors.card }]}>
+  52:         <View style={[rStyles.header, { borderBottomColor: colors.border }]}>
+  53:           <View style={[rStyles.bellCircle, { backgroundColor: colors.warning + "20" }]}>
+  54:             <Feather name="bell" size={20} color={colors.warning} />
+  55:           </View>
+  56:           <View style={{ flex: 1 }}>
+  57:             <Text style={[rStyles.title, { color: colors.foreground }]}>Konu Hatırlatması</Text>
+  58:             <Text style={[rStyles.subtitle, { color: colors.mutedForeground }]} numberOfLines={1}>
+  59:               {subjectName} › {topicName}
+  60:             </Text>
+  61:           </View>
+  62:           <TouchableOpacity onPress={onClose}>
+  63:             <Feather name="x" size={20} color={colors.mutedForeground} />
+  64:           </TouchableOpacity>
+  65:         </View>
+  66: 
+  67:         <Text style={[rStyles.prompt, { color: colors.mutedForeground }]}>
+  68:           Kaç günde bir hatırlatılsın?
+  69:         </Text>
+  70: 
+  71:         {intervals.map((interval) => {
+
+============================================================
+BOLUM 2
+SATIR 89-167
+
+  89:         })}
+  90: 
+  91:         {currentInterval && (
+  92:           <TouchableOpacity
+  93:             onPress={() => { onRemove(); onClose(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+  94:             style={[rStyles.removeBtn, { borderColor: colors.destructive + "60" }]}
+  95:           >
+  96:             <Feather name="bell-off" size={15} color={colors.destructive} />
+  97:             <Text style={[rStyles.removeBtnText, { color: colors.destructive }]}>Hatırlatmayı kaldır</Text>
+  98:           </TouchableOpacity>
+  99:         )}
+ 100:       </View>
+ 101:     </Modal>
+ 102:   );
+ 103: }
+ 104: 
+ 105: // ─── Topic row ─────────────────────────────────────────────────────────────────
+ 106: 
+ 107: interface TopicRowProps {
+ 108:   topicId: string;
+ 109:   topicName: string;
+ 110:   completed: boolean;
+ 111:   solvedCount: number;
+ 112:   hasReminder: boolean;
+ 113:   onToggle: () => void;
+ 114:   onSetSolved: (count: number) => void;
+ 115:   onBellPress: () => void;
+ 116:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+ 117: }
+ 118: 
+ 119: function TopicRow({
+ 120:   topicId, topicName, completed, solvedCount, hasReminder,
+ 121:   onToggle, onSetSolved, onBellPress, colors,
+ 122: }: TopicRowProps) {
+ 123:   const scale = useSharedValue(1);
+ 124:   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+ 125: 
+ 126:   function handlePress() {
+ 127:     scale.value = withTiming(0.96, { duration: 70 }, () => {
+ 128:       scale.value = withTiming(1, { duration: 120 });
+ 129:     });
+ 130:     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+ 131:     onToggle();
+ 132:   }
+ 133: 
+ 134:   return (
+ 135:     <Animated.View style={animStyle}>
+ 136:       <View style={[styles.topicRow, { borderBottomColor: colors.border }]}>
+ 137:         <TouchableOpacity onPress={handlePress} activeOpacity={0.7} style={styles.topicCheckBtn}>
+ 138:           <View style={[
+ 139:             styles.topicCheck,
+ 140:             { borderColor: completed ? colors.success : colors.border, backgroundColor: completed ? colors.success : "transparent" },
+ 141:           ]}>
+ 142:             {completed && <Feather name="check" size={11} color="#fff" />}
+ 143:           </View>
+ 144:         </TouchableOpacity>
+ 145: 
+ 146:         <Text
+ 147:           style={[styles.topicName, { color: completed ? colors.mutedForeground : colors.foreground, textDecorationLine: completed ? "line-through" : "none" }]}
+ 148:           numberOfLines={2}
+ 149:         >
+ 150:           {topicName}
+ 151:         </Text>
+ 152: 
+ 153:         <View style={styles.topicRight}>
+ 154:           <TextInput
+ 155:             style={[
+ 156:               styles.solvedInput,
+ 157:               { backgroundColor: colors.secondary, color: colors.foreground, borderColor: colors.border },
+ 158:               // Shrink font slightly so 5-digit numbers fit without reflowing the row
+ 159:               solvedCount >= 10000 ? { fontSize: 10 } : solvedCount >= 1000 ? { fontSize: 11 } : null,
+ 160:               // Android: strip implicit font padding so the input sits on the
+ 161:               // same optical baseline as the "soru" label and bell icon.
+ 162:               Platform.OS === "android" && { textAlignVertical: "center", includeFontPadding: false, paddingVertical: 0 },
+ 163:             ]}
+ 164:             value={solvedCount > 0 ? String(solvedCount) : ""}
+ 165:             onChangeText={(v) => {
+ 166:               const n = parseInt(v.replace(/[^0-9]/g, "")) || 0;
+ 167:               onSetSolved(n);
+
+============================================================
+BOLUM 3
+SATIR 174-930
+
+ 174:           />
+ 175:           <Text style={[styles.soruLabel, { color: colors.mutedForeground }]}>soru</Text>
+ 176:           <TouchableOpacity onPress={onBellPress} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+ 177:             <Feather
+ 178:               name={hasReminder ? "bell" : "bell-off"}
+ 179:               size={14}
+ 180:               color={hasReminder ? colors.warning : colors.border}
+ 181:             />
+ 182:           </TouchableOpacity>
+ 183:         </View>
+ 184:       </View>
+ 185:     </Animated.View>
+ 186:   );
+ 187: }
+ 188: 
+ 189: interface TopicWithSubtopicsProps {
+ 190:   topicId: string;
+ 191:   topicName: string;
+ 192:   subtopics?: Array<{
+ 193:     id: string;
+ 194:     name: string;
+ 195:   }>;
+ 196:   completed: boolean;
+ 197:   solvedCount: number;
+ 198:   hasReminder: boolean;
+ 199:   subtopicCompletion: Record<string, boolean>;
+ 200:   onToggle: () => void;
+ 201:   onToggleSubtopic: (
+ 202:     topicId: string,
+ 203:     subtopicId: string,
+ 204:   ) => void;
+ 205:   onSetSolved: (count: number) => void;
+ 206:   onBellPress: () => void;
+ 207:   colors: ReturnType<
+ 208:     typeof import("@/hooks/useColors").useColors
+ 209:   >;
+ 210: }
+ 211: 
+ 212: function TopicWithSubtopics({
+ 213:   topicId,
+ 214:   topicName,
+ 215:   subtopics,
+ 216:   completed,
+ 217:   solvedCount,
+ 218:   hasReminder,
+ 219:   subtopicCompletion,
+ 220:   onToggle,
+ 221:   onToggleSubtopic,
+ 222:   onSetSolved,
+ 223:   onBellPress,
+ 224:   colors,
+ 225: }: TopicWithSubtopicsProps) {
+ 226:   const [expanded, setExpanded] =
+ 227:     useState(false);
+ 228: 
+ 229:   const hasSubtopics =
+ 230:     Array.isArray(subtopics) &&
+ 231:     subtopics.length > 0;
+ 232: 
+ 233:   const completedCount =
+ 234:     subtopics?.filter(
+ 235:       (subtopic) =>
+ 236:         !!subtopicCompletion[subtopic.id],
+ 237:     ).length ?? 0;
+ 238: 
+ 239:   const percentage =
+ 240:     hasSubtopics
+ 241:       ? Math.round(
+ 242:           (completedCount /
+ 243:             subtopics!.length) *
+ 244:             100,
+ 245:         )
+ 246:       : completed
+ 247:         ? 100
+ 248:         : 0;
+ 249: 
+ 250:   return (
+ 251:     <View>
+ 252:       <TopicRow
+ 253:         topicId={topicId}
+ 254:         topicName={topicName}
+ 255:         completed={completed}
+ 256:         solvedCount={solvedCount}
+ 257:         hasReminder={hasReminder}
+ 258:         onToggle={onToggle}
+ 259:         onSetSolved={onSetSolved}
+ 260:         onBellPress={onBellPress}
+ 261:         colors={colors}
+ 262:       />
+ 263: 
+ 264:       {hasSubtopics && (
+ 265:         <>
+ 266:           <TouchableOpacity
+ 267:             activeOpacity={0.75}
+ 268:             onPress={() => {
+ 269:               setExpanded(
+ 270:                 (previous) => !previous,
+ 271:               );
+ 272: 
+ 273:               Haptics.impactAsync(
+ 274:                 Haptics
+ 275:                   .ImpactFeedbackStyle
+ 276:                   .Light,
+ 277:               );
+ 278:             }}
+ 279:             style={[
+ 280:               styles.subtopicToggle,
+ 281:               {
+ 282:                 backgroundColor:
+ 283:                   colors.secondary + "66",
+ 284:                 borderBottomColor:
+ 285:                   colors.border,
+ 286:               },
+ 287:             ]}
+ 288:           >
+ 289:             <View
+ 290:               style={
+ 291:                 styles.subtopicToggleLeft
+ 292:               }
+ 293:             >
+ 294:               <Ionicons
+ 295:                 name="list-outline"
+ 296:                 size={14}
+ 297:                 color={
+ 298:                   completedCount > 0
+ 299:                     ? colors.primary
+ 300:                     : colors.mutedForeground
+ 301:                 }
+ 302:               />
+ 303: 
+ 304:               <Text
+ 305:                 style={[
+ 306:                   styles.subtopicToggleText,
+ 307:                   {
+ 308:                     color:
+ 309:                       completedCount > 0
+ 310:                         ? colors.primary
+ 311:                         : colors.mutedForeground,
+ 312:                   },
+ 313:                 ]}
+ 314:               >
+ 315:                 {completedCount}/
+ 316:                 {subtopics!.length} alt kazanım
+ 317:               </Text>
+ 318:             </View>
+ 319: 
+ 320:             <View
+ 321:               style={
+ 322:                 styles.subtopicToggleRight
+ 323:               }
+ 324:             >
+ 325:               <View
+ 326:                 style={[
+ 327:                   styles.subtopicMiniTrack,
+ 328:                   {
+ 329:                     backgroundColor:
+ 330:                       colors.border,
+ 331:                   },
+ 332:                 ]}
+ 333:               >
+ 334:                 <View
+ 335:                   style={[
+ 336:                     styles.subtopicMiniFill,
+ 337:                     {
+ 338:                       width: `${percentage}%`,
+ 339:                       backgroundColor:
+ 340:                         completed
+ 341:                           ? colors.success
+ 342:                           : colors.primary,
+ 343:                     },
+ 344:                   ]}
+ 345:                 />
+ 346:               </View>
+ 347: 
+ 348:               <Ionicons
+ 349:                 name={
+ 350:                   expanded
+ 351:                     ? "chevron-up"
+ 352:                     : "chevron-down"
+ 353:                 }
+ 354:                 size={15}
+ 355:                 color={
+ 356:                   colors.mutedForeground
+ 357:                 }
+ 358:               />
+ 359:             </View>
+ 360:           </TouchableOpacity>
+ 361: 
+ 362:           {expanded && (
+ 363:             <Animated.View
+ 364:               entering={FadeIn.duration(180)}
+ 365:               style={[
+ 366:                 styles.subtopicList,
+ 367:                 {
+ 368:                   backgroundColor:
+ 369:                     colors.secondary + "33",
+ 370:                   borderBottomColor:
+ 371:                     colors.border,
+ 372:                 },
+ 373:               ]}
+ 374:             >
+ 375:               {subtopics!.map(
+ 376:                 (subtopic, index) => {
+ 377:                   const isCompleted =
+ 378:                     !!subtopicCompletion[
+ 379:                       subtopic.id
+ 380:                     ];
+ 381: 
+ 382:                   return (
+ 383:                     <TouchableOpacity
+ 384:                       key={subtopic.id}
+ 385:                       activeOpacity={0.72}
+ 386:                       onPress={() => {
+ 387:                         onToggleSubtopic(
+ 388:                           topicId,
+ 389:                           subtopic.id,
+ 390:                         );
+ 391: 
+ 392:                         Haptics.impactAsync(
+ 393:                           Haptics
+ 394:                             .ImpactFeedbackStyle
+ 395:                             .Light,
+ 396:                         );
+ 397:                       }}
+ 398:                       style={[
+ 399:                         styles.subtopicRow,
+ 400:                         index <
+ 401:                           subtopics!.length -
+ 402:                             1 && {
+ 403:                           borderBottomWidth:
+ 404:                             StyleSheet
+ 405:                               .hairlineWidth,
+ 406:                           borderBottomColor:
+ 407:                             colors.border,
+ 408:                         },
+ 409:                       ]}
+ 410:                     >
+ 411:                       <View
+ 412:                         style={[
+ 413:                           styles.subtopicCheck,
+ 414:                           {
+ 415:                             borderColor:
+ 416:                               isCompleted
+ 417:                                 ? colors.success
+ 418:                                 : colors.border,
+ 419:                             backgroundColor:
+ 420:                               isCompleted
+ 421:                                 ? colors.success
+ 422:                                 : colors.card,
+ 423:                           },
+ 424:                         ]}
+ 425:                       >
+ 426:                         {isCompleted && (
+ 427:                           <Feather
+ 428:                             name="check"
+ 429:                             size={10}
+ 430:                             color="#FFFFFF"
+ 431:                           />
+ 432:                         )}
+ 433:                       </View>
+ 434: 
+ 435:                       <Text
+ 436:                         style={[
+ 437:                           styles.subtopicName,
+ 438:                           {
+ 439:                             color:
+ 440:                               isCompleted
+ 441:                                 ? colors
+ 442:                                     .mutedForeground
+ 443:                                 : colors
+ 444:                                     .foreground,
+ 445:                             textDecorationLine:
+ 446:                               isCompleted
+ 447:                                 ? "line-through"
+ 448:                                 : "none",
+ 449:                           },
+ 450:                         ]}
+ 451:                       >
+ 452:                         {subtopic.name}
+ 453:                       </Text>
+ 454:                     </TouchableOpacity>
+ 455:                   );
+ 456:                 },
+ 457:               )}
+ 458:             </Animated.View>
+ 459:           )}
+ 460:         </>
+ 461:       )}
+ 462:     </View>
+ 463:   );
+ 464: }
+ 465: 
+ 466: // ─── Subject card ──────────────────────────────────────────────────────────────
+ 467: 
+ 468: interface SubjectCardProps {
+ 469:   subject: Subject;
+ 470:   topicCompletion: Record<string, boolean>;
+ 471:   subtopicCompletion: Record<string, boolean>;
+ 472:   topicSolvedQuestions: Record<string, number>;
+ 473:   topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+ 474:   onToggle: (id: string) => void;
+ 475:   onToggleSubtopic: (
+ 476:     topicId: string,
+ 477:     subtopicId: string,
+ 478:   ) => void;
+ 479:   onSetSolved: (topicId: string, count: number) => void;
+ 480:   onBellPress: (topicId: string, topicName: string, subjectName: string) => void;
+ 481:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+ 482: }
+ 483: 
+ 484: function SubjectCard({
+ 485:   subject,
+ 486:   topicCompletion,
+ 487:   subtopicCompletion,
+ 488:   topicSolvedQuestions,
+ 489:   topicReminders,
+ 490:   onToggle,
+ 491:   onToggleSubtopic,
+ 492:   onSetSolved,
+ 493:   onBellPress,
+ 494:   colors,
+ 495: }: SubjectCardProps) {
+ 496:   const { hasCompletedSessionTodayForSubject } = useApp();
+ 497:   const [expanded, setExpanded] = useState(false);
+ 498: 
+ 499:   // Informational, non-blocking warning: if a Daily Study Plan session for this
+ 500:   // subject was already completed (and counted) today, manually logging solved
+ 501:   // questions here too may double-count the same questions across the two
+ 502:   // independent counters (topicSolvedQuestions vs dailySolvedQuestions).
+ 503:   function handleSetSolved(topicId: string, count: number) {
+ 504:     if (count > 0 && hasCompletedSessionTodayForSubject(subject.id)) {
+ 505:       Alert.alert(
+ 506:         "Bilgi",
+ 507:         `${subject.name} için bugün Günlük Plan'dan tamamlanmış bir oturum zaten var. Bu soruları da manuel girersen aynı sorular iki istatistikte sayılabilir.`
+ 508:       );
+ 509:     }
+ 510:     onSetSolved(topicId, count);
+ 511:   }
+ 512: 
+ 513:   const subjectProgress =
+ 514:     getSubjectProgressUnits(
+ 515:       subject,
+ 516:       topicCompletion,
+ 517:       subtopicCompletion,
+ 518:     );
+ 519: 
+ 520:   const completed =
+ 521:     subjectProgress.completed;
+ 522: 
+ 523:   const total =
+ 524:     subjectProgress.total;
+ 525: 
+ 526:   const remaining =
+ 527:     total - completed;
+ 528: 
+ 529:   const pct =
+ 530:     subjectProgress.percentage;
+ 531:   const height = useSharedValue(0);
+ 532:   const opacity = useSharedValue(0);
+ 533:   // Measured from the real rendered content — the topics list is always mounted
+ 534:   // (just clipped via animated height), so onLayout gives us its true height.
+ 535:   const contentHeight = useSharedValue(0);
+ 536: 
+ 537:   const contentStyle = useAnimatedStyle(() => ({
+ 538:     height: height.value,
+ 539:     opacity: opacity.value,
+ 540:     overflow: "hidden",
+ 541:   }));
+ 542: 
+ 543:   // Easing curves: expand uses standard decelerate, collapse uses accelerate
+ 544:   const EXPAND_EASING = Easing.bezier(0.0, 0.0, 0.2, 1);
+ 545:   const COLLAPSE_EASING = Easing.bezier(0.4, 0.0, 1.0, 1);
+ 546: 
+ 547:   function handleContentLayout(measuredHeight: number) {
+ 548:     contentHeight.value = measuredHeight;
+ 549:     if (expanded) {
+ 550:       // Keep an already-expanded card in sync if content height changes
+ 551:       // (e.g. topics added/removed) without re-triggering the animation.
+ 552:       height.value = measuredHeight;
+ 553:     }
+ 554:   }
+ 555: 
+ 556:   function toggle() {
+ 557:     if (expanded) {
+ 558:       height.value = withTiming(0, { duration: 220, easing: COLLAPSE_EASING });
+ 559:       opacity.value = withTiming(0, { duration: 160, easing: COLLAPSE_EASING });
+ 560:     } else {
+ 561:       height.value = withTiming(contentHeight.value, { duration: 280, easing: EXPAND_EASING });
+ 562:       opacity.value = withTiming(1, { duration: 220, easing: EXPAND_EASING });
+ 563:     }
+ 564:     setExpanded((e) => !e);
+ 565:     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+ 566:   }
+ 567: 
+ 568:   return (
+ 569:     <Animated.View entering={FadeInDown.duration(400)} style={[styles.subjectCard, { backgroundColor: colors.card }]}>
+ 570:       <TouchableOpacity onPress={toggle} activeOpacity={0.8} style={styles.subjectHeader}>
+ 571:         <View style={[styles.subjectDot, { backgroundColor: subject.color }]} />
+ 572:         <View style={styles.subjectInfo}>
+ 573:           <Text style={[styles.subjectName, { color: colors.foreground }]}>{subject.name}</Text>
+ 574:           <View style={styles.subjectMeta}>
+ 575:             <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+ 576:               <View style={[styles.progressFill, { width: `${pct}%`, backgroundColor: subject.color }]} />
+ 577:             </View>
+ 578:           </View>
+ 579:           <View style={styles.subjectStats}>
+ 580:             <View style={styles.subjectStatItem}>
+ 581:               <Feather name="check-circle" size={11} color={colors.success} />
+ 582:               <Text style={[styles.subjectStatText, { color: colors.success }]}>{completed}</Text>
+ 583:             </View>
+ 584:             <Text style={[styles.subjectStatSep, { color: colors.border }]}>•</Text>
+ 585:             <View style={styles.subjectStatItem}>
+ 586:               <Feather name="circle" size={11} color={colors.mutedForeground} />
+ 587:               <Text style={[styles.subjectStatText, { color: colors.mutedForeground }]}>{remaining} kalan</Text>
+ 588:             </View>
+ 589:             {pct > 0 && (
+ 590:               <>
+ 591:                 <Text style={[styles.subjectStatSep, { color: colors.border }]}>•</Text>
+ 592:                 <Text style={[styles.pctText, { color: subject.color }]}>{pct}%</Text>
+ 593:               </>
+ 594:             )}
+ 595:           </View>
+ 596:         </View>
+ 597:         <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
+ 598:       </TouchableOpacity>
+ 599: 
+ 600:       <Animated.View style={contentStyle}>
+ 601:         <View
+ 602:           style={[styles.topicsContainer, { borderTopColor: colors.border, position: "absolute", width: "100%" }]}
+ 603:           onLayout={(e) => handleContentLayout(e.nativeEvent.layout.height)}
+ 604:         >
+ 605:           {subject.topics.map((t) => (
+ 606:             <TopicWithSubtopics
+ 607:               key={t.id}
+ 608:               topicId={t.id}
+ 609:               topicName={t.name}
+ 610:               subtopics={t.subtopics}
+ 611:               completed={
+ 612:                 !!topicCompletion[t.id]
+ 613:               }
+ 614:               solvedCount={
+ 615:                 topicSolvedQuestions[t.id] ??
+ 616:                 0
+ 617:               }
+ 618:               hasReminder={
+ 619:                 !!topicReminders[t.id]
+ 620:               }
+ 621:               subtopicCompletion={
+ 622:                 subtopicCompletion
+ 623:               }
+ 624:               onToggle={() =>
+ 625:                 onToggle(t.id)
+ 626:               }
+ 627:               onToggleSubtopic={
+ 628:                 onToggleSubtopic
+ 629:               }
+ 630:               onSetSolved={(count) =>
+ 631:                 handleSetSolved(
+ 632:                   t.id,
+ 633:                   count,
+ 634:                 )
+ 635:               }
+ 636:               onBellPress={() =>
+ 637:                 onBellPress(
+ 638:                   t.id,
+ 639:                   t.name,
+ 640:                   subject.name,
+ 641:                 )
+ 642:               }
+ 643:               colors={colors}
+ 644:             />
+ 645:           ))}
+ 646:         </View>
+ 647:       </Animated.View>
+ 648:     </Animated.View>
+ 649:   );
+ 650: }
+ 651: 
+ 652: // ─── Exam section ──────────────────────────────────────────────────────────────
+ 653: 
+ 654: interface ExamSectionProps {
+ 655:   title: string;
+ 656:   subjects: Subject[];
+ 657:   topicCompletion: Record<string, boolean>;
+ 658:   subtopicCompletion: Record<string, boolean>;
+ 659:   topicSolvedQuestions: Record<string, number>;
+ 660:   topicReminders: Record<string, { interval: 3 | 5 | 7; nextDate: string }>;
+ 661:   onToggle: (id: string) => void;
+ 662:   onToggleSubtopic: (
+ 663:     topicId: string,
+ 664:     subtopicId: string,
+ 665:   ) => void;
+ 666:   onSetSolved: (topicId: string, count: number) => void;
+ 667:   onBellPress: (topicId: string, topicName: string, subjectName: string) => void;
+ 668:   accentColor: string;
+ 669:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+ 670: }
+ 671: 
+ 672: function ExamSection({
+ 673:   title,
+ 674:   subjects,
+ 675:   topicCompletion,
+ 676:   subtopicCompletion,
+ 677:   topicSolvedQuestions,
+ 678:   topicReminders,
+ 679:   onToggle,
+ 680:   onToggleSubtopic,
+ 681:   onSetSolved,
+ 682:   onBellPress,
+ 683:   accentColor,
+ 684:   colors,
+ 685: }: ExamSectionProps) {
+ 686:   const [open, setOpen] = useState(true);
+ 687:   const examProgress =
+ 688:     getSubjectsProgressUnits(
+ 689:       subjects,
+ 690:       topicCompletion,
+ 691:       subtopicCompletion,
+ 692:     );
+ 693: 
+ 694:   const done =
+ 695:     examProgress.completed;
+ 696: 
+ 697:   const total =
+ 698:     examProgress.total;
+ 699: 
+ 700:   const remaining =
+ 701:     total - done;
+ 702: 
+ 703:   const pct =
+ 704:     examProgress.percentage;
+ 705: 
+ 706:   return (
+ 707:     <View style={styles.examSection}>
+ 708:       <TouchableOpacity
+ 709:         onPress={() => { setOpen((o) => !o); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+ 710:         style={[styles.examHeader, { backgroundColor: accentColor }]}
+ 711:         activeOpacity={0.85}
+ 712:       >
+ 713:         <View style={{ flex: 1 }}>
+ 714:           <Text style={[styles.examTitle, { color: "#fff" }]}>{title}</Text>
+ 715:           <View style={styles.examMetaRow}>
+ 716:             <Text style={[styles.examPct, { color: "rgba(255,255,255,0.9)" }]}>
+ 717:               {done}/{total} kazanım{pct > 0 ? ` • %${pct}` : ""}
+ 718:             </Text>
+ 719:             {remaining > 0 && (
+ 720:               <View style={styles.examRemainingBadge}>
+ 721:                 <Text style={styles.examRemainingText}>{remaining} kaldı</Text>
+ 722:               </View>
+ 723:             )}
+ 724:           </View>
+ 725:         </View>
+ 726:         <Ionicons name={open ? "chevron-up" : "chevron-down"} size={20} color="#fff" />
+ 727:       </TouchableOpacity>
+ 728: 
+ 729:       {open && (
+ 730:         <View style={styles.subjectsContainer}>
+ 731:           {subjects.map((s) => (
+ 732:             <SubjectCard
+ 733:               key={s.id}
+ 734:               subject={s}
+ 735:               topicCompletion={topicCompletion}
+ 736:               subtopicCompletion={subtopicCompletion}
+ 737:               topicSolvedQuestions={topicSolvedQuestions}
+ 738:               topicReminders={topicReminders}
+ 739:               onToggle={onToggle}
+ 740:               onToggleSubtopic={onToggleSubtopic}
+ 741:               onSetSolved={onSetSolved}
+ 742:               onBellPress={onBellPress}
+ 743:               colors={colors}
+ 744:             />
+ 745:           ))}
+ 746:         </View>
+ 747:       )}
+ 748:     </View>
+ 749:   );
+ 750: }
+ 751: 
+ 752: // ─── Screen ────────────────────────────────────────────────────────────────────
+ 753: 
+ 754: export default function SubjectsScreen() {
+ 755:   const colors = useColors();
+ 756:   const insets = useSafeAreaInsets();
+ 757:   const {
+ 758:     profile,
+ 759:     topicCompletion,
+ 760:     toggleTopic,
+ 761:     subtopicCompletion,
+ 762:     toggleSubtopic,
+ 763:     topicSolvedQuestions,
+ 764:     setTopicSolvedQuestion,
+ 765:     topicReminders,
+ 766:     setTopicReminder,
+ 767:     removeTopicReminder,
+ 768:   } = useApp();
+ 769: 
+ 770:   const aytSubjects = useMemo(() => profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [], [profile]);
+ 771:   const fieldLabel = useMemo(() => profile ? FIELD_LABELS[profile.studyField] : "AYT", [profile]);
+ 772: 
+ 773:   const [reminderModal, setReminderModal] = useState<{
+ 774:     topicId: string; topicName: string; subjectName: string;
+ 775:   } | null>(null);
+ 776: 
+ 777:   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+ 778:   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
+ 779: 
+ 780:   const handleBellPress = useCallback((topicId: string, topicName: string, subjectName: string) => {
+ 781:     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+ 782:     setReminderModal({ topicId, topicName, subjectName });
+ 783:   }, []);
+ 784: 
+ 785:   const handleReminderSelect = useCallback(async (interval: 3 | 5 | 7) => {
+ 786:     if (!reminderModal) return;
+ 787:     try {
+ 788:       await setTopicReminder(reminderModal.topicId, reminderModal.topicName, reminderModal.subjectName, interval);
+ 789:     } catch (err) {
+ 790:       Alert.alert("Hata", "Hatırlatma ayarlanamadı. Bildirim izinlerini kontrol edin.");
+ 791:     }
+ 792:   }, [reminderModal, setTopicReminder]);
+ 793: 
+ 794:   const handleReminderRemove = useCallback(async () => {
+ 795:     if (!reminderModal) return;
+ 796:     await removeTopicReminder(reminderModal.topicId);
+ 797:   }, [reminderModal, removeTopicReminder]);
+ 798: 
+ 799:   return (
+ 800:     <View style={[styles.container, { backgroundColor: colors.background }]}>
+ 801:       <ScrollView
+ 802:         contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: botPad, paddingHorizontal: 20 }}
+ 803:         showsVerticalScrollIndicator={false}
+ 804:         keyboardShouldPersistTaps="handled"
+ 805:       >
+ 806:         <Animated.View entering={FadeIn.duration(400)}>
+ 807:           <Text style={[styles.pageTitle, { color: colors.foreground }]}>Konular</Text>
+ 808:           <Text style={[styles.pageSubtitle, { color: colors.mutedForeground }]}>Tamamladığın konuları işaretle ve çözdüğün soru sayısını gir</Text>
+ 809:         </Animated.View>
+ 810: 
+ 811:         <ExamSection
+ 812:           title="TYT — Temel Yeterlilik"
+ 813:           subjects={TYT_SUBJECTS}
+ 814:           topicCompletion={topicCompletion}
+ 815:           subtopicCompletion={subtopicCompletion}
+ 816:           topicSolvedQuestions={topicSolvedQuestions}
+ 817:           topicReminders={topicReminders}
+ 818:           onToggle={toggleTopic}
+ 819:           onToggleSubtopic={toggleSubtopic}
+ 820:           onSetSolved={setTopicSolvedQuestion}
+ 821:           onBellPress={handleBellPress}
+ 822:           accentColor="#2563EB"
+ 823:           colors={colors}
+ 824:         />
+ 825: 
+ 826:         <ExamSection
+ 827:           title={`AYT — ${fieldLabel}`}
+ 828:           subjects={aytSubjects}
+ 829:           topicCompletion={topicCompletion}
+ 830:           subtopicCompletion={subtopicCompletion}
+ 831:           topicSolvedQuestions={topicSolvedQuestions}
+ 832:           topicReminders={topicReminders}
+ 833:           onToggle={toggleTopic}
+ 834:           onToggleSubtopic={toggleSubtopic}
+ 835:           onSetSolved={setTopicSolvedQuestion}
+ 836:           onBellPress={handleBellPress}
+ 837:           accentColor="#7C3AED"
+ 838:           colors={colors}
+ 839:         />
+ 840:       </ScrollView>
+ 841: 
+ 842:       {reminderModal && (
+ 843:         <ReminderModal
+ 844:           visible={!!reminderModal}
+ 845:           topicName={reminderModal.topicName}
+ 846:           subjectName={reminderModal.subjectName}
+ 847:           currentInterval={topicReminders[reminderModal.topicId]?.interval ?? null}
+ 848:           onSelect={handleReminderSelect}
+ 849:           onRemove={handleReminderRemove}
+ 850:           onClose={() => setReminderModal(null)}
+ 851:           colors={colors}
+ 852:         />
+ 853:       )}
+ 854:     </View>
+ 855:   );
+ 856: }
+ 857: 
+ 858: // ─── Styles ────────────────────────────────────────────────────────────────────
+ 859: 
+ 860: const styles = StyleSheet.create({
+ 861:   container: { flex: 1 },
+ 862:   pageTitle: { fontSize: 28, fontFamily: "Inter_700Bold", marginBottom: 4 },
+ 863:   pageSubtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 24 },
+ 864:   examSection: { marginBottom: 24 },
+ 865:   examHeader: {
+ 866:     borderRadius: 20, padding: 20, flexDirection: "row",
+ 867:     justifyContent: "space-between", alignItems: "center", marginBottom: 12,
+ 868:   },
+ 869:   examTitle: { fontSize: 17, fontFamily: "Inter_700Bold", marginBottom: 4 },
+ 870:   examMetaRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+ 871:   examPct: { fontSize: 13, fontFamily: "Inter_500Medium" },
+ 872:   examRemainingBadge: { backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
+ 873:   examRemainingText: { fontSize: 11, fontFamily: "Inter_600SemiBold", color: "#fff" },
+ 874:   subjectsContainer: { gap: 10 },
+ 875:   subjectCard: {
+ 876:     borderRadius: 16,
+ 877:     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+ 878:     overflow: "hidden",
+ 879:   },
+ 880:   subjectHeader: { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
+ 881:   subjectDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+ 882:   subjectInfo: { flex: 1 },
+ 883:   subjectName: { fontSize: 15, fontFamily: "Inter_600SemiBold", marginBottom: 8 },
+ 884:   subjectMeta: { marginBottom: 6 },
+ 885:   progressBar: { height: 4, borderRadius: 2, overflow: "hidden" },
+ 886:   progressFill: { height: "100%", borderRadius: 2 },
+ 887:   subjectStats: { flexDirection: "row", alignItems: "center", gap: 6 },
+ 888:   subjectStatItem: { flexDirection: "row", alignItems: "center", gap: 3 },
+ 889:   subjectStatText: { fontSize: 11, fontFamily: "Inter_400Regular" },
+ 890:   subjectStatSep: { fontSize: 10 },
+ 891:   pctText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
+ 892:   topicsContainer: { borderTopWidth: 1 },
+ 893:   topicRow: {
+ 894:     flexDirection: "row", alignItems: "center",
+ 895:     paddingHorizontal: 12, paddingVertical: 10,
+ 896:     gap: 10, borderBottomWidth: 1, minHeight: 52,
+ 897:   },
+ 898:   topicCheckBtn: { padding: 2 },
+ 899:   topicCheck: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
+ 900:   topicName: { fontSize: 13, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
+ 901:   // flexGrow: 0 ensures the right cluster never expands and displaces topicName
+ 902:   topicRight: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0, flexGrow: 0 },
+ 903:   solvedInput: {
+ 904:     // Fixed dimensions — wide enough for 5 digits at the smallest font, never grows
+ 905:     width: 54, height: 30, borderRadius: 8, borderWidth: 1,
+ 906:     fontSize: 12, fontFamily: "Inter_500Medium",
+ 907:     textAlign: "center", paddingHorizontal: 2,
+ 908:   },
+ 909:   soruLabel: { fontSize: 11, fontFamily: "Inter_400Regular", flexShrink: 0 },
+ 910: 
+ 911:   subtopicToggle: {
+ 912:     minHeight: 38,
+ 913:     paddingLeft: 46,
+ 914:     paddingRight: 14,
+ 915:     paddingVertical: 8,
+ 916:     borderBottomWidth:
+ 917:       StyleSheet.hairlineWidth,
+ 918:     flexDirection: "row",
+ 919:     alignItems: "center",
+ 920:     justifyContent: "space-between",
+ 921:     gap: 10,
+ 922:   },
+ 923:   subtopicToggleLeft: {
+ 924:     flexDirection: "row",
+ 925:     alignItems: "center",
+ 926:     gap: 6,
+ 927:     flex: 1,
+ 928:   },
+ 929:   subtopicToggleText: {
+ 930:     fontSize: 11,
+
+============================================================
+ARAMA SONUCLARI:
+- SubjectCard: VAR
+- TopicRow: VAR
+- subtopicCompletion: VAR
+- toggleSubtopic: VAR
+- expandedTopics: YOK
+- setExpandedTopics: YOK
+- AYT_SUBJECTS_BY_FIELD: VAR
+- TYT_SUBJECTS: VAR
+- examType: YOK
+- activeExam: YOK
+- selectedExam: YOK
+- subtopics: VAR
+- miniProgress: YOK
+- progressBar: VAR
+- ChevronDown: YOK
+- ChevronUp: YOK

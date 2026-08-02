@@ -1,0 +1,18 @@
+## Soru Analizi
+- Verilen: H₂(g) + I₂(g) ⇌ 2HI(g) denge tepkimesi, [H₂]=1 M, [I₂]=1 M, [HI]=2 M.
+- İstenen: Kc değeri.
+- Kullanılacak yöntem: Denge sabiti tanımı Kc = (ürün derişimlerinin katsayı dereceli çarpımı) / (reaktant derişimlerinin katsayı dereceli çarpımı).
+
+## Adım Adım Çözüm
+### 1. Adım
+Kc ifadesini yaz: Kc = [HI]² / ([H₂]·[I₂]) çünkü ürünün katsayısı 2, reaktantların katsayısı 1.
+### 2. Adım
+Verilen derişimleri yerine koy: Kc = (2)² / (1·1) = 4.
+
+## Sonuç
+Kc = 4.
+
+## Kontrol
+Kc = (2 M)² / (1 M·1 M) = 4 M⁰, birim yoktur; hesaplama doğru.
+
+**Doğru cevap: D seçeneği**

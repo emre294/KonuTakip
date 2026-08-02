@@ -1,0 +1,124 @@
+AYT 3/7 GUNCEL HATA RAPORU
+
+TOPLAM KONU: 197
+TAMAMLANAN: 149
+KALAN: 48
+
+GUNCEL HATA DAGILIMI:
+- YETERSIZ_ALT_KAZANIM: 18
+- UZUNLUK_FILTRESI: 20
+- CIKTI_PARSER: 10
+
+============================================================
+SIRADAKI 12 KONUNUN GERCEK HATALARI
+
+1. DERS: AYT Kimya
+KONU ID: ayt-kimya-5
+KONU: Karbon Kimyası
+KATEGORI: YETERSIZ_ALT_KAZANIM
+SON HATA: 2026-07-31T13:56:47.847Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+2. DERS: AYT Kimya
+KONU ID: ayt-kimya-6
+KONU: Makromoleküller
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T13:57:32.330Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Makromoleküller arasındaki bağ tiplerini (peptid, glikozidik, fosfodiester) ve bu bağların hidroliz/sentez sırasında enerji gereksinimlerini karşılaştırma
+
+3. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-4
+KONU: Evrim
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:10:56.254Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Evrim sürecinin temel mekanizmalarını (mutasyon, gen akışı, genetik sürüklenme, doğal seçilim) açıklar.
+
+4. DERS: AYT Edebiyat
+KONU ID: ayt-edebiyat-0
+KONU: Divan Edebiyatı
+KATEGORI: YETERSIZ_ALT_KAZANIM
+SON HATA: 2026-07-31T12:11:04.426Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+5. DERS: AYT Edebiyat
+KONU ID: ayt-edebiyat-6
+KONU: Cumhuriyet Dönemi Türk Edebiyatı
+KATEGORI: CIKTI_PARSER
+SON HATA: 2026-07-31T12:11:30.966Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+6. DERS: AYT Edebiyat
+KONU ID: ayt-edebiyat-17
+KONU: Dünya Edebiyatı
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:11:39.877Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Dünya edebiyatı tiyatro örneklerinde farklı tür (trajedi, komedi, dram) özelliklerini ayırt edebilmek
+
+7. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-10
+KONU: İslam Medeniyetinin Doğuşu
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:12:10.941Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Moğol istilasının Anadolu'daki siyasi ve sosyal dönüşümünü, Beylikler Dönemi'ni ortaya çıkışını açıklamak
+
+8. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-11
+KONU: Türklerin İslamiyet'i Kabulü
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:12:19.303Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı devlet idaresindeki ilmiye, kalemiye ve seyfiye sınıflarının İslamlaşma sürecine etkisini değerlendirmek
+
+9. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-0
+KONU: Osmanlı Devleti'nin Kuruluşu
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:12:27.529Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Kuruluş sürecinde dış faktörlerin (beylikler arası rekabet, Selçuklu mirası, Haçlı seferleri) etkisini yorumlamak
+
+10. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-1
+KONU: Osmanlı Devleti'nin Yükselişi
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:12:38.248Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı Devleti’nin yeni düzenli ordusunun kurulma gerekçelerini ve toplumsal etkilerini analiz etmek
+
+11. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-2
+KONU: Osmanlı Devleti'nde Değişim
+KATEGORI: UZUNLUK_FILTRESI
+SON HATA: 2026-07-31T12:12:49.717Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı Devleti’nin son dönem sanayileşme çabalarının önündeki ekonomik ve teknik engelleri açıklamak
+
+12. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-3
+KONU: XVII. Yüzyıl Osmanlı Devleti
+KATEGORI: YETERSIZ_ALT_KAZANIM
+SON HATA: 2026-07-31T12:13:03.436Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+============================================================
+SONUC: KOK NEDENLERE GORE SON DUZELTME YAPILMALI

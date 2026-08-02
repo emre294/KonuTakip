@@ -1,0 +1,40 @@
+## Sorular
+
+### 1. Soru
+Bir sınıfta 7 öğrenci sınav puanları şu şekildedir: 58, 62, 70, 70, 75, 80 ve x. Sınıf ortalaması 70 ise x sayısı kaçtır?
+
+A) 68
+B) 70
+C) 73
+D) 75
+E) 78
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: 7 öğrenci puanı 58, 62, 70, 70, 75, 80 ve bilinmeyen x; sınıf ortalaması 70.
+- İstenen: x sayısının değeri.
+- Kullanılacak yöntem: Ortalama formülü (toplam ÷ öğrenci sayısı = ortalama) ile toplamı bulup x’i hesaplamak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Toplam puanı bulmak için ortalama × öğrenci sayısı = 70 × 7 = 490. (Ortalama formülünden)
+
+### 2. Adım
+Bilinen 6 puanın toplamını hesapla: 58 + 62 + 70 + 70 + 75 + 80 = 415.
+
+### 3. Adım
+x’i bulmak için toplamdan bilinen kısmı çıkar: x = 490 – 415 = 75.
+
+## Sonuç
+x = 75
+
+## Kontrol
+75 sayısını toplamda yerine koyarsak: 415 + 75 = 490; 490 ÷ 7 = 70, yani ortalama 70 olur. Sonuç tutarlı.

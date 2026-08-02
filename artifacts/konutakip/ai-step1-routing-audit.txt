@@ -1,0 +1,2325 @@
+KONUTAKIP 1/8-A AI YONLENDIRME KOK NEDEN RAPORU
+
+ON BULGULAR:
+- Backend tüm istek JSON'unu tarıyor: EVET
+- Backend doğrudan son kullanıcı mesajını okuyor: EVET
+
+HEDEF DAVRANIS:
+- Yalnız son kullanıcı mesajında açık de/da isteği varsa özel sistem çalışmalı.
+- Önceki konuşmada de/da geçmesi yeni Parabol isteğini etkilememeli.
+- Ders, konu, alt kazanım ve sistem bağlamındaki de/da kelimeleri tetikleyici olmamalı.
+- Parabol, türev, fizik, kimya ve diğer tüm konular normal AI yolunda kalmalı.
+
+============================================================
+BACKEND YONLENDIRME
+DOSYA: ./backend/src/routes/ai.ts
+BULUNAN BOLUM: 7
+
+---------------- BOLUM 1 ----------------
+SATIR 26-81
+
+   26:   "study-plan",
+   27: ];
+   28: 
+   29: function isAIFeature(value: string): value is AIFeature {
+   30:   return AI_FEATURES.includes(value as AIFeature);
+   31: }
+   32: 
+   33: const QUESTION_GENERATION_PATTERNS = [
+   34:   /\bsoru(?:su|larÄ±|lar|luk|lik)?\b[\s\S]{0,60}\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz|sor)\b/i,
+   35:   /\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz)\b[\s\S]{0,60}\bsoru(?:su|larÄ±|lar|luk|lik)?\b/i,
+   36:   /\b\d+\s*(?:adet|tane)?[\s\S]{0,40}\bsoru(?:su|larÄ±|lar|luk|lik)?\b/i,
+   37:   /\btest\b[\s\S]{0,40}\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz)\b/i,
+   38:   /\bmini\s*(sÄ±nav|deneme)\b/i,
+   39:   /\bÃ§oktan\s*seÃ§meli\b/i,
+   40:   /\b5\s*ÅŸÄ±k(?:lÄ±)?\b/i,
+   41:   /\bbeÅŸ\s*ÅŸÄ±k(?:lÄ±)?\b/i,
+   42:   /\bpratik\s*soru(?:su)?\b/i,
+   43:   /\bcevap\s*anahtarÄ±\b/i,
+   44: ];
+   45: 
+   46: function isQuestionGenerationRequest(
+   47:   feature: AIFeature,
+   48:   requestData: Record<string, unknown>,
+   49: ): boolean {
+   50:   if (
+   51:     feature === "generate-questions" ||
+   52:     feature === "practice-question" ||
+   53:     feature === "mini-exam"
+   54:   ) {
+   55:     return true;
+   56:   }
+   57: 
+   58:   const serialized = JSON.stringify(requestData);
+   59: 
+   60:   return QUESTION_GENERATION_PATTERNS.some((pattern) =>
+   61:     pattern.test(serialized),
+   62:   );
+   63: }
+   64: 
+   65: const TEACHER_QUESTION_GENERATION_RULES = `
+   66: AI Ã–ÄžRETMEN SORU ÃœRETÄ°M MODU:
+   67: 
+   68: KullanÄ±cÄ± soru, test, mini sÄ±nav veya Ã§oktan seÃ§meli alÄ±ÅŸtÄ±rma istiyor.
+   69: 
+   70: ZORUNLU KURALLAR:
+   71: - Ä°stenen soru sayÄ±sÄ±na tam uy.
+   72: - Her soru A, B, C, D ve E olmak Ã¼zere 5 seÃ§enekli olsun.
+   73: - Her soruda tam olarak bir doÄŸru cevap bulunsun.
+   74: - Her soruyu gÃ¶ndermeden Ã¶nce sessizce Ã§Ã¶z.
+   75: - BÃ¼tÃ¼n seÃ§enekleri tek tek kontrol et.
+   76: - Birden fazla doÄŸru seÃ§enek varsa soruyu yeniden oluÅŸtur.
+   77: - HiÃ§ doÄŸru seÃ§enek yoksa soruyu yeniden oluÅŸtur.
+   78: - DoÄŸru cevabÄ± soru kÃ¶kÃ¼nde, baÅŸlÄ±kta veya seÃ§enek biÃ§iminde ele verme.
+   79: - Soru metnine Ã§Ã¶zÃ¼m, cevap veya Ã¶ÄŸretici ipucu ekleme.
+   80: - AynÄ±, eÅŸ anlamlÄ± veya birbirini kapsayan seÃ§enekler Ã¼retme.
+   81: - "Hepsi", "HiÃ§biri" ve benzeri toplu seÃ§enekleri kullanma.
+
+---------------- BOLUM 2 ----------------
+SATIR 1658-1713
+
+ 1658:     "",
+ 1659:     ...["A", "B", "C", "D", "E"].map(
+ 1660:       (letter) =>
+ 1661:         `${letter}) ${uniqueOptions.get(letter)}`,
+ 1662:     ),
+ 1663:     "",
+ 1664:     "## Cevap AnahtarÄ±",
+ 1665:     "",
+ 1666:     `1. ${answerLetter}`,
+ 1667:     "",
+ 1668:     "## Ã‡Ã¶zÃ¼mler",
+ 1669:     "",
+ 1670:     "### 1. Soru Ã‡Ã¶zÃ¼mÃ¼",
+ 1671:     solutionText,
+ 1672:   ]
+ 1673:     .join("\n")
+ 1674:     .replace(/\n{3,}/g, "\n\n")
+ 1675:     .trim();
+ 1676: }
+ 1677: 
+ 1678: async function generateVerifiedQuestionAnswer(
+ 1679:   prompt: string,
+ 1680:   attachments: NvidiaAttachment[],
+ 1681:   options: NvidiaRequestOptions,
+ 1682:   isDeDaQuestion: boolean,
+ 1683: ): Promise<string> {
+ 1684:   let draft = ensureSolutionAnswerLabels(
+ 1685:     await askNvidia(
+ 1686:       prompt,
+ 1687:       [],
+ 1688:       attachments,
+ 1689:       options,
+ 1690:     ),
+ 1691:   );
+ 1692: 
+ 1693:   draft =
+ 1694:     normalizeQuestionResponseStructure(
+ 1695:       draft,
+ 1696:     );
+ 1697: 
+ 1698:   const validationPrompt = isDeDaQuestion
+ 1699:     ? buildDeDaValidationPrompt(draft)
+ 1700:     : buildSubjectAuditPrompt(prompt, draft);
+ 1701: 
+ 1702:   const firstValidation = await askNvidia(
+ 1703:     validationPrompt,
+ 1704:     [],
+ 1705:     [],
+ 1706:     {
+ 1707:       temperature: 0.05,
+ 1708:       topP: 0.35,
+ 1709:       maxTokens: 4096,
+ 1710:       allowReasoningValidationFallback: true,
+ 1711:     },
+ 1712:   );
+ 1713: 
+
+---------------- BOLUM 3 ----------------
+SATIR 1902-1957
+
+ 1902:     "[AI QUESTION RAW DIAGNOSTIC]",
+ 1903:     {
+ 1904:       structureReason,
+ 1905:       optionLikeTokens,
+ 1906:       rawPreview,
+ 1907:     },
+ 1908:   );
+ 1909: 
+ 1910:   throw new Error(
+ 1911:     [
+ 1912:       "Soru seti Ã¼Ã§ baÄŸÄ±msÄ±z kalite kontrolÃ¼nden geÃ§emedi.",
+ 1913:       "HatalÄ± soru kullanÄ±cÄ±ya gÃ¶sterilmedi.",
+ 1914:       `Son denetim sonucu: ${finalReason}`,
+ 1915:       `YapÄ±sal kontrol: ${structureReason}`,
+ 1916:       `Secenek benzeri tokenlar: ${optionLikeTokens || "YOK"}`,
+ 1917:       `Ham Ã§Ä±ktÄ± Ã¶nizleme: ${rawPreview}`,
+ 1918:     ].join(" "),
+ 1919:   );
+ 1920: }
+ 1921: 
+ 1922: const DE_DA_QUESTION_RULES = `
+ 1923: DE/DA SORULARI Ä°Ã‡Ä°N Ã–ZEL ZORUNLU FORMAT:
+ 1924: 
+ 1925: - BoÅŸluk doldurma sorusu Ã¼retme.
+ 1926: - SeÃ§enekleri yalnÄ±zca "de", "da", "te", "ta" veya uydurma sÃ¶zcÃ¼klerden oluÅŸturma.
+ 1927: - "dey", "day", "hiÃ§biri", "hepsi" gibi seÃ§enekler kesinlikle kullanma.
+ 1928: - Her seÃ§enekte doÄŸal ve eksiksiz bir TÃ¼rkÃ§e cÃ¼mle yaz.
+ 1929: - Her soru ÅŸu iki kalÄ±ptan biriyle hazÄ±rlanmalÄ±:
+ 1930:   1. "AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde de/da'nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?"
+ 1931:   2. "AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde de/da'nÄ±n yazÄ±mÄ± doÄŸrudur?"
+ 1932: - Her soruda yalnÄ±zca bir seÃ§enek hedeflenen cevaba uymalÄ±dÄ±r.
+ 1933: - DiÄŸer dÃ¶rt seÃ§enek kesin ve tartÄ±ÅŸmasÄ±z biÃ§imde karÅŸÄ±t durumda olmalÄ±dÄ±r.
+ 1934: - "YanlÄ±ÅŸtÄ±r" sorusunda yalnÄ±zca bir yanlÄ±ÅŸ, dÃ¶rt doÄŸru seÃ§enek bulunmalÄ±dÄ±r.
+ 1935: - "DoÄŸrudur" sorusunda yalnÄ±zca bir doÄŸru, dÃ¶rt yanlÄ±ÅŸ seÃ§enek bulunmalÄ±dÄ±r.
+ 1936: - Her seÃ§eneÄŸi ayrÄ± ayrÄ± Ã§Ã¶zmeden soruyu gÃ¶nderme.
+ 1937: - Ä°kinci bir yanlÄ±ÅŸ veya doÄŸru seÃ§enek varsa soruyu tamamen yeniden yaz.
+ 1938: - "BahÃ§e de Ã§iÃ§ekler aÃ§tÄ±", "KardeÅŸimde bizimle geldi" gibi birden fazla hatalÄ± seÃ§eneÄŸi aynÄ± soruda kullanma.
+ 1939: - DoÄŸru seÃ§enek dÄ±ÅŸÄ±ndaki cÃ¼mleler de doÄŸal, anlamlÄ± ve dil bilgisi aÃ§Ä±sÄ±ndan eksiksiz olmalÄ±dÄ±r.
+ 1940: - BaÄŸlaÃ§ olan "de/da" ayrÄ± yazÄ±lÄ±r.
+ 1941: - Bulunma hÃ¢l eki "-de/-da/-te/-ta" kelimeye bitiÅŸik yazÄ±lÄ±r.
+ 1942: - Ã–zel adlara gelen bulunma hÃ¢l eki kesme iÅŸaretiyle ayrÄ±lÄ±r: Ankara'da, Ä°stanbul'da.
+ 1943: - "de/da" baÄŸlacÄ± hiÃ§bir zaman "te/ta" biÃ§imine dÃ¶nÃ¼ÅŸmez.
+ 1944: - ÃœnsÃ¼z benzeÅŸmesi yalnÄ±zca bulunma hÃ¢l ekinde gÃ¶rÃ¼lÃ¼r: sÄ±nÄ±fta, parkta.
+ 1945: - Her seÃ§eneÄŸi cÃ¼mleden "de/da" Ã§Ä±karma yÃ¶ntemiyle kontrol et.
+ 1946: - Ã‡Ä±karÄ±ldÄ±ÄŸÄ±nda temel anlam bozulmuyorsa baÄŸlaÃ§tÄ±r ve ayrÄ± yazÄ±lÄ±r.
+ 1947: - Yer, zaman veya bulunma anlamÄ± veriyorsa ektir ve bitiÅŸik yazÄ±lÄ±r.
+ 1948: - AnlatÄ±m bozukluÄŸu, eksik Ã¶ge veya doÄŸal olmayan cÃ¼mle kullanma.
+ 1949: - Cevap anahtarÄ±ndaki harf ile Ã§Ã¶zÃ¼mdeki harf aynÄ± olmalÄ±dÄ±r.
+ 1950: - Ã‡Ã¶zÃ¼mde yanlÄ±ÅŸ cÃ¼mleyi doÄŸruymuÅŸ gibi savunma.
+ 1951: 
+ 1952: Ã–RNEK SORU YAPISI:
+ 1953: 
+ 1954: ### 1. Soru
+ 1955: AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde "de/da"nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?
+ 1956: 
+ 1957: A) Ben de seninle geleceÄŸim.
+
+---------------- BOLUM 4 ----------------
+SATIR 2150-2205
+
+ 2150: 
+ 2151: function extractNumberedMarkdownBlocks(
+ 2152:   section: string,
+ 2153:   titleSuffix: string,
+ 2154: ): string[] {
+ 2155:   const escapedSuffix = titleSuffix.replace(
+ 2156:     /[.*+?^$(){}|[]\]/g,
+ 2157:     "\\$&",
+ 2158:   );
+ 2159: 
+ 2160:   const pattern = new RegExp(
+ 2161:     `###\\s+(\\d+)\\.\\s+${escapedSuffix}\\s*\\n[\\s\\S]*?(?=\\n###\\s+\\d+\\.\\s+${escapedSuffix}|$)`,
+ 2162:     "g",
+ 2163:   );
+ 2164: 
+ 2165:   return [
+ 2166:     ...section.matchAll(pattern),
+ 2167:   ].map((match) => match[0].trim());
+ 2168: }
+ 2169: 
+ 2170: function buildInstructionAwareDeDaResponse(
+ 2171:   requestText: string,
+ 2172: ): string {
+ 2173:   const fullQuiz =
+ 2174:     buildDeterministicDeDaQuiz();
+ 2175: 
+ 2176:   const requestedCount =
+ 2177:     getRequestedQuestionCount(requestText);
+ 2178: 
+ 2179:   const questionsMatch = fullQuiz.match(
+ 2180:     /## Sorular\s*\n([\s\S]*?)\n## Cevap AnahtarÄ±/,
+ 2181:   );
+ 2182: 
+ 2183:   const answersMatch = fullQuiz.match(
+ 2184:     /## Cevap AnahtarÄ±\s*\n([\s\S]*?)\n## Ã‡Ã¶zÃ¼mler/,
+ 2185:   );
+ 2186: 
+ 2187:   const solutionsMatch = fullQuiz.match(
+ 2188:     /## Ã‡Ã¶zÃ¼mler\s*\n([\s\S]*)$/,
+ 2189:   );
+ 2190: 
+ 2191:   if (
+ 2192:     !questionsMatch ||
+ 2193:     !answersMatch ||
+ 2194:     !solutionsMatch
+ 2195:   ) {
+ 2196:     throw new Error(
+ 2197:       "Yerel de/da soru paketi ayrÄ±ÅŸtÄ±rÄ±lamadÄ±",
+ 2198:     );
+ 2199:   }
+ 2200: 
+ 2201:   const questionBlocks =
+ 2202:     extractNumberedMarkdownBlocks(
+ 2203:       questionsMatch[1],
+ 2204:       "Soru",
+ 2205:     ).slice(0, requestedCount);
+
+---------------- BOLUM 5 ----------------
+SATIR 2274-2329
+
+ 2274:     .filter(Boolean)
+ 2275:     .join("\n")
+ 2276:     .trim();
+ 2277: }
+ 2278: 
+ 2279: function normalizeSubjectName(value: unknown): string {
+ 2280:   return String(value ?? "")
+ 2281:     .toLocaleLowerCase("tr-TR")
+ 2282:     .replace(/Ä±/g, "i")
+ 2283:     .replace(/ÅŸ/g, "s")
+ 2284:     .replace(/ÄŸ/g, "g")
+ 2285:     .replace(/Ã¼/g, "u")
+ 2286:     .replace(/Ã¶/g, "o")
+ 2287:     .replace(/Ã§/g, "c")
+ 2288:     .trim();
+ 2289: }
+ 2290: 
+ 2291: function getCurriculumHierarchyRules(
+ 2292:   requestData: Record<string, unknown>,
+ 2293: ): string {
+ 2294:   const requestText = String(
+ 2295:     requestData.userQuestion ??
+ 2296:     requestData.message ??
+ 2297:     requestData.prompt ??
+ 2298:     "",
+ 2299:   );
+ 2300: 
+ 2301:   const subjectName = String(
+ 2302:     requestData.subjectName ??
+ 2303:     requestData.lessonName ??
+ 2304:     requestData.courseName ??
+ 2305:     "",
+ 2306:   ).trim();
+ 2307: 
+ 2308:   const topicName = String(
+ 2309:     requestData.topicName ??
+ 2310:     requestData.topic ??
+ 2311:     "",
+ 2312:   ).trim();
+ 2313: 
+ 2314:   const hasCurriculumContext =
+ 2315:     /MÃœFREDAT BAÄžLAMI:|KAZANIM DURUMU:|Alt kazanÄ±mlar:|Eksikler:/i.test(
+ 2316:       requestText,
+ 2317:     );
+ 2318: 
+ 2319:   if (!hasCurriculumContext && !topicName) {
+ 2320:     return "";
+ 2321:   }
+ 2322: 
+ 2323:   return `
+ 2324: ANA KONU VE ALT KAZANIM KURALLARI:
+ 2325: 
+ 2326: - Ders: ${subjectName || "Belirtilmedi"}
+ 2327: - Ana konu: ${topicName || "KullanÄ±cÄ± mesajÄ±ndan belirle"}
+ 2328: - MÃœFREDAT BAÄžLAMI iÃ§indeki ana konu ve alt kazanÄ±mlarÄ± temel kapsam kabul et.
+ 2329: - KullanÄ±cÄ±nÄ±n Ã¶zellikle sorduÄŸu alt kazanÄ±mÄ± Ã¶nce ele al.
+
+---------------- BOLUM 6 ----------------
+SATIR 2654-2709
+
+ 2654: 
+ 2655: - Konunun sÄ±nav kapsamÄ±ndaki en seÃ§ici baÄŸlantÄ±larÄ±nÄ± Ã¶lÃ§.
+ 2656: - Birden fazla kazanÄ±mÄ± doÄŸal biÃ§imde birleÅŸtir.
+ 2657: - Ã‡eldiriciler ileri dÃ¼zey kavram yanÄ±lgÄ±larÄ±na dayansÄ±n.
+ 2658: - Yine de yalnÄ±zca bir doÄŸru cevap bulunduÄŸunu kesin olarak doÄŸrula.
+ 2659: - Gereksiz Ã¼niversite dÃ¼zeyi bilgi kullanma.
+ 2660: - Ã‡Ã¶zÃ¼mde alternatif kontrol yÃ¶ntemi kullan.
+ 2661: `.trim(),
+ 2662:   } as const;
+ 2663: 
+ 2664:   return [
+ 2665:     shared,
+ 2666:     `ALGILANAN SEVÄ°YE: ${level.toUpperCase()}`,
+ 2667:     rules[level],
+ 2668:   ].join("\n\n");
+ 2669: }
+ 2670: 
+ 2671: function getAdaptiveTeachingRules(
+ 2672:   requestData: Record<string, unknown>,
+ 2673: ): string {
+ 2674:   const requestText = String(
+ 2675:     requestData.userQuestion ??
+ 2676:     requestData.message ??
+ 2677:     requestData.prompt ??
+ 2678:     "",
+ 2679:   ).toLocaleLowerCase("tr-TR");
+ 2680: 
+ 2681:   const wantsShort =
+ 2682:     /kÄ±sa|Ã¶zet|Ã¶zetle|kÄ±saca|tek cÃ¼mle/.test(requestText);
+ 2683: 
+ 2684:   const wantsDetailed =
+ 2685:     /detaylÄ±|ayrÄ±ntÄ±lÄ±|adÄ±m adÄ±m|sÄ±fÄ±rdan|mantÄ±ÄŸÄ±yla/.test(
+ 2686:       requestText,
+ 2687:     );
+ 2688: 
+ 2689:   const wantsExamples =
+ 2690:     /Ã¶rnek|Ã¶rneklerle|uygulama|soru Ã§Ã¶z/.test(requestText);
+ 2691: 
+ 2692:   const wantsExamFocus =
+ 2693:     /Ã¶sym|tyt|ayt|sÄ±nav|deneme|Ã§Ä±kmÄ±ÅŸ soru|yeni nesil/.test(
+ 2694:       requestText,
+ 2695:     );
+ 2696: 
+ 2697:   const rules = `
+ 2698: UYARLANABÄ°LÄ°R Ã–ÄžRETÄ°M KURALLARI:
+ 2699: 
+ 2700: - Ã–ÄŸrencinin isteÄŸine doÄŸrudan cevap ver.
+ 2701: - Bilgiyi ezberletmek yerine neden-sonuÃ§ iliÅŸkisi kur.
+ 2702: - Yeni kavramÄ± bilinen bir kavramla iliÅŸkilendir.
+ 2703: - Ã–n koÅŸul bilgi gerekiyorsa en fazla 2 cÃ¼mleyle hatÄ±rlat.
+ 2704: - Bir kavramÄ± aÃ§Ä±klarken tanÄ±m, mantÄ±k ve uygulama sÄ±rasÄ±nÄ± koru.
+ 2705: - Ã–ÄŸrencinin sÄ±k yapabileceÄŸi kavram yanÄ±lgÄ±larÄ±nÄ± Ã¶nceden belirt.
+ 2706: - YanlÄ±ÅŸ bir yaklaÅŸÄ±mÄ± yalnÄ±zca "yanlÄ±ÅŸ" diye iÅŸaretleme; neden yanlÄ±ÅŸ olduÄŸunu aÃ§Ä±kla.
+ 2707: - AynÄ± konuyu tekrar anlatÄ±rken Ã¶nceki cevabÄ± birebir tekrarlama.
+ 2708: - KarmaÅŸÄ±k anlatÄ±mÄ± kÄ±sa parÃ§alara bÃ¶l.
+ 2709: - Her bÃ¶lÃ¼mde tek ana fikir kullan.
+
+---------------- BOLUM 7 ----------------
+SATIR 2758-2969
+
+ 2758:     outputRules.push(`
+ 2759: SINAV ODAKLI MOD:
+ 2760: - Konunun TYT veya AYT'de nasÄ±l Ã¶lÃ§Ã¼ldÃ¼ÄŸÃ¼nÃ¼ belirt.
+ 2761: - Gereksiz akademik ayrÄ±ntÄ± yerine sÄ±nav kazanÄ±mÄ±na odaklan.
+ 2762: - SÄ±k yapÄ±lan sÄ±nav hatalarÄ±nÄ± aÃ§Ä±kla.
+ 2763: - Ã–SYM tarzÄ± soru Ã¼retirken uzunlukla deÄŸil dÃ¼ÅŸÃ¼nme gereksinimiyle seÃ§icilik saÄŸla.
+ 2764: - Ä°pucu verirken cevabÄ± ele verme.
+ 2765: `.trim());
+ 2766:   }
+ 2767: 
+ 2768:   return [
+ 2769:     rules,
+ 2770:     ...outputRules,
+ 2771:   ].join("\n\n");
+ 2772: }
+ 2773: 
+ 2774: function getNvidiaOptions(
+ 2775:   feature: AIFeature,
+ 2776:   requestData: Record<string, unknown>,
+ 2777: ): NvidiaRequestOptions {
+ 2778:   if (isQuestionGenerationRequest(feature, requestData)) {
+ 2779:     return {
+ 2780:       temperature: 0.22,
+ 2781:       topP: 0.78,
+ 2782:       maxTokens: 4096,
+ 2783:     };
+ 2784:   }
+ 2785: 
+ 2786:   if (
+ 2787:     feature === "evaluate-question" ||
+ 2788:     feature === "explain-question"
+ 2789:   ) {
+ 2790:     return {
+ 2791:       temperature: 0.18,
+ 2792:       topP: 0.75,
+ 2793:       maxTokens: 2200,
+ 2794:     };
+ 2795:   }
+ 2796: 
+ 2797:   if (feature === "teach-topic") {
+ 2798:     return {
+ 2799:       temperature: 0.38,
+ 2800:       topP: 0.84,
+ 2801:       maxTokens: 2400,
+ 2802:     };
+ 2803:   }
+ 2804: 
+ 2805:   return {
+ 2806:     temperature: 0.5,
+ 2807:     topP: 0.9,
+ 2808:     maxTokens: 2200,
+ 2809:   };
+ 2810: }
+ 2811: 
+ 2812: /**
+ 2813:  * Eski endpoint
+ 2814:  * POST /api/v1/ai
+ 2815:  */
+ 2816: aiRouter.post("/", aiRateLimiter, async (request, response, next) => {
+ 2817:   try {
+ 2818:     const parsed = aiRequestSchema.safeParse(request.body);
+ 2819: 
+ 2820:     if (!parsed.success) {
+ 2821:       return response.status(400).json({
+ 2822:         error: "GeÃƒÂ§ersiz istek.",
+ 2823:         details: parsed.error.flatten().fieldErrors,
+ 2824:       });
+ 2825:     }
+ 2826: 
+ 2827:     const answer = await askNvidia(
+ 2828:       parsed.data.message,
+ 2829:       parsed.data.history
+ 2830:     );
+ 2831: 
+ 2832:     return response.json({
+ 2833:       content: answer,
+ 2834:       provider: "nvidia",
+ 2835:       model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+ 2836:       usage: null,
+ 2837:     });
+ 2838:   } catch (error) {
+ 2839:     next(error);
+ 2840:   }
+ 2841: });
+ 2842: 
+ 2843: /**
+ 2844:  * Yeni endpointler
+ 2845:  * /api/v1/ai/teach-topic
+ 2846:  * /api/v1/ai/coach
+ 2847:  * /api/v1/ai/practice-question
+ 2848:  * vb.
+ 2849:  */
+ 2850: aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
+ 2851:   try {
+ 2852:     const feature = Array.isArray(request.params.feature)
+ 2853:       ? request.params.feature[0]
+ 2854:       : request.params.feature;
+ 2855: 
+ 2856:     if (!feature || !isAIFeature(feature)) {
+ 2857:       return response.status(404).json({
+ 2858:         error: "Desteklenmeyen AI ÃƒÂ¶zelliÃ„Å¸i.",
+ 2859:         feature,
+ 2860:       });
+ 2861:     }
+ 2862: 
+ 2863:     const parsed = aiFeatureRequestSchema.safeParse(request.body);
+ 2864: 
+ 2865:     if (!parsed.success) {
+ 2866:       return response.status(400).json({
+ 2867:         error: "GeÃƒÂ§ersiz istek.",
+ 2868:         details: parsed.error.flatten(),
+ 2869:       });
+ 2870:     }
+ 2871: 
+ 2872:     const requestTextForDeterministicQuiz =
+ 2873:       JSON.stringify(parsed.data);
+ 2874: 
+ 2875:     const isDeDaQuizRequest =
+ 2876:       isQuestionGenerationRequest(feature, parsed.data) &&
+ 2877:       /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+ 2878:         requestTextForDeterministicQuiz,
+ 2879:       );
+ 2880: 
+ 2881:     if (isDeDaQuizRequest) {
+ 2882:       return response.json({
+ 2883:         content:
+ 2884:           buildInstructionAwareDeDaResponse(
+ 2885:             requestTextForDeterministicQuiz,
+ 2886:           ),
+ 2887:         provider: "local_verified",
+ 2888:         model: "konutakip-de-da-v2",
+ 2889:         usage: null,
+ 2890:       });
+ 2891:     }
+ 2892: 
+ 2893:     let prompt = buildFeaturePrompt(feature, parsed.data);
+ 2894: 
+ 2895:     prompt = [
+ 2896:       prompt,
+ 2897:       getCurriculumHierarchyRules(
+ 2898:         parsed.data,
+ 2899:       ),
+ 2900:       getSubjectExpertRules(parsed.data),
+ 2901:       getStudentLevelRules(parsed.data),
+ 2902:       getAdaptiveTeachingRules(parsed.data),
+ 2903:     ]
+ 2904:       .filter(Boolean)
+ 2905:       .join("\n\n");
+ 2906: 
+ 2907:     if (
+ 2908:       feature === "teach-topic" &&
+ 2909:       isQuestionGenerationRequest(feature, parsed.data)
+ 2910:     ) {
+ 2911:       prompt = [
+ 2912:         prompt,
+ 2913:         TEACHER_QUESTION_GENERATION_RULES,
+ 2914:       ].join("\n\n");
+ 2915:     }
+ 2916: 
+ 2917:     const requestText = JSON.stringify(parsed.data);
+ 2918: 
+ 2919:     if (
+ 2920:       isQuestionGenerationRequest(feature, parsed.data) &&
+ 2921:       /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(requestText)
+ 2922:     ) {
+ 2923:       prompt = [
+ 2924:         prompt,
+ 2925:         DE_DA_QUESTION_RULES,
+ 2926:       ].join("\n\n");
+ 2927:     }
+ 2928: 
+ 2929:     console.log("[ROUTE] askNvidia baÃ…Å¸ladÃ„Â±");
+ 2930: 
+ 2931:     const attachments =
+ 2932:       feature === "teach-topic" && Array.isArray(parsed.data.attachments)
+ 2933:         ? (parsed.data.attachments as NvidiaAttachment[])
+ 2934:         : [];
+ 2935: 
+ 2936:     const options = getNvidiaOptions(feature, parsed.data);
+ 2937: 
+ 2938:     const answer = isQuestionGenerationRequest(
+ 2939:       feature,
+ 2940:       parsed.data,
+ 2941:     )
+ 2942:       ? await generateVerifiedQuestionAnswer(
+ 2943:           prompt,
+ 2944:           attachments,
+ 2945:           options,
+ 2946:           /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+ 2947:             requestText,
+ 2948:           ),
+ 2949:         )
+ 2950:       : await askNvidia(
+ 2951:           prompt,
+ 2952:           [],
+ 2953:           attachments,
+ 2954:           options,
+ 2955:         );
+ 2956: 
+ 2957:     console.log("[ROUTE] askNvidia bitti");
+ 2958: 
+ 2959:     return response.json({
+ 2960:       content: answer,
+ 2961:       provider: "nvidia",
+ 2962:       model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+ 2963:       usage: null,
+ 2964:     });
+ 2965:   } catch (error) {
+ 2966:     next(error);
+ 2967:   }
+ 2968: });
+ 2969: 
+
+============================================================
+AI OGRETMEN ISTEK GONDERIMI
+DOSYA: ./app/ai-teacher.tsx
+BULUNAN BOLUM: 6
+
+---------------- BOLUM 1 ----------------
+SATIR 1-373
+
+    1: /**
+    2:  * AI Teacher screen â€” ChatGPT-style conversational AI tutor.
+    3:  *
+    4:  * Architecture:
+    5:  *  â€¢ PremiumGate wraps the entire feature â€” free users see the locked state.
+    6:  *  â€¢ Messages are stored in local component state (session only).
+    7:  *  â€¢ All AI calls go through AIManager.teachTopic() â€” no direct provider imports.
+    8:  *  â€¢ Swapping the provider in AIManager is the only change needed for real AI.
+    9:  *
+   10:  * Layout:
+   11:  *   Header â†’ ScrollView (empty state | messages) â†’ Input bar
+   12:  */
+   13: 
+   14: import AsyncStorage from "@react-native-async-storage/async-storage";
+   15: import { Feather } from "@expo/vector-icons";
+   16: import * as DocumentPicker from "expo-document-picker";
+   17: import * as FileSystem from "expo-file-system/legacy";
+   18: import * as ImagePicker from "expo-image-picker";
+   19: import { router, useLocalSearchParams } from "expo-router";
+   20: import React, { useCallback, useEffect, useRef, useState } from "react";
+   21: import {
+   22:   AccessibilityInfo,
+   23:   ActivityIndicator,
+   24:   Alert,
+   25:   Platform,
+   26:   ScrollView,
+   27:   StyleSheet,
+   28:   Text,
+   29:   TextInput,
+   30:   TouchableOpacity,
+   31:   View,
+   32: } from "react-native";
+   33: import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+   34: import Markdown from "react-native-markdown-display";
+   35: import Animated, {
+   36:   FadeIn,
+   37:   FadeInDown,
+   38:   FadeInLeft,
+   39:   FadeInRight,
+   40:   useAnimatedStyle,
+   41:   useSharedValue,
+   42:   withDelay,
+   43:   withRepeat,
+   44:   withSequence,
+   45:   withTiming,
+   46: } from "react-native-reanimated";
+   47: import { useSafeAreaInsets } from "react-native-safe-area-context";
+   48: 
+   49: import { PREMIUM_COLOR } from "@/components/PremiumBadge";
+   50: import { PremiumBadge } from "@/components/PremiumBadge";
+   51: import { PremiumGate } from "@/components/PremiumGate";
+   52: import { useApp } from "@/contexts/AppContext";
+   53: import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
+   54: import { useColors } from "@/hooks/useColors";
+   55: import { AIError, AIManager } from "@/utils/ai";
+   56: import type { AITeacherResponse } from "@/utils/ai";
+   57: import { PremiumFeature } from "@/utils/premium";
+   58: 
+   59: // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   60: 
+   61: type MatchedCurriculumContext = {
+   62:   examType: "TYT" | "AYT";
+   63:   subjectId: string;
+   64:   subjectName: string;
+   65:   topicId: string;
+   66:   topicName: string;
+   67:   subtopicNames: string[];
+   68: };
+   69: 
+   70: function normalizeCurriculumText(
+   71:   value: string,
+   72: ): string {
+   73:   return String(value ?? "")
+   74:     .toLocaleLowerCase("tr-TR")
+   75:     .replace(/ı/g, "i")
+   76:     .replace(/ş/g, "s")
+   77:     .replace(/ğ/g, "g")
+   78:     .replace(/ü/g, "u")
+   79:     .replace(/ö/g, "o")
+   80:     .replace(/ç/g, "c")
+   81:     .replace(/[^a-z0-9\s]/g, " ")
+   82:     .replace(/\s+/g, " ")
+   83:     .trim();
+   84: }
+   85: 
+   86: function inferExamTypeFromText(
+   87:   value: string,
+   88: ): "TYT" | "AYT" {
+   89:   const normalized =
+   90:     normalizeCurriculumText(value);
+   91: 
+   92:   if (
+   93:     /\bayt\b/.test(normalized) ||
+   94:     /turev|integral|limit|logaritma|parabol|trigonometri/.test(
+   95:       normalized,
+   96:     )
+   97:   ) {
+   98:     return "AYT";
+   99:   }
+  100: 
+  101:   return "TYT";
+  102: }
+  103: 
+  104: function buildCurriculumContext(
+  105:   userText: string,
+  106:   studyField?: StudyField,
+  107: ): MatchedCurriculumContext | null {
+  108:   const normalizedText =
+  109:     normalizeCurriculumText(userText);
+  110: 
+  111:   if (!normalizedText) {
+  112:     return null;
+  113:   }
+  114: 
+  115:   const curriculumGroups: Array<{
+  116:     examType: "TYT" | "AYT";
+  117:     subjects: typeof TYT_SUBJECTS;
+  118:   }> = [
+  119:     {
+  120:       examType: "TYT",
+  121:       subjects: TYT_SUBJECTS,
+  122:     },
+  123:     {
+  124:       examType: "AYT",
+  125:       subjects: studyField
+  126:         ? AYT_SUBJECTS_BY_FIELD[
+  127:             studyField
+  128:           ] ?? []
+  129:         : Object.values(
+  130:             AYT_SUBJECTS_BY_FIELD,
+  131:           ).flat(),
+  132:     },
+  133:   ];
+  134: 
+  135:   let bestMatch:
+  136:     | {
+  137:         score: number;
+  138:         context: MatchedCurriculumContext;
+  139:       }
+  140:     | null = null;
+  141: 
+  142:   for (
+  143:     const curriculumGroup of
+  144:     curriculumGroups
+  145:   ) {
+  146:     for (
+  147:       const subject of
+  148:       curriculumGroup.subjects
+  149:     ) {
+  150:       const normalizedSubject =
+  151:         normalizeCurriculumText(
+  152:           subject.name,
+  153:         );
+  154: 
+  155:       for (const topic of subject.topics) {
+  156:         const normalizedTopic =
+  157:           normalizeCurriculumText(
+  158:             topic.name,
+  159:           );
+  160: 
+  161:         const matchingSubtopics =
+  162:           (topic.subtopics ?? []).filter(
+  163:             (subtopic) => {
+  164:               const normalizedSubtopic =
+  165:                 normalizeCurriculumText(
+  166:                   subtopic.name,
+  167:                 );
+  168: 
+  169:               return (
+  170:                 normalizedSubtopic.length >=
+  171:                   4 &&
+  172:                 normalizedText.includes(
+  173:                   normalizedSubtopic,
+  174:                 )
+  175:               );
+  176:             },
+  177:           );
+  178: 
+  179:         let score = 0;
+  180: 
+  181:         if (
+  182:           normalizedTopic.length >= 4 &&
+  183:           normalizedText.includes(
+  184:             normalizedTopic,
+  185:           )
+  186:         ) {
+  187:           score += 100;
+  188:         }
+  189: 
+  190:         if (
+  191:           normalizedSubject.length >= 4 &&
+  192:           normalizedText.includes(
+  193:             normalizedSubject,
+  194:           )
+  195:         ) {
+  196:           score += 15;
+  197:         }
+  198: 
+  199:         if (
+  200:           normalizedText.includes(
+  201:             curriculumGroup.examType
+  202:               .toLocaleLowerCase(
+  203:                 "tr-TR",
+  204:               ),
+  205:           )
+  206:         ) {
+  207:           score += 25;
+  208:         }
+  209: 
+  210:         score +=
+  211:           matchingSubtopics.length * 140;
+  212: 
+  213:         if (score <= 0) {
+  214:           continue;
+  215:         }
+  216: 
+  217:         const selectedSubtopics =
+  218:           matchingSubtopics.length > 0
+  219:             ? matchingSubtopics.map(
+  220:                 (subtopic) =>
+  221:                   subtopic.name,
+  222:               )
+  223:             : (topic.subtopics ?? []).map(
+  224:                 (subtopic) =>
+  225:                   subtopic.name,
+  226:               );
+  227: 
+  228:         if (
+  229:           !bestMatch ||
+  230:           score > bestMatch.score
+  231:         ) {
+  232:           bestMatch = {
+  233:             score,
+  234:             context: {
+  235:               examType:
+  236:                 curriculumGroup.examType,
+  237:               subjectId: subject.id,
+  238:               subjectName: subject.name,
+  239:               topicId: topic.id,
+  240:               topicName: topic.name,
+  241:               subtopicNames:
+  242:                 selectedSubtopics,
+  243:             },
+  244:           };
+  245:         }
+  246:       }
+  247:     }
+  248:   }
+  249: 
+  250:   return bestMatch?.context ?? null;
+  251: }
+  252: 
+  253: function formatCurriculumContext(
+  254:   context: MatchedCurriculumContext | null,
+  255: ): string {
+  256:   if (!context) {
+  257:     return "";
+  258:   }
+  259: 
+  260:   return [
+  261:     "MÜFREDAT BAĞLAMI:",
+  262:     `Sınav türü: ${context.examType}`,
+  263:     `Ders: ${context.subjectName}`,
+  264:     `Ana konu: ${context.topicName}`,
+  265:     context.subtopicNames.length > 0
+  266:       ? [
+  267:           "Alt kazanımlar:",
+  268:           ...context.subtopicNames.map(
+  269:             (name) => `- ${name}`,
+  270:           ),
+  271:         ].join("\n")
+  272:       : "",
+  273:     "Yanıtı bu ana konu ve alt kazanım sınırında hazırla.",
+  274:     "Kullanıcının özellikle belirttiği alt kazanımı önceliklendir.",
+  275:     `${context.examType} müfredat sınırını koru; diğer sınav türünün yöntemlerini gereksiz yere kullanma.`,
+  276:   ]
+  277:     .filter(Boolean)
+  278:     .join("\n");
+  279: }
+  280: 
+  281: interface ChatMessage {
+  282:   id: string;
+  283:   role: "user" | "ai";
+  284:   content: string;
+  285:   timestamp: Date;
+  286:   isError?: boolean;
+  287:   /** Original user text â€” used for retry on error messages */
+  288:   retryText?: string;
+  289: }
+  290: 
+  291: // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  292: 
+  293: const SUGGESTIONS = [
+  294:   "Parabol nedir?",
+  295:   "Limit konu anlat",
+  296:   "TYT Matematik",
+  297:   "AYT Fizik",
+  298:   "Biyoloji tekrar",
+  299:   "Türev nasıl alınır?",
+  300: ];
+  301: 
+  302: const AI_COLOR = "#7C3AED";
+  303: const AI_TEACHER_HISTORY_KEY = "konutakip_ai_teacher_history_v1";
+  304: const AI_TEACHER_MAX_MESSAGES = 80;
+  305: 
+  306: type StoredTeacherMessage = Omit<ChatMessage, "timestamp"> & {
+  307:   timestamp: string;
+  308: };
+  309: 
+  310: function parseTeacherMessages(value: string | null): ChatMessage[] {
+  311:   if (!value) return [];
+  312: 
+  313:   try {
+  314:     const parsed = JSON.parse(value) as StoredTeacherMessage[];
+  315: 
+  316:     if (!Array.isArray(parsed)) return [];
+  317: 
+  318:     return parsed
+  319:       .filter(
+  320:         (message) =>
+  321:           message &&
+  322:           typeof message.id === "string" &&
+  323:           (message.role === "user" || message.role === "ai") &&
+  324:           typeof message.content === "string"
+  325:       )
+  326:       .slice(-AI_TEACHER_MAX_MESSAGES)
+  327:       .map((message) => ({
+  328:         ...message,
+  329:         timestamp: new Date(message.timestamp),
+  330:       }));
+  331:   } catch {
+  332:     return [];
+  333:   }
+  334: }
+  335: 
+  336: function serializeTeacherMessages(messages: ChatMessage[]): string {
+  337:   return JSON.stringify(
+  338:     messages.slice(-AI_TEACHER_MAX_MESSAGES).map((message) => ({
+  339:       ...message,
+  340:       timestamp: message.timestamp.toISOString(),
+  341:     }))
+  342:   );
+  343: }
+  344: 
+  345: // â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  346: 
+  347: function formatTime(date: Date): string {
+  348:   return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+  349: }
+  350: 
+  351: /**
+  352:  * The real AI response lands in `res.summary` as a raw Markdown string.
+  353:  * We display it directly â€” the Markdown renderer handles all formatting.
+  354:  */
+  355: function normalizeAIText(value: string): string {
+  356:   let result = value
+  357:     .replace(/\r\n/g, "\n")
+  358:     .replace(/\\\[/g, "\n")
+  359:     .replace(/\\\]/g, "\n")
+  360:     .replace(/\\\(/g, "")
+  361:     .replace(/\\\)/g, "")
+  362:     .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+  363:     .replace(/\$([^$\n]+)\$/g, "$1");
+  364: 
+  365:   result = result
+  366:     .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
+  367:     .replace(/\\sqrt\s*\{([^{}]+)\}/g, "âˆš($1)")
+  368:     .replace(/\\lim_\{([^{}]+)\}/g, "limit ($1)")
+  369:     .replace(/\\lim/g, "limit")
+  370:     .replace(/\\text\s*\{([^{}]+)\}/g, "$1")
+  371:     .replace(/\\boxed\s*\{([^{}]+)\}/g, "$1")
+  372:     .replace(/\\overline\s*\{([^{}]+)\}/g, "$1")
+  373:     .replace(/\\left|\\right/g, "")
+
+---------------- BOLUM 2 ----------------
+SATIR 514-569
+
+  514: 
+  515:         <Text
+  516:           style={[
+  517:             styles.loadingText,
+  518:             { color: colors.mutedForeground },
+  519:           ]}
+  520:         >
+  521:           AI düşünüyor...
+  522:         </Text>
+  523:       </View>
+  524:     </Animated.View>
+  525:   );
+  526: }
+  527: 
+  528: // â”€â”€â”€ Message bubble â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  529: 
+  530: function UserBubble({
+  531:   message,
+  532:   colors,
+  533: }: {
+  534:   message: ChatMessage;
+  535:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  536: }) {
+  537:   return (
+  538:     <Animated.View entering={FadeInRight.duration(300)} style={styles.userBubbleRow}>
+  539:       <View style={styles.userBubbleGroup}>
+  540:         <View
+  541:           style={[styles.userBubble, { backgroundColor: colors.primary }]}
+  542:           accessibilityLabel={`Sen: ${message.content}`}
+  543:           accessibilityRole="text"
+  544:         >
+  545:           <Text style={[styles.userBubbleText, { color: colors.primaryForeground }]}>
+  546:             {message.content}
+  547:           </Text>
+  548:         </View>
+  549:         <Text style={[styles.timestamp, { color: colors.mutedForeground, textAlign: "right" }]}>
+  550:           {formatTime(message.timestamp)}
+  551:         </Text>
+  552:       </View>
+  553:     </Animated.View>
+  554:   );
+  555: }
+  556: 
+  557: function buildMarkdownStyles(
+  558:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>
+  559: ) {
+  560:   return {
+  561:     body: {
+  562:       color: colors.foreground,
+  563:       fontSize: 15,
+  564:       fontFamily: "Inter_400Regular",
+  565:       lineHeight: 23,
+  566:     },
+  567:     heading1: {
+  568:       color: colors.foreground,
+  569:       fontSize: 20,
+
+---------------- BOLUM 3 ----------------
+SATIR 646-701
+
+  646:       color: colors.foreground,
+  647:       borderColor: colors.border,
+  648:       borderWidth: 1,
+  649:       borderRadius: 10,
+  650:       padding: 12,
+  651:       fontSize: 14,
+  652:       lineHeight: 21,
+  653:     },
+  654:     hr: {
+  655:       backgroundColor: colors.border,
+  656:       marginVertical: 8,
+  657:     },
+  658:   };
+  659: }
+  660: 
+  661: function AIBubble({
+  662:   message,
+  663:   colors,
+  664:   onRetry,
+  665: }: {
+  666:   message: ChatMessage;
+  667:   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  668:   onRetry?: (text: string) => void;
+  669: }) {
+  670:   const mdStyles = buildMarkdownStyles(colors);
+  671: 
+  672:   if (message.isError) {
+  673:     return (
+  674:       <Animated.View entering={FadeInLeft.duration(300)} style={styles.aiBubbleRow}>
+  675:         <View style={styles.aiAvatarWrap}>
+  676:           <View style={[styles.aiAvatar, { backgroundColor: "#ef444422" }]}>
+  677:             <Feather name="alert-circle" size={14} color="#ef4444" />
+  678:           </View>
+  679:         </View>
+  680:         <View style={styles.errorBubbleGroup}>
+  681:           <View
+  682:             style={[
+  683:               styles.errorBubble,
+  684:               { backgroundColor: colors.card, borderColor: "#ef444430" },
+  685:             ]}
+  686:           >
+  687:             <Feather name="alert-triangle" size={14} color="#ef4444" style={styles.errorIcon} />
+  688:             <Text style={[styles.errorText, { color: "#ef4444" }]}>{message.content}</Text>
+  689:           </View>
+  690:           {message.retryText && onRetry ? (
+  691:             <TouchableOpacity
+  692:               style={[styles.retryBtn, { borderColor: colors.border }]}
+  693:               onPress={() => onRetry(message.retryText!)}
+  694:               accessibilityLabel="Tekrar dene"
+  695:               accessibilityRole="button"
+  696:             >
+  697:               <Feather name="refresh-cw" size={13} color={colors.mutedForeground} />
+  698:               <Text style={[styles.retryBtnText, { color: colors.mutedForeground }]}>
+  699:                 Tekrar dene
+  700:               </Text>
+  701:             </TouchableOpacity>
+
+---------------- BOLUM 4 ----------------
+SATIR 774-1041
+
+  774:                 numberOfLines={1}
+  775:               >
+  776:                 {s}
+  777:               </Text>
+  778:             </TouchableOpacity>
+  779:           </Animated.View>
+  780:         ))}
+  781:       </View>
+  782:     </Animated.View>
+  783:   );
+  784: }
+  785: 
+  786: // â”€â”€â”€ Main content (inside PremiumGate) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  787: 
+  788: function AITeacherContent() {
+  789:   const colors = useColors();
+  790:   const { profile } = useApp();
+  791:   const insets = useSafeAreaInsets();
+  792:   const { prompt } = useLocalSearchParams<{ prompt?: string | string[] }>();
+  793: 
+  794:   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  795:   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
+  796:   const [inputText, setInputText] = useState("");
+  797:   const [isLoading, setIsLoading] = useState(false);
+  798: 
+  799: const [selectedAttachments, setSelectedAttachments] = useState<
+  800:   {
+  801:     kind: "image" | "pdf";
+  802:     uri: string;
+  803:     mimeType: string;
+  804:     fileName: string;
+  805:     base64: string;
+  806:   }[]
+  807: >([]);
+  808:   const scrollRef = useRef<ScrollView>(null);
+  809:   const inputRef = useRef<TextInput>(null);
+  810:   useEffect(() => {
+  811:     let active = true;
+  812: 
+  813:     AsyncStorage.getItem(AI_TEACHER_HISTORY_KEY)
+  814:       .then((stored) => {
+  815:         if (!active) return;
+  816:         setMessages(parseTeacherMessages(stored));
+  817:       })
+  818:       .catch(() => {
+  819:         if (!active) return;
+  820:         setMessages([]);
+  821:       })
+  822:       .finally(() => {
+  823:         if (active) setIsHistoryLoaded(true);
+  824:       });
+  825: 
+  826:     return () => {
+  827:       active = false;
+  828:     };
+  829:   }, []);
+  830: 
+  831:   useEffect(() => {
+  832:     if (!isHistoryLoaded) return;
+  833: 
+  834:     AsyncStorage.setItem(
+  835:       AI_TEACHER_HISTORY_KEY,
+  836:       serializeTeacherMessages(messages)
+  837:     ).catch(() => {});
+  838:   }, [isHistoryLoaded, messages]);
+  839: 
+  840: 
+  841: 
+  842:   useEffect(() => {
+  843:     const incomingPrompt = Array.isArray(prompt) ? prompt[0] : prompt;
+  844: 
+  845:     if (typeof incomingPrompt === "string" && incomingPrompt.trim()) {
+  846:       setInputText(incomingPrompt.trim());
+  847: 
+  848:       requestAnimationFrame(() => {
+  849:         inputRef.current?.focus();
+  850:       });
+  851:     }
+  852:   }, [prompt]);
+  853: 
+  854:   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  855:   const botPad = Math.max(insets.bottom, 8);
+  856: 
+  857:   // Auto-scroll to bottom whenever messages update or loading changes
+  858:   useEffect(() => {
+  859:     const timer = setTimeout(
+  860:       () => scrollRef.current?.scrollToEnd({ animated: true }),
+  861:       120
+  862:     );
+  863:     return () => clearTimeout(timer);
+  864:   }, [messages, isLoading]);
+  865: 
+  866:   const sendMessage = useCallback(
+  867:     async (text: string) => {
+  868:       const trimmed = text.trim();
+  869:       const attachmentsToSend = [...selectedAttachments];
+  870: 
+  871:       if ((!trimmed && attachmentsToSend.length === 0) || isLoading) return;
+  872: 
+  873:       const userMsg: ChatMessage = {
+  874:         id: `user_${Date.now()}`,
+  875:         role: "user",
+  876:         content:
+  877:           trimmed ||
+  878:           attachmentsToSend.map((item) => `ðŸ“Ž ${item.fileName}`).join("\n"),
+  879:         timestamp: new Date(),
+  880:       };
+  881: 
+  882:       setMessages((prev) => [...prev, userMsg]);
+  883:       setInputText("");
+  884:       setSelectedAttachments([]);
+  885:       setIsLoading(true);
+  886:         try {
+  887:           const recentConversation = messages
+  888:             .filter((message) => !message.isError)
+  889:             .slice(-10)
+  890:             .map((message) => {
+  891:               const speaker =
+  892:                 message.role === "user" ? "Ã–ÄŸrenci" : "AI Ã–ÄŸretmen";
+  893: 
+  894:               return `${speaker}: ${message.content}`;
+  895:             })
+  896:             .join("\n\n");
+  897: 
+  898:           const studentName = profile?.name?.trim() || "Ã–ÄŸrenci";
+  899: 
+  900:           const curriculumContext =
+  901:             buildCurriculumContext(
+  902:               [
+  903:                 recentConversation,
+  904:                 trimmed,
+  905:               ]
+  906:                 .filter(Boolean)
+  907:                 .join("\n\n"),
+  908:               profile?.studyField,
+  909:             );
+  910: 
+  911:           const curriculumPrompt =
+  912:             formatCurriculumContext(
+  913:               curriculumContext,
+  914:             );
+  915: 
+  916:           const contextualQuestion = [
+  917:             `Ã–ÄŸrencinin adÄ±: ${studentName}`,
+  918:             curriculumPrompt,
+  919:             recentConversation
+  920:               ? `Ã–nceki konuÅŸma:\n${recentConversation}`
+  921:               : "",
+  922:             `Yeni istek: ${
+  923:               trimmed ||
+  924:               "YÃ¼klenen soru veya dosyayÄ± analiz et, adÄ±m adÄ±m Ã§Ã¶z ve aÃ§Ä±kla."
+  925:             }`,
+  926:             "Ã–ÄŸrencinin adÄ±nÄ± her cevapta tekrar etme. YalnÄ±zca doÄŸal ve gerekli olduÄŸunda kullan.",
+  927:           ]
+  928:             .filter(Boolean)
+  929:             .join("\n\n");
+  930: 
+  931:           const res = await AIManager.teachTopic({
+  932:           feature: "ai_teacher",
+  933:           requestedAt: new Date().toISOString(),
+  934:           topicId:
+  935:             curriculumContext?.topicId ??
+  936:             `chat_${Date.now()}`,
+  937:           topicName:
+  938:             curriculumContext?.topicName ??
+  939:             trimmed,
+  940:           subjectName:
+  941:             curriculumContext?.subjectName ??
+  942:             "Genel",
+  943:           examType:
+  944:             curriculumContext?.examType ??
+  945:             inferExamTypeFromText(
+  946:               [
+  947:                 recentConversation,
+  948:                 trimmed,
+  949:               ]
+  950:                 .filter(Boolean)
+  951:                 .join("\n\n"),
+  952:             ),
+  953:           userQuestion: contextualQuestion,
+  954:           attachments: attachmentsToSend,
+  955:         });
+  956: 
+  957:         const aiMsg: ChatMessage = {
+  958:           id: `ai_${Date.now()}`,
+  959:           role: "ai",
+  960:           content: formatAIResponse(res),
+  961:           timestamp: new Date(),
+  962:         };
+  963:         setMessages((prev) => [...prev, aiMsg]);
+  964: 
+  965:         // Announce to screen readers
+  966:         AccessibilityInfo.announceForAccessibility("AI yanÄ±tÄ± hazÄ±r");
+  967:       } catch (err) {
+  968:         const userMessage =
+  969:           err instanceof AIError
+  970:             ? err.toUserMessage()
+  971:             : "YanÄ±t alÄ±namadÄ±.";
+  972: 
+  973:         const errorMsg: ChatMessage = {
+  974:           id: `err_${Date.now()}`,
+  975:           role: "ai",
+  976:           content: userMessage,
+  977:           timestamp: new Date(),
+  978:           isError: true,
+  979:           retryText: trimmed,
+  980:         };
+  981:         setMessages((prev) => [...prev, errorMsg]);
+  982:       } finally {
+  983:         setIsLoading(false);
+  984:       }
+  985:     },
+  986:     [
+  987:       isLoading,
+  988:       messages,
+  989:       profile?.name,
+  990:       profile?.studyField,
+  991:       selectedAttachments,
+  992:     ]
+  993:   );
+  994: 
+  995:   const handleSuggestion = useCallback(
+  996:     (text: string) => {
+  997:       setInputText(text);
+  998:       inputRef.current?.focus();
+  999:     },
+ 1000:     []
+ 1001:   );
+ 1002: 
+ 1003:   const handleRetry = useCallback(
+ 1004:     (text: string) => {
+ 1005:       // Remove the error message and resend
+ 1006:       setMessages((prev) => prev.filter((m) => !m.isError));
+ 1007:       sendMessage(text);
+ 1008:     },
+ 1009:     [sendMessage]
+ 1010:   );
+ 1011: 
+ 1012:   const openCamera = useCallback(async () => {
+ 1013:     const permission = await ImagePicker.requestCameraPermissionsAsync();
+ 1014: 
+ 1015:     if (!permission.granted) {
+ 1016:       Alert.alert(
+ 1017:         "Kamera Ä°zni Gerekli",
+ 1018:         "Soru fotoÄŸrafÄ± Ã§ekebilmek iÃ§in kamera izni vermelisin."
+ 1019:       );
+ 1020:       return;
+ 1021:     }
+ 1022: 
+ 1023:     const result = await ImagePicker.launchCameraAsync({
+ 1024:       quality: 0.8,
+ 1025:       allowsEditing: false,
+ 1026:       base64: true,
+ 1027:     });
+ 1028: 
+ 1029:     if (!result.canceled) {
+ 1030:       const image = result.assets[0];
+ 1031: 
+ 1032:       if (!image.base64) {
+ 1033:         Alert.alert("Hata", "FotoÄŸraf okunamadÄ±.");
+ 1034:         return;
+ 1035:       }
+ 1036: 
+ 1037:       setSelectedAttachments([
+ 1038:         {
+ 1039:           kind: "image",
+ 1040:           uri: image.uri,
+ 1041:           mimeType: image.mimeType ?? "image/jpeg",
+
+---------------- BOLUM 5 ----------------
+SATIR 1183-1253
+
+ 1183:           <Text
+ 1184:             style={[styles.headerSub, { color: colors.mutedForeground }]}
+ 1185:             numberOfLines={1}
+ 1186:           >
+ 1187:             Yapay zekâ destekli kişisel öğretmenin
+ 1188:           </Text>
+ 1189:         </View>
+ 1190: 
+ 1191:         {/* Status dot */}
+ 1192:         <View style={styles.statusWrap} accessibilityLabel="Çevrimiçi">
+ 1193:           <View style={[styles.statusDot, { backgroundColor: "#22c55e" }]} />
+ 1194:         </View>
+ 1195:       </Animated.View>
+ 1196: 
+ 1197:       {/* â”€â”€ Chat area + input â”€â”€ */}
+ 1198:       <KeyboardAvoidingView
+ 1199:         style={styles.flex}
+ 1200:         behavior="translate-with-padding"
+ 1201:         keyboardVerticalOffset={0}
+ 1202:       >
+ 1203:         {/* Messages */}
+ 1204:         <ScrollView
+ 1205:           ref={scrollRef}
+ 1206:           style={styles.flex}
+ 1207:           contentContainerStyle={styles.messagesList}
+ 1208:           keyboardShouldPersistTaps="handled"
+ 1209:           onContentSizeChange={() =>
+ 1210:             scrollRef.current?.scrollToEnd({ animated: true })
+ 1211:           }
+ 1212:           showsVerticalScrollIndicator={false}
+ 1213:         >
+ 1214:           {messages.length === 0 ? (
+ 1215:             <EmptyState colors={colors} onSuggestion={handleSuggestion} />
+ 1216:           ) : (
+ 1217:             <>
+ 1218:               {messages.map((msg) =>
+ 1219:                 msg.role === "user" ? (
+ 1220:                   <UserBubble key={msg.id} message={msg} colors={colors} />
+ 1221:                 ) : (
+ 1222:                   <AIBubble
+ 1223:                     key={msg.id}
+ 1224:                     message={msg}
+ 1225:                     colors={colors}
+ 1226:                     onRetry={handleRetry}
+ 1227:                   />
+ 1228:                 )
+ 1229:               )}
+ 1230:               {isLoading && <TypingIndicator colors={colors} />}
+ 1231:             </>
+ 1232:           )}
+ 1233:         </ScrollView>
+ 1234: 
+ 1235:         {/* â”€â”€ Input bar â”€â”€ */}
+ 1236:         <View
+ 1237:           style={[
+ 1238:             styles.inputBar,
+ 1239:             {
+ 1240:               paddingBottom: botPad + 8,
+ 1241:               backgroundColor: colors.background,
+ 1242:               borderTopColor: colors.border,
+ 1243:             },
+ 1244:           ]}
+ 1245:         >
+ 1246:           {selectedAttachments.length > 0 ? (
+ 1247:             <Animated.View
+ 1248:               entering={FadeInDown.duration(220)}
+ 1249:               style={[
+ 1250:                 styles.attachmentPreview,
+ 1251:                 {
+ 1252:                   backgroundColor: colors.card,
+ 1253:                   borderColor: "rgba(124,58,237,0.30)",
+
+---------------- BOLUM 6 ----------------
+SATIR 1419-1475
+
+ 1419:     fontFamily: "Inter_700Bold",
+ 1420:     flexShrink: 1,
+ 1421:   },
+ 1422:   headerSub: {
+ 1423:     fontSize: 12,
+ 1424:     fontFamily: "Inter_400Regular",
+ 1425:   },
+ 1426:   statusWrap: {
+ 1427:     flexShrink: 0,
+ 1428:     alignItems: "center",
+ 1429:     justifyContent: "center",
+ 1430:     width: 28,
+ 1431:     height: 28,
+ 1432:   },
+ 1433:   statusDot: {
+ 1434:     width: 9,
+ 1435:     height: 9,
+ 1436:     borderRadius: 5,
+ 1437:   },
+ 1438: 
+ 1439:   // Messages list
+ 1440:   messagesList: {
+ 1441:     paddingHorizontal: 16,
+ 1442:     paddingTop: 16,
+ 1443:     paddingBottom: 8,
+ 1444:     flexGrow: 1,
+ 1445:   },
+ 1446: 
+ 1447:   // User bubble
+ 1448:   userBubbleRow: {
+ 1449:     flexDirection: "row",
+ 1450:     justifyContent: "flex-end",
+ 1451:     marginBottom: 8,
+ 1452:   },
+ 1453:   userBubbleGroup: {
+ 1454:     maxWidth: "88%",
+ 1455:     gap: 2,
+ 1456:     alignItems: "flex-end",
+ 1457:   },
+ 1458:   userBubble: {
+ 1459:     width: "100%",
+ 1460:     maxWidth: "100%",
+ 1461:     borderRadius: 18,
+ 1462:     borderTopRightRadius: 5,
+ 1463:     paddingHorizontal: 15,
+ 1464:     paddingVertical: 11,
+ 1465:     shadowColor: "#2563EB",
+ 1466:     shadowOffset: { width: 0, height: 4 },
+ 1467:     shadowOpacity: 0.18,
+ 1468:     shadowRadius: 10,
+ 1469:     elevation: 3,
+ 1470:   },
+ 1471:   userBubbleText: {
+ 1472:     fontSize: 15,
+ 1473:     fontFamily: "Inter_400Regular",
+ 1474:     lineHeight: 22,
+ 1475:   },
+
+============================================================
+AI KOC ISTEK GONDERIMI
+DOSYA: ./app/ai-coach.tsx
+BULUNAN BOLUM: 3
+
+---------------- BOLUM 1 ----------------
+SATIR 9-100
+
+    9:   Text,
+   10:   TextInput,
+   11:   TouchableOpacity,
+   12:   View,
+   13: } from "react-native";
+   14: import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+   15: import Markdown from "react-native-markdown-display";
+   16: import { useSafeAreaInsets } from "react-native-safe-area-context";
+   17: 
+   18: import { PremiumGate } from "@/components/PremiumGate";
+   19: import { useApp } from "@/contexts/AppContext";
+   20: import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
+   21: import { useColors } from "@/hooks/useColors";
+   22: import { sendAIMessage, type AIMessage } from "@/services/aiService";
+   23: import { PremiumFeature } from "@/utils/premium";
+   24: 
+   25: interface ChatMessage extends AIMessage {
+   26:   id: string;
+   27: }
+   28: 
+   29: const AI_COACH_HISTORY_KEY = "konutakip_ai_coach_history_v1";
+   30: const AI_COACH_MAX_MESSAGES = 80;
+   31: 
+   32: function createCoachWelcomeMessage(name?: string): ChatMessage {
+   33:   const cleanName = name?.trim();
+   34: 
+   35:   return {
+   36:     id: "welcome",
+   37:     role: "assistant",
+   38:     content: cleanName
+   39:       ? `Merhaba ${cleanName}! Ben KonuTakip AI çalışma koçunum. Hedeflerini, çalışma düzenini ve eksiklerini birlikte planlayabiliriz.`
+   40:       : "Merhaba! Ben KonuTakip AI çalışma koçunum. Hedeflerini, çalışma düzenini ve eksiklerini birlikte planlayabiliriz.",
+   41:   };
+   42: }
+   43: 
+   44: function parseCoachMessages(
+   45:   value: string | null,
+   46:   name?: string
+   47: ): ChatMessage[] {
+   48:   if (!value) return [createCoachWelcomeMessage(name)];
+   49: 
+   50:   try {
+   51:     const parsed = JSON.parse(value) as ChatMessage[];
+   52: 
+   53:     if (!Array.isArray(parsed) || parsed.length === 0) {
+   54:       return [createCoachWelcomeMessage(name)];
+   55:     }
+   56: 
+   57:     const valid = parsed
+   58:       .filter(
+   59:         (message) =>
+   60:           message &&
+   61:           typeof message.id === "string" &&
+   62:           (message.role === "user" || message.role === "assistant") &&
+   63:           typeof message.content === "string"
+   64:       )
+   65:       .slice(-AI_COACH_MAX_MESSAGES);
+   66: 
+   67:     return valid.length > 0
+   68:       ? valid
+   69:       : [createCoachWelcomeMessage(name)];
+   70:   } catch {
+   71:     return [createCoachWelcomeMessage(name)];
+   72:   }
+   73: }
+   74: 
+   75: function cleanAIText(value: string): string {
+   76:   return value
+   77:     .replace(/\r\n/g, "\n")
+   78:     .replace(/<br\s*\/?>/gi, "\n")
+   79:     .replace(/&nbsp;/gi, " ")
+   80:     .replace(/<\/?.*?>/g, "")
+   81:     .replace(/```(?:markdown|text)?\n?/gi, "")
+   82:     .replace(/```/g, "")
+   83:     .replace(/\\\[|\\\]/g, "")
+   84:     .replace(/\\\(|\\\)/g, "")
+   85:     .replace(/\\boxed\{([^}]+)\}/g, "$1")
+   86:     .replace(/\\text\{([^}]+)\}/g, "$1")
+   87:     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "$1 / $2")
+   88:     .replace(/\\Longrightarrow/g, "→")
+   89:     .replace(/\\Rightarrow/g, "→")
+   90:     .replace(/\\rightarrow/g, "→")
+   91:     .replace(/\\equiv/g, "≡")
+   92:     .replace(/\\times/g, "×")
+   93:     .replace(/\\cdot/g, "×")
+   94:     .replace(/\\Delta/g, "Δ")
+   95:     .replace(/\\pmod\{([^}]+)\}/g, "(mod $1)")
+   96:     .replace(/^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/gm, "")
+   97:     .replace(/^\s*\|(.+)\|\s*$/gm, (_, row: string) => {
+   98:       const cells = row
+   99:         .split("|")
+  100:         .map((cell) => cell.trim())
+
+---------------- BOLUM 2 ----------------
+SATIR 135-481
+
+  135:   "e)",
+  136:   "=",
+  137:   "soru",
+  138:   "test",
+  139:   "şık",
+  140:   "işlem",
+  141:   "bulunuz",
+  142:   "hesapla",
+  143: ];
+  144: 
+  145: function isQuestionRequest(text: string): boolean {
+  146:   const value = text.toLocaleLowerCase("tr-TR");
+  147: 
+  148:   return QUESTION_PATTERNS.some((pattern) =>
+  149:     value.includes(pattern)
+  150:   );
+  151: }
+  152: 
+  153: function buildCoachCurriculumSnapshot(
+  154:   topicCompletion: Record<string, boolean>,
+  155:   subtopicCompletion: Record<string, boolean>,
+  156:   studyField?: StudyField,
+  157: ): string {
+  158:   const curriculumGroups = [
+  159:     {
+  160:       examType: "TYT" as const,
+  161:       subjects: TYT_SUBJECTS,
+  162:     },
+  163:     {
+  164:       examType: "AYT" as const,
+  165:       subjects: studyField
+  166:         ? AYT_SUBJECTS_BY_FIELD[
+  167:             studyField
+  168:           ] ?? []
+  169:         : [],
+  170:     },
+  171:   ];
+  172: 
+  173:   const topicStates =
+  174:     curriculumGroups.flatMap(
+  175:       (curriculumGroup) =>
+  176:         curriculumGroup.subjects.flatMap(
+  177:           (subject) =>
+  178:             subject.topics.map(
+  179:               (topic) => {
+  180:                 const subtopics =
+  181:                   topic.subtopics ?? [];
+  182: 
+  183:                 const completedSubtopics =
+  184:                   subtopics.filter(
+  185:                     (subtopic) =>
+  186:                       !!subtopicCompletion[
+  187:                         subtopic.id
+  188:                       ],
+  189:                   );
+  190: 
+  191:                 const incompleteSubtopics =
+  192:                   subtopics.filter(
+  193:                     (subtopic) =>
+  194:                       !subtopicCompletion[
+  195:                         subtopic.id
+  196:                       ],
+  197:                   );
+  198: 
+  199:                 return {
+  200:                   examType:
+  201:                     curriculumGroup.examType,
+  202:                   subjectName:
+  203:                     subject.name,
+  204:                   topicName: topic.name,
+  205:                   topicCompleted:
+  206:                     !!topicCompletion[
+  207:                       topic.id
+  208:                     ],
+  209:                   completedCount:
+  210:                     completedSubtopics.length,
+  211:                   totalCount:
+  212:                     subtopics.length,
+  213:                   incompleteNames:
+  214:                     incompleteSubtopics.map(
+  215:                       (subtopic) =>
+  216:                         subtopic.name,
+  217:                     ),
+  218:                 };
+  219:               },
+  220:             ),
+  221:         ),
+  222:     );
+  223: 
+  224:   const activeWeakAreas =
+  225:     topicStates
+  226:       .filter(
+  227:         (item) =>
+  228:           !item.topicCompleted &&
+  229:           item.totalCount > 0 &&
+  230:           item.completedCount > 0,
+  231:       )
+  232:       .sort(
+  233:         (a, b) =>
+  234:           b.completedCount -
+  235:           a.completedCount,
+  236:       );
+  237: 
+  238:   const untouchedAreas =
+  239:     topicStates.filter(
+  240:       (item) =>
+  241:         !item.topicCompleted &&
+  242:         item.totalCount > 0 &&
+  243:         item.completedCount === 0,
+  244:     );
+  245: 
+  246:   const selected = [
+  247:     ...activeWeakAreas,
+  248:     ...untouchedAreas,
+  249:   ].slice(0, 16);
+  250: 
+  251:   const tytStates =
+  252:     topicStates.filter(
+  253:       (item) =>
+  254:         item.examType === "TYT",
+  255:     );
+  256: 
+  257:   const aytStates =
+  258:     topicStates.filter(
+  259:       (item) =>
+  260:         item.examType === "AYT",
+  261:     );
+  262: 
+  263:   const completedTytCount =
+  264:     tytStates.filter(
+  265:       (item) => item.topicCompleted,
+  266:     ).length;
+  267: 
+  268:   const completedAytCount =
+  269:     aytStates.filter(
+  270:       (item) => item.topicCompleted,
+  271:     ).length;
+  272: 
+  273:   return [
+  274:     "KAZANIM DURUMU:",
+  275:     `Tamamlanan TYT ana konu: ${completedTytCount}/${tytStates.length}`,
+  276:     aytStates.length > 0
+  277:       ? `Tamamlanan AYT ana konu: ${completedAytCount}/${aytStates.length}`
+  278:       : "",
+  279:     selected.length > 0
+  280:       ? "Öncelikli eksik ana konu ve alt kazanımlar:"
+  281:       : "Listelenebilir eksik alt kazanım bulunmuyor.",
+  282:     ...selected.map((item) => {
+  283:       const missing =
+  284:         item.incompleteNames
+  285:           .slice(0, 5)
+  286:           .join(", ");
+  287: 
+  288:       return (
+  289:         `- [${item.examType}] ` +
+  290:         `${item.subjectName} / ${item.topicName}: ` +
+  291:         `${item.completedCount}/${item.totalCount} tamamlandı. ` +
+  292:         `Eksikler: ${missing}`
+  293:       );
+  294:     }),
+  295:     "Çalışma önerilerini öncelikle tamamlanmamış alt kazanımlara dayandır.",
+  296:     "Tamamlanan kazanımları gereksiz yere ana hedef olarak önerme.",
+  297:     "TYT ve AYT yöntemlerini birbirine karıştırma.",
+  298:     "AYT hedeflerinde öğrencinin seçili alanındaki kazanımları esas al.",
+  299:     "TYT hedeflerinde kullanıcı istemedikçe AYT yöntemi önerme.",
+  300:   ]
+  301:     .filter(Boolean)
+  302:     .join("\n");
+  303: }
+  304: 
+  305: function AICoachContent() {
+  306:   const colors = useColors();
+  307:   const {
+  308:     profile,
+  309:     topicCompletion,
+  310:     subtopicCompletion,
+  311:     tytProgress,
+  312:     aytProgress,
+  313:     studyStreak,
+  314:     totalTopicsCompleted,
+  315:   } = useApp();
+  316:   const insets = useSafeAreaInsets();
+  317:   const scrollRef = useRef<ScrollView>(null);
+  318: 
+  319:   const [input, setInput] = useState("");
+  320:   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  321:   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
+  322:   const [isLoading, setIsLoading] = useState(false);
+  323:   const [chatError, setChatError] = useState<string | null>(null);
+  324:   useEffect(() => {
+  325:     let active = true;
+  326: 
+  327:     AsyncStorage.getItem(AI_COACH_HISTORY_KEY)
+  328:       .then((stored) => {
+  329:         if (!active) return;
+  330:         setMessages(parseCoachMessages(stored, profile?.name));
+  331:       })
+  332:       .catch(() => {
+  333:         if (!active) return;
+  334:         setMessages([createCoachWelcomeMessage(profile?.name)]);
+  335:       })
+  336:       .finally(() => {
+  337:         if (active) setIsHistoryLoaded(true);
+  338:       });
+  339: 
+  340:     return () => {
+  341:       active = false;
+  342:     };
+  343:   }, []);
+  344: 
+  345:   useEffect(() => {
+  346:     if (!isHistoryLoaded || messages.length === 0) return;
+  347: 
+  348:     AsyncStorage.setItem(
+  349:       AI_COACH_HISTORY_KEY,
+  350:       JSON.stringify(messages.slice(-AI_COACH_MAX_MESSAGES))
+  351:     ).catch(() => {});
+  352:   }, [isHistoryLoaded, messages]);
+  353: 
+  354: 
+  355: 
+  356:   const scrollToBottom = () => {
+  357:     requestAnimationFrame(() => {
+  358:       scrollRef.current?.scrollToEnd({ animated: true });
+  359:     });
+  360:   };
+  361: 
+  362:   const handleSendMessage = async () => {
+  363:     const cleanMessage = input.trim();
+  364: 
+  365:     if (!cleanMessage || isLoading) {
+  366:       return;
+  367:     }
+  368: 
+  369:     const userMessage: ChatMessage = {
+  370:       id: `user-${Date.now()}`,
+  371:       role: "user",
+  372:       content: cleanMessage,
+  373:     };
+  374: 
+  375:     const history: AIMessage[] = messages
+  376:       .filter((message) => message.id !== "welcome")
+  377:       .map(({ role, content }) => ({
+  378:         role,
+  379:         content,
+  380:       }));
+  381: 
+  382:     setMessages((current) => [...current, userMessage]);
+  383:     setInput("");
+  384:     setChatError(null);
+  385:     setIsLoading(true);
+  386:     scrollToBottom();
+  387: 
+  388: 
+  389:     if (isQuestionRequest(cleanMessage)) {
+  390:       setMessages((current) => [
+  391:         ...current,
+  392:         {
+  393:           id: `assistant-${Date.now()}`,
+  394:           role: "assistant",
+  395:           content:
+  396:             "📚 Bu isteğin soru çözmeye yönelik görünüyor.\n\nAI Öğretmen; soru çözme, konu anlatımı, fotoğraf ve PDF analizi için tasarlanmıştır.\n\nSeni AI Öğretmen ekranına yönlendiriyorum...",
+  397:         },
+  398:       ]);
+  399: 
+  400:       setIsLoading(false);
+  401:       scrollToBottom();
+  402: 
+  403:       router.push({
+  404:         pathname: "/ai-teacher",
+  405:         params: {
+  406:           prompt: cleanMessage,
+  407:         },
+  408:       });
+  409: 
+  410:       return;
+  411:     }
+  412:     try {
+  413:       const curriculumSnapshot =
+  414:         buildCoachCurriculumSnapshot(
+  415:           topicCompletion,
+  416:           subtopicCompletion,
+  417:           profile?.studyField,
+  418:         );
+  419: 
+  420:       const learnerSummary = [
+  421:         "ÖĞRENCİ İLERLEME ÖZETİ:",
+  422:         `TYT genel ilerleme: %${tytProgress}`,
+  423:         `AYT genel ilerleme: %${aytProgress}`,
+  424:         `Çalışma serisi: ${studyStreak} gün`,
+  425:         `Tamamlanan ana konu: ${totalTopicsCompleted}`,
+  426:       ].join("\n");
+  427: 
+  428:       const personalizedMessage = [
+  429:           profile?.name?.trim()
+  430:             ? `Öğrencinin adı: ${profile.name.trim()}`
+  431:             : "",
+  432:           learnerSummary,
+  433:           `Seçili AYT alanı: ${profile?.studyField ?? "Belirtilmedi"}`,
+  434:           curriculumSnapshot,
+  435:           cleanMessage,
+  436:           "Öğrencinin adını her cevapta tekrar etme. Yalnızca doğal ve gerekli olduğunda kullan.",
+  437:         ]
+  438:           .filter(Boolean)
+  439:           .join("\n\n");
+  440: 
+  441:         const answer = await sendAIMessage(
+  442:           personalizedMessage,
+  443:           history
+  444:         );
+  445: 
+  446:       setMessages((current) => [
+  447:         ...current,
+  448:         {
+  449:           id: `assistant-${Date.now()}`,
+  450:           role: "assistant",
+  451:           content: cleanAIText(answer),
+  452:         },
+  453:       ]);
+  454:     } catch (error) {
+  455:       setChatError(
+  456:         error instanceof Error
+  457:           ? error.message
+  458:           : "Yapay zekâ yanıtı alınamadı."
+  459:       );
+  460:     } finally {
+  461:       setIsLoading(false);
+  462:       scrollToBottom();
+  463:     }
+  464:   };
+  465: 
+  466:   return (
+  467:     <KeyboardAvoidingView
+  468:       style={[styles.container, { backgroundColor: colors.background }]}
+  469:       behavior="translate-with-padding"
+  470:       keyboardVerticalOffset={0}
+  471:     >
+  472:       <View
+  473:         style={[
+  474:           styles.header,
+  475:           {
+  476:             paddingTop: insets.top + 12,
+  477:             borderBottomColor: colors.border,
+  478:             backgroundColor: colors.background,
+  479:           },
+  480:         ]}
+  481:       >
+
+---------------- BOLUM 3 ----------------
+SATIR 511-566
+
+  511:             </Text>
+  512:           </View>
+  513:         </View>
+  514: 
+  515:         <View style={styles.headerSpacer} />
+  516:       </View>
+  517: 
+  518:       <ScrollView
+  519:         ref={scrollRef}
+  520:         style={styles.messageList}
+  521:         contentContainerStyle={[
+  522:           styles.messageContent,
+  523:           {
+  524:             paddingBottom: 20,
+  525:           },
+  526:         ]}
+  527:         keyboardShouldPersistTaps="handled"
+  528:         showsVerticalScrollIndicator={false}
+  529:         onContentSizeChange={scrollToBottom}
+  530:       >
+  531:         {messages.map((message) => {
+  532:           const isUser = message.role === "user";
+  533: 
+  534:           return (
+  535:             <View
+  536:               key={message.id}
+  537:               style={[
+  538:                 styles.messageRow,
+  539:                 isUser
+  540:                   ? styles.userMessageRow
+  541:                   : styles.assistantMessageRow,
+  542:               ]}
+  543:             >
+  544:               {!isUser && (
+  545:                 <View style={styles.avatar}>
+  546:                   <Ionicons name="sparkles" size={16} color="#A78BFA" />
+  547:                 </View>
+  548:               )}
+  549: 
+  550:               <View
+  551:                 style={[
+  552:                   styles.messageBubble,
+  553:                   isUser
+  554:                     ? styles.userBubble
+  555:                     : {
+  556:                         backgroundColor: colors.card,
+  557:                         borderColor: colors.border,
+  558:                       },
+  559:                 ]}
+  560:               >
+  561:                 {isUser ? (
+  562:                   <Text
+  563:                     selectable
+  564:                     style={[
+  565:                       styles.messageText,
+  566:                       { color: "#FFFFFF" },
+
+============================================================
+NVIDIA PROVIDER ISTEK GONDERIMI
+DOSYA: ./utils/ai/providers/NvidiaAIProvider.ts
+BULUNAN BOLUM: 2
+
+---------------- BOLUM 1 ----------------
+SATIR 10-101
+
+   10:   type QuestionEvaluationResponse,
+   11:   type AITeacherRequest,
+   12:   type AITeacherResponse,
+   13:   type ExplainQuestionRequest,
+   14:   type ExplainQuestionResponse,
+   15:   type AnalyzeMistakesRequest,
+   16:   type AnalyzeMistakesResponse,
+   17:   type PracticeQuestionRequest,
+   18:   type PracticeQuestionResponse,
+   19:   type StudyCoachRequest,
+   20:   type StudyCoachResponse,
+   21:   type MiniExamRequest,
+   22:   type MiniExamResponse,
+   23:   type StudyPlanRequest,
+   24:   type StudyPlanResponse,
+   25: } from "../types";
+   26: 
+   27: type NvidiaEndpoint =
+   28:   | "generate-questions"
+   29:   | "evaluate-question"
+   30:   | "teach-topic"
+   31:   | "explain-question"
+   32:   | "analyze-mistakes"
+   33:   | "practice-question"
+   34:   | "coach"
+   35:   | "mini-exam"
+   36:   | "study-plan";
+   37: 
+   38: interface NvidiaBackendResponse {
+   39:   /** New standardised field (v2 backend) */
+   40:   content?: unknown;
+   41:   /** Legacy field — kept for backward compatibility with older deployments */
+   42:   answer?: unknown;
+   43:   error?: unknown;
+   44:   message?: unknown;
+   45: }
+   46: 
+   47: interface NvidiaAIProviderOptions {
+   48:   baseUrl?: string;
+   49: }
+   50: 
+   51: const DEFAULT_BACKEND_URL = "https://konutakip-backend.onrender.com";
+   52: 
+   53: const CONTENT_FIELDS = [
+   54:   "summary",
+   55:   "explanation",
+   56:   "overallAnalysis",
+   57:   "analysisSummary",
+   58:   "overview",
+   59:   "notes",
+   60:   "message",
+   61:   "body",
+   62:   "description",
+   63:   "practiceHint",
+   64:   "improvementTip",
+   65:   "weeklyFocusSuggestion",
+   66:   "motivationalMessage",
+   67:   "solution",
+   68:   "workedSolution",
+   69: ] as const;
+   70: 
+   71: function normalizeBaseUrl(value: string): string {
+   72:   return value.trim().replace(/\/+$/, "");
+   73: }
+   74: 
+   75: function isRecord(value: unknown): value is Record<string, unknown> {
+   76:   return typeof value === "object" && value !== null && !Array.isArray(value);
+   77: }
+   78: 
+   79: /**
+   80:  * Mevcut response yapısını bozmadan NVIDIA cevabını kullanıcıya gösterilen
+   81:  * ana metin alanına yerleştirir.
+   82:  */
+   83: function injectAnswer(target: unknown, answer: string): boolean {
+   84:   if (!isRecord(target)) {
+   85:     if (Array.isArray(target)) {
+   86:       for (const item of target) {
+   87:         if (injectAnswer(item, answer)) return true;
+   88:       }
+   89:     }
+   90:     return false;
+   91:   }
+   92: 
+   93:   for (const key of CONTENT_FIELDS) {
+   94:     if (key in target && typeof target[key] === "string") {
+   95:       target[key] = answer;
+   96:       return true;
+   97:     }
+   98:   }
+   99: 
+  100:   for (const value of Object.values(target)) {
+  101:     if (Array.isArray(value)) {
+
+---------------- BOLUM 2 ----------------
+SATIR 113-313
+
+  113: export class NvidiaAIProvider implements IAIProvider {
+  114:   readonly kind = AIProviderKind.NVIDIA;
+  115:   readonly isAvailable = true;
+  116: 
+  117:   private readonly baseUrl: string;
+  118:   private readonly mockShapeProvider = new LocalMockAIProvider();
+  119: 
+  120:   constructor(options: NvidiaAIProviderOptions = {}) {
+  121:     this.baseUrl = normalizeBaseUrl(
+  122:       options.baseUrl?.trim() || DEFAULT_BACKEND_URL
+  123:     );
+  124:   }
+  125: 
+  126:   private async request(
+  127:     endpoint: NvidiaEndpoint,
+  128:     request: BaseAIRequest
+  129:   ): Promise<{ answer: string; durationMs: number }> {
+  130:     const startedAt = Date.now();
+  131: 
+  132:     try {
+  133:       const response = await fetch(
+  134:         `${this.baseUrl}/api/v1/ai/${endpoint}`,
+  135:         {
+  136:           method: "POST",
+  137:           headers: {
+  138:             Accept: "application/json",
+  139:             "Content-Type": "application/json",
+  140:           },
+  141:           body: JSON.stringify(request),
+  142:         }
+  143:       );
+  144: 
+  145:       let payload: NvidiaBackendResponse = {};
+  146: 
+  147:       try {
+  148:         payload = (await response.json()) as NvidiaBackendResponse;
+  149:       } catch {
+  150:         payload = {};
+  151:       }
+  152: 
+  153:       if (response.status === 401 || response.status === 403) {
+  154:         throw AIError.authError(this.kind);
+  155:       }
+  156: 
+  157:       if (response.status === 429) {
+  158:         throw AIError.rateLimited(this.kind);
+  159:       }
+  160: 
+  161:       if (!response.ok) {
+  162:         const detail =
+  163:           typeof payload.error === "string"
+  164:             ? payload.error
+  165:             : typeof payload.message === "string"
+  166:               ? payload.message
+  167:               : `HTTP ${response.status}`;
+  168: 
+  169:         throw AIError.networkError(detail);
+  170:       }
+  171: 
+  172:       // Prefer `content` (v2 backend), fall back to `answer` (legacy).
+  173:       const rawAnswer =
+  174:         typeof payload.content === "string" && payload.content.trim().length > 0
+  175:           ? payload.content.trim()
+  176:           : typeof payload.answer === "string" && payload.answer.trim().length > 0
+  177:             ? payload.answer.trim()
+  178:             : null;
+  179: 
+  180:       if (!rawAnswer) {
+  181:         throw AIError.invalidResponse(
+  182:           "Backend cevabında geçerli bir content alanı bulunamadı."
+  183:         );
+  184:       }
+  185: 
+  186:       return {
+  187:         answer: rawAnswer,
+  188:         durationMs: Date.now() - startedAt,
+  189:       };
+  190:     } catch (error) {
+  191:       if (error instanceof AIError) {
+  192:         throw error;
+  193:       }
+  194: 
+  195:       const detail =
+  196:         error instanceof Error ? error.message : String(error);
+  197: 
+  198:       throw AIError.networkError(detail);
+  199:     }
+  200:   }
+  201: 
+  202:   private async buildResponse<T extends object>(
+  203:     endpoint: NvidiaEndpoint,
+  204:     request: BaseAIRequest,
+  205:     createShape: () => Promise<T>
+  206:   ): Promise<T> {
+  207:     const [{ answer, durationMs }, responseShape] = await Promise.all([
+  208:       this.request(endpoint, request),
+  209:       createShape(),
+  210:     ]);
+  211: 
+  212:     const mutable = responseShape as unknown as Record<string, unknown>;
+  213: 
+  214:     mutable.provider = AIProviderKind.NVIDIA;
+  215:     mutable.durationMs = durationMs;
+  216:     mutable.generatedAt = new Date().toISOString();
+  217: 
+  218:     if (request.requestId) {
+  219:       mutable.requestId = request.requestId;
+  220:     }
+  221: 
+  222:     const injected = injectAnswer(mutable, answer);
+  223: 
+  224:     if (!injected) {
+  225:       mutable.answer = answer;
+  226:     }
+  227: 
+  228:     return responseShape;
+  229:   }
+  230: 
+  231:   generateQuestions(
+  232:     req: QuestionGenerationRequest
+  233:   ): Promise<QuestionGenerationResponse> {
+  234:     return this.buildResponse(
+  235:       "generate-questions",
+  236:       req,
+  237:       () => this.mockShapeProvider.generateQuestions(req)
+  238:     );
+  239:   }
+  240: 
+  241:   evaluateQuestion(
+  242:     req: QuestionEvaluationRequest
+  243:   ): Promise<QuestionEvaluationResponse> {
+  244:     return this.buildResponse(
+  245:       "evaluate-question",
+  246:       req,
+  247:       () => this.mockShapeProvider.evaluateQuestion(req)
+  248:     );
+  249:   }
+  250: 
+  251:   teachTopic(req: AITeacherRequest): Promise<AITeacherResponse> {
+  252:     return this.buildResponse(
+  253:       "teach-topic",
+  254:       req,
+  255:       () => this.mockShapeProvider.teachTopic(req)
+  256:     );
+  257:   }
+  258: 
+  259:   explainQuestion(
+  260:     req: ExplainQuestionRequest
+  261:   ): Promise<ExplainQuestionResponse> {
+  262:     return this.buildResponse(
+  263:       "explain-question",
+  264:       req,
+  265:       () => this.mockShapeProvider.explainQuestion(req)
+  266:     );
+  267:   }
+  268: 
+  269:   analyzeMistakes(
+  270:     req: AnalyzeMistakesRequest
+  271:   ): Promise<AnalyzeMistakesResponse> {
+  272:     return this.buildResponse(
+  273:       "analyze-mistakes",
+  274:       req,
+  275:       () => this.mockShapeProvider.analyzeMistakes(req)
+  276:     );
+  277:   }
+  278: 
+  279:   generatePracticeQuestion(
+  280:     req: PracticeQuestionRequest
+  281:   ): Promise<PracticeQuestionResponse> {
+  282:     return this.buildResponse(
+  283:       "practice-question",
+  284:       req,
+  285:       () => this.mockShapeProvider.generatePracticeQuestion(req)
+  286:     );
+  287:   }
+  288: 
+  289:   coachStudent(req: StudyCoachRequest): Promise<StudyCoachResponse> {
+  290:     return this.buildResponse(
+  291:       "coach",
+  292:       req,
+  293:       () => this.mockShapeProvider.coachStudent(req)
+  294:     );
+  295:   }
+  296: 
+  297:   generateMiniExam(req: MiniExamRequest): Promise<MiniExamResponse> {
+  298:     return this.buildResponse(
+  299:       "mini-exam",
+  300:       req,
+  301:       () => this.mockShapeProvider.generateMiniExam(req)
+  302:     );
+  303:   }
+  304: 
+  305:   generateStudyPlan(req: StudyPlanRequest): Promise<StudyPlanResponse> {
+  306:     return this.buildResponse(
+  307:       "study-plan",
+  308:       req,
+  309:       () => this.mockShapeProvider.generateStudyPlan(req)
+  310:     );
+  311:   }
+  312: }
+  313: 
+
+============================================================
+SONUC:
+Bu rapordan sonra yalnız gerçek de/da isteğini algılayan nokta atışı düzeltme yapılacak.
+Henüz dosya değişikliği yapılmadı.

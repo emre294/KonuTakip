@@ -1,0 +1,53 @@
+## Sorular
+
+### 1. Soru
+Bir mercek, odak uzaklığı 10 cm olan ince bir çift odaklı mercek (konveks) dir. Bu mercek, bir mum ışığını bir perdeye net bir şekilde yansıtacak şekilde yerleştirilmiştir. Mum ile perde arasındaki toplam mesafe 40 cm dir. Merceğin mumdan (nesneden) uzaklığı kaç santimetredir?
+
+A) 10 cm
+B) 15 cm
+C) 20 cm
+D) 25 cm
+E) 30 cm
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** odak uzaklığı f = 10 cm, nesne‑görüntü toplam mesafesi u + v = 40 cm, gerçek görüntü (perdeye odaklanmış) oluşuyor.
+- **İstenen:** nesne (mum) ile mercek arasındaki mesafe u (cm) bulunacak.
+- **Kullanılacak yöntem:** ince lens formülü \(1/f = 1/u + 1/v\) ve toplam mesafe ilişkisi.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+\(v\) yerine \(40 - u\) yazarız çünkü nesne ve görüntü arasındaki toplam mesafe 40 cm dir: \(v = 40 - u\).
+
+### 2. Adım
+İnce lens formülüne yerleştiririz:
+\(1/10 = 1/u + 1/(40 - u)\).
+
+### 3. Adım
+Ortak payda alarak sadeleştiririz:
+\((40 - u + u) / [u(40 - u)] = 40 / [u(40 - u)] = 1/10\).
+
+### 4. Adım
+Her iki tarafı 10 ile çarparız:
+\(40 = u(40 - u) / 10\) → \(u(40 - u) = 400\).
+
+### 5. Adım
+Denklemi açarız: \(40u - u^{2} = 400\) → \(u^{2} - 40u + 400 = 0\).
+
+### 6. Adım
+Kare tamamlama ya da diskriminant kontrolü:
+Δ = \(40^{2} - 4·1·400 = 1600 - 1600 = 0\). Tek kök \(u = 40/2 = 20\) cm.
+
+## Sonuç
+Mercek, mumdan **20 cm** uzaklıktadır.
+
+## Kontrol
+Bulduğumuz u = 20 cm ise v = 40 cm – 20 cm = 20 cm. Lens formülüne koyarsak \(1/10 = 1/20 + 1/20 = 2/20 = 1/10\) olur, eşitlik sağlanır; sonuç doğrudur.

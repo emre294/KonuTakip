@@ -1,0 +1,50 @@
+## Sorular
+
+### 1. Soru
+84 ve 126 sayılarının en büyük ortak böleni (EBOB) kaçtır?
+
+A) 12
+B) 14
+C) 21
+D) 42
+E) 84
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** 84 ve 126 tam sayıları.
+- **İstenen:** Bu iki sayının EBOB’u.
+- **Kullanılacak yöntem:** Sayıların asal çarpanlarına ayrılması, ortak asal çarpanların en küçük üsleri alınarak EBOB bulunur.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+84 sayısını asal çarpanlarına ayıralım: 84 = 2² × 3 × 7.
+Bu adım, ortak çarpanları belirlemek için gereklidir.
+
+### 2. Adım
+126 sayısını asal çarpanlarına ayıralım: 126 = 2 × 3² × 7.
+Aynı şekilde, ortak çarpanları bulmak için yapılır.
+
+### 3. Adım
+Ortak asal çarpanları ve bunların en küçük üslerini seçelim:
+- 2’nin en küçük üssü = 2¹
+- 3’ün en küçük üssü = 3¹
+- 7’nin en küçük üssü = 7¹
+
+### 4. Adım
+Ortak çarpanların en küçük üslerini çarpalım: 2¹ × 3¹ × 7¹ = 2 × 3 × 7 = 42.
+
+## Sonuç
+84 ve 126 sayılarının EBOB’u **42**’dir.
+
+## Kontrol
+42, 84’ün (84 ÷ 42 = 2) ve 126’nın (126 ÷ 42 = 3) tam bölünebilir olduğunu gösterir; dolayısıyla 42 ortak bir bölen ve ortak çarpanların en büyük kombinasyonudur. Bu, EBOB tanımına uygundur.
+
+**Doğru cevap: D**

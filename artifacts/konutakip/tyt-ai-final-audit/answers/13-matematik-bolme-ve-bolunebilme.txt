@@ -1,0 +1,68 @@
+## Sorular
+
+### 1. Soru
+Bir doğal sayı \(n\), 4, 6 ve 9 ile bölündüğünde kalanları sırasıyla 1, 3 ve 6’dır. \(n\) sayısının en küçük pozitif değeri kaçtır?
+
+A) 21
+B) 45
+C) 57
+D) 33
+E) 81
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** \(n\) sayısı 4, 6 ve 9’a bölündüğünde kalanlar sırasıyla 1, 3 ve 6’dır.
+- **İstenen:** \(n\) sayısının en küçük pozitif değeri.
+- **Kullanılacak yöntem:** Kalanlar (modüler) denklemlerini kurup, Çin Kalan Teoremi’nin basit uygulamasıyla çözüm bulmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Kalan denklemlerini yaz:
+\(n \equiv 1 \pmod{4}\)
+\(n \equiv 3 \pmod{6}\)
+\(n \equiv 6 \pmod{9}\)
+Neden: verilen kalanlar bu üç modül için geçerlidir.
+
+### 2. Adım
+İlk iki denklemi birleştir. 4 ve 6’nın ortak katı 12’dir.
+\(n \equiv 1 \pmod{4}\) ve \(n \equiv 3 \pmod{6}\) koşullarını sağlayan en küçük sayı 9’dur; dolayısıyla
+\(n \equiv 9 \pmod{12}\) yani \(n = 12k + 9\) (k tam sayı).
+Neden: 12’nin katları üzerine 9 eklenince hem 4’e bölündüğünde kalan 1, hem 6’ya bölündüğünde kalan 3 olur.
+
+### 3. Adım
+\(n = 12k + 9\) ifadesini üçüncü denkleme koy:
+\(12k + 9 \equiv 6 \pmod{9}\).
+\(12k \equiv 6 \pmod{9}\) çünkü 9 ≡ 0 (mod 9).
+\(12 \equiv 3 \pmod{9}\) olduğundan \(3k \equiv 6 \pmod{9}\).
+Neden: 12’nin 9’a göre kalanını 3 olarak alıp eşitliği sadeleştiriyoruz.
+
+### 4. Adım
+\(3k \equiv 6 \pmod{9}\) denklemini çözelim. 3 ve 9’un ortak böleni 3’tür; 6 da 3’e bölünür, çözüm vardır.
+\(k \equiv 2 \pmod{3}\) yani \(k = 3t + 2\) (t tam sayı).
+Neden: 3’ün tersini (mod 9) kullanmadan, 3’i ortak bölen olarak sadeleştiriyoruz.
+
+### 5. Adım
+\(k\) yerine koy:
+\(n = 12(3t + 2) + 9 = 36t + 33\).
+Neden: \(k\)’yi yerine koyarak \(n\)’i t cinsinden elde ettik.
+
+### 6. Adım
+En küçük pozitif \(n\) için \(t = 0\) al:
+\(n = 33\).
+Neden: \(t\) negatif olamaz; en küçük t = 0 en küçük pozitif sayıyı verir.
+
+## Sonuç
+\(n\) sayısının en küçük pozitif değeri **33**’tür.
+
+## Kontrol
+33 ÷ 4 = 8 kalan **1**
+33 ÷ 6 = 5 kalan **3**
+33 ÷ 9 = 3 kalan **6**
+Tüm koşullar sağlanıyor, sonuç doğrudur.

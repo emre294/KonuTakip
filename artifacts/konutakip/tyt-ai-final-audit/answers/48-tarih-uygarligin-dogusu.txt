@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+Aşağıdakilerden hangisi Mezopotamya’da şehir devletlerinin ortaya çıkmasını en çok destekleyen faktördür?
+
+A) Zengin maden rezervleri
+B) Yazının icadı
+C) Tarıma elverişli alçak vadiler
+D) Deniz ticareti
+E) Dağlık bölgelerde hayvancılık
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Mezopotamya’da şehir devletlerinin ortaya çıkmasını etkileyen faktörler.
+- İstenen: En çok destekleyen faktörü seçmek.
+- Kullanılacak yöntem: Tarihsel neden‑sonuç ilişkisini değerlendirme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Mezopotamya’nın coğrafi koşullarını hatırla: Tigris ve Fırat nehirleri arasında alçak, verimli alüvyonlu bir ova bulunur. Bu özellik tarıma elverişlidir.
+(Neden: Tarımsal üretim artışı şehirleşmenin temelini oluşturur.)
+
+### 2. Adım
+Seçenekleri incele:
+- A) Zengin maden rezervleri: Mezopotamya’da önemli madenler yoktur, bu faktör şehir devletleri için belirleyici değildir.
+- B) Yazının icadı: Yazı, toplumsal gelişmeyi destekler, ancak şehir devletlerinin ortaya çıkmasından önceki temel neden değildir.
+- C) Tarıma elverişli alçak vadiler: Verimli toprak ve sulama imkanı, tarımsal fazlalık ve nüfus yoğunluğunu sağlar; şehirleşmenin başlıca nedeni budur.
+- D) Deniz ticareti: Mezopotamya iç bölge olduğundan deniz ticareti doğrudan etkili değildir.
+- E) Dağlık bölgelerde hayvancılık: Bu, göçebe yaşamı destekler, şehirleşmeyle çelişir.
+
+### 3. Adım
+En çok destekleyen faktörün C seçeneği olduğunu belirle.
+
+## Sonuç
+Doğru cevap: C) Tarıma elverişli alçak vadiler.
+
+## Kontrol
+Verimli alüvyonlu vadiler, tarımsal üretimde artış ve artan nüfus yoğunluğunu getirir; tarihsel olarak Mezopotamya’da ilk şehir devletleri (Uruk, Ur vb.) bu koşullardan doğmuştur. Diğer seçenekler bu sürece doğrudan katkı sağlamaz. Sonuç tutarlı.

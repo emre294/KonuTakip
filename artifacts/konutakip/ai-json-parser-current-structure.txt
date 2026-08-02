@@ -1,0 +1,1283 @@
+AI JSON PARSER MEVCUT YAPI RAPORU
+
+TOPLAM SATIR: 2577
+
+ILGILI FONKSIYONLAR:
+- isQuestionGenerationRequest
+- buildDeDaValidationPrompt
+- isValidationSuccessful
+- buildFinalSafeQuestionPrompt
+- isQuestionValidationAccepted
+- compactValidationLog
+- logValidationResult
+- isInconclusiveZeroTargetValidation
+- buildQuestionAdjudicationPrompt
+- adjudicateInconclusiveValidation
+- buildQuestionValidationPrompt
+- buildQuestionRepairPrompt
+- analyzeQuestionStructure
+- isQuestionResponseStructurallyComplete
+- ensureSolutionAnswerLabels
+- normalizeQuestionResponseStructure
+- generateVerifiedQuestionAnswer
+- getRequestedQuestionCount
+- normalizeSubjectName
+
+============================================================
+BOLUM 1
+SATIR 1-87
+
+    1: import { Router } from "express";
+    2: import {
+    3:   askNvidia,
+    4:   type NvidiaAttachment,
+    5:   type NvidiaRequestOptions,
+    6: } from "../services/nvidiaService.js";
+    7: import { aiRequestSchema } from "../validation/aiRequestSchema.js";
+    8: import { aiFeatureRequestSchema } from "../validation/aiFeatureRequestSchema.js";
+    9: import { aiRateLimiter } from "../middleware/rateLimiter.js";
+   10: import {
+   11:   buildFeaturePrompt,
+   12:   type AIFeature,
+   13: } from "../featurePrompts.js";
+   14: 
+   15: export const aiRouter = Router();
+   16: 
+   17: const AI_FEATURES: readonly AIFeature[] = [
+   18:   "generate-questions",
+   19:   "evaluate-question",
+   20:   "teach-topic",
+   21:   "explain-question",
+   22:   "analyze-mistakes",
+   23:   "practice-question",
+   24:   "coach",
+   25:   "mini-exam",
+   26:   "study-plan",
+   27: ];
+   28: 
+   29: function isAIFeature(value: string): value is AIFeature {
+   30:   return AI_FEATURES.includes(value as AIFeature);
+   31: }
+   32: 
+   33: const QUESTION_GENERATION_PATTERNS = [
+   34:   /\bsoru(?:su|larÄ±|lar|luk|lik)?\b[\s\S]{0,60}\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz|sor)\b/i,
+   35:   /\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz)\b[\s\S]{0,60}\bsoru(?:su|larÄ±|lar|luk|lik)?\b/i,
+   36:   /\b\d+\s*(?:adet|tane)?[\s\S]{0,40}\bsoru(?:su|larÄ±|lar|luk|lik)?\b/i,
+   37:   /\btest\b[\s\S]{0,40}\b(hazÄ±rla|oluÅŸtur|Ã¼ret|yaz)\b/i,
+   38:   /\bmini\s*(sÄ±nav|deneme)\b/i,
+   39:   /\bÃ§oktan\s*seÃ§meli\b/i,
+   40:   /\b5\s*ÅŸÄ±k(?:lÄ±)?\b/i,
+   41:   /\bbeÅŸ\s*ÅŸÄ±k(?:lÄ±)?\b/i,
+   42:   /\bpratik\s*soru(?:su)?\b/i,
+   43:   /\bcevap\s*anahtarÄ±\b/i,
+   44: ];
+   45: 
+   46: function isQuestionGenerationRequest(
+   47:   feature: AIFeature,
+   48:   requestData: Record<string, unknown>,
+   49: ): boolean {
+   50:   if (
+   51:     feature === "generate-questions" ||
+   52:     feature === "practice-question" ||
+   53:     feature === "mini-exam"
+   54:   ) {
+   55:     return true;
+   56:   }
+   57: 
+   58:   const serialized = JSON.stringify(requestData);
+   59: 
+   60:   return QUESTION_GENERATION_PATTERNS.some((pattern) =>
+   61:     pattern.test(serialized),
+   62:   );
+   63: }
+   64: 
+   65: const TEACHER_QUESTION_GENERATION_RULES = `
+   66: AI Ã–ÄžRETMEN SORU ÃœRETÄ°M MODU:
+   67: 
+   68: KullanÄ±cÄ± soru, test, mini sÄ±nav veya Ã§oktan seÃ§meli alÄ±ÅŸtÄ±rma istiyor.
+   69: 
+   70: ZORUNLU KURALLAR:
+   71: - Ä°stenen soru sayÄ±sÄ±na tam uy.
+   72: - Her soru A, B, C, D ve E olmak Ã¼zere 5 seÃ§enekli olsun.
+   73: - Her soruda tam olarak bir doÄŸru cevap bulunsun.
+   74: - Her soruyu gÃ¶ndermeden Ã¶nce sessizce Ã§Ã¶z.
+   75: - BÃ¼tÃ¼n seÃ§enekleri tek tek kontrol et.
+   76: - Birden fazla doÄŸru seÃ§enek varsa soruyu yeniden oluÅŸtur.
+   77: - HiÃ§ doÄŸru seÃ§enek yoksa soruyu yeniden oluÅŸtur.
+   78: - DoÄŸru cevabÄ± soru kÃ¶kÃ¼nde, baÅŸlÄ±kta veya seÃ§enek biÃ§iminde ele verme.
+   79: - Soru metnine Ã§Ã¶zÃ¼m, cevap veya Ã¶ÄŸretici ipucu ekleme.
+   80: - AynÄ±, eÅŸ anlamlÄ± veya birbirini kapsayan seÃ§enekler Ã¼retme.
+   81: - "Hepsi", "HiÃ§biri" ve benzeri toplu seÃ§enekleri kullanma.
+   82: - Ã‡eldiricileri gerÃ§ek Ã¶ÄŸrenci hatalarÄ±na dayandÄ±r.
+   83: - SeÃ§enek uzunluklarÄ±nÄ± birbirine yakÄ±n tut.
+   84: - Cevap anahtarÄ±nÄ± bÃ¼tÃ¼n sorulardan sonra ayrÄ± bÃ¶lÃ¼mde ver.
+   85: - Ã‡Ã¶zÃ¼mleri cevap anahtarÄ±ndan sonra ayrÄ± bÃ¶lÃ¼mde ver.
+   86: - Ã‡Ã¶zÃ¼m ile cevap anahtarÄ±nÄ±n aynÄ± sonucu verdiÄŸini doÄŸrula.
+   87: - Her Ã§Ã¶zÃ¼mÃ¼n son satÄ±rÄ±nda "**DoÄŸru cevap: X**" yaz.
+
+============================================================
+BOLUM 2
+SATIR 188-261
+
+  188:       /(?:^|\n)\s*(VALID|INVALID)\s*(?=\n|$)/gi,
+  189:     ),
+  190:   ];
+  191: 
+  192:   if (
+  193:     standaloneVerdicts.length > 0
+  194:   ) {
+  195:     const lastVerdict =
+  196:       standaloneVerdicts[
+  197:         standaloneVerdicts.length - 1
+  198:       ][1].toUpperCase();
+  199: 
+  200:     return lastVerdict === "VALID";
+  201:   }
+  202: 
+  203:   const targetCountMatch =
+  204:     normalized.match(
+  205:       /TARGET_COUNT\s*:\s*(\d+)/i,
+  206:     );
+  207: 
+  208:   const answerKeyMatch =
+  209:     /ANSWER_KEY_MATCH\s*:\s*YES\b/i.test(
+  210:       normalized,
+  211:     );
+  212: 
+  213:   const issueNone =
+  214:     /ISSUE\s*:\s*(?:NONE|YOK)\b/i.test(
+  215:       normalized,
+  216:     );
+  217: 
+  218:   const trueOptionCount = [
+  219:     ...normalized.matchAll(
+  220:       /(?:^|\n)\s*[A-E]\s*:\s*TRUE\b/gi,
+  221:     ),
+  222:   ].length;
+  223: 
+  224:   return (
+  225:     targetCountMatch?.[1] === "1" &&
+  226:     answerKeyMatch &&
+  227:     issueNone &&
+  228:     trueOptionCount === 1
+  229:   );
+  230: }
+  231: 
+  232: function buildFinalSafeQuestionPrompt(
+  233:   originalPrompt: string,
+  234:   previousAnswer: string,
+  235:   validation: string,
+  236: ): string {
+  237:   return `
+  238: AÅŸaÄŸÄ±daki soru Ã¼retim isteÄŸini sÄ±fÄ±rdan yeniden hazÄ±rla.
+  239: 
+  240: Bu son ve en sÄ±kÄ± Ã¼retim turudur.
+  241: 
+  242: ORÄ°JÄ°NAL Ä°STEK:
+  243: 
+  244: ${originalPrompt}
+  245: 
+  246: Ã–NCEKÄ° HATALI TASLAK:
+  247: 
+  248: ${previousAnswer}
+  249: 
+  250: DENETÄ°M HATALARI:
+  251: 
+  252: ${validation}
+  253: 
+  254: ZORUNLU KURALLAR:
+  255: 
+  256: - Ã–nceki taslaÄŸÄ± dÃ¼zeltmeye Ã§alÄ±ÅŸma; soruyu tamamen yeniden Ã¼ret.
+  257: - Ä°stenen soru sayÄ±sÄ±na tam uy.
+  258: - Her soru A, B, C, D ve E olmak Ã¼zere 5 seÃ§enekli olsun.
+  259: - Her soruda tam olarak bir doÄŸru cevap bulunsun.
+  260: - BÃ¼tÃ¼n seÃ§enekleri tek tek Ã§Ã¶zmeden cevabÄ± gÃ¶nderme.
+  261: - Cevap anahtarÄ± ile Ã§Ã¶zÃ¼m birebir uyumlu olsun.
+
+============================================================
+BOLUM 3
+SATIR 663-729
+
+  663: ${draft}
+  664: 
+  665: BAÄžIMSIZ DENETÄ°M SONUCU:
+  666: 
+  667: ${validation}
+  668: 
+  669: ZORUNLU DÃœZELTME:
+  670: - Denetimde belirtilen bÃ¼tÃ¼n hatalarÄ± dÃ¼zelt.
+  671: - HatalÄ± sorularÄ± tamamen yeniden yaz.
+  672: - Her soruyu yeniden Ã§Ã¶z.
+  673: - Her soruda tam olarak bir doÄŸru seÃ§enek bulunduÄŸunu doÄŸrula.
+  674: - CevabÄ± soru kÃ¶kÃ¼nde ele verme.
+  675: - Cevap anahtarÄ± ve Ã§Ã¶zÃ¼mleri sorulardan sonra ayrÄ± bÃ¶lÃ¼mlerde ver.
+  676: - Her dÃ¼zeltilmiÅŸ Ã§Ã¶zÃ¼mÃ¼n son satÄ±rÄ±na "**DoÄŸru cevap: X**" ekle.
+  677: - X harfi cevap anahtarÄ±yla aynÄ± olmalÄ±dÄ±r.
+  678: - Denetim sonucunu kullanÄ±cÄ±ya gÃ¶sterme.
+  679: - YalnÄ±zca dÃ¼zeltilmiÅŸ nihai sorularÄ± Ã¼ret.
+  680: `.trim();
+  681: }
+  682: 
+  683: function analyzeQuestionStructure(
+  684:   answer: string,
+  685: ): {
+  686:   complete: boolean;
+  687:   questionCount: number;
+  688:   solutionCount: number;
+  689:   answerKeyCount: number;
+  690:   missingSections: string[];
+  691:   missingOptions: string[];
+  692: } {
+  693:   const normalized =
+  694:     normalizeQuestionResponseStructure(
+  695:       String(answer ?? ""),
+  696:     )
+  697:       .replace(/\\r\\n/g, "\n")
+  698:       .replace(/\\n/g, "\n")
+  699:       .replace(/\r\n/g, "\n")
+  700:       .trim();
+  701: 
+  702:   const hasQuestionsHeading =
+  703:     /^##\s+Sorular\s*$/im.test(
+  704:       normalized,
+  705:     );
+  706: 
+  707:   const hasAnswerKeyHeading =
+  708:     /^##\s+Cevap AnahtarÄ±\s*$/im.test(
+  709:       normalized,
+  710:     );
+  711: 
+  712:   const hasSolutionsHeading =
+  713:     /^##\s+Ã‡Ã¶zÃ¼mler\s*$/im.test(
+  714:       normalized,
+  715:     );
+  716: 
+  717:   /*
+  718:    * SeÃ§enekler ÅŸu biÃ§imlerin tamamÄ±nda algÄ±lanÄ±r:
+  719:    *
+  720:    * A) Metin
+  721:    * **A)** Metin
+  722:    * - A) Metin
+  723:    * â€¢ **A.** Metin
+  724:    * A - Metin
+  725:    * A) ... B) ... C) ... aynÄ± satÄ±r
+  726:    */
+  727:   let optionScanText = normalized;
+  728: 
+  729:   const lineOptionPattern =
+
+============================================================
+BOLUM 4
+SATIR 775-1076
+
+  775:     "D",
+  776:     "E",
+  777:   ].filter(
+  778:     (letter) =>
+  779:       !uniqueOptionLetters.includes(
+  780:         letter,
+  781:       ),
+  782:   );
+  783: 
+  784:   const numberedQuestions = [
+  785:     ...normalized.matchAll(
+  786:       /(?:^|\n)\s*(?:#{1,6}\s*)?\d+\.\s*Soru\b/gi,
+  787:     ),
+  788:   ].length;
+  789: 
+  790:   const semanticQuestionCount =
+  791:     missingOptions.length === 0
+  792:       ? 1
+  793:       : 0;
+  794: 
+  795:   const questionCount = Math.max(
+  796:     numberedQuestions,
+  797:     semanticQuestionCount,
+  798:   );
+  799: 
+  800:   const answerKeyLetters = [
+  801:     ...normalized.matchAll(
+  802:       /(?:doÄŸru\s*cevap|cevap)\s*[:\-]\s*\**([A-E])\b/gi,
+  803:     ),
+  804:     ...normalized.matchAll(
+  805:       /(?:^|\n)\s*\d+\s*[).:\-]\s*\**([A-E])\b/gim,
+  806:     ),
+  807:   ].map(
+  808:     (match) =>
+  809:       match[1].toUpperCase(),
+  810:   );
+  811: 
+  812:   const answerKeyCount =
+  813:     answerKeyLetters.length > 0
+  814:       ? 1
+  815:       : 0;
+  816: 
+  817:   const hasSolutionHeading =
+  818:     /(?:^|\n)\s*(?:#{1,6}\s*)?(?:\d+\.\s*Soru\s*)?(?:Ã‡Ã¶zÃ¼mÃ¼|Ã‡Ã¶zÃ¼m|Ã‡Ã¶zÃ¼mler)\b/im.test(
+  819:       normalized,
+  820:     );
+  821: 
+  822:   const hasReasoningText =
+  823:     /Ã§Ã¼nkÃ¼|bu nedenle|dolayÄ±sÄ±yla|formÃ¼l|kural|hesaplanÄ±r|bulunur|elde edilir|aÃ§Ä±klanÄ±r|gÃ¶re|sonuÃ§ olarak/i.test(
+  824:       normalized,
+  825:     );
+  826: 
+  827:   const hasExplicitAnswer =
+  828:     /doÄŸru\s*cevap\s*[:\-]\s*\**[A-E]\b/i.test(
+  829:       normalized,
+  830:     );
+  831: 
+  832:   const solutionCount =
+  833:     (
+  834:       hasSolutionsHeading ||
+  835:       hasSolutionHeading ||
+  836:       (
+  837:         hasReasoningText &&
+  838:         hasExplicitAnswer
+  839:       )
+  840:     )
+  841:       ? 1
+  842:       : 0;
+  843: 
+  844:   const missingSections: string[] = [];
+  845: 
+  846:   if (
+  847:     !hasQuestionsHeading &&
+  848:     questionCount === 0
+  849:   ) {
+  850:     missingSections.push(
+  851:       "Sorular",
+  852:     );
+  853:   }
+  854: 
+  855:   if (
+  856:     !hasAnswerKeyHeading &&
+  857:     answerKeyCount === 0
+  858:   ) {
+  859:     missingSections.push(
+  860:       "Cevap Anahtari",
+  861:     );
+  862:   }
+  863: 
+  864:   if (
+  865:     !hasSolutionsHeading &&
+  866:     solutionCount === 0
+  867:   ) {
+  868:     missingSections.push(
+  869:       "Cozumler",
+  870:     );
+  871:   }
+  872: 
+  873:   const complete =
+  874:     questionCount >= 1 &&
+  875:     answerKeyCount >= 1 &&
+  876:     solutionCount >= 1 &&
+  877:     missingOptions.length === 0;
+  878: 
+  879:   return {
+  880:     complete,
+  881:     questionCount,
+  882:     solutionCount,
+  883:     answerKeyCount,
+  884:     missingSections,
+  885:     missingOptions,
+  886:   };
+  887: }
+  888: 
+  889: function isQuestionResponseStructurallyComplete(
+  890:   answer: string,
+  891: ): boolean {
+  892:   return analyzeQuestionStructure(answer).complete;
+  893: }
+  894: 
+  895: function ensureSolutionAnswerLabels(
+  896:   answer: string,
+  897: ): string {
+  898:   const normalized = answer
+  899:     .replace(/\r\n/g, "\n")
+  900:     .trim();
+  901: 
+  902:   const answerKeyParts =
+  903:     normalized.split(
+  904:       /^##\s+Cevap AnahtarÄ±\s*$/im,
+  905:     );
+  906: 
+  907:   if (answerKeyParts.length < 2) {
+  908:     return normalized;
+  909:   }
+  910: 
+  911:   const answerKeyBlock =
+  912:     answerKeyParts[1]
+  913:       ?.split(/^##\s+Ã‡Ã¶zÃ¼mler\s*$/im)[0] ?? "";
+  914: 
+  915:   const answerMap = new Map<string, string>();
+  916: 
+  917:   for (
+  918:     const match of answerKeyBlock.matchAll(
+  919:       /^\s*(\d+)[.)]\s*([A-E])\s*$/gim,
+  920:     )
+  921:   ) {
+  922:     answerMap.set(
+  923:       match[1],
+  924:       match[2].toUpperCase(),
+  925:     );
+  926:   }
+  927: 
+  928:   if (answerMap.size === 0) {
+  929:     return normalized;
+  930:   }
+  931: 
+  932:   const solutionParts =
+  933:     normalized.split(
+  934:       /^##\s+Ã‡Ã¶zÃ¼mler\s*$/im,
+  935:     );
+  936: 
+  937:   if (solutionParts.length < 2) {
+  938:     return normalized;
+  939:   }
+  940: 
+  941:   const beforeSolutions =
+  942:     solutionParts[0].trimEnd();
+  943: 
+  944:   const solutionArea =
+  945:     solutionParts
+  946:       .slice(1)
+  947:       .join("\n## Ã‡Ã¶zÃ¼mler\n");
+  948: 
+  949:   const headings = [
+  950:     ...solutionArea.matchAll(
+  951:       /^###\s+(\d+)\.\s+Soru Ã‡Ã¶zÃ¼mÃ¼\s*$/gim,
+  952:     ),
+  953:   ];
+  954: 
+  955:   if (headings.length === 0) {
+  956:     return normalized;
+  957:   }
+  958: 
+  959:   let rebuilt = "";
+  960: 
+  961:   for (
+  962:     let index = 0;
+  963:     index < headings.length;
+  964:     index += 1
+  965:   ) {
+  966:     const current = headings[index];
+  967:     const next = headings[index + 1];
+  968: 
+  969:     const start = current.index ?? 0;
+  970:     const end =
+  971:       next?.index ?? solutionArea.length;
+  972: 
+  973:     let section = solutionArea.slice(
+  974:       start,
+  975:       end,
+  976:     );
+  977: 
+  978:     const questionNumber = current[1];
+  979:     const answerLetter =
+  980:       answerMap.get(questionNumber);
+  981: 
+  982:     if (
+  983:       answerLetter &&
+  984:       !/doÄŸru\s+cevap\s*:\s*[A-E]\b/i.test(
+  985:         section,
+  986:       )
+  987:     ) {
+  988:       section =
+  989:         section.trimEnd() +
+  990:         "\n\n**DoÄŸru cevap: " +
+  991:         answerLetter +
+  992:         "**\n";
+  993:     }
+  994: 
+  995:     rebuilt += section;
+  996:   }
+  997: 
+  998:   return (
+  999:     beforeSolutions +
+ 1000:     "\n\n## Ã‡Ã¶zÃ¼mler\n\n" +
+ 1001:     rebuilt.trim()
+ 1002:   )
+ 1003:     .replace(/\n{3,}/g, "\n\n")
+ 1004:     .trim();
+ 1005: }
+ 1006: 
+ 1007: function normalizeQuestionResponseStructure(
+ 1008:   answer: string,
+ 1009: ): string {
+ 1010:   let normalized = String(answer ?? "")
+ 1011:     .replace(/^\uFEFF/, "")
+ 1012:     .replace(/[\u200B-\u200D\u2060]/g, "")
+ 1013:     .replace(/\r\n/g, "\n")
+ 1014:     .replace(/\u00A0/g, " ")
+ 1015:     .trim();
+ 1016: 
+ 1017:   /*
+ 1018:    * Model veya taÅŸÄ±ma katmanÄ± bazen gerÃ§ek satÄ±r sonu yerine
+ 1019:    * metin olarak \\n dÃ¶ndÃ¼rÃ¼yor. YalnÄ±z satÄ±r/sekme kaÃ§Ä±ÅŸlarÄ±nÄ±
+ 1020:    * Ã§Ã¶zÃ¼yoruz; matematiksel ters eÄŸik Ã§izgilere dokunmuyoruz.
+ 1021:    */
+ 1022:   if (
+ 1023:     !normalized.includes("\n") &&
+ 1024:     /\\(?:r\\n|n)/.test(normalized)
+ 1025:   ) {
+ 1026:     normalized = normalized
+ 1027:       .replace(/\\r\\n/g, "\n")
+ 1028:       .replace(/\\n/g, "\n")
+ 1029:       .replace(/\\t/g, " ");
+ 1030:   }
+ 1031: 
+ 1032:   /*
+ 1033:    * JSON string biÃ§iminde sarÄ±lmÄ±ÅŸ tek bir cevap geldiyse,
+ 1034:    * gÃ¼venli ÅŸekilde string deÄŸerini aÃ§.
+ 1035:    */
+ 1036:   if (
+ 1037:     normalized.startsWith('"') &&
+ 1038:     normalized.endsWith('"')
+ 1039:   ) {
+ 1040:     try {
+ 1041:       const decoded = JSON.parse(
+ 1042:         normalized,
+ 1043:       );
+ 1044: 
+ 1045:       if (typeof decoded === "string") {
+ 1046:         normalized = decoded
+ 1047:           .replace(/\r\n/g, "\n")
+ 1048:           .trim();
+ 1049:       }
+ 1050:     } catch {
+ 1051:       // Normal metin iÅŸlemine devam et.
+ 1052:     }
+ 1053:   }
+ 1054: 
+ 1055:   normalized = normalized
+ 1056:     .replace(
+ 1057:       /^\s*#{1,6}\s*(?:soru|sorular)\s*:?\s*$/gim,
+ 1058:       "## Sorular",
+ 1059:     )
+ 1060:     .replace(
+ 1061:       /^\s*(?:soru|sorular)\s*:?\s*$/gim,
+ 1062:       "## Sorular",
+ 1063:     )
+ 1064:     .replace(
+ 1065:       /^\s*#{1,6}\s*(?:cevaplar|cevap anahtarÄ±|cevap anahtari)\s*:?\s*$/gim,
+ 1066:       "## Cevap AnahtarÄ±",
+ 1067:     )
+ 1068:     .replace(
+ 1069:       /^\s*(?:cevaplar|cevap anahtarÄ±|cevap anahtari)\s*:?\s*$/gim,
+ 1070:       "## Cevap AnahtarÄ±",
+ 1071:     )
+ 1072:     .replace(
+ 1073:       /^\s*#{1,6}\s*(?:Ã§Ã¶zÃ¼m|Ã§Ã¶zÃ¼mler|cozum|cozumler)\s*:?\s*$/gim,
+ 1074:       "## Ã‡Ã¶zÃ¼mler",
+ 1075:     )
+ 1076:     .replace(
+
+============================================================
+BOLUM 5
+SATIR 1145-1200
+
+ 1145: 
+ 1146:   const hasFiveOptions =
+ 1147:     ["A", "B", "C", "D", "E"].every(
+ 1148:       (letter) =>
+ 1149:         uniqueOptions.has(letter),
+ 1150:     );
+ 1151: 
+ 1152:   if (!hasFiveOptions) {
+ 1153:     return normalized;
+ 1154:   }
+ 1155: 
+ 1156:   const firstOptionIndex =
+ 1157:     normalized.search(
+ 1158:       /^\s*A\s*[\).:\-]\s*/im,
+ 1159:     );
+ 1160: 
+ 1161:   if (firstOptionIndex === -1) {
+ 1162:     return normalized;
+ 1163:   }
+ 1164: 
+ 1165:   let questionText =
+ 1166:     normalized
+ 1167:       .slice(0, firstOptionIndex)
+ 1168:       .replace(
+ 1169:         /^\s*#{1,6}\s*(?:soru|sorular|1\.\s*soru)\s*:?\s*$/gim,
+ 1170:         "",
+ 1171:       )
+ 1172:       .replace(
+ 1173:         /^\s*(?:soru|sorular|1\.\s*soru)\s*:?\s*$/gim,
+ 1174:         "",
+ 1175:       )
+ 1176:       .trim();
+ 1177: 
+ 1178:   const answerPatterns = [
+ 1179:     /doÄŸru\s*cevap\s*[:\-]\s*\**([A-E])\b/i,
+ 1180:     /cevap\s*anahtarÄ±[\s\S]{0,100}?\b1\s*[.)\-:]\s*\**([A-E])\b/i,
+ 1181:     /cevap\s*[:\-]\s*\**([A-E])\b/i,
+ 1182:     /\b1\s*[.)\-:]\s*\**([A-E])\b/i,
+ 1183:   ];
+ 1184: 
+ 1185:   let answerLetter = "";
+ 1186: 
+ 1187:   for (const pattern of answerPatterns) {
+ 1188:     const match =
+ 1189:       normalized.match(pattern);
+ 1190: 
+ 1191:     if (match?.[1]) {
+ 1192:       answerLetter =
+ 1193:         match[1].toUpperCase();
+ 1194: 
+ 1195:       break;
+ 1196:     }
+ 1197:   }
+ 1198: 
+ 1199:   if (!answerLetter) {
+ 1200:     return normalized;
+
+============================================================
+BOLUM 6
+SATIR 1245-1560
+
+ 1245: 
+ 1246:   if (!solutionText) {
+ 1247:     solutionText =
+ 1248:       "DoÄŸru seÃ§enek, soru kÃ¶kÃ¼ ve seÃ§enekler karÅŸÄ±laÅŸtÄ±rÄ±larak belirlenir.";
+ 1249:   }
+ 1250: 
+ 1251:   if (
+ 1252:     !/doÄŸru\s*cevap\s*:\s*[A-E]\b/i.test(
+ 1253:       solutionText,
+ 1254:     )
+ 1255:   ) {
+ 1256:     solutionText =
+ 1257:       solutionText.trimEnd() +
+ 1258:       `\n\n**DoÄŸru cevap: ${answerLetter}**`;
+ 1259:   }
+ 1260: 
+ 1261:   return [
+ 1262:     "## Sorular",
+ 1263:     "",
+ 1264:     "### 1. Soru",
+ 1265:     questionText,
+ 1266:     "",
+ 1267:     ...["A", "B", "C", "D", "E"].map(
+ 1268:       (letter) =>
+ 1269:         `${letter}) ${uniqueOptions.get(letter)}`,
+ 1270:     ),
+ 1271:     "",
+ 1272:     "## Cevap AnahtarÄ±",
+ 1273:     "",
+ 1274:     `1. ${answerLetter}`,
+ 1275:     "",
+ 1276:     "## Ã‡Ã¶zÃ¼mler",
+ 1277:     "",
+ 1278:     "### 1. Soru Ã‡Ã¶zÃ¼mÃ¼",
+ 1279:     solutionText,
+ 1280:   ]
+ 1281:     .join("\n")
+ 1282:     .replace(/\n{3,}/g, "\n\n")
+ 1283:     .trim();
+ 1284: }
+ 1285: 
+ 1286: async function generateVerifiedQuestionAnswer(
+ 1287:   prompt: string,
+ 1288:   attachments: NvidiaAttachment[],
+ 1289:   options: NvidiaRequestOptions,
+ 1290:   isDeDaQuestion: boolean,
+ 1291: ): Promise<string> {
+ 1292:   let draft = ensureSolutionAnswerLabels(
+ 1293:     await askNvidia(
+ 1294:       prompt,
+ 1295:       [],
+ 1296:       attachments,
+ 1297:       options,
+ 1298:     ),
+ 1299:   );
+ 1300: 
+ 1301:   draft =
+ 1302:     normalizeQuestionResponseStructure(
+ 1303:       draft,
+ 1304:     );
+ 1305: 
+ 1306:   const validationPrompt = isDeDaQuestion
+ 1307:     ? buildDeDaValidationPrompt(draft)
+ 1308:     : buildSubjectAuditPrompt(prompt, draft);
+ 1309: 
+ 1310:   const firstValidation = await askNvidia(
+ 1311:     validationPrompt,
+ 1312:     [],
+ 1313:     [],
+ 1314:     {
+ 1315:       temperature: 0.05,
+ 1316:       topP: 0.35,
+ 1317:       maxTokens: 4096,
+ 1318:       allowReasoningValidationFallback: true,
+ 1319:     },
+ 1320:   );
+ 1321: 
+ 1322:   logValidationResult(
+ 1323:     "FIRST",
+ 1324:     prompt,
+ 1325:     firstValidation,
+ 1326:   );
+ 1327: 
+ 1328:   if (
+ 1329:     isQuestionResponseStructurallyComplete(draft) &&
+ 1330:     isQuestionValidationAccepted(firstValidation, isDeDaQuestion)
+ 1331:   ) {
+ 1332:     return draft;
+ 1333:   }
+ 1334: 
+ 1335:   if (
+ 1336:     isQuestionResponseStructurallyComplete(draft) &&
+ 1337:     !isDeDaQuestion &&
+ 1338:     await adjudicateInconclusiveValidation(
+ 1339:       prompt,
+ 1340:       draft,
+ 1341:       firstValidation,
+ 1342:     )
+ 1343:   ) {
+ 1344:     return draft;
+ 1345:   }
+ 1346: 
+ 1347:   let repaired = ensureSolutionAnswerLabels(
+ 1348:     await askNvidia(
+ 1349:       buildQuestionRepairPrompt(
+ 1350:         prompt,
+ 1351:         draft,
+ 1352:         firstValidation,
+ 1353:       ),
+ 1354:       [],
+ 1355:       attachments,
+ 1356:       {
+ 1357:         temperature: 0.12,
+ 1358:         topP: 0.65,
+ 1359:         maxTokens: Math.max(
+ 1360:           options.maxTokens ?? 4096,
+ 1361:           4096,
+ 1362:         ),
+ 1363:       },
+ 1364:     ),
+ 1365:   );
+ 1366: 
+ 1367:   repaired =
+ 1368:     normalizeQuestionResponseStructure(
+ 1369:       repaired,
+ 1370:     );
+ 1371: 
+ 1372:   const secondValidation = await askNvidia(
+ 1373:     isDeDaQuestion
+ 1374:       ? buildDeDaValidationPrompt(repaired)
+ 1375:       : buildSubjectAuditPrompt(prompt, repaired),
+ 1376:     [],
+ 1377:     [],
+ 1378:     {
+ 1379:       temperature: 0.03,
+ 1380:       topP: 0.3,
+ 1381:       maxTokens: 4096,
+ 1382:       allowReasoningValidationFallback: true,
+ 1383:     },
+ 1384:   );
+ 1385: 
+ 1386:   logValidationResult(
+ 1387:     "SECOND",
+ 1388:     prompt,
+ 1389:     secondValidation,
+ 1390:   );
+ 1391: 
+ 1392:   if (
+ 1393:     isQuestionResponseStructurallyComplete(repaired) &&
+ 1394:     isQuestionValidationAccepted(secondValidation, isDeDaQuestion)
+ 1395:   ) {
+ 1396:     return repaired;
+ 1397:   }
+ 1398: 
+ 1399:   if (
+ 1400:     isQuestionResponseStructurallyComplete(repaired) &&
+ 1401:     !isDeDaQuestion &&
+ 1402:     await adjudicateInconclusiveValidation(
+ 1403:       prompt,
+ 1404:       repaired,
+ 1405:       secondValidation,
+ 1406:     )
+ 1407:   ) {
+ 1408:     return repaired;
+ 1409:   }
+ 1410: 
+ 1411:   let finalSafeAnswer = ensureSolutionAnswerLabels(
+ 1412:     await askNvidia(
+ 1413:       buildFinalSafeQuestionPrompt(
+ 1414:         prompt,
+ 1415:         repaired,
+ 1416:         secondValidation,
+ 1417:       ),
+ 1418:       [],
+ 1419:       attachments,
+ 1420:       {
+ 1421:         temperature: 0.06,
+ 1422:         topP: 0.45,
+ 1423:         maxTokens: Math.max(
+ 1424:           options.maxTokens ?? 4096,
+ 1425:           4096,
+ 1426:         ),
+ 1427:       },
+ 1428:     ),
+ 1429:   );
+ 1430: 
+ 1431:   finalSafeAnswer =
+ 1432:     normalizeQuestionResponseStructure(
+ 1433:       finalSafeAnswer,
+ 1434:     );
+ 1435: 
+ 1436:   const thirdValidation = await askNvidia(
+ 1437:     isDeDaQuestion
+ 1438:       ? buildDeDaValidationPrompt(finalSafeAnswer)
+ 1439:       : buildSubjectAuditPrompt(prompt, finalSafeAnswer),
+ 1440:     [],
+ 1441:     [],
+ 1442:     {
+ 1443:       temperature: 0.02,
+ 1444:       topP: 0.25,
+ 1445:       maxTokens: 4096,
+ 1446:       allowReasoningValidationFallback: true,
+ 1447:     },
+ 1448:   );
+ 1449: 
+ 1450:   logValidationResult(
+ 1451:     "THIRD",
+ 1452:     prompt,
+ 1453:     thirdValidation,
+ 1454:   );
+ 1455: 
+ 1456:   if (
+ 1457:     isQuestionResponseStructurallyComplete(finalSafeAnswer) &&
+ 1458:     isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)
+ 1459:   ) {
+ 1460:     return finalSafeAnswer;
+ 1461:   }
+ 1462: 
+ 1463:   if (
+ 1464:     isQuestionResponseStructurallyComplete(finalSafeAnswer) &&
+ 1465:     !isDeDaQuestion &&
+ 1466:     await adjudicateInconclusiveValidation(
+ 1467:       prompt,
+ 1468:       finalSafeAnswer,
+ 1469:       thirdValidation,
+ 1470:     )
+ 1471:   ) {
+ 1472:     return finalSafeAnswer;
+ 1473:   }
+ 1474: 
+ 1475:   const finalReason = compactValidationLog(
+ 1476:     thirdValidation,
+ 1477:   )
+ 1478:     .replace(/\s+/g, " ")
+ 1479:     .slice(0, 1500);
+ 1480: 
+ 1481:   const finalStructure =
+ 1482:     analyzeQuestionStructure(
+ 1483:       finalSafeAnswer,
+ 1484:     );
+ 1485: 
+ 1486:   const structureReason = [
+ 1487:     `complete=${finalStructure.complete}`,
+ 1488:     `questionCount=${finalStructure.questionCount}`,
+ 1489:     `answerKeyCount=${finalStructure.answerKeyCount}`,
+ 1490:     `solutionCount=${finalStructure.solutionCount}`,
+ 1491:     `missingSections=${finalStructure.missingSections.join(",") || "NONE"}`,
+ 1492:     `missingOptions=${finalStructure.missingOptions.join(",") || "NONE"}`,
+ 1493:   ].join(" ");
+ 1494: 
+ 1495:   const rawPreview = JSON.stringify(
+ 1496:     String(finalSafeAnswer ?? "")
+ 1497:       .slice(0, 3000),
+ 1498:   );
+ 1499: 
+ 1500:   const optionLikeTokens = [
+ 1501:     ...String(finalSafeAnswer ?? "").matchAll(
+ 1502:       /[A-Ea-e][^\p{L}\p{N}]{0,8}/gu,
+ 1503:     ),
+ 1504:   ]
+ 1505:     .slice(0, 30)
+ 1506:     .map((match) => match[0])
+ 1507:     .join(" | ");
+ 1508: 
+ 1509:   console.error(
+ 1510:     "[AI QUESTION RAW DIAGNOSTIC]",
+ 1511:     {
+ 1512:       structureReason,
+ 1513:       optionLikeTokens,
+ 1514:       rawPreview,
+ 1515:     },
+ 1516:   );
+ 1517: 
+ 1518:   throw new Error(
+ 1519:     [
+ 1520:       "Soru seti Ã¼Ã§ baÄŸÄ±msÄ±z kalite kontrolÃ¼nden geÃ§emedi.",
+ 1521:       "HatalÄ± soru kullanÄ±cÄ±ya gÃ¶sterilmedi.",
+ 1522:       `Son denetim sonucu: ${finalReason}`,
+ 1523:       `YapÄ±sal kontrol: ${structureReason}`,
+ 1524:       `Secenek benzeri tokenlar: ${optionLikeTokens || "YOK"}`,
+ 1525:       `Ham Ã§Ä±ktÄ± Ã¶nizleme: ${rawPreview}`,
+ 1526:     ].join(" "),
+ 1527:   );
+ 1528: }
+ 1529: 
+ 1530: const DE_DA_QUESTION_RULES = `
+ 1531: DE/DA SORULARI Ä°Ã‡Ä°N Ã–ZEL ZORUNLU FORMAT:
+ 1532: 
+ 1533: - BoÅŸluk doldurma sorusu Ã¼retme.
+ 1534: - SeÃ§enekleri yalnÄ±zca "de", "da", "te", "ta" veya uydurma sÃ¶zcÃ¼klerden oluÅŸturma.
+ 1535: - "dey", "day", "hiÃ§biri", "hepsi" gibi seÃ§enekler kesinlikle kullanma.
+ 1536: - Her seÃ§enekte doÄŸal ve eksiksiz bir TÃ¼rkÃ§e cÃ¼mle yaz.
+ 1537: - Her soru ÅŸu iki kalÄ±ptan biriyle hazÄ±rlanmalÄ±:
+ 1538:   1. "AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde de/da'nÄ±n yazÄ±mÄ± yanlÄ±ÅŸtÄ±r?"
+ 1539:   2. "AÅŸaÄŸÄ±daki cÃ¼mlelerin hangisinde de/da'nÄ±n yazÄ±mÄ± doÄŸrudur?"
+ 1540: - Her soruda yalnÄ±zca bir seÃ§enek hedeflenen cevaba uymalÄ±dÄ±r.
+ 1541: - DiÄŸer dÃ¶rt seÃ§enek kesin ve tartÄ±ÅŸmasÄ±z biÃ§imde karÅŸÄ±t durumda olmalÄ±dÄ±r.
+ 1542: - "YanlÄ±ÅŸtÄ±r" sorusunda yalnÄ±zca bir yanlÄ±ÅŸ, dÃ¶rt doÄŸru seÃ§enek bulunmalÄ±dÄ±r.
+ 1543: - "DoÄŸrudur" sorusunda yalnÄ±zca bir doÄŸru, dÃ¶rt yanlÄ±ÅŸ seÃ§enek bulunmalÄ±dÄ±r.
+ 1544: - Her seÃ§eneÄŸi ayrÄ± ayrÄ± Ã§Ã¶zmeden soruyu gÃ¶nderme.
+ 1545: - Ä°kinci bir yanlÄ±ÅŸ veya doÄŸru seÃ§enek varsa soruyu tamamen yeniden yaz.
+ 1546: - "BahÃ§e de Ã§iÃ§ekler aÃ§tÄ±", "KardeÅŸimde bizimle geldi" gibi birden fazla hatalÄ± seÃ§eneÄŸi aynÄ± soruda kullanma.
+ 1547: - DoÄŸru seÃ§enek dÄ±ÅŸÄ±ndaki cÃ¼mleler de doÄŸal, anlamlÄ± ve dil bilgisi aÃ§Ä±sÄ±ndan eksiksiz olmalÄ±dÄ±r.
+ 1548: - BaÄŸlaÃ§ olan "de/da" ayrÄ± yazÄ±lÄ±r.
+ 1549: - Bulunma hÃ¢l eki "-de/-da/-te/-ta" kelimeye bitiÅŸik yazÄ±lÄ±r.
+ 1550: - Ã–zel adlara gelen bulunma hÃ¢l eki kesme iÅŸaretiyle ayrÄ±lÄ±r: Ankara'da, Ä°stanbul'da.
+ 1551: - "de/da" baÄŸlacÄ± hiÃ§bir zaman "te/ta" biÃ§imine dÃ¶nÃ¼ÅŸmez.
+ 1552: - ÃœnsÃ¼z benzeÅŸmesi yalnÄ±zca bulunma hÃ¢l ekinde gÃ¶rÃ¼lÃ¼r: sÄ±nÄ±fta, parkta.
+ 1553: - Her seÃ§eneÄŸi cÃ¼mleden "de/da" Ã§Ä±karma yÃ¶ntemiyle kontrol et.
+ 1554: - Ã‡Ä±karÄ±ldÄ±ÄŸÄ±nda temel anlam bozulmuyorsa baÄŸlaÃ§tÄ±r ve ayrÄ± yazÄ±lÄ±r.
+ 1555: - Yer, zaman veya bulunma anlamÄ± veriyorsa ektir ve bitiÅŸik yazÄ±lÄ±r.
+ 1556: - AnlatÄ±m bozukluÄŸu, eksik Ã¶ge veya doÄŸal olmayan cÃ¼mle kullanma.
+ 1557: - Cevap anahtarÄ±ndaki harf ile Ã§Ã¶zÃ¼mdeki harf aynÄ± olmalÄ±dÄ±r.
+ 1558: - Ã‡Ã¶zÃ¼mde yanlÄ±ÅŸ cÃ¼mleyi doÄŸruymuÅŸ gibi savunma.
+ 1559: 
+ 1560: Ã–RNEK SORU YAPISI:
+
+============================================================
+BOLUM 7
+SATIR 1767-1907
+
+ 1767: 
+ 1768:   const pattern = new RegExp(
+ 1769:     `###\\s+(\\d+)\\.\\s+${escapedSuffix}\\s*\\n[\\s\\S]*?(?=\\n###\\s+\\d+\\.\\s+${escapedSuffix}|$)`,
+ 1770:     "g",
+ 1771:   );
+ 1772: 
+ 1773:   return [
+ 1774:     ...section.matchAll(pattern),
+ 1775:   ].map((match) => match[0].trim());
+ 1776: }
+ 1777: 
+ 1778: function buildInstructionAwareDeDaResponse(
+ 1779:   requestText: string,
+ 1780: ): string {
+ 1781:   const fullQuiz =
+ 1782:     buildDeterministicDeDaQuiz();
+ 1783: 
+ 1784:   const requestedCount =
+ 1785:     getRequestedQuestionCount(requestText);
+ 1786: 
+ 1787:   const questionsMatch = fullQuiz.match(
+ 1788:     /## Sorular\s*\n([\s\S]*?)\n## Cevap AnahtarÄ±/,
+ 1789:   );
+ 1790: 
+ 1791:   const answersMatch = fullQuiz.match(
+ 1792:     /## Cevap AnahtarÄ±\s*\n([\s\S]*?)\n## Ã‡Ã¶zÃ¼mler/,
+ 1793:   );
+ 1794: 
+ 1795:   const solutionsMatch = fullQuiz.match(
+ 1796:     /## Ã‡Ã¶zÃ¼mler\s*\n([\s\S]*)$/,
+ 1797:   );
+ 1798: 
+ 1799:   if (
+ 1800:     !questionsMatch ||
+ 1801:     !answersMatch ||
+ 1802:     !solutionsMatch
+ 1803:   ) {
+ 1804:     throw new Error(
+ 1805:       "Yerel de/da soru paketi ayrÄ±ÅŸtÄ±rÄ±lamadÄ±",
+ 1806:     );
+ 1807:   }
+ 1808: 
+ 1809:   const questionBlocks =
+ 1810:     extractNumberedMarkdownBlocks(
+ 1811:       questionsMatch[1],
+ 1812:       "Soru",
+ 1813:     ).slice(0, requestedCount);
+ 1814: 
+ 1815:   const solutionBlocks =
+ 1816:     extractNumberedMarkdownBlocks(
+ 1817:       solutionsMatch[1],
+ 1818:       "Soru Ã‡Ã¶zÃ¼mÃ¼",
+ 1819:     ).slice(0, requestedCount);
+ 1820: 
+ 1821:   const answerLines = [
+ 1822:     ...answersMatch[1].matchAll(
+ 1823:       /^(\d+)\.\s*([A-E])\s*$/gm,
+ 1824:     ),
+ 1825:   ]
+ 1826:     .slice(0, requestedCount)
+ 1827:     .map(
+ 1828:       (match) =>
+ 1829:         `${match[1]}. ${match[2]}`,
+ 1830:     );
+ 1831: 
+ 1832:   if (
+ 1833:     questionBlocks.length !== requestedCount
+ 1834:   ) {
+ 1835:     throw new Error(
+ 1836:       "Ä°stenen sayÄ±da de/da sorusu seÃ§ilemedi",
+ 1837:     );
+ 1838:   }
+ 1839: 
+ 1840:   if (
+ 1841:     solutionBlocks.length !== requestedCount
+ 1842:   ) {
+ 1843:     throw new Error(
+ 1844:       "Ä°stenen sayÄ±da de/da Ã§Ã¶zÃ¼mÃ¼ seÃ§ilemedi",
+ 1845:     );
+ 1846:   }
+ 1847: 
+ 1848:   const explanation =
+ 1849:     shouldExplainDeDaRule(requestText)
+ 1850:       ? `## Kural AnlatÄ±mÄ±
+ 1851: 
+ 1852: BaÄŸlaÃ§ olan **de/da** cÃ¼mleye ekleme anlamÄ± katar ve ayrÄ± yazÄ±lÄ±r. CÃ¼mleden Ã§Ä±karÄ±ldÄ±ÄŸÄ±nda temel anlam bÃ¼yÃ¼k Ã¶lÃ§Ã¼de korunur:
+ 1853: 
+ 1854: - Ben **de** geleceÄŸim.
+ 1855: - O **da** kitabÄ± okudu.
+ 1856: 
+ 1857: Bulunma hÃ¢l eki olan **-de/-da/-te/-ta** yer, zaman veya bulunma anlamÄ± verir ve kelimeye bitiÅŸik yazÄ±lÄ±r:
+ 1858: 
+ 1859: - Ev**de**
+ 1860: - Park**ta**
+ 1861: - Ankara'**da**
+ 1862: 
+ 1863: BaÄŸlaÃ§ olan de/da hiÃ§bir zaman te/ta biÃ§imine dÃ¶nÃ¼ÅŸmez. Ã–zel adlara gelen bulunma hÃ¢l eki ise kesme iÅŸaretiyle ayrÄ±lÄ±r.
+ 1864: 
+ 1865: `
+ 1866:       : "";
+ 1867: 
+ 1868:   return [
+ 1869:     explanation.trim(),
+ 1870:     "## Sorular",
+ 1871:     "",
+ 1872:     questionBlocks.join("\n\n"),
+ 1873:     "",
+ 1874:     "## Cevap AnahtarÄ±",
+ 1875:     "",
+ 1876:     answerLines.join("\n"),
+ 1877:     "",
+ 1878:     "## Ã‡Ã¶zÃ¼mler",
+ 1879:     "",
+ 1880:     solutionBlocks.join("\n\n"),
+ 1881:   ]
+ 1882:     .filter(Boolean)
+ 1883:     .join("\n")
+ 1884:     .trim();
+ 1885: }
+ 1886: 
+ 1887: function normalizeSubjectName(value: unknown): string {
+ 1888:   return String(value ?? "")
+ 1889:     .toLocaleLowerCase("tr-TR")
+ 1890:     .replace(/Ä±/g, "i")
+ 1891:     .replace(/ÅŸ/g, "s")
+ 1892:     .replace(/ÄŸ/g, "g")
+ 1893:     .replace(/Ã¼/g, "u")
+ 1894:     .replace(/Ã¶/g, "o")
+ 1895:     .replace(/Ã§/g, "c")
+ 1896:     .trim();
+ 1897: }
+ 1898: 
+ 1899: function getCurriculumHierarchyRules(
+ 1900:   requestData: Record<string, unknown>,
+ 1901: ): string {
+ 1902:   const requestText = String(
+ 1903:     requestData.userQuestion ??
+ 1904:     requestData.message ??
+ 1905:     requestData.prompt ??
+ 1906:     "",
+ 1907:   );
+
+============================================================
+BOLUM 8
+SATIR 2375-2490
+
+ 2375: 
+ 2376:   return [
+ 2377:     rules,
+ 2378:     ...outputRules,
+ 2379:   ].join("\n\n");
+ 2380: }
+ 2381: 
+ 2382: function getNvidiaOptions(
+ 2383:   feature: AIFeature,
+ 2384:   requestData: Record<string, unknown>,
+ 2385: ): NvidiaRequestOptions {
+ 2386:   if (isQuestionGenerationRequest(feature, requestData)) {
+ 2387:     return {
+ 2388:       temperature: 0.22,
+ 2389:       topP: 0.78,
+ 2390:       maxTokens: 4096,
+ 2391:     };
+ 2392:   }
+ 2393: 
+ 2394:   if (
+ 2395:     feature === "evaluate-question" ||
+ 2396:     feature === "explain-question"
+ 2397:   ) {
+ 2398:     return {
+ 2399:       temperature: 0.18,
+ 2400:       topP: 0.75,
+ 2401:       maxTokens: 2200,
+ 2402:     };
+ 2403:   }
+ 2404: 
+ 2405:   if (feature === "teach-topic") {
+ 2406:     return {
+ 2407:       temperature: 0.38,
+ 2408:       topP: 0.84,
+ 2409:       maxTokens: 2400,
+ 2410:     };
+ 2411:   }
+ 2412: 
+ 2413:   return {
+ 2414:     temperature: 0.5,
+ 2415:     topP: 0.9,
+ 2416:     maxTokens: 2200,
+ 2417:   };
+ 2418: }
+ 2419: 
+ 2420: /**
+ 2421:  * Eski endpoint
+ 2422:  * POST /api/v1/ai
+ 2423:  */
+ 2424: aiRouter.post("/", aiRateLimiter, async (request, response, next) => {
+ 2425:   try {
+ 2426:     const parsed = aiRequestSchema.safeParse(request.body);
+ 2427: 
+ 2428:     if (!parsed.success) {
+ 2429:       return response.status(400).json({
+ 2430:         error: "GeÃƒÂ§ersiz istek.",
+ 2431:         details: parsed.error.flatten().fieldErrors,
+ 2432:       });
+ 2433:     }
+ 2434: 
+ 2435:     const answer = await askNvidia(
+ 2436:       parsed.data.message,
+ 2437:       parsed.data.history
+ 2438:     );
+ 2439: 
+ 2440:     return response.json({
+ 2441:       content: answer,
+ 2442:       provider: "nvidia",
+ 2443:       model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+ 2444:       usage: null,
+ 2445:     });
+ 2446:   } catch (error) {
+ 2447:     next(error);
+ 2448:   }
+ 2449: });
+ 2450: 
+ 2451: /**
+ 2452:  * Yeni endpointler
+ 2453:  * /api/v1/ai/teach-topic
+ 2454:  * /api/v1/ai/coach
+ 2455:  * /api/v1/ai/practice-question
+ 2456:  * vb.
+ 2457:  */
+ 2458: aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
+ 2459:   try {
+ 2460:     const feature = Array.isArray(request.params.feature)
+ 2461:       ? request.params.feature[0]
+ 2462:       : request.params.feature;
+ 2463: 
+ 2464:     if (!feature || !isAIFeature(feature)) {
+ 2465:       return response.status(404).json({
+ 2466:         error: "Desteklenmeyen AI ÃƒÂ¶zelliÃ„Å¸i.",
+ 2467:         feature,
+ 2468:       });
+ 2469:     }
+ 2470: 
+ 2471:     const parsed = aiFeatureRequestSchema.safeParse(request.body);
+ 2472: 
+ 2473:     if (!parsed.success) {
+ 2474:       return response.status(400).json({
+ 2475:         error: "GeÃƒÂ§ersiz istek.",
+ 2476:         details: parsed.error.flatten(),
+ 2477:       });
+ 2478:     }
+ 2479: 
+ 2480:     const requestTextForDeterministicQuiz =
+ 2481:       JSON.stringify(parsed.data);
+ 2482: 
+ 2483:     const isDeDaQuizRequest =
+ 2484:       isQuestionGenerationRequest(feature, parsed.data) &&
+ 2485:       /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+ 2486:         requestTextForDeterministicQuiz,
+ 2487:       );
+ 2488: 
+ 2489:     if (isDeDaQuizRequest) {
+ 2490:       return response.json({
+
+============================================================
+BOLUM 9
+SATIR 2524-2577
+
+ 2524: 
+ 2525:     const requestText = JSON.stringify(parsed.data);
+ 2526: 
+ 2527:     if (
+ 2528:       isQuestionGenerationRequest(feature, parsed.data) &&
+ 2529:       /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(requestText)
+ 2530:     ) {
+ 2531:       prompt = [
+ 2532:         prompt,
+ 2533:         DE_DA_QUESTION_RULES,
+ 2534:       ].join("\n\n");
+ 2535:     }
+ 2536: 
+ 2537:     console.log("[ROUTE] askNvidia baÃ…Å¸ladÃ„Â±");
+ 2538: 
+ 2539:     const attachments =
+ 2540:       feature === "teach-topic" && Array.isArray(parsed.data.attachments)
+ 2541:         ? (parsed.data.attachments as NvidiaAttachment[])
+ 2542:         : [];
+ 2543: 
+ 2544:     const options = getNvidiaOptions(feature, parsed.data);
+ 2545: 
+ 2546:     const answer = isQuestionGenerationRequest(
+ 2547:       feature,
+ 2548:       parsed.data,
+ 2549:     )
+ 2550:       ? await generateVerifiedQuestionAnswer(
+ 2551:           prompt,
+ 2552:           attachments,
+ 2553:           options,
+ 2554:           /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+ 2555:             requestText,
+ 2556:           ),
+ 2557:         )
+ 2558:       : await askNvidia(
+ 2559:           prompt,
+ 2560:           [],
+ 2561:           attachments,
+ 2562:           options,
+ 2563:         );
+ 2564: 
+ 2565:     console.log("[ROUTE] askNvidia bitti");
+ 2566: 
+ 2567:     return response.json({
+ 2568:       content: answer,
+ 2569:       provider: "nvidia",
+ 2570:       model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+ 2571:       usage: null,
+ 2572:     });
+ 2573:   } catch (error) {
+ 2574:     next(error);
+ 2575:   }
+ 2576: });
+ 2577: 
+

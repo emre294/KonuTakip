@@ -1,0 +1,45 @@
+﻿ALT KAZANIM SISTEMI OTOMATIK TEST RAPORU
+TYT ANA KONU: 145
+TYT ALT KAZANIM: 631
+TOPLAM TEST: 27
+BASARILI: 24
+HATALI: 3
+1. BASARILI - TYT ders say─▒s─▒ 10
+2. BASARILI - TYT ana konu say─▒s─▒ 145
+   DETAY: Bulunan: 145
+3. BASARILI - T├╝m ana konularda alt kazan─▒m var
+4. BASARILI - Yinelenen ana konu ID'si yok
+5. BASARILI - Yinelenen alt kazan─▒m ID'si yok
+6. BASARILI - Bo┼ƒta kalan alt kazan─▒m haritas─▒ yok
+7. BASARILI - Alt kazan─▒m say─▒s─▒ s─▒f─▒rdan b├╝y├╝k
+   DETAY: Toplam: 631
+8. BASARILI - Subtopic tipi aktif
+9. BASARILI - Alt kazan─▒m haritas─▒ makeTopic'e ba─ƒl─▒
+10. BASARILI - Storage anahtar─▒ korunuyor
+11. BASARILI - Migration s├╝r├╝m├╝ aktif
+12. BASARILI - Alt kazan─▒m ilerlemesi ayr─▒ state
+13. BASARILI - Ana konu alt kazan─▒mlar─▒ senkronluyor
+14. BASARILI - Alt kazan─▒mlar ana konuyu senkronluyor
+15. BASARILI - A├º─▒l─▒r alt kazan─▒m UI aktif
+16. BASARILI - UI toggleSubtopic'a ba─ƒl─▒
+17. BASARILI - Alt kazan─▒m sayac─▒ aktif
+18. BASARILI - Ortak ilerleme motoru aktif
+19. BASARILI - TYT y├╝zdesi alt kazan─▒m bazl─▒
+20. BASARILI - Ders y├╝zdesi alt kazan─▒m bazl─▒
+21. BASARILI - Ana sayfa kazan─▒m sayac─▒na ba─ƒl─▒
+22. HATALI - AI ├û─ƒretmen m├╝fredat ba─ƒlam─▒na ba─ƒl─▒
+23. HATALI - AI Ko├º alt kazan─▒m analizine ba─ƒl─▒
+24. HATALI - Backend hiyerar┼ƒi kurallar─▒ aktif
+25. BASARILI - Bo┼ƒ ilerleme y├╝zde 0
+   DETAY: {"completed":0,"total":631,"percentage":0}
+26. BASARILI - Tek alt kazan─▒m tamamlan─▒nca saya├º 1 art─▒yor
+   DETAY: {"completed":1,"total":631,"percentage":0}
+27. BASARILI - Ana konunun t├╝m alt kazan─▒mlar─▒ say─▒l─▒yor
+   DETAY: {"completed":5,"total":631,"percentage":1}
+SONUC: KONTROL GEREKLI
+
+============================================================
+FRONTEND TYPESCRIPT
+
+BASARILI
+

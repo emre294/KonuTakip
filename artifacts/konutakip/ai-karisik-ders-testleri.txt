@@ -1,0 +1,844 @@
+﻿============================================================
+TEST: TYT Matematik Problemler
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+## Sorular
+
+### 1. Soru
+İki araba, 240 km uzaklıktaki iki şehirden birbirine doğru hareket ediyor. A arabası saatte 60 km, B arabası saatte 40 km hızla ilerliyor. Arabalar kaç saat sonra buluşur?
+
+A) 2 saat
+B) 2 saat 12 dakika
+C) 2 saat 24 dakika
+D) 2 saat 36 dakika
+E) 3 saat
+
+### 2. Soru
+500 ml %12 tuzlu suya, %20 tuzlu su elde etmek için kaç gram saf tuz eklenmelidir? (Yoğunluk 1 g/ml kabul edin.)
+
+A) 40 g
+B) 45 g
+C) 50 g
+D) 55 g
+E) 60 g
+
+### 3. Soru
+Bir işçi işi 8 günde, bir diğeri 12 günde bitirebilir. İkisi birlikte 3 gün çalıştıktan sonra yavaş çalışan işçi işi bırakır. Hızlı işçi işi bitirmek için kaç gün daha çalışmalıdır?
+
+A) 2 gün
+B) 2,5 gün
+C) 3 gün
+D) 3,5 gün
+E) 4 gün
+
+### 4. Soru
+Bir ürünün maliyeti 150 TL’dir. Mağaza, ürünün liste fiyatına %10 indirim yapar ve bu indirimli fiyattan %25 kar elde eder. Liste fiyatı kaç TL’dir? (En yakın tam TL’ye yuvarlayınız.)
+
+A) 160 TL
+B) 165 TL
+C) 166 TL
+D) 167 TL
+E) 170 TL
+
+### 5. Soru
+Hipotenüsü 13 cm olan bir dik üçgenin çevresi 30 cm’dir. Bu üçgenin alanı kaç cm²’dir?
+
+A) 24
+B) 28
+C) 30
+D) 32
+E) 36
+
+## Cevap Anahtarı
+
+1. C
+2. C
+3. C
+4. D
+5. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+1. Toplam hız = 60 + 40 = 100 km/s.
+2. Zaman = mesafe ÷ toplam hız = 240 ÷ 100 = 2,4 saat = 2 saat 24 dakika.
+
+### 2. Soru Çözümü
+1. Başlangıçtaki tuz miktarı = 0,12 × 500 = 60 g.
+2. x g saf tuz eklendiğinde yeni tuz miktarı = 60 + x, yeni hacim = 500 + x ml.
+3. (60 + x) ÷ (500 + x) = 0,20 denklemini kur.
+4. 60 + x = 0,20·(500 + x) → 60 + x = 100 + 0,20x → 0,80x = 40.
+5. x = 40 ÷ 0,80 = 50 g.
+
+### 3. Soru Çözümü
+1. Hızlı işçi hızı = 1/8 iş/gün, yavaş işçi hızı = 1/12 iş/gün.
+2. Birlikteki hız = 1/8 + 1/12 = 5/24 iş/gün.
+3. 3 gün çalışınca yapılan iş = 3 × 5/24 = 5/8 iş.
+4. Kalan iş = 1 – 5/8 = 3/8 iş.
+5. Hızlı işçi tek başına 1/8 iş/gün hızla çalıştığından, 3/8 işi bitirmek için (3/8) ÷ (1/8) = 3 gün gerekir.
+
+### 4. Soru Çözümü
+1. İndirimli fiyat = 0,90 L (L = liste fiyatı).
+2. Satış fiyatı = 1,25 × (0,90 L) = 1,125 L.
+3. Satış fiyatı aynı zamanda maliyet + %25 kar = 150 + 0,25·(0,90 L) = 150 + 0,225 L.
+4. 1,125 L = 150 + 0,225 L → 0,9 L = 150 → L = 150 ÷ 0,9 = 166,66… TL.
+5. En yakın tam TL’ye yuvarlandığında L ≈ 167 TL.
+
+### 5. Soru Çözümü
+1. a + b + 13 = 30 → a + b = 17.
+2. a² + b² = 13² = 169.
+3. (a + b)² = a² + b² + 2ab → 17² = 169 + 2ab → 289 = 169 + 2ab → ab = 60.
+4. Alan = (1/2) ab = (1/2) × 60 = 30 cm².
+
+============================================================
+TEST: TYT Fizik Kuvvet ve Hareket
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+## Sorular
+
+### 1. Soru
+Bir blok, 30° eğimli ve pürüzlü bir rampa üzerinde kaymaktadır. Kinetik sürtünme katsayısı μk = 0.2, blokun kütlesi 5 kg ve yerçekimi ivmesi g = 10 m/s² alınmıştır. Blokun ivmesi kaç m/s²’dir?
+
+A) 2.5
+B) 3.0
+C) 3.3
+D) 4.0
+E) 4.5
+
+### 2. Soru
+1500 kg kütleli bir otomobil, 10 saniyede sabit ivmeyle 0 m/s’den 20 m/s’ye hızlanmaktadır. Bu ivmelenme sırasında otomobilin üzerine etki eden net kuvvet kaç N’dir?
+
+A) 1500
+B) 2000
+C) 2500
+D) 3000
+E) 3500
+
+### 3. Soru
+Yerden 15 m/s başlangıç hızıyla dik yukarı doğru atılan bir top, yukarı yönündeki hızı 5 m/s olduğunda kaç metre yüksekliktedir? (g = 10 m/s²)
+
+A) 5
+B) 8
+C) 10
+D) 12
+E) 15
+
+### 4. Soru
+Bir parçacığa doğu yönünde 10 N ve kuzey yönünde 6 N büyüklüğünde iki kuvvet etki etmektedir. Bu iki kuvvetin oluşturduğu net kuvvetin büyüklüğü kaç N’dir?
+
+A) 8
+B) 10
+C) 11
+D) √136
+E) 14
+
+### 5. Soru
+K = 200 N/m yay sabitine sahip bir yay, 2 kg kütleli bir cisme bağlanmıştır. Sistem 0,1 m genliğinde basit harmonik hareket yapmaktadır. Cismin maksimum hızı kaç m/s’dir?
+
+A) 0.5
+B) 0.7
+C) 1.0
+D) 1.5
+E) 2.0
+
+## Cevap Anahtarı
+
+1. C
+2. D
+3. C
+4. D
+5. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: m
+
+============================================================
+TEST: TYT Kimya Etkileşimler
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+## Sorular
+
+### 1. Soru
+Aşağıdaki iki çözelti karıştırıldığında hangi seçenek **çökelti oluşturmaz**?
+
+A) AgNO₃ + NaCl
+B) BaCl₂ + K₂SO₄
+C) Pb(NO₃)₂ + KI
+D) CaCl₂ + Na₂CO₃
+E) NaCl + KNO₃
+
+### 2. Soru
+Aşağıdaki reaksiyonlardan hangisi **çözelti içinde çözünebilen bir kompleks iyon** oluşturur?
+
+A) NH₃ + CuSO₄
+B) NaOH + FeCl₃
+C) K₂CO₃ + HCl
+D) NaCl + AgNO₃
+E) CaCl₂ + Na₂SO₄
+
+### 3. Soru
+Aşağıdaki denklemlerden hangisi **redoks reaksiyonu** içerir?
+
+A) Zn + CuSO₄ → ZnSO₄ + Cu
+B) HCl + NaOH → NaCl + H₂O
+C) Na₂CO₃ + HCl → NaCl + CO₂ + H₂O
+D) CH₃COOH + NaHCO₃ → NaCH₃COO + CO₂ + H₂O
+E) Fe + H₂O → FeO + H₂
+
+### 4. Soru
+Aşağıdaki iyon çiftlerinden hangisi **suda çözünebilen bir tuz** oluşturur?
+
+A) Ag⁺ + Br⁻
+B) Ba²⁺ + Cl⁻
+C) Pb²⁺ + SO₄²⁻
+D) Ca²⁺ + CO₃²⁻
+E) Fe³⁺ + OH⁻
+
+### 5. Soru
+Aşağıdaki ifadelerden hangisi **asit‑baz nötralleşme reaksiyonları hakkında yanlıştır**?
+
+A) Güçlü asit + güçlü baz → pH 7’lik nötr çözelti
+B) Zayıf asit + güçlü baz → bazik çözelti
+C) Güçlü asit + zayıf baz → asidik çözelti
+D) Nötralleşme reaksiyonunda oluşan tüm tuzlar suda çözünebilir
+E) Nötralleşme reaksiyonunda su her zaman ürün olarak bulunur
+
+## Cevap Anahtarı
+
+1. E
+2. A
+3. A
+4. B
+5. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: Beş çift iyonik çözelti ve olası ürünleri.
+- İstenen: Çökelti oluşmayan çifti belirlemek.
+- Kullanılacak yöntem: Çözeltilerin iyonlarını yazarak, düşük çözünürlük kurallarına göre çökeltme olup olmadığını kontrol etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Her çiftte bulunan iyonları yaz:
+A) Ag⁺, NO₃⁻, Na⁺, Cl⁻ → AgCl olası çökeltisi.
+B) Ba²⁺, Cl⁻, K⁺, SO₄²⁻ → BaSO₄ çökeltisi.
+C) Pb²⁺, NO₃⁻, K⁺, I⁻ → PbI₂ çökeltisi.
+D) Ca²⁺, Cl⁻, Na⁺, CO₃²⁻ → CaCO₃ çökeltisi.
+E) Na⁺, Cl⁻, K⁺, NO₃⁻ → NaCl ve KNO₃ sadece suda çözünür.
+
+### 2. Adım
+Çözünürlük kurallarına göre:
+- AgCl, BaSO₄, PbI₂, CaCO₃ düşük çözünürlükte olup çökeltir.
+- NaCl ve KNO₃ tamamen çözünür; çökeltme oluşmaz.
+
+## Sonuç
+E seçeneği (NaCl + KNO₃) çökeltme oluşturmaz.
+
+## Kontrol
+Alkali metal + halojenür ve alkali metal + nitrat bileşikleri her zaman suda çözünebilir; sonuç tutarlı.
+
+### 2. Soru Çözümü
+## Soru Analizi
+- Verilen: Beş reaksiyon ve oluşabilecek ürünler.
+- İstenen: Çözelti içinde çözünebilen bir kompleks iyonu veren reaksiyonu bulmak.
+- Kullanılacak yöntem: Ligandların metal iyonlarıyla koordinasyonunu ve kompleksin sulu ortamda çözünürlüğünü değerlendirmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A seçeneğinde NH₃ (ligand) Cu²⁺ ile birleşerek [Cu(NH₃)₄]²⁺ kompleksi oluşturur; bu kompleks suda yüksek çözünürlük gösterir.
+
+### 2. Adım
+B seçeneğinde NaOH, Fe³⁺ ile çökeltme (Fe(OH)₃) yapar; kompleks oluşmaz.
+C seçeneğinde K₂CO₃ + HCl asit‑baz reaksiyonu, gaz ve tuz verir; kompleks yok.
+D seçeneğinde NaCl + AgNO₃ sadece AgCl çökeltisi verir; kompleks yok.
+E seçeneğinde CaCl₂ + Na₂SO₄ sadece CaSO₄ çökeltisi verir; kompleks yok.
+
+## Sonuç
+A seçeneği (NH₃ + CuSO₄) çözelti içinde çözünebilen bir kompleks iyon oluşturur.
+
+## Kontrol
+[Cu(NH₃)₄]²⁺ kompleksinin oluşumu ve yüksek çözünürlüğü kimya kitaplarında yaygın olarak verilmiştir.
+
+### 3. Soru Çözümü
+## Soru Analizi
+- Verilen: Beş denklemin sol ve sağ tarafları.
+- İstenen: Redoks (oksidasyon‑indirgeme) içeren denklemi bulmak.
+- Kullanılacak yöntem: Oksidasyon sayılarını karşılaştırarak elektron transferi olup olmadığını tespit etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A seçeneğinde Zn (0) → Zn²⁺ (+2) ve Cu²⁺ (+2) → Cu (0) gerçekleşir; Zn elektron kaybeder, Cu elektron alır.
+
+### 2. Adım
+B, C, D, E seçeneklerinde yalnızca asit‑baz ya da çökeltme reaksiyonları vardır; oksidasyon sayıları değişmez.
+
+## Sonuç
+A seçeneği (Zn + CuSO₄ → ZnSO₄ + Cu) redoks reaksiyonudur.
+
+## Kontrol
+Toplam iki elektron transferi (Zn → Zn²⁺ + 2e⁻, Cu²⁺ + 2e⁻ → Cu) denklemi dengeler.
+
+### 4. Soru Çözümü
+## Soru Analizi
+- Verilen: Beş iyon çifti ve olası tuzları.
+- İstenen: Suda çözünebilen bir tuz oluşturacak çifti bulmak.
+- Kullanılacak yöntem: Çözünürlük kurallarına göre hangi tuzun suda çözünür olduğunu belirlemek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A) Ag⁺ + Br⁻ → AgBr (az çözünür, çökeltir).
+B) Ba²⁺ + Cl⁻ → BaCl₂ (çözünebilir).
+C) Pb²⁺ + SO₄²⁻ → PbSO₄ (az çözünür).
+D) Ca²⁺ + CO₃²⁻ → CaCO₃ (az çözünür).
+E) Fe³⁺ + OH⁻ → Fe(OH)₃ (az çözünür).
+
+## Sonuç
+B seçeneği (Ba²⁺ + Cl⁻) suda çözünebilen bir tuz oluşturur.
+
+## Kontrol
+BaCl₂'nin çözünürlük değeri yüksek olduğu bilinir; diğerleri düşük çözünürlük gösterir.
+
+### 5. Soru Çözümü
+## Soru Analizi
+- Verilen: Beş ifade ve nötralleşme reaksiyonları hakkında.
+- İstenen: Yanlış ifadeyi seçmek.
+- Kullanılacak yöntem: Nötralleşme özelliklerini ve tuzların çözünürlük durumunu incelemek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A) Güçlü asit + güçlü baz → pH 7 (doğru).
+B) Zayıf asit + güçlü baz → bazik (doğru).
+C) Güçlü asit + zayıf baz → asidik (doğru).
+D) “Tüm tuzlar suda çözünebilir” ifadesi yanlıştır; AgCl, PbSO₄ gibi tuzlar suda çözünmez.
+E) Su her zaman ürün olarak bulunur (doğru).
+
+## Sonuç
+D seçeneği yanlıştır.
+
+## Kontrol
+Kimyasal tablo ve çözünürlük kurallarında bazı tuzların suda çözünmediği açıkça belirtilir; bu da D seçeneğinin hatalı olduğunu doğrular.
+
+============================================================
+TEST: TYT Biyoloji Hücre
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+## Sorular
+
+### 1. Soru
+Hücre zarının temel işlevi aşağıdakilerden hangisidir?
+
+A) Madde alımını ve atılımını kontrol eder
+B) Protein sentezler
+C) DNA depolar
+D) Enerji üretir
+E) Hücre bölünmesini başlatır
+
+### 2. Soru
+Prokaryotik hücrelerde kesin olarak bulunan organel hangisidir?
+
+A) Mitokondri
+B) Kloroplast
+C) Ribozom
+D) Çekirdek
+E) Endoplazmik retikulum
+
+### 3. Soru
+Bitki hücresinde büyük merkezi vakuolün başlıca görevi aşağıdakilerden hangisidir?
+
+A) Protein sentezi
+B) Su ve çözünen maddelerin depolanması
+C) Fotosentez
+D) Genetik bilgi taşıma
+E) Hücre bölünmesini kontrol etme
+
+### 4. Soru
+Mitoz bölünme sırasında kromozom sayısı nasıl değişir?
+
+A) Değişmez, aynı kalır
+B) Yarıya iner
+C) İki katına çıkar
+D) Üç katına çıkar
+E) Rastgele değişir
+
+### 5. Soru
+Kloroplastta gerçekleşen süreç aşağıdakilerden hangisidir?
+
+A) Protein sentezi
+B) Lipid sentezi
+C) ATP üretimi (mitokondri)
+D) Fotosentez
+E) DNA replikasyonu
+
+## Cevap Anahtarı
+
+1. A
+2. C
+3. B
+4. A
+5. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: Hücre zarının olası işlevleri.
+- İstenen: Doğru işlev.
+- Kullanılacak yöntem: Hücre zarının yapısı ve görevleri bilgisi.
+
+## Adım Adım Çözüm
+### 1. Adım
+Hücre zarı fosfolipid çift tabakası ve gömülü proteinlerden oluşur; seçici geçirgenlik özelliği vardır. Bu özellik madde alımını ve atılımını düzenler.
+
+### 2. Adım
+Diğer seçeneklerdeki protein sentezi (ribozom), DNA depolama (çekirdek), enerji üretimi (mitokondri) ve hücre bölünmesi kontrolü (sinyal molekülleri) hücre zarının doğrudan görevleri değildir.
+
+## Sonuç
+Doğru cevap **A** seçeneğidir.
+
+## Kontrol
+Seçici geçirgenlik, biyoloji ders kitaplarında hücre zarının tanımında yer alır; diğer işlevler farklı organellerle ilişkilidir.
+
+### 2. Soru Çözümü
+## Soru Analizi
+- Verilen: Prokaryotik hücrelerde bulunabilecek organeller listesi.
+- İstenen: Kesin olarak bulunan organel.
+- Kullanılacak yöntem: Prokaryotik hücre yapısı bilgisi.
+
+## Adım Adım Çözüm
+### 1. Adım
+Prokaryotik hücrelerde çekirdek, mitokondri, kloroplast, endoplazmik retikulum gibi zarla çevrili organeller bulunmaz.
+
+### 2. Adım
+Ribozomlar, protein sentezi için hem prokaryotik hem de eukaryotik hücrelerde bulunur; bu yüzden prokaryotik hücrede kesin olarak vardır.
+
+## Sonuç
+Doğru cevap **C** seçeneğidir.
+
+## Kontrol
+Ribozomların varlığı, prokaryotik hücrelerin temel özelliği olarak her biyoloji kitabında belirtilir; diğer organeller sadece eukaryotik hücrelerde görülür.
+
+### 3. Soru Çözümü
+## Soru Analizi
+- Verilen: Bitki hücresindeki büyük merkezi vakuolün olası görevleri.
+- İstenen: Doğru görev.
+- Kullanılacak yöntem: Bitki hücresi organelleri bilgisi.
+
+## Adım Adım Çözüm
+### 1. Adım
+Büyük merkezi vakuol, hücrenin su, iyon ve çözünen maddelerini depolar; turgor basıncını sağlar.
+
+### 2. Adım
+Diğer seçeneklerdeki protein sentezi (ribozom), fotosentez (kloroplast), genetik bilgi taşıma (çekirdek) ve hücre bölünmesi kontrolü (sinyal molekülleri) vakuolün temel görevi değildir.
+
+## Sonuç
+Doğru cevap **B** seçeneğidir.
+
+## Kontrol
+Bitki hücresi ders kitaplarında vakuolün “su ve çözünen maddelerin depolanması” olarak tanımlandığı görülür.
+
+### 4. Soru Çözümü
+## Soru Analizi
+- Verilen: Mitoz bölünme sırasında kromozom sayısının olası değişimi.
+- İstenen: Doğru değişim.
+- Kullanılacak yöntem: Mitoz ve mayozun temel özellikleri.
+
+## Adım Adım Çözüm
+### 1. Adım
+Mitoz, diploid bir hücreyi iki diploid yavru hücreye bölerek kromozom sayısını değiştirmez; her yavru hücrede aynı sayıda kromozom bulunur.
+
+### 2. Adım
+Diğer seçeneklerdeki yarıya inme (mayoz I), iki katına çıkma (DNA replikasyonu) gibi durumlar mitoza ait değildir.
+
+## Sonuç
+Doğru cevap **A** seçeneğidir.
+
+## Kontrol
+TYT biyoloji müfredatında mitoza “kromozom sayısı aynı kalır” olarak tanımlanır; bu, kontrol listesinde de doğrulanır.
+
+### 5. Soru Çözümü
+## Soru Analizi
+- Verilen: Kloroplastta gerçekleşebilecek süreçler.
+- İstenen: Doğru süreç.
+- Kullanılacak yöntem: Kloroplastun işlevi bilgisi.
+
+## Adım Adım Çözüm
+### 1. Adım
+Kloroplast, klorofil içeren bir organeldir; ışık enerjisini kimyasal enerjiye (glukoz) dönüştüren fotosentez sürecini gerçekleştirir.
+
+### 2. Adım
+Diğer seçeneklerdeki protein sentezi (ribozom), lipid sentezi (endoplazmik retikulum), ATP üretimi (mitokondri) ve DNA replikasyonu (çekirdek) kloroplastun temel işlevi değildir.
+
+## Sonuç
+Doğru cevap **D** seçeneğidir.
+
+## Kontrol
+Fotosentez, kloroplastun tanımında yer alır; bu, biyoloji ders kitaplarında açıkça belirtilir.
+
+============================================================
+TEST: TYT Tarih İlk Türk Devletleri
+HATA:
+Invoke-RestMethod : İşlem zaman aşımına uğradı
+At line:5 char:21
++         $response = Invoke-RestMethod `
++                     ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest 
+   :HttpWebRequest) [Invoke-RestMethod], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.Powe 
+   rShell.Commands.InvokeRestMethodCommand
+ 
+
+
+============================================================
+TEST: TYT Coğrafya Harita Bilgisi
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+## Sorular
+
+### 1. Soru
+Bir haritanın ölçeği 1 : 50 000’tür. Haritada iki şehir arasındaki ölçülen uzaklık 2,4 cm’dir. Gerçekte bu iki şehir arasındaki mesafe kaç kilometredir?
+
+A) 0,12 km
+B) 1,2 km
+C) 12 km
+D) 0,024 km
+E) 24 km
+
+### 2. Soru
+Aşağıdaki harita projeksiyonlarından yalnızca yönleri doğru (gerçek yön) gösteren, ancak alanı bozan proje hangisidir?
+
+A) Mercator
+B) Lambert konik eşit alan
+C) Azimutal eşit alan
+D) Gall‑Peters
+E) Sinusoidal
+
+### 3. Soru
+Bir tematik haritada mavi, kesintisiz bir çizgi genellikle neyi temsil eder?
+
+A) Dağ sırası
+B) Nehir
+C) Yol
+D) Sınır
+E) Ulaşım hattı
+
+### 4. Soru
+Haritada bulunan kuzey okunun (north arrow) gösterdiği yön, haritanın hangi kenarında yer alır?
+
+A) Sağ kenar
+B) Sol kenar
+C) Üst kenar
+D) Alt kenar
+E) Ortada
+
+### 5. Soru
+Bir arazi haritasında izohips (kontur) çizgileri 100 m aralıklarla çizilmiştir. A ve B noktaları aynı izohip üzerindedir. Bu iki nokta hakkında aşağıdakilerden hangisi doğrudur?
+
+A) A, B’den daha yüksektir.
+B) B, A’dan daha yüksektir.
+C) A ve B aynı yüksekliktedir.
+D) A, B’den daha alçaktır.
+E) B, A’dan daha alçaktır.
+
+## Cevap Anahtarı
+
+1. B
+2. A
+3. B
+4. C
+5. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Ölçek 1 : 50 000, harita üzerindeki ölçüm 2,4 cm.
+- İstenen: Gerçekteki mesafe (km).
+- Kullanılacak yöntem: Ölçek tanımını birim dönüşümüyle uygulama.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+1 cm haritada 50 000 cm gerçekte eşittir. 50 000 cm = 500 m = 0,5 km.
+
+### 2. Adım
+2,4 cm × 0,5 km/cm = 1,2 km elde edilir.
+
+## Sonuç
+Gerçekte iki şehir arasındaki mesafe **1,2 km**’dir.
+
+## Kontrol
+1,2 km = 1,200 m = 120,000 cm. Ölçek 1 : 50 000 olduğuna göre 120,000 ÷ 50,000 = 2,4 cm, ölçümle tutarlıdır.
+
+### 2. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Yönleri doğru gösteren, ancak alanı bozan bir projeksiyon.
+- İstenen: Bu projeksiyonun adı.
+- Kullanılacak yöntem: Projeksiyonların temel özelliklerini karşılaştırma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Mercator projeksiyonu, küçük ölçekli deniz haritalarında yönleri doğru (gerçek yön) gösterir; ancak alanları bozar.
+
+### 2. Adım
+Diğer seçeneklerde (Lambert konik eşit alan, Azimutal eşit alan, Gall‑Peters, Sinusoidal) ya alan korunur ya da yönler bozulur; ikisini aynı anda sağlamazlar.
+
+## Sonuç
+Doğru seçenek **A) Mercator**’dır.
+
+## Kontrol
+Mercator’un tanımında “konform” (şekil koruyan) olduğu, “alan bozulur” ifadesi yer alır; sorudaki iki özellik tam olarak bu projeksiyona uyar.
+
+### 3. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Mavi, kesintisiz bir çizgi.
+- İstenen: Bu sembolün haritadaki anlamı.
+- Kullanılacak yöntem: Harita sembollerinin standart yorumları.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Harita standartlarında mavi, kesintisiz bir çizgi genellikle akarsuyu, yani nehirleri temsil eder.
+
+### 2. Adım
+Diğer seçeneklerde (dağ sırası, yol, sınır, ulaşım hattı) farklı renk ve çizgi tipleri kullanılır.
+
+## Sonuç
+Doğru seçenek **B) Nehir**’dir.
+
+## Kontrol
+Coğrafya ders kitaplarında “mavi kesintisiz çizgi = nehir” tanımı bulunur; bu, sorudaki tanımla birebirdir.
+
+### 4. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Haritada kuzey okunun konumu.
+- İstenen: Kuzeyin hangi kenarda olduğu.
+- Kullanılacak yöntem: Standart harita yönlendirmesi.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Standart haritalarda kuzey genellikle haritanın üst kenarında gösterilir; bu, “north arrow” olarak adlandırılan okla belirtilir.
+
+### 2. Adım
+Sağ, sol ve alt kenarlar sırasıyla doğu, batı ve güney yönlerini temsil eder.
+
+## Sonuç
+Doğru seçenek **C) Üst kenar**’dır.
+
+## Kontrol
+Harita üzerindeki yön okları ve ders kitapları, kuzeyin üstte olduğunu kesin olarak belirtir.
+
+### 5. Soru Çözümü
+
+## Soru Analizi
+- Verilen: İzohipsler 100 m aralıklarla çizilmiş, A ve B aynı izohip üzerindedir.
+- İstenen: A ve B noktalarının yükseklik ilişkisi.
+- Kullanılacak yöntem: İzohiplerin aynı yükseklik gösterdiği kuralı.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Aynı izohip üzerindeki tüm noktalar aynı deniz seviyesinden aynı yüksekliktedir.
+
+### 2. Adım
+Dolayısıyla A ve B noktalarının yükseklikleri eşittir; aralarındaki fark yoktur.
+
+## Sonuç
+Doğru seçenek **C) A ve B aynı yüksekliktedir**.
+
+## Kontrol
+İzohip tanımına göre “her izohip aynı yükseklikteki noktaları birleştirir”; A ve B aynı izohipte olduğundan yükseklikleri eşittir.
+
+============================================================
+TEST: TYT Türkçe Paragraf
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+## Sorular
+
+### 1. Soru
+Üniversitenin yeni açılan “Girişimcilik ve Yenilik” merkezi, öğrencilere iş fikirlerini prototipe dönüştürme, mentörlük alma ve yatırımcılarla tanışma fırsatı sunuyor. Merkez, haftalık atölyeler, sektör temsilcileriyle paneller ve laboratuvar desteğiyle genç girişimcilerin risk almadan deneyim kazanmalarını hedefliyor.
+
+Soru: Paragrafta yazarın temel amacı aşağıdakilerden hangisidir?
+
+A) Merkezin finansal kaynaklarını açıklamak
+B) Merkezin sunduğu hizmetleri tanıtmak
+C) Merkezin açılış tarihini duyurmak
+D) Merkezin başarısızlık riskini vurgulamak
+E) Merkezin diğer üniversite merkezleriyle karşılaştırmak
+
+### 2. Soru
+Köydeki eski su kuyusu, uzun yıllar boyunca köylüler için tek su kaynağı olmuş. Son yıllarda artan kuraklık ve kirlenme sorunları nedeniyle, belediye yeni bir arıtma tesisi kurma kararı aldı. Proje, hem su kalitesini yükseltmeyi hem de sürdürülebilir bir su temini sağlamayı amaçlıyor.
+
+Soru: Paragraftan aşağıdakilerden hangisi kesin olarak çıkarılabilir?
+
+A) Eski kuyunun tamamen kapatılacağı
+B) Yeni tesisin sadece tarım amaçlı kullanılacağı
+C) Su kalitesinin iyileştirileceği
+D) Projenin maliyetinin yüksek olacağı
+E) Köylülerin projeye karşı direniş göstereceği
+
+### 3. Soru
+Bir yazar, “Geçmişin gölgesinde yürürken, geleceğin ışığını ararız” derken, insanın tarihsel birikimini değerlendirirken aynı zamanda ilerlemeye olan ihtiyacını vurgulamaktadır. Bu cümlede “gölge” kelimesinin en yakın anlamı aşağıdakilerden hangisidir?
+
+A) Karanlık
+B) İz
+C) Yansıma
+D) Sır
+E) Yük
+
+### 4. Soru
+Bir araştırma, haftada en az üç kez düzenli egzersiz yapan bireylerin, aynı koşullarda çalışanlara göre %20 daha az stres yaşadığını ortaya koymuştur. Araştırmacılar, bu farkın fiziksel aktivitenin hormon dengesi üzerindeki olumlu etkisinden kaynaklandığını belirtmişlerdir.
+
+Soru: Paragraftan yazarın aşağıdakilerden hangisine karşı olduğu anlaşılabilir?
+
+A) Egzersizin sadece kilo kaybına etkisi olduğu görüşü
+B) Düzenli egzersizin stres azaltmadığı iddiası
+C) Egzersizin sadece gençlerde faydalı olduğu düşüncesi
+D) Fiziksel aktivitenin sadece kalp sağlığına yararlı olduğu inancı
+E) Egzersizin zihinsel performansı artırmadığı iddiası
+
+### 5. Soru
+Kış sabahı, çam ağaçlarının arasında yürürken kar tanelerinin sessizce yere düşüşü, insanın içindeki yalnızlık hissini derinleştiriyor. Bu betimlemede “sessizce” kelimesi en çok hangi duyguyu pekiştirir?
+
+A) Coşku
+B) Merak
+C) Hüzün
+D) Heyecan
+E) Öfke
+
+## Cevap Anahtarı
+
+1. B
+2. C
+3. C
+4. B
+5. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+
+- Verilen: Üniversitenin “Girişimcilik ve Yenilik” merkezinin sunduğu hizmetler ve amaçları.
+- İstenen: Paragrafta yazarın temel amacının ne olduğu.
+- Kullanılacak yöntem: Ana fikir (temel amaç) tespiti.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Paragrafta merkezin ne yaptığı (atölyeler, mentörlük, yatırımcı buluşmaları) ayrıntılı olarak anlatılıyor; bu, tanıtım niteliğindedir.
+
+### 2. Adım
+Diğer seçeneklerde finansal detay, açılış tarihi, başarısızlık riski veya karşılaştırma gibi bilgiler bulunmadığı görülür.
+
+## Sonuç
+Paragrafın temel amacı “Merkezin sunduğu hizmetleri tanıtmak”tır. → B
+
+## Kontrol
+Paragrafta “hedefi” ifadesi “genç girişimcilerin risk almadan deneyim kazanmalarını hedefliyor” denildiği için tanıtım amaçlı olduğu kesinleşir.
+
+### 2. Soru Çözümü
+## Soru Analizi
+
+- Verilen: Köydeki eski su kuyusu, yeni arıtma tesisi projesi ve amaçları.
+- İstenen: Paragraftan kesin olarak çıkarılabilecek bilgi.
+- Kullanılacak yöntem: Metinde doğrudan belirtilen ifadeyi bulma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Paragrafta “proje, hem su kalitesini yükseltmeyi hem de sürdürülebilir bir su temini sağlamayı amaçlıyor” deniyor.
+
+### 2. Adım
+Bu cümle, su kalitesinin iyileştirileceği sonucunu doğrudan verir; diğer seçenekler spekülasyondur.
+
+## Sonuç
+Paragraftan kesin olarak “Su kalitesinin iyileştirileceği” çıkarılabilir. → C
+
+## Kontrol
+“İyileştirmek” fiili açıkça kullanılmıştır; başka bir sonuç çıkarılamaz.
+
+### 3. Soru Çözümü
+## Soru Analizi
+
+- Verilen: “Geçmişin gölgesinde yürürken, geleceğin ışığını ararız” cümlesi ve “gölge” kelimesi.
+- İstenen: “gölge” kelimesinin en yakın anlamı.
+- Kullanılacak yöntem: Bağlamdan anlam çıkarma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Cümlede “geçmişin gölgesinde” ifadesi, geçmişin etkisinin hâlâ var olduğunu, ancak engelleyici bir unsur olmadığını gösterir.
+
+### 2. Adım
+Bu bağlamda “gölge”, geçmişin izini, yansımasını ifade eder; “yansıma” anlamı en uygunudur.
+
+## Sonuç
+“Gölge” kelimesinin en yakın anlamı “Yansıma”dır. → C
+
+## Kontrol
+“Karanlık” çok olumsuz bir çağrışım taşır, bağlamda yansıma vurgusu daha tutarlıdır.
+
+### 4. Soru Çözümü
+## Soru Analizi
+
+- Verilen: Egzersizin stres üzerindeki olumlu etkisini gösteren araştırma.
+- İstenen: Yazarın hangi görüşe karşı olduğu.
+- Kullanılacak yöntem: Metinde reddedilen iddiaları tespit etme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Araştırma, egzersizin stres azaltıcı etkisini kanıtladığını söylüyor; dolayısıyla “egzersizin stres azaltmadığı” iddiasına karşıdır.
+
+### 2. Adım
+Diğer seçeneklerdeki iddialar (kilo, yaş, kalp, zihinsel performans) metinde yer almadığı için yazarın doğrudan karşı olduğu söylenemez.
+
+## Sonuç
+Yazar, “Düzenli egzersizin stres azaltmadığı” iddiasına karşıdır. → B
+
+## Kontrol
+Metinde “stres yaşadığını %20 daha az” ifadesi doğrudan bu görüşü çürütür.
+
+### 5. Soru Çözümü
+## Soru Analizi
+
+- Verilen: Kış sabahı kar tanelerinin “sessizce” düşüşü ve yalnızlık hissi.
+- İstenen: “sessizce” kelimesinin pekiştirdiği duygu.
+- Kullanılacak yöntem: Duygu bağlamı analizi.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+“Sessizce” kelimesi, ortamın sakinliğini ve içsel yalnızlığı vurgular; metinde “yalnızlık hissini derinleştiriyor” ifadesi de bulunur.
+
+### 2. Adım
+Bu bağlamda en çok “hüzün” duygusu pekişir; diğer duygular (coşku, merak, heyecan, öfke) metinde yer almaz.
+
+## Sonuç
+“Sessizce” kelimesi “Hüzün” duygusunu pekiştirir. → C
+
+## Kontrol
+“Derinleştiriyor” ifadesi duygunun yoğunluğunu artırır; yalnızlık ve hüzün birbirine yakın duygulardır.
+

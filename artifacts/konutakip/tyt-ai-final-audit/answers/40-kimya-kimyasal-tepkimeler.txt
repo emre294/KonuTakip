@@ -1,0 +1,55 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki tepkimeyi inceleyiniz:
+
+Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s)
+
+Bu tepkime ile ilgili aşağıdaki ifadelerden hangisi doğrudur?
+
+A) Tek yönlü redoks tepkimesidir.
+B) Tek yönlü asit‑baz tepkimesidir.
+C) Çift yönlü redoks tepkimesidir.
+D) Çift yönlü asit‑baz tepkimesidir.
+E) Tek yönlü çökelme tepkimesidir.
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s) tepkimesi.
+- İstenen: Bu tepkimenin niteliğini (tek/çift yönlü, redoks/asit‑baz/çökelme) belirlemek.
+- Kullanılacak yöntem: Oksidasyon sayılarını bulup redoks olup olmadığını kontrol etmek, ayrıca tepkimenin geri dönüşüm olasılığını değerlendirmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Fe atomunun oksidasyon sayısı 0, Cu²⁺ iyonunun oksidasyon sayısı +2’dir.
+(Neden: Elementlerin saf hâlde oksidasyon sayısı 0, CuSO₄’teki Cu iyonu +2.)
+
+### 2. Adım
+Ürünlerde Fe²⁺ iyonunun oksidasyon sayısı +2, Cu(s) ise 0’dır.
+(Neden: FeSO₄’te Fe iyonu +2, elementel Cu’nun oksidasyon sayısı 0.)
+
+### 3. Adım
+Fe 0 → +2 (oksidasyon) ve Cu²⁺ → 0 (indirgeme) gerçekleşir; iki yarı‑tepki vardır, dolayısıyla bir redoks tepkimesidir.
+(Neden: Oksidasyon ve indirgeme eş zamanlıdır.)
+
+### 4. Adım
+Fe, Cu²⁺’den daha reaktif bir metaldir; bu yüzden reaksiyon ileri yönde gerçekleşir, ters yönde anlamlı bir oluşum olmaz.
+(Neden: Aktiviteler serisine göre Fe, Cu²⁺ iyonunu indirger ve geriye dönüş çok azdır.)
+
+### 5. Adım
+Tepkime asit‑baz ya da çökelme özelliği taşımaz; sadece elektron transferi içerir.
+(Neden: Asit‑baz tepkimelerinde H⁺/OH⁻ değişimi, çökelmede katı bir ürün oluşur; burada sadece metal‑iyon değişimi var.)
+
+## Sonuç
+Bu tepkime tek yönlü bir redoks tepkimesidir.
+
+## Kontrol
+Oksidasyon sayıları: Fe 0 → +2, Cu²⁺ +2 → 0; toplam elektron sayısı eşit, redoks dengesi sağlanır. Fe’in Cu²⁺’yi indirgeme eğilimi yüksek olduğundan reaksiyon tek yönde ilerler; ters yönde Cu’nun Fe²⁺’yi indirgeme ihtimali çok düşüktür. Bu, tek yönlü redoks tanımına uyar.

@@ -1,0 +1,28 @@
+## Soru Analizi
+
+- Verilen: “İslam dininin iki temel kaynağı aşağıdakilerden hangisidir?” ve seçenekler A‑E.
+- İstenen: İslam’ın iki temel kaynağını belirlemek.
+- Kullanılacak yöntem: İslam’ın kaynaklarıyla ilgili kavramsal tanıma göre seçenekleri karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+
+İslam’da inanç ve ibadet esaslarını doğrudan belirleyen ilk ve en yetkili kaynaklar Kur’an ve sünnettir.
+
+### 2. Adım
+
+Seçenekleri incele:
+- B) İcma ve kıyas: ikinci dereceli (ikincil) kaynaklardır.
+- C) Örf ve gelenek: kültürel uygulamalardır, kaynak sayılmaz.
+- D) Akıl ve deney: metodik yaklaşımlardır, kaynak değildir.
+- E) Tarih ve coğrafya: konu dışı bilgilerdir.
+Bu yüzden doğru seçenek A) Kur’an ve sünnet.
+
+## Sonuç
+
+Doğru cevap: A) Kur'an ve sünnet
+
+## Kontrol
+
+Kur’an ve sünnet, İslam’ın inanç ve ibadet esaslarını doğrudan belirler; diğer seçenekler ikincil ya da metodik unsurlardır, bu nedenle A seçeneği kesin olarak doğrudur.

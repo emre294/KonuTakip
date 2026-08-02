@@ -1,0 +1,32 @@
+AI UYUM ACIKLARI SON TEST RAPORU
+
+TOPLAM TEST: 2
+BASARILI: 2
+HATALI: 0
+
+============================================================
+1. TEST: de/da talimat uyumu
+DURUM: BASARILI
+DENEME: 1
+SURE: 1 saniye
+PROVIDER: local_verified
+MODEL: konutakip-de-da-v2
+
+BULGULAR: YOK
+
+============================================================
+2. TEST: TYT Koç kapsam uyumu
+DURUM: BASARILI
+DENEME: 1
+SURE: 8 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+BULGULAR: YOK
+
+============================================================
+2/2 TAMAM - IKI AI UYUM ACIGI KAPANDI
+
+CEVAPLAR:
+- de-da-one-question-answer.txt
+- coach-no-logarithm-answer.txt

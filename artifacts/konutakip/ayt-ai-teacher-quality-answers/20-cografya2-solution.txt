@@ -1,0 +1,27 @@
+## Soru Analizi
+
+- Verilen: Türkiye'nin İstanbul ve Çanakkale boğazlarına sahip olması.
+- İstenen: Bu durumun hangi konum özelliğiyle açıklandığı.
+- Kullanılacak yöntem: Coğrafi konum kavramlarını tanımlayıp, boğazların stratejik önemine göre seçenekleri karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+“Matematik konum” coğrafyada kullanılan bir terim değildir; bu seçenek dışarıda bırakılır.
+
+### 2. Adım
+“Mutlak konum”, bir yerin enlem ve boylam koordinatlarıyla tanımlanmasıdır. Boğazların varlığı bu tanımla ilgili değildir.
+
+### 3. Adım
+“Enlem” ve “Boylam” bir yerin coğrafi koordinatlarını verir; boğazların stratejik faydasıyla doğrudan ilişkili değildir.
+
+### 4. Adım
+“Özel konum”, bir ülkenin jeopolitik, ekonomik ve askeri açıdan avantaj sağlayan konumudur. İstanbul ve Çanakkale boğazları, deniz trafiğini kontrol etme, ticaret yollarını yönlendirme ve savunma açısından kritik öneme sahiptir; bu da “özel konum” tanımına uyar.
+
+## Sonuç
+
+Doğru seçenek **C) Özel konum**.
+
+## Kontrol
+
+Boğazların stratejik rolü (deniz ticareti, askeri geçiş) sadece “özel konum” kavramıyla açıklanır; diğer seçenekler bu özelliği tanımlamaz. Bu nedenle cevap C) doğru.

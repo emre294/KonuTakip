@@ -1,0 +1,58 @@
+## Sorular
+
+### 1. Soru
+\[
+\frac{2x-5}{x+3}>1
+\]
+
+A) \(x<-3\)
+B) \(-3<x<8\)
+C) \(x>8\)
+D) \(x<-3\) veya \(x>8\)
+E) \(-3\le x\le 8\)
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** \(\dfrac{2x-5}{x+3}>1\)
+- **İstenen:** \(x\) için doğru çözüm kümesi
+- **Kullanılacak yöntem:** Kesirli eşitsizliği tek kesir hâline getirip işaret tablosu ile çözüm kümesini bulma
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İki tarafı aynı paydada birleştir: \(\dfrac{2x-5}{x+3}-1>0\).
+
+### 2. Adım
+Ortak payda \(x+3\) alınarak pay sadeleştirilir: \(\dfrac{2x-5-(x+3)}{x+3}>0\).
+
+### 3. Adım
+Paydaki ifadeler toplanır: \(\dfrac{x-8}{x+3}>0\).
+
+### 4. Adım
+Sıfır ve tanımsız noktaları belirle: pay sıfır olduğunda \(x=8\), payda sıfır olduğunda \(x=-3\). Bu iki nokta işaret değişim noktasıdır.
+
+### 5. Adım
+İşaret tablosu kurulur:
+
+- \((-∞,-3)\): örnek \(x=-4\) → \(\dfrac{-12}{-1}>0\) (doğru)
+- \((-3,8)\): örnek \(x=0\) → \(\dfrac{-8}{3}<0\) (yanlış)
+- \((8,∞)\): örnek \(x=9\) → \(\dfrac{1}{12}>0\) (doğru)
+
+### 6. Adım
+\(x=8\) eşitsizliği sağlamaz (pay sıfır, sonuç 0>0 değil). \(x=-3\) tanımsızdır. Dolayısıyla çözüm kümesi \((-∞,-3)\cup(8,∞)\) olur.
+
+## Sonuç
+
+\(x<-3\) veya \(x>8\)
+
+## Kontrol
+
+İşaret tablosunda iki pozitif bölge bulunduğu doğrulandı; sınır noktaları (‑3, 8) eşitsizliği sağlamaz, bu da sonucun tutarlı olduğunu gösterir.

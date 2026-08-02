@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki paragrafta yazar, “doğa” sözcüğünü hangi anlamda kullanmaktadır?
+
+Son yıllarda şehirlerde yaşayanların doğayla bağları giderek zayıflıyor. Çocuklar, oyun saatlerini beton sokaklarda, ekranların ışığı altında geçiriyor; yeşil alanların sesini duymak yerine trafik gürültüsüne alışıyorlar. Bu durum, insanın doğal çevresiyle kurduğu duygusal bağın kopmasına yol açıyor ve uzun vadede ekosistemin dengesini tehdit ediyor. **Doğa, sadece ağaç ve hayvanların topluluğu değil, aynı zamanda insan yaşamının sürdürülebilirliğini sağlayan bir bütün olarak ele alınmalıdır.**
+
+A) Belirli bir orman
+B) Tek bir bitki türü
+C) Bir mecaz
+D) İnsan yaşamını sürdüren bütün
+E) Bir duygu
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Paragrafta “doğa” sözcüğünün tanımı ve bağlamı.
+- **İstenen:** “Doğa” sözcüğünün hangi anlamda kullanıldığını belirlemek.
+- **Kullanılacak yöntem:** Paragraftaki tanımlayıcı cümleyi bulup, seçeneklerle karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Paragrafta “Doğa, sadece ağaç ve hayvanların topluluğu değil, aynı zamanda insan yaşamının sürdürülebilirliğini sağlayan bir bütün olarak ele alınmalıdır.” cümlesini bulun. Bu cümle, “doğa”nın tanımını verir.
+
+### 2. Adım
+Tanımda “insan yaşamının sürdürülebilirliğini sağlayan bir bütün” ifadesi, “doğa”nın geniş, bütünsel bir kavram olduğunu gösterir.
+
+### 3. Adım
+Seçenekleri inceleyin:
+- A) Belirli bir orman – tanımda yer almıyor.
+- B) Tek bir bitki türü – tanımda yok.
+- C) Bir mecaz – tanım somut bir bütün olarak verilmiş, mecaz değil.
+- D) İnsan yaşamını sürdüren bütün – tanımla tam uyumlu.
+- E) Bir duygu – tanımda duygu değil, bütün olarak belirtilmiş.
+
+## Sonuç
+Doğa sözcüğü, paragrafta “insan yaşamının sürdürülebilirliğini sağlayan bir bütün” anlamında kullanılmıştır. Doğru seçenek **D** şıkkıdır.
+
+## Kontrol
+Tanım cümlesinde “bütün” ifadesi açıkça yer alıyor ve yalnızca D seçeneği bu anlamı içeriyor. Diğer seçenekler tanımla çelişiyor. Sonuç tutarlı.

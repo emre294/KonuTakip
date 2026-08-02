@@ -1,0 +1,56 @@
+## Sorular
+
+### 1. Soru
+Doğal sayılar \(a\) ve \(b\) için \(a+b = 30\) ve \(a\cdot b = 221\) koşulları sağlanmaktadır. \(a<b\) ise \(a\) sayısı kaçtır?
+
+A) 11
+B) 12
+C) 13
+D) 14
+E) 15
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** \(a+b = 30\), \(a\cdot b = 221\), \(a\) ve \(b\) doğal sayılar, \(a<b\)
+- **İstenen:** \(a\) sayısının değeri
+- **Kullanılacak yöntem:** İki bilinmeyenli lineer denklem ve çarpım eşitliğinden ikinci dereceden denklem kurma
+
+## Adım Adım Çözüm
+
+### 1. Adım
+\(b\) yerine \(30-a\) yazarız; çünkü \(b = 30-a\). Bu, toplam eşitliğinden izole etmeyi sağlar.
+
+### 2. Adım
+\(a\cdot b = 221\) eşitliğine \(b = 30-a\) koyarız:
+\(a(30-a) = 221\). Bu adım, çarpım koşulunu tek değişkenli denkleme dönüştürür.
+
+### 3. Adım
+Denklemi açıp düzenleriz:
+\(30a - a^{2} = 221\) → \(-a^{2} + 30a - 221 = 0\) → \(a^{2} - 30a + 221 = 0\). Bu, standart ikinci dereceden denklemdir.
+
+### 4. Adım
+Kökleri bulmak için diskriminantı hesaplarız:
+\(\Delta = 30^{2} - 4\cdot 1 \cdot 221 = 900 - 884 = 16\). Pozitif ve tam kare olduğu için iki tam sayı kök vardır.
+
+### 5. Adım
+Kökleri buluruz:
+\(a = \frac{30 \pm \sqrt{16}}{2} = \frac{30 \pm 4}{2}\).
+Dolayısıyla \(a = \frac{34}{2} = 17\) veya \(a = \frac{26}{2} = 13\).
+
+### 6. Adım
+\(a<b\) koşulunu kontrol ederiz. Eğer \(a = 17\) ise \(b = 30-17 = 13\) olur ve \(a<b\) sağlanmaz.
+\(a = 13\) ise \(b = 30-13 = 17\) ve \(13 < 17\) koşulu sağlanır. Bu yüzden doğru değer \(a = 13\).
+
+## Sonuç
+\(a\) sayısı **13**tür.
+
+## Kontrol
+\(a = 13\), \(b = 17\) değerlerini orijinal eşitliklere koyarsak:
+\(13 + 17 = 30\) ve \(13 \times 17 = 221\). Her iki eşitlik de sağlanır; sonuç doğrudur.

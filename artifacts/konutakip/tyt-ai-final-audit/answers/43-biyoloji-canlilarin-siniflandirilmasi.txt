@@ -1,0 +1,44 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki özelliklerden hangisi, bir organizmanın prokaryot mu yoksa eukaryot mu olduğunu belirlemede en belirgin farktır?
+
+A) Hücre zarının varlığı
+B) Çekirdek zarının bulunması
+C) DNA’nın çift sarmal yapısı
+D) Ribozomların varlığı
+E) Mitokondri sayısı
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Prokaryot ve eukaryot hücrelerin ayırt edici özellikleri hakkında beş seçenek.
+- İstenen: Bu seçeneklerden, iki ana grup arasındaki en belirgin farkı doğru tanımlayan ifadeyi bulmak.
+- Kullanılacak yöntem: Her seçeneğin prokaryot ve eukaryot hücrelerdeki varlığını karşılaştırarak tek özgün özelliği tespit etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Seçenekleri tek tek inceleyip, hangi özelliğin yalnızca eukaryot hücrelerde bulunduğunu belirle. Bu, prokaryot ve eukaryot arasındaki kesin ayırıcıdır.
+
+### 2. Adım
+A) Hücre zarı hem prokaryotlarda hem eukaryotlarda bulunur → ayırıcı değildir.
+B) Çekirdek zarı yalnızca eukaryot hücrelerde vardır; prokaryotlarda çekirdek zarı yoktur → ayırıcıdır.
+C) DNA’nın çift sarmal yapısı her iki hücre tipinde de görülür → ayırıcı değildir.
+D) Ribozomlar hem prokaryot hem eukaryot hücrelerde bulunur → ayırıcı değildir.
+E) Mitokondri sadece bazı eukaryotlarda bulunur, fakat prokaryotlarda hiç yoktur; ancak mitokondri varlığı zorunlu bir ayırıcı değildir (örneğin bazı eukaryotlarda mitokondri yoktur) → kesin ayırıcı değildir.
+
+### 3. Adım
+En belirgin ve kesin fark, çekirdek zarının varlığıdır. Bu özellik sadece eukaryot hücrelerde bulunur.
+
+## Sonuç
+Doğru seçenek **B) Çekirdek zarının bulunması**dır.
+
+## Kontrol
+Çekirdek zarı, hücrenin genetik materyalini çevreleyen bir membrandır ve yalnızca eukaryot hücrelerde mevcuttur; prokaryot hücrelerde çekirdek zarı yoktur. Bu, iki grup arasındaki en kesin ayırıcıdır, dolayısıyla B seçeneği kesin doğru cevaptır.

@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Bir mağaza, 120 adet ürününü toplam 18 000 TL’ye almıştır. Bu ürünleri her biri 180 TL olmak üzere satmaktadır. Bu işlemde elde edilen kâr oranı yüzde kaçtır?
+
+A) %15
+B) %18
+C) %20
+D) %22
+E) %25
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Toplam alış maliyeti 18 000 TL, satılan ürün adedi 120, birim satış fiyatı 180 TL.
+- **İstenen:** Toplam kâr oranını yüzde olarak bulmak.
+- **Kullanılacak yöntem:** Toplam satış gelirini bulup, kârı hesaplayıp, kârı alış maliyetine bölerek yüzdeye çevirmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Toplam satış gelirini bul: 120 × 180 = 21 600 TL. (Satıştan elde edilen toplam para.)
+
+### 2. Adım
+Kârı hesapla: 21 600 TL – 18 000 TL = 3 600 TL. (Satış gelirinden alış maliyeti çıkarıldı.)
+
+### 3. Adım
+Kâr oranını yüzdeye çevir: (3 600 ÷ 18 000) × 100 = 20 %. (Kâr, alış maliyetinin yüzde kaçı olduğunu bulduk.)
+
+## Sonuç
+İşlem sonucunda elde edilen kâr oranı **%20**’dir.
+
+## Kontrol
+Kâr oranı %20 ise, alış maliyetinin %120’si (100 % + 20 %) satış fiyatına eşit olmalı: 18 000 TL × 1,20 = 21 600 TL, ki bu da hesaplanan toplam satış gelirine eşittir. Sonuç tutarlı.
+
+**Doğru cevap: C**

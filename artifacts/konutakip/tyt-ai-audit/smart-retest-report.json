@@ -1,0 +1,329 @@
+{
+  "updatedAt": "2026-07-29T13:18:58.537Z",
+  "originalPassed": 19,
+  "results": [
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Sözcük Türleri",
+      "topicId": "tyt-turkce-2",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 286257
+    },
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Noktalama İşaretleri",
+      "topicId": "tyt-turkce-7",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 205914
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Sayılar ve Sayı Sistemleri",
+      "topicId": "tyt-matematik-0",
+      "status": "KONTROL_GEREKLI",
+      "issues": [
+        "Çözüm B cevabını açık biçimde doğrulamıyor."
+      ],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 2,
+      "durationMs": 77962
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "EBOB ve EKOK",
+      "topicId": "tyt-matematik-3",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 272683
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Kesirler ve Ondalıklar",
+      "topicId": "tyt-matematik-4",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 157858
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Üslü Sayılar",
+      "topicId": "tyt-matematik-5",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 2,
+      "durationMs": 180880
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Köklü Sayılar",
+      "topicId": "tyt-matematik-6",
+      "status": "KONTROL_GEREKLI",
+      "issues": [
+        "Çözüm A cevabını açık biçimde doğrulamıyor."
+      ],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 1,
+      "durationMs": 62993
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Oran-Orantı",
+      "topicId": "tyt-matematik-7",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 178816
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Y�zde ve K�r-Zarar",
+      "topicId": "tyt-matematik-8",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 260535
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Temel Kavramlar",
+      "topicId": "tyt-matematik-9",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 298685
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Denklemler",
+      "topicId": "tyt-matematik-10",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 384821
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Eşitsizlikler",
+      "topicId": "tyt-matematik-11",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 2,
+      "durationMs": 157059
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Dörtgenler ve Çokgenler",
+      "topicId": "tyt-matematik-13",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 425552
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Çember ve Daire",
+      "topicId": "tyt-matematik-14",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 1,
+      "durationMs": 81636
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Olasılık",
+      "topicId": "tyt-matematik-15",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 352085
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "İstatistik",
+      "topicId": "tyt-matematik-16",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 406237
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Problemler",
+      "topicId": "tyt-matematik-17",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 300085
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Fiziksel Büyüklükler ve Ölçme",
+      "topicId": "tyt-fen-fizik-0",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 1,
+      "durationMs": 112755
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Madde ve Özellikleri",
+      "topicId": "tyt-fen-fizik-1",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 1,
+      "durationMs": 76212
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Hareket ve Kuvvet",
+      "topicId": "tyt-fen-fizik-2",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 426102
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Basınç ve Kaldırma Kuvveti",
+      "topicId": "tyt-fen-fizik-3",
+      "status": "KONTROL_GEREKLI",
+      "issues": [
+        "Çözüm B cevabını açık biçimde doğrulamıyor."
+      ],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 2,
+      "durationMs": 219792
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Isı ve Sıcaklık",
+      "topicId": "tyt-fen-fizik-4",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 414448
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Elektrostatik",
+      "topicId": "tyt-fen-fizik-5",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 401239
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Optik",
+      "topicId": "tyt-fen-fizik-6",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.",
+      "durationMs": 475274
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Atom ve Periyodik Sistem",
+      "topicId": "tyt-fen-kimya-0",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 2,
+      "durationMs": 256368
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Karışımlar",
+      "topicId": "tyt-fen-kimya-2",
+      "status": "GERCEK_ISTEK_HATASI",
+      "issues": [],
+      "error": "HTTP 500: NVIDIA düşünme çıktısı üretti ancak nihai cevap metni boş kaldı.",
+      "durationMs": 463152
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Organik Kimya Temelleri",
+      "topicId": "tyt-fen-kimya-5",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 381784
+    },
+    {
+      "subjectName": "Biyoloji",
+      "topicName": "Kalıtım",
+      "topicId": "tyt-fen-biyoloji-2",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 1,
+      "durationMs": 80927
+    },
+    {
+      "subjectName": "Tarih",
+      "topicName": "İslam Tarihi",
+      "topicId": "tyt-sosyal-tarih-3",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 2,
+      "durationMs": 222941
+    },
+    {
+      "subjectName": "Felsefe",
+      "topicName": "Bilgi Felsefesi",
+      "topicId": "tyt-sosyal-felsefe-1",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 1,
+      "durationMs": 37955
+    },
+    {
+      "subjectName": "Felsefe",
+      "topicName": "Ahlak Felsefesi",
+      "topicId": "tyt-sosyal-felsefe-2",
+      "status": "BASARILI",
+      "issues": [],
+      "provider": "nvidia",
+      "model": "openai/gpt-oss-120b",
+      "attempt": 3,
+      "durationMs": 280998
+    }
+  ]
+}

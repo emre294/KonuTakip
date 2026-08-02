@@ -1,0 +1,51 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki denklemlerden hangisi redoks tepkimesi **değildir**?
+
+A) Zn + 2 HCl → ZnCl₂ + H₂
+B) 2 H₂ + O₂ → 2 H₂O
+C) NaOH + HCl → NaCl + H₂O
+D) 2 Fe + 3 Cl₂ → 2 FeCl₃
+E) Mg + 2 H₂O → Mg(OH)₂ + H₂
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: Beş kimyasal denklem.
+- İstenen: Redoks tepkimesi olmayan denklemi bulmak.
+- Kullanılacak yöntem: Her denklemin elementlerinin oksidasyon sayılarını belirleyip değişim olup olmadığını kontrol etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A seçeneğinde Zn → Zn²⁺ (0 → +2) ve H⁺ → H₂ (+1 → 0) değişir; oksidasyon sayısı değiştiği için redoks.
+
+### 2. Adım
+B seçeneğinde H (0 → +1) ve O (0 → –2) değişir; oksidasyon sayısı değiştiği için redoks.
+
+### 3. Adım
+C seçeneğinde NaOH ve HCl’deki Na, O, H, Cl oksidasyon sayıları (Na +1, O –2, H +1, Cl –1) ürünlerde aynı kalır; sadece H⁺ ve OH⁻ birleşir, oksidasyon sayısı değişmez, bu yüzden redoks değildir.
+
+### 4. Adım
+D seçeneğinde Fe (0 → +3) ve Cl (0 → –1) değişir; oksidasyon sayısı değiştiği için redoks.
+
+### 5. Adım
+E seçeneğinde Mg (0 → +2) ve H (0 → +1) değişir; oksidasyon sayısı değiştiği için redoks.
+
+## Sonuç
+
+Redoks tepkimesi olmayan tek denklem C şıkkındaki **NaOH + HCl → NaCl + H₂O** denklemdir.
+
+## Kontrol
+
+NaOH ve HCl’deki tüm elementlerin oksidasyon sayıları (Na +1, O –2, H +1, Cl –1) ürünlerde aynı kalır; sadece iyon değişimi gerçekleşir, bu da redoks olmadığını doğrular.
+
+**Doğru cevap: C**

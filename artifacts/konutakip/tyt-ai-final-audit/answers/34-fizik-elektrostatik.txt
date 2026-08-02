@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
++2 µC ve –3 µC büyüklüğündeki iki nokta yükü 0,5 m uzaklıkta yer almaktadır. Aralarındaki elektrostatik çekim ya da itme kuvvetinin büyüklüğü kaç Newton’dur?
+
+A) 0,12 N
+B) 0,22 N
+C) 0,36 N
+D) 0,48 N
+E) 0,60 N
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: q₁ = +2 µC, q₂ = –3 µC, r = 0,5 m, k = 9 × 10⁹ N·m²/C²
+- İstenen: |F| (elektrostatik kuvvetin büyüklüğü)
+- Kullanılacak yöntem: Coulomb yasası
+
+## Adım Adım Çözüm
+
+### 1. Adım
+µC birimini C’ye çevir: q₁ = 2 × 10⁻⁶ C, q₂ = 3 × 10⁻⁶ C. (Mutlak değer alınır çünkü büyüklük isteniyor.)
+
+### 2. Adım
+Coulomb yasasını yaz: |F| = k·|q₁ q₂| / r².
+
+### 3. Adım
+Payı hesapla: |q₁ q₂| = (2 × 10⁻⁶)·(3 × 10⁻⁶) = 6 × 10⁻¹² C².
+
+### 4. Adım
+r² = (0,5)² = 0,25 m².
+
+### 5. Adım
+|F| = 9 × 10⁹ · (6 × 10⁻¹²) / 0,25 = (54 × 10⁻³) / 0,25 = 0,216 N.
+
+### 6. Adım
+Sonucu iki basamağa yuvarla: |F| ≈ 0,22 N.
+
+## Sonuç
+Elektrostatik kuvvetin büyüklüğü **0,22 N** dir.
+
+## Kontrol
+k·|q₁ q₂| ≈ 9 × 10⁹ · 6 × 10⁻¹² = 0,054 N·m², bölü 0,25 m² verir 0,216 N ≈ 0,22 N; sonuç tutarlı.

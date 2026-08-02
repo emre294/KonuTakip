@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlelerden hangisinde iki bağımsız cümleyi bağlamak için yalnızca noktalama işareti (bağlaç kullanılmadan) doğru şekilde kullanılmıştır?
+
+A) Yaz tatilinde denize gideceğim, ama hava yağmurlu olabilir.
+B) Yaz tatilinde denize gideceğim; ama hava yağmurlu olabilir.
+C) Yaz tatilinde denize gideceğim; hava yağmurlu olabilir.
+D) Yaz tatilinde denize gideceğim: ama hava yağmurlu olabilir.
+E) Yaz tatilinde denize gideceğim - ama hava yağmurlu olabilir.
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: Beş cümle, her biri iki bağımsız yargıyı farklı noktalama işaretleriyle bağlamaktadır.
+- İstenen: Yalnızca noktalama işareti kullanılarak iki bağımsız cümleyi doğru şekilde bağlayan cümleyi seçmek.
+- Kullanılacak yöntem: Bağımsız cümleleri tanımlama, bağlaç bulunup bulunmadığını kontrol etme ve noktalama kurallarına göre değerlendirme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Her seçenekte bağlaç (örneğin “ama”) olup olmadığını kontrol ederiz. Bağlaç varsa yalnızca noktalama işaretiyle bağlama koşulu sağlanmaz.
+- A, B, D, E seçeneklerinde “ama” bağlacı vardır; bu yüzden bu seçenekler elenir.
+
+### 2. Adım
+Kalan seçenek C’de bağlaç yoktur. Cümle iki bağımsız yargıyı “;” (noktalı virgül) ile ayırmıştır. Noktalı virgül, bağlaç kullanılmadan bağımsız cümleleri bağlamak için doğru işarettir.
+
+### 3. Adım
+Diğer noktalama işaretlerinin (virgül, iki nokta, tire) bağlaçsız bağımsız cümle bağlamada uygun olup olmadığını kontrol ederiz.
+- Virgül tek başına iki bağımsız cümleyi bağlamaz.
+- İki nokta genellikle açıklama, örnekleme için kullanılır, bağlama işlevi taşımaz.
+- Tire ise ara açıklama veya ek bilgi verir, bağlama işlevi yoktur.
+
+Bu nedenle sadece C seçeneği koşulu sağlar.
+
+## Sonuç
+
+Doğru cevap: C) Yaz tatilinde denize gideceğim; hava yağmurlu olabilir.
+
+## Kontrol
+
+Cümlede iki tam yargı vardır: “Yaz tatilinde denize gideceğim” ve “hava yağmurlu olabilir”. Bağlaç yok, noktalı virgül iki bağımsız cümleyi bağlamak için TDK’ya göre uygun bir işarettir. Diğer seçeneklerde ya bağlaç bulunur ya da kullanılan işaret bağlama görevini yerine getirmez. Sonuç tutarlı.

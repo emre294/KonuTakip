@@ -1,0 +1,41 @@
+## Sorular
+
+### 1. Soru
+Bir su içinde tamamen batırılmış, kenar uzunluğu 2 cm ve yoğunluğu 0,8 g/cm³ olan bir katı küp düşünelim. Suyun yoğunluğu 1,0 g/cm³ ve yerçekimi ivmesi 10 m/s² olarak alınmıştır. Küp üzerine etki eden kaldırma kuvvetinin büyüklüğü kaç N’dir?
+
+A) 0,08 N
+B) 0,8 N
+C) 0,008 N
+D) 0,16 N
+E) 0,04 N
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** kenar uzunluğu 2 cm, suyun yoğunluğu 1,0 g/cm³, g = 10 m/s²
+- **İstenen:** küp üzerine etki eden kaldırma kuvvetinin büyüklüğü (N)
+- **Kullanılacak yöntem:** Archimedes prensibi (kaldırma kuvveti = suyun yoğunluğu × hacim × g)
+
+## Adım Adım Çözüm
+### 1. Adım
+Küpün hacmini bul: V = a³ = (2 cm)³ = 8 cm³ = 8 × 10⁻⁶ m³. Hacmi metre küp cinsine çevirmek, birim tutarlılığı sağlar.
+
+### 2. Adım
+Suyun yoğunluğunu kg/m³ cinsine çevir: 1,0 g/cm³ = 1000 kg/m³.
+
+### 3. Adım
+Archimedes prensibini uygula: F_k = ρ_water × V × g = 1000 kg/m³ × 8 × 10⁻⁶ m³ × 10 m/s².
+
+### 4. Adım
+İşlemi yap: 1000 × 8 × 10⁻⁶ = 8 × 10⁻³; 8 × 10⁻³ × 10 = 8 × 10⁻² N = 0,08 N.
+
+## Sonuç
+Küp üzerine etki eden kaldırma kuvveti **0,08 N**’dir.
+
+## Kontrol
+Kaldırma kuvveti = suyun ağırlığı = (ρ_water × V) × g = (1000 kg/m³ × 8 × 10⁻⁶ m³) × 10 m/s² = 0,008 kg × 10 m/s² = 0,08 N. Sonuç tutarlı.

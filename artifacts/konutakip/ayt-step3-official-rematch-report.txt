@@ -1,0 +1,19 @@
+AYT 3/7-A2 RESMI KAZANIM YENIDEN ESLESTIRME RAPORU
+
+TOPLAM AYT ANA KONU: 197
+ONCEKI ESLESEN: 155
+YENI ESLESEN: 34
+TOPLAM ESLESEN: 189
+KALAN ESLESMEYEN: 8
+
+KALAN ESLESMEYEN KONULAR:
+- ayt-matematik-14 | Karmaşık Sayılar
+- ayt-cografya2-1 | Küreselleşme
+- ayt-cografya2-11 | Uluslararası Örgütler
+- ayt-felsefe-0 | Psikoloji Bilimini Tanıma
+- ayt-felsefe-1 | Psikolojinin Temel Süreçleri
+- ayt-felsefe-2 | Sosyoloji Bilimini Tanıma
+- ayt-felsefe-4 | Klasik Mantık
+- ayt-din-10 | İslam ve Estetik
+
+SONUC: 3/7-B ALT KAZANIM HARITASINA HAZIR

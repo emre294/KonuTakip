@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerden hangisi, 1071 yılında Malazgirt Meydan Muharebesi'nin Bizans İmparatorluğu üzerindeki uzun vadeli sonuçlarından biri **değildir**?
+
+A) Bizans'ın Anadolu'da kalıcı hâkimiyetini kaybetmesi
+B) Selçuklu Devleti'nin Anadolu'ya yerleşmesi
+C) Bizans'ın başkenti Konstantinopolis'in düşmesi
+D) Anadolu'nun Türkleşme sürecinin başlaması
+E) Bizans'ın Balkanlar'daki askeri etkinliğinin azalması
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+
+- **Verilen:** Malazgirt Meydan Muharebesi (1071) ve onun Bizans üzerindeki uzun vadeli etkileri.
+- **İstenen:** Bu etkiler arasında **olmayan** seçeneği belirlemek.
+- **Kullanılacak yöntem:** Tarihi kronoloji ve sonuç‑ilişki ilişkisini inceleyerek her seçeneğin gerçekleşme zamanını kontrol etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Malazgirt Muharebesi'nin temel sonucunu hatırla: Selçuklu ordusunun zaferi, Bizans'ın Anadolu'daki hâkimiyetinin sona ermesi ve Türkleşme sürecinin başlaması. Bu, A, B, D ve E şıklarının temelini oluşturur.
+
+### 2. Adım
+Her seçeneği tek tek değerlendir:
+- **A) Bizans'ın Anadolu'da kalıcı hâkimiyetini kaybetmesi** – doğrudur; Anadolu büyük ölçüde Selçuklu kontrolüne geçmiştir.
+- **B) Selçuklu Devleti'nin Anadolu'ya yerleşmesi** – doğrudur; Malazgirt sonrası Selçuklular Anadolu'ya göç etmiş ve beylikler kurmuştur.
+- **C) Bizans'ın başkenti Konstantinopolis'in düşmesi** – yanlıştır; başkentin düşüşü 1453 yılında Osmanlılar tarafından gerçekleşmiştir, Malazgirt'ten 382 yıl sonra.
+- **D) Anadolu'nun Türkleşme sürecinin başlaması** – doğrudur; Selçuklu hâkimiyetiyle birlikte Türk nüfusu artmıştır.
+- **E) Bizans'ın Balkanlar'daki askeri etkinliğinin azalması** – doğrudur; Anadolu kaybı sonrası Bizans'ın askeri gücü zayıflamış ve Balkanlarda gerilemiştir.
+
+### 3. Adım
+Doğru olmayan seçeneği (C) işaretle.
+
+## Sonuç
+
+**C) Bizans'ın başkenti Konstantinopolis'in düşmesi** ifadesi, Malazgirt Muharebesi'nin uzun vadeli sonuçlarından biri **değildir**.
+
+## Kontrol
+
+Konstantinopolis'in düşüş tarihi 1453 yılında, Osmanlı Fatih Sultan Mehmet tarafından gerçekleşmiştir; bu tarih Malazgirt'ten çok sonra olduğundan C şıkkı kesinlikle yanlıştır. Diğer şıkların tümü tarihsel kaynaklarda Malazgirt sonrası Bizans ve Anadolu üzerindeki etkiler olarak kabul edilir.

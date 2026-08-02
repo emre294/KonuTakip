@@ -1,0 +1,40 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerden hangisi 1 ÷ (√3 − √2) ifadesinin eşitidir?
+
+A) √3 + √2
+B) √3 − √2
+C) (√3 + √2) ÷ 2
+D) 2 × (√3 + √2)
+E) √6
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: 1 ÷ (√3 − √2) ifadesi.
+- İstenen: Bu ifadeye eşit olan seçenek.
+- Kullanılacak yöntem: Payda köklü sayıyı sadeleştirmek için eşlenik çarpanla çarpma (rasyonelleştirme).
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İfadeyi (√3 + √2)/(√3 + √2) ile çarpıyoruz. Bu, değeri değiştirmeden payda köklü sayıyı yok eder.
+
+### 2. Adım
+Çarpma sonucunda payda (√3 − √2)(√3 + √2) = (√3)² − (√2)² = 3 − 2 = 1 olur.
+
+### 3. Adım
+Payda 1 olduğu için sonuç sadece payda kalır: √3 + √2.
+
+## Sonuç
+1 ÷ (√3 − √2) = √3 + √2.
+
+## Kontrol
+(√3 + √2) × (√3 − √2) = 3 − 2 = 1, yani (√3 + √2) ifadesi orijinal ifadeyi verir. Sonuç doğrulandı.

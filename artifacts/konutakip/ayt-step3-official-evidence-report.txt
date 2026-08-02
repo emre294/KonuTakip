@@ -1,0 +1,53 @@
+AYT 3/7-A RESMI KAZANIM ESLESTIRME RAPORU
+
+AYT ANA KONU: 197
+RESMI BELGE SAYFA: 581
+PDF METIN UZUNLUGU: 1055939
+ESLESEN KONU: 155
+ESLESMEYEN KONU: 42
+
+ESLESMEYEN KONULAR:
+- ayt-matematik-14 | Karmaşık Sayılar
+- ayt-matematik-13 | Olasılık ve İstatistik
+- ayt-geometri-1 | Üçgende Benzerlik
+- ayt-matematik-7 | Analitik Geometri - Çember
+- ayt-geometri-10 | Dönüşüm Geometrisi
+- ayt-fizik-1 | Kinematik
+- ayt-fizik-4 | Momentum ve İmpuls
+- ayt-fizik-17 | Kondansatörler
+- ayt-fizik-11 | Elektromanyetik İndüksiyon
+- ayt-kimya-2 | Çözünürlük Dengesi
+- ayt-kimya-6 | Makromoleküller
+- ayt-biyoloji-0 | Hücre Biyolojisi
+- ayt-biyoloji-5 | Ekosistem ve Çevre
+- ayt-edebiyat-4 | Fecriati Topluluğu
+- ayt-tarih1-1 | Osmanlı Devleti'nin Yükselişi
+- ayt-tarih1-2 | Osmanlı Devleti'nde Değişim
+- ayt-cografya1-0 | Nüfus Politikaları ve Yerleşme
+- ayt-cografya1-9 | Şehirlerin Fonksiyonları
+- ayt-cografya1-1 | Ulaşım Sistemleri
+- ayt-tarih2-2 | Milliyetçilik Hareketleri
+- ayt-tarih2-7 | Soğuk Savaş Dönemi
+- ayt-tarih2-15 | Küreselleşen Dünya
+- ayt-cografya2-1 | Küreselleşme
+- ayt-cografya2-3 | Kalkınma ve Ekonomi
+- ayt-cografya2-5 | Göç
+- ayt-cografya2-7 | Kıtalar Coğrafyası
+- ayt-cografya2-9 | Türkiye'nin Jeopolitiği
+- ayt-cografya2-11 | Uluslararası Örgütler
+- ayt-felsefe-0 | Psikoloji Bilimini Tanıma
+- ayt-felsefe-1 | Psikolojinin Temel Süreçleri
+- ayt-felsefe-8 | Öğrenme, Bellek ve Düşünme
+- ayt-felsefe-9 | Ruh Sağlığının Temelleri
+- ayt-felsefe-2 | Sosyoloji Bilimini Tanıma
+- ayt-felsefe-10 | Toplumsal Değişme ve Gelişme
+- ayt-felsefe-4 | Klasik Mantık
+- ayt-felsefe-5 | Felsefenin Alanları
+- ayt-felsefe-6 | Bilgi ve Gerçeklik
+- ayt-felsefe-15 | Din ve Sanat Felsefesi
+- ayt-din-0 | İslam'ın Temel Kaynakları
+- ayt-din-3 | Ahlak ve Değerler
+- ayt-din-7 | Çağdaş Dinî Akımlar
+- ayt-din-10 | İslam ve Estetik
+
+KANIT DOSYASI: data/aytOfficialTopicEvidence.json

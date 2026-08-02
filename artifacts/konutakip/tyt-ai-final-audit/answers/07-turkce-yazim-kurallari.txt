@@ -1,0 +1,39 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlede boş bırakılan yere hangi seçenek doğru yazılmıştır?
+
+“Öğretmenimiz, sınav sonuçlarını açıklamadan önce, öğrencilerin sorularını yanıtlamaya ____ karar verdi.”
+
+A) da
+B) de
+C) d e
+D) dê
+E) de,
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** “...yanıtlamaya ____ karar verdi.” cümlesindeki boşluk.
+- **İstenen:** Boşluğa uygun doğru yazımı seçmek.
+- **Kullanılacak yöntem:** “de/da” bağlacı ile “-de/-da” bulunma hâli ekinin yazım kurallarını ayırt etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Cümlede “...yanıtlamaya ____ karar verdi.” ifadesi, “...yanıtlamaya **de** karar verdi.” anlamında, iki eylem arasındaki bağlaç görevi görür. Bu yüzden “de” bağlacı kullanılmaktadır. (Bağlaç ayrı yazılır.)
+
+### 2. Adım
+Bağlaç “de”nin doğru yazımı “de” şeklindedir. “da” bulunma hâli eki olup, “...yanıtlamaya da karar verdi.” gibi anlam değiştirir ve cümledeki bağlamla uyumlu değildir. Diğer seçeneklerde boşluk veya hatalı karakter bulunur.
+
+## Sonuç
+Doğru seçenek **B) de** dir.
+
+## Kontrol
+“...yanıtlamaya **de** karar verdi.” cümlesi, “yanıtlamaya karar vermek” eylemini bağlarken “de” bağlacının ayrı yazılması kuralına uygundur; “da” ekinin ek olarak bitişik yazılması gerekir ki bu cümlede anlamı bozardı. Dolayısıyla seçenek B kesinlikle doğrudur.

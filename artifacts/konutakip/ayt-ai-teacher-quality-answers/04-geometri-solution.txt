@@ -1,0 +1,37 @@
+## Soru Analizi
+
+- Verilen: eğimi \-1 olan ve (2, 3) noktasından geçen doğru
+- İstenen: bu doğrunun y eksenini kestiği noktanın ordinatı
+- Kullanılacak yöntem: doğru denklemini nokta‑eğim formülüyle bulup, x = 0 koyarak y eksenini kesişimini bulma
+
+## Adım Adım Çözüm
+
+### 1. Adım
+
+Doğrunun denklemini \(y - y_1 = m(x - x_1)\) formülüyle yaz:
+\(y - 3 = -1\,(x - 2)\) çünkü \(m = -1\) ve \((x_1 , y_1) = (2,3)\).
+Bu adım, doğruyu nokta ve eğimden tanımlamak için gereklidir.
+
+### 2. Adım
+
+Sağ tarafı dağıtarak sadeleştir:
+\(y - 3 = -x + 2\).
+Her iki tarafa 3 ekleyerek \(y\) yalnız bırak:
+\(y = -x + 5\).
+Bu, doğrunun standart formudur ve y eksenini kesişimini bulmakta kullanılacak.
+
+### 3. Adım
+
+y eksenindeki kesişim için \(x = 0\) koy:
+\(y = -0 + 5 = 5\).
+Bu, doğrunun y eksenini kestiği noktanın ordinatıdır.
+
+## Sonuç
+
+Doğrunun y eksenini kestiği noktanın ordinatı **5**’tir.
+
+## Kontrol
+
+Eğim \-1 olduğuna göre, x bir birim artınca y bir birim azalır. (2, 3) noktasından x = 0’a giderken x 2 birim azalır, y de 2 birim artar: 3 + 2 = 5. Sonuç tutarlı.
+
+**Doğru cevap: D seçeneği**

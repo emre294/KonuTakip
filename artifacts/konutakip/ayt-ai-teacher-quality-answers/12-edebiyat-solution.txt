@@ -1,0 +1,38 @@
+## Soru Analizi
+
+- Verilen: Divan edebiyatının genel özelliklerini soran çoktan seçmeli soru ve beş seçenek.
+- İstenen: Doğru seçeneği belirtmek ve neden doğru olduğunu adım adım açıklamak.
+- Kullanılacak yöntem: Divan edebiyatının temel özelliklerini (dil, nazım birimi, ölçü, yazar bilgisi, etkiler) seçeneklerle karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Divan edebiyatının nazım birimi çoğunlukla beyittir (iki dizeden oluşan çift). Bu bilgi doğru seçeneği bulmada ana kriterdir.
+
+### 2. Adım
+Seçenekleri tek tek incele:
+
+- **A) Sade halk dili temel alınmıştır.**
+  Divan edebiyatı, Osmanlı saray ve yüksek sınıfların dili olan Osmanlı Türkçesi, Arapça ve Farsça kelimelerle süslüdür; sade halk dili kullanılmaz. → Yanlış.
+
+- **B) Nazım birimi çoğunlukla beyittir.**
+  Beyit, Divan şiirinin temel yapıtaşıdır. Bu özellik Divan edebiyatının tanımlayıcı özelliğidir. → Doğru.
+
+- **C) Yalnızca hece ölçüsü kullanılmıştır.**
+  Divan şiirinde hem aruz hem hece ölçüsü bulunur; yalnızca hece ölçüsü kullanılmaz. → Yanlış.
+
+- **D) Anonim ürünlere dayanır.**
+  Divan edebiyatında şairlerin isimleri genellikle bilinir; anonim eserler yaygın değildir. → Yanlış.
+
+- **E) Batı edebiyatı örnek alınmıştır.**
+  Divan edebiyatı, Batı etkisinden çok İslam dünyasının klasik edebiyatlarından (Farsça, Arapça) beslenir. → Yanlış.
+
+## Sonuç
+
+Doğru seçenek **B) Nazım birimi çoğunlukla beyittir.**
+
+## Kontrol
+
+Divan şiirinde beyit (iki dize) en yaygın nazım birimidir; diğer seçeneklerde verilen özellikler Divan edebiyatının tanımına uymamaktadır. Bu tutarlılık doğru cevabı doğrular.
+
+**Doğru cevap: B seçeneği**

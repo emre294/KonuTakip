@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Bir sayının 2/3’ü 0,56 ise bu sayının 1/4’ü kaçtır?
+
+A) 0,14
+B) 0,21
+C) 0,28
+D) 0,35
+E) 0,42
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: sayının 2/3’ü 0,56
+- İstenen: aynı sayının 1/4’ü
+- Kullanılacak yöntem: oran ters çevirme ve çarpma
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Sayının tamamını bulmak için 0,56’yı (3/2) ile çarp. Çünkü x·(2/3)=0,56 ⇒ x=0,56·(3/2).
+
+### 2. Adım
+0,56·(3/2)=0,56·1,5=0,84. Böylece sayının değeri 0,84’tür.
+
+### 3. Adım
+Bulduğumuz sayının 1/4’ünü almak için 0,84’ü 4 ile böl veya (1/4) ile çarp. 0,84·(1/4)=0,84÷4=0,21.
+
+## Sonuç
+Sayının 1/4’ü 0,21’dir.
+
+## Kontrol
+0,84 sayısının 2/3’ü 0,84·(2/3)=0,56 ve 1/4’ü 0,84·(1/4)=0,21 olduğundan sonuç tutarlı.
+
+**Doğru cevap: B**

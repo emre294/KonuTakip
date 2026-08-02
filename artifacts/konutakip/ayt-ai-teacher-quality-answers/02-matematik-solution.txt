@@ -1,0 +1,28 @@
+## Soru Analizi
+
+- Verilen: f(x) = x³ – 3x² + 2
+- İstenen: f'(2) değeri
+- Kullanılacak yöntem: Türevin tanımını kullanarak fonksiyonun türevini bulmak, ardından x = 2 yerine koymak
+
+## Adım Adım Çözüm
+
+### 1. Adım
+f(x) = x³ – 3x² + 2 ifadesinin türevini al: f'(x) = 3x² – 6x.
+(Türev alırken her terimin üssü bir azaltılır ve katsayı üssle çarpılır.)
+
+### 2. Adım
+x = 2 değerini türevde yerine koy: f'(2) = 3·(2)² – 6·2.
+(2² = 4 olduğu için 3·4 – 12 = 12 – 12.)
+
+### 3. Adım
+Sonucu hesapla: f'(2) = 0.
+
+## Sonuç
+
+f'(2) = 0
+
+## Kontrol
+
+f'(x) = 3x² – 6x ifadesine x = 2 koyarsak 3·4 – 12 = 12 – 12 = 0 elde ederiz; sonuç tutarlı.
+
+**Doğru cevap: B seçeneği**

@@ -1,0 +1,54 @@
+## Sorular
+
+### 1. Soru
+Bir sınıfta öğrencilerin \(\frac{5}{8}\)’i kız, kalan kısmı erkek olarak bulunmaktadır. Kız öğrencilerin %60’ı, erkek öğrencilerin %30’u matematik kulübüne katılıyor. Sınıfta matematik kulübüne katılan öğrencilerin oranı aşağıdakilerden hangisidir?
+
+A) \(\frac{39}{80}\)
+B) \(\frac{3}{8}\)
+C) \(\frac{7}{15}\)
+D) \(\frac{13}{24}\)
+E) \(\frac{5}{12}\)
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Toplam öğrencilerin \(\frac{5}{8}\)’i kız, %60’ı kızlar kulübe, %30’u erkekler kulübe.
+- **İstenen:** Matematik kulübüne katılan öğrencilerin toplam öğrencilere oranı.
+- **Kullanılacak yöntem:** Oran‑orantı ve yüzde hesabı; ortak bir toplam seçerek sayısal çözüm.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Toplam öğrenci sayısını 80 al (8’in katı, \(\frac{5}{8}\) tam sayı verir).
+Neden: Kesir ve yüzde işlemlerini tam sayılarla yapmak daha nettir.
+
+### 2. Adım
+Kız öğrenci sayısı = \(\frac{5}{8} \times 80 = 50\); erkek öğrenci sayısı = 80 – 50 = 30.
+Neden: Verilen oranı sayıya çeviriyoruz.
+
+### 3. Adım
+Kızlardan kulübe katılan = %60 × 50 = 30; erkeklerden kulübe katılan = %30 × 30 = 9.
+Neden: Yüzdeyi sayıya uygulayarak kulüp üyelerini buluyoruz.
+
+### 4. Adım
+Toplam kulüp üyesi = 30 + 9 = 39.
+Neden: İki grup üyelerini topluyoruz.
+
+### 5. Adım
+Kulüp üyelerinin toplam öğrencilere oranı = 39 ÷ 80 = \(\frac{39}{80}\).
+Neden: Oranı doğrudan bölerek elde ediyoruz.
+
+## Sonuç
+Matematik kulübüne katılan öğrencilerin oranı \(\frac{39}{80}\) dir.
+
+## Kontrol
+Oranı doğrudan yüzdeyle de bulalım:
+\(\frac{5}{8} \times 0.60 = 0.375\) (kızların katkısı)
+\(\frac{3}{8} \times 0.30 = 0.1125\) (erkeklerin katkısı)
+Toplam = 0.4875 = 48.75 % = \(\frac{39}{80}\). Sonuç aynı, doğru.

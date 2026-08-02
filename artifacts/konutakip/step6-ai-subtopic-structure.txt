@@ -1,0 +1,7 @@
+﻿=== 6/7 AI ALT KAZANIM BAGLANTI DOSYALARI ===
+.\app\ai-teacher.tsx
+.\app\ai-coach.tsx
+.\utils\ai\types.ts
+.\utils\ai\AIManager.ts
+.\backend\src\routes\ai.ts
+

@@ -1,0 +1,460 @@
+TYT COZUM VE VALIDATOR 5 YILDIZ SON TEST RAPORU
+
+YENIDEN TEST EDILEN: 25
+TAMAMLANAN: 25
+BASARILI: 25
+KALAN HATA: 0
+KALAN TEST: 0
+
+============================================================
+DERS: Matematik
+KONU: Doğal Sayılarda İşlemler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Bölme ve Bölünebilme
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 111 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 36 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Kesirler ve Ondalıklar
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 35 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Üslü Sayılar
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 117 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Köklü Sayılar
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 44 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Oran-Orantı
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 33 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Yüzde ve Kâr-Zarar
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 31 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Temel Kavramlar
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 58 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 2
+SURE: 93 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Eşitsizlikler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Dörtgenler ve Çokgenler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 81 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Olasılık
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 32 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: İstatistik
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 32 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Matematik
+KONU: Problemler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 102 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Fizik
+KONU: Fiziksel Büyüklükler ve Ölçme
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 37 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Fizik
+KONU: Hareket ve Kuvvet
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 40 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Fizik
+KONU: Basınç ve Kaldırma Kuvveti
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Fizik
+KONU: Elektrostatik
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 19 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Fizik
+KONU: Optik
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 12 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Kimya
+KONU: Maddenin Halleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 14 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Kimya
+KONU: Kimyasal Tepkimeler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 19 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Kimya
+KONU: Organik Kimya Temelleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 66 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Biyoloji
+KONU: Kalıtım
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 37 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+DERS: Coğrafya
+KONU: Coğrafyaya Giriş
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+COZUM-CEVAP SENKRONU:
+- BASARILI
+
+
+
+============================================================
+SONRAKI INDEX: 25

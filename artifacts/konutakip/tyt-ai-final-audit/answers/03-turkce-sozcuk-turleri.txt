@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+Sınavdan önce, öğrencilerin **çalışması** ve **onun** motivasyonu artar.
+
+A) çalışması
+B) önce
+C) ve
+D) onun
+E) artar
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Cümlede altı çizili beş sözcük (çalışması, önce, ve, onun, artar).
+- İstenen: İsim (ad) görevinde kullanılan sözcük.
+- Kullanılacak yöntem: Her sözcüğün sözcük türünü belirleyip, isim olanı seçmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+“çalışması” kelimesi –‑ “çalış‑” köküne “‑ması” isim-fiil eki getirilmiştir; cümlede özne konumundadır, dolayısıyla isim görevindedir. Bu yüzden adaydır.
+
+### 2. Adım
+“önce” kelimesi zaman zarfıdır; zarf görevindedir, isim değildir.
+
+### 3. Adım
+“ve” bağlaçtır; iki sözcüğü bağlar, isim değildir.
+
+### 4. Adım
+“onun” zamirdir; iyelik zamiri olarak kullanılmıştır, isim değildir.
+
+### 5. Adım
+“artar” fiildir; üçüncü tekil şahıs geniş zaman çekimidir, isim değildir.
+
+## Sonuç
+İsim görevinde kullanılan sözcük **çalışması**dır. Doğru seçenek **A** şıkkıdır.
+
+## Kontrol
+Cümlede özne “çalışması” olduğu için yüklem “artar” ile uyumludur; diğer seçeneklerin hiçbiri özne konumunda bulunmaz. Bu, yalnızca A şıkkının doğru olduğunu doğrular.

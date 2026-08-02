@@ -1,0 +1,45 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerden hangisi Sokrates’in “kendini bilmek” görüşünü en iyi yansıtır?
+
+A) İnsanların mutluluğu, dışsal maddi koşullara bağlıdır.
+B) İnsanın en önemli bilgisi, kendi cehaletinin farkına varmasıdır.
+C) Doğa yasaları, Tanrı’nın iradesiyle belirlenir.
+D) Bilgi, deneyimle elde edilen duyusal verilerden oluşur.
+E) Toplumun kuralları, bireyin özgürlüğünü sınırlamaz.
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Sokrates’in “kendini bilmek” görüşüyle ilgili dört yanlış ve bir doğru ifade.
+- **İstenen:** Bu görüşü en iyi tanımlayan seçeneğin belirlenmesi.
+- **Kullanılacak yöntem:** Sokrates’in temel öğretisinin özünü tanımlayıp, seçeneklerle karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Sokrates’in “kendini bilmek” anlayışı, “Kendi cehaletini bilmek, gerçek bilgeliktir” şeklinde özetlenir. Bu, insanın ne bildiğini ve ne bilmediğini fark etmesinin önemini vurgular.
+
+### 2. Adım
+Seçenekleri tek tek inceleyelim:
+- **A) “Mutluluk dışsal maddi koşullara bağlıdır.”** – Sokrates’in ahlaki ve bilgi temelli görüşleriyle ilgisiz.
+- **B) “İnsanın en önemli bilgisi, kendi cehaletinin farkına varmasıdır.”** – Sokrates’in “Kendini bil” sözüyle doğrudan örtüşür.
+- **C) “Doğa yasaları Tanrı’nın iradesiyle belirlenir.”** – Metafizik bir iddia, Sokrates’in etik odaklı öğretisiyle bağdaşmaz.
+- **D) “Bilgi, deneyimle elde edilen duyusal verilerden oluşur.”** – Empirist yaklaşım, Sokrates’in diyalog ve akıl temelli yöntemiyle çelişir.
+- **E) “Toplumun kuralları bireyin özgürlüğünü sınırlamaz.”** – Sokrates’in toplumsal sorumluluk ve adalet vurgusuyla uyumlu değildir.
+
+### 3. Adım
+Yukarıdaki karşılaştırmadan yalnızca B seçeneğinin Sokrates’in görüşünü tam olarak yansıttığını görüyoruz.
+
+## Sonuç
+Doğru seçenek **B** şıkkıdır.
+
+## Kontrol
+Sokrates’in ünlü “Kendini bil” sözü, “Kendi cehaletini bilmek” ifadesiyle aynı anlama gelir. Diğer seçeneklerde bu kavram yoktur; dolayısıyla B’nin tek doğru cevap olduğu teyit edilir.

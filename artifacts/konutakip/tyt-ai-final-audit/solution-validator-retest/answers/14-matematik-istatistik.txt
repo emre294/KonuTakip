@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+Bir sınıfta 20 öğrenci sınavdan aşağıdaki puanları almıştır: 45, 58, 62, 62, 70, 71, 73, 73, 73, 78, 80, 82, 85, 85, 88, 90, 92, 95, 98, 100. Bu puanların medyanı kaçtır?
+
+A) 73
+B) 78
+C) 79
+D) 80
+E) 85
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: 20 adet sıralı puan listesi.
+- İstenen: Veri setinin medyanı.
+- Kullanılacak yöntem: Medyan, çift sayıda gözlemde 10. ve 11. değerlerin aritmetik ortalamasıdır.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Verilen puanları zaten küçükten büyüğe sıralı olarak listeliyoruz. Sıralama doğru olduğundan emin oluruz.
+
+### 2. Adım
+Çift sayıda (20) gözlem olduğu için 10. ve 11. değerleri buluruz.
+10. değer = 78, 11. değer = 80.
+
+### 3. Adım
+Medyan = (78 + 80) ÷ 2 = 158 ÷ 2 = 79.
+
+## Sonuç
+
+Verilen puanların medyanı **79**’dur.
+
+## Kontrol
+
+20 sayının ortasındaki iki değer 78 ve 80’tir; aritmetik ortalamaları 79 verir. Bu, medyan tanımına uygundur.
+
+**Doğru cevap: C**

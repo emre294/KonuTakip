@@ -1,0 +1,54 @@
+## Sorular
+
+### 1. Soru
+Bir madde 12 g kütleye ve 4 cm³ hacme sahiptir. Bu madde hakkında aşağıdaki ifadelerden hangisi yanlıştır?
+
+A) Yoğunluğu 3 g/cm³'tür.
+B) Kütlesi hacminin üç katıdır.
+C) Hacmi 4 cm³'tür.
+D) Yoğunluğu maddenin kimyasal özelliğidir.
+E) Kütlesi 12 g'dir.
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** kütle = 12 g, hacim = 4 cm³.
+- **İstenen:** beş ifadeden hangisinin yanlış olduğunu belirlemek.
+- **Kullanılacak yöntem:** yoğunluk hesabı ve fizik‑kimya özellik sınıflandırması.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Yoğunluk = kütle ÷ hacim = 12 g ÷ 4 cm³ = 3 g/cm³. Bu, A seçeneğinin doğru olduğunu gösterir.
+
+### 2. Adım
+Kütle = 12 g, hacim = 4 cm³, dolayısıyla kütle = 3 × hacim. B seçeneği doğrudur.
+
+### 3. Adım
+Verilen bilgiye göre hacim 4 cm³’tür. C seçeneği doğrudur.
+
+### 4. Adım
+Yoğunluk, bir maddenin birim hacimdeki kütlesi olduğundan fiziksel (miktar) özelliktir, kimyasal özellik değildir. Bu yüzden D seçeneği yanlıştır.
+
+### 5. Adım
+Kütle 12 g olarak verilmiştir. E seçeneği doğrudur.
+
+## Sonuç
+
+Yanlış ifade **D) Yoğunluğu maddenin kimyasal özelliğidir.** seçeneğidir.
+
+## Kontrol
+
+Yoğunluk hesabı 12 g ÷ 4 cm³ = 3 g/cm³ → A doğru.
+Kütle = 3 × hacim → B doğru.
+Hacim 4 cm³ → C doğru.
+Yoğunluk fiziksel, kimyasal değil → D yanlış.
+Kütle 12 g → E doğru.
+Tek yanlış D, cevap anahtarıyla uyumludur.

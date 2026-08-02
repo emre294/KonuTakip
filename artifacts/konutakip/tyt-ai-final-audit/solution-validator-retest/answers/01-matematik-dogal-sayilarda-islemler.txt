@@ -1,0 +1,40 @@
+## Sorular
+
+### 1. Soru
+A ve B doğal sayıları A = 2³ × 3², B = 2² × 3⁴ şeklinde verilmektedir. A ve B sayılarının en büyük ortak böleninin (EBOB) ve en küçük ortak katının (EKOK) çarpımı kaçtır?
+
+A) 19 440
+B) 20 736
+C) 22 176
+D) 23 328
+E) 24 000
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: A = 2³ × 3², B = 2² × 3⁴
+- İstenen: EBOB × EKOK değerinin sayısal sonucu
+- Kullanılacak yöntem: Asal çarpanlara ayırma ile EBOB ve EKOK bulma, ardından çarpma
+
+## Adım Adım Çözüm
+### 1. Adım
+EBOB, ortak asal çarpanların en küçük üsleri alınarak bulunur: 2² × 3² = 4 × 9 = 36.
+
+### 2. Adım
+EKOK, ortak ve ayrı asal çarpanların en büyük üsleri alınarak bulunur: 2³ × 3⁴ = 8 × 81 = 648.
+
+### 3. Adım
+İstenen çarpım: EBOB × EKOK = 36 × 648. Çarpma: 36 × 600 = 21 600, 36 × 48 = 1 728, toplam = 23 328.
+
+## Sonuç
+EBOB ile EKOK çarpımı 23 328’dir.
+
+## Kontrol
+EKOK = (A × B) ÷ EBOB formülüyle de kontrol: A × B = (2³·3²) × (2²·3⁴) = 2⁵·3⁶ = 32·729 = 23 328. 23 328 ÷ 36 = 648, aynı EKOK elde edildi. Çarpım 36 × 648 = 23 328, doğru.
+
+**Doğru cevap: D**

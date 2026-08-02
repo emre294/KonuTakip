@@ -1,0 +1,1069 @@
+TYT AI OGRETMEN 62 KONU CANLI SON DENETIM RAPORU
+
+TOPLAM DERS: 9
+TOPLAM KONU: 62
+TAMAMLANAN: 62
+BASARILI: 37
+ICERIK KONTROLU GEREKLI: 24
+HATA: 1
+KALAN: 0
+ORTALAMA SURE: 49 saniye
+
+============================================================
+DERS: Türkçe
+KONU: Sözcükte Anlam
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 18 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Cümlede Anlam
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 48 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Sözcük Türleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 50 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Fiil
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 51 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Cümlenin Ögeleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 42 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Paragraf
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 43 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Yazım Kuralları
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 46 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Noktalama İşaretleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 49 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Ses Bilgisi
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 106 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Türkçe
+KONU: Sözcük Yapısı
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Matematik
+KONU: Sayılar ve Sayı Sistemleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Matematik
+KONU: Doğal Sayılarda İşlemler
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 79 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Bölme ve Bölünebilme
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 63 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki D seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 31 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Kesirler ve Ondalıklar
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Üslü Sayılar
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 160 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Köklü Sayılar
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 37 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Oran-Orantı
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 64 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Yüzde ve Kâr-Zarar
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 42 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Temel Kavramlar
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 36 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki B seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+DURUM: HATA
+HTTP: -
+DENEME: -
+SURE: 293 saniye
+PROVIDER: -
+MODEL: -
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+GERCEK HATA:
+HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: FALSE C: TRUE D: FALSE E: FALSE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID
+
+============================================================
+DERS: Matematik
+KONU: Eşitsizlikler
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 40 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki D seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Üçgenler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Matematik
+KONU: Dörtgenler ve Çokgenler
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 47 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Çember ve Daire
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Matematik
+KONU: Olasılık
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 42 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: İstatistik
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 35 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki D seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Problemler
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 34 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Fizik
+KONU: Fiziksel Büyüklükler ve Ölçme
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 43 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Fizik
+KONU: Madde ve Özellikleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 47 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Fizik
+KONU: Hareket ve Kuvvet
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki B seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Fizik
+KONU: Basınç ve Kaldırma Kuvveti
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 29 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Fizik
+KONU: Isı ve Sıcaklık
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 12 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Fizik
+KONU: Elektrostatik
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 24 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki B seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Fizik
+KONU: Optik
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Kimya
+KONU: Atom ve Periyodik Sistem
+DURUM: BASARILI
+HTTP: 200
+DENEME: 2
+SURE: 28 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Kimya
+KONU: Maddenin Halleri
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 36 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki B seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 38 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Kimya
+KONU: Asit-Baz
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 43 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Kimya
+KONU: Kimyasal Tepkimeler
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 43 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki A seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Kimya
+KONU: Organik Kimya Temelleri
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 34 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki D seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Biyoloji
+KONU: Hücre ve Organeller
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 43 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Biyoloji
+KONU: Canlıların Sınıflandırılması
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 44 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Biyoloji
+KONU: Kalıtım
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 81 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki C seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Biyoloji
+KONU: Ekosistem
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 47 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Biyoloji
+KONU: Bitkilerde Üreme
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Tarih
+KONU: Tarih Bilimine Giriş
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 49 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Tarih
+KONU: Uygarlığın Doğuşu
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 40 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Tarih
+KONU: İlk Türk Devletleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 52 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Tarih
+KONU: İslam Tarihi
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 16 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Tarih
+KONU: Türkiye Tarihi
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 21 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Coğrafya
+KONU: Coğrafyaya Giriş
+DURUM: ICERIK_KONTROLU_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 43 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- Çözüm cevap anahtarındaki B seçeneğini açıkça desteklemiyor.
+
+
+============================================================
+DERS: Coğrafya
+KONU: Dünya'nın Şekli ve Hareketleri
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 42 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Coğrafya
+KONU: İklim
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 41 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Coğrafya
+KONU: Türkiye'nin Fiziki Coğrafyası
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 79 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Coğrafya
+KONU: Nüfus
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 27 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Felsefe
+KONU: Felsefeye Giriş
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 34 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Felsefe
+KONU: Bilgi Felsefesi
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 33 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Felsefe
+KONU: Ahlak Felsefesi
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 37 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Din Kültürü
+KONU: İslam'ın Temel Kaynakları
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 73 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Din Kültürü
+KONU: Hz. Muhammed'in Hayatı
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+DERS: Din Kültürü
+KONU: Ahlak ve Değerler
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 39 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+YAPISAL KONTROL:
+- BASARILI
+
+ICERIK KONTROLU:
+- BASARILI
+
+
+============================================================
+SONRAKI KONU INDEXI: 62

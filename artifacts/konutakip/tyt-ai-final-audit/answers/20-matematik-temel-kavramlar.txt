@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Bir sayı, kendisinin 3/5'i ile toplamı 56 ise bu sayı kaçtır?
+
+A) 30
+B) 35
+C) 40
+D) 45
+E) 50
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Bir sayı x, x + (3/5)x = 56
+- **İstenen:** x’in değeri
+- **Kullanılacak yöntem:** Denklem kurma ve çözme
+
+## Adım Adım Çözüm
+
+### 1. Adım
+x + (3/5)x ifadesini ortak payda 5 ile yazarız: (5/5)x + (3/5)x = (8/5)x.
+Bu, toplamın 56 olduğu bilgisiyle eşitlenir.
+
+### 2. Adım
+(8/5)x = 56 denklemini x için çözeriz:
+x = 56 × (5/8)
+
+### 3. Adım
+56 × (5/8) = (56 ÷ 8) × 5 = 7 × 5 = 35
+
+## Sonuç
+Sayı 35’tir.
+
+## Kontrol
+x = 35 ise (3/5)x = 21 olur. 35 + 21 = 56, verilen koşul sağlanıyor. Sonuç doğrudur.

@@ -1,0 +1,675 @@
+TYT AI TAM DENETIM RAPORU
+
+TOPLAM DERS: 9
+TOPLAM KONU: 62
+TAMAMLANAN: 62
+BASARILI: 19
+KONTROL GEREKLI: 43
+KALAN: 0
+
+============================================================
+DERS: Türkçe
+KONU: Sözcükte Anlam
+DURUM: KONTROL GEREKLI
+SURE: 179 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Türkçe
+KONU: Cümlede Anlam
+DURUM: KONTROL GEREKLI
+SURE: 156 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Türkçe
+KONU: Sözcük Türleri
+DURUM: KONTROL GEREKLI
+SURE: 111 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Çözümde cevap anahtarındaki C seçeneği açıkça doğrulanmıyor.
+
+============================================================
+DERS: Türkçe
+KONU: Fiil
+DURUM: BASARILI
+SURE: 71 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Cümlenin Ögeleri
+DURUM: BASARILI
+SURE: 63 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Paragraf
+DURUM: KONTROL GEREKLI
+SURE: 60 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Türkçe
+KONU: Yazım Kuralları
+DURUM: BASARILI
+SURE: 49 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Noktalama İşaretleri
+DURUM: KONTROL GEREKLI
+SURE: 218 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Türkçe
+KONU: Ses Bilgisi
+DURUM: BASARILI
+SURE: 100 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Sözcük Yapısı
+DURUM: BASARILI
+SURE: 192 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Matematik
+KONU: Sayılar ve Sayı Sistemleri
+DURUM: KONTROL GEREKLI
+SURE: 172 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Doğal Sayılarda İşlemler
+DURUM: KONTROL GEREKLI
+SURE: 215 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Matematik
+KONU: Bölme ve Bölünebilme
+DURUM: KONTROL GEREKLI
+SURE: 164 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+DURUM: KONTROL GEREKLI
+SURE: 209 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Kesirler ve Ondalıklar
+DURUM: KONTROL GEREKLI
+SURE: 191 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Üslü Sayılar
+DURUM: KONTROL GEREKLI
+SURE: 199 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Köklü Sayılar
+DURUM: KONTROL GEREKLI
+SURE: 365 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Oran-Orantı
+DURUM: KONTROL GEREKLI
+SURE: 181 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Y�zde ve K�r-Zarar
+DURUM: KONTROL GEREKLI
+SURE: 177 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Temel Kavramlar
+DURUM: KONTROL GEREKLI
+SURE: 507 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+DURUM: KONTROL GEREKLI
+SURE: 296 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Eşitsizlikler
+DURUM: KONTROL GEREKLI
+SURE: 360 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Üçgenler
+DURUM: BASARILI
+SURE: 114 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Matematik
+KONU: Dörtgenler ve Çokgenler
+DURUM: KONTROL GEREKLI
+SURE: 336 saniye
+
+ANLATIM: HATALI
+- Anlatım konu adıyla yeterince ilişkili görünmüyor.
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Çember ve Daire
+DURUM: KONTROL GEREKLI
+SURE: 414 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Olasılık
+DURUM: KONTROL GEREKLI
+SURE: 361 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: İstatistik
+DURUM: KONTROL GEREKLI
+SURE: 227 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Matematik
+KONU: Problemler
+DURUM: KONTROL GEREKLI
+SURE: 493 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Fizik
+KONU: Fiziksel Büyüklükler ve Ölçme
+DURUM: KONTROL GEREKLI
+SURE: 267 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Çözümde cevap anahtarındaki A seçeneği açıkça doğrulanmıyor.
+
+============================================================
+DERS: Fizik
+KONU: Madde ve Özellikleri
+DURUM: KONTROL GEREKLI
+SURE: 316 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Fizik
+KONU: Hareket ve Kuvvet
+DURUM: KONTROL GEREKLI
+SURE: 313 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Fizik
+KONU: Basınç ve Kaldırma Kuvveti
+DURUM: KONTROL GEREKLI
+SURE: 228 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Fizik
+KONU: Isı ve Sıcaklık
+DURUM: KONTROL GEREKLI
+SURE: 351 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Fizik
+KONU: Elektrostatik
+DURUM: KONTROL GEREKLI
+SURE: 269 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Fizik
+KONU: Optik
+DURUM: KONTROL GEREKLI
+SURE: 258 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Kimya
+KONU: Atom ve Periyodik Sistem
+DURUM: KONTROL GEREKLI
+SURE: 264 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Kimya
+KONU: Maddenin Halleri
+DURUM: BASARILI
+SURE: 41 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+DURUM: KONTROL GEREKLI
+SURE: 192 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Kimya
+KONU: Asit-Baz
+DURUM: BASARILI
+SURE: 250 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Kimya
+KONU: Kimyasal Tepkimeler
+DURUM: KONTROL GEREKLI
+SURE: 68 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Çözümde cevap anahtarındaki C seçeneği açıkça doğrulanmıyor.
+
+============================================================
+DERS: Kimya
+KONU: Organik Kimya Temelleri
+DURUM: KONTROL GEREKLI
+SURE: 271 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Biyoloji
+KONU: Hücre ve Organeller
+DURUM: BASARILI
+SURE: 57 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Biyoloji
+KONU: Canlıların Sınıflandırılması
+DURUM: BASARILI
+SURE: 248 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Biyoloji
+KONU: Kalıtım
+DURUM: KONTROL GEREKLI
+SURE: 172 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Biyoloji
+KONU: Ekosistem
+DURUM: KONTROL GEREKLI
+SURE: 103 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Biyoloji
+KONU: Bitkilerde Üreme
+DURUM: BASARILI
+SURE: 198 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Tarih
+KONU: Tarih Bilimine Giriş
+DURUM: KONTROL GEREKLI
+SURE: 229 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Tarih
+KONU: Uygarlığın Doğuşu
+DURUM: BASARILI
+SURE: 46 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Tarih
+KONU: İlk Türk Devletleri
+DURUM: KONTROL GEREKLI
+SURE: 252 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Tarih
+KONU: İslam Tarihi
+DURUM: KONTROL GEREKLI
+SURE: 39 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Tarih
+KONU: Türkiye Tarihi
+DURUM: BASARILI
+SURE: 37 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Coğrafya
+KONU: Coğrafyaya Giriş
+DURUM: BASARILI
+SURE: 211 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Coğrafya
+KONU: Dünya'nın Şekli ve Hareketleri
+DURUM: KONTROL GEREKLI
+SURE: 227 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Yasaklı veya zayıf seçenek tespit edildi.
+
+============================================================
+DERS: Coğrafya
+KONU: İklim
+DURUM: BASARILI
+SURE: 133 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Coğrafya
+KONU: Türkiye'nin Fiziki Coğrafyası
+DURUM: BASARILI
+SURE: 74 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Coğrafya
+KONU: Nüfus
+DURUM: KONTROL GEREKLI
+SURE: 176 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Felsefe
+KONU: Felsefeye Giriş
+DURUM: KONTROL GEREKLI
+SURE: 72 saniye
+
+ANLATIM: HATALI
+- Anlatım konu adıyla yeterince ilişkili görünmüyor.
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Felsefe
+KONU: Bilgi Felsefesi
+DURUM: KONTROL GEREKLI
+SURE: 191 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Felsefe
+KONU: Ahlak Felsefesi
+DURUM: KONTROL GEREKLI
+SURE: 224 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: HATALI
+- Soru üretimi veya kalite kontrolü başarısız.
+
+============================================================
+DERS: Din Kültürü
+KONU: İslam'ın Temel Kaynakları
+DURUM: BASARILI
+SURE: 34 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Din Kültürü
+KONU: Hz. Muhammed'in Hayatı
+DURUM: BASARILI
+SURE: 87 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Din Kültürü
+KONU: Ahlak ve Değerler
+DURUM: BASARILI
+SURE: 113 saniye
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+SONRAKI KONU INDEXI: 62

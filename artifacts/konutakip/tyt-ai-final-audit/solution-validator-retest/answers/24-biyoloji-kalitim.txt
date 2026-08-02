@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Bir bitki türünde kırmızı çiçek rengi (R) baskın, beyaz çiçek rengi (r) çekinik. Çiftçi RR (kırmızı) ve rr (beyaz) bitkileri çaprazlaştırdığında F1 nesli tümü kırmızı çiçeklidir. Bu F1 bireyleri birbirleriyle çaprazladığında (F1 × F1) elde edilen F2 neslesinde aşağıdaki oranlardan hangisi beklenir?
+
+A) 9 kırmızı : 7 beyaz
+B) 3 kırmızı : 1 beyaz
+C) 1 kırmızı : 1 beyaz
+D) 9 kırmızı : 3 beyaz : 3 sarı : 1 yeşil
+E) 2 kırmızı : 2 beyaz
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** R baskın, r çekinik; RR × rr → F1 tümü Rr (kırmızı).
+- **İstenen:** F1 × F1 çaprazlamasından beklenen fenotip oranı.
+- **Kullanılacak yöntem:** Mendel’in monohibrid çaprazı ve genotip‑fenotip oranı.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+F1 bireylerinin genotipi Rr olduğundan, F1 × F1 çaprazlaması Rr × Rr olarak yazılır; çünkü her ebeveyn bir R ve bir r aleli verir.
+
+### 2. Adım
+Punnett karesini kurarak olası genotipleri bul:
+- RR (R × R) – 1 olasılık
+- Rr (R × r ve r × R) – 2 olasılık
+- rr (r × r) – 1 olasılık.
+Bu, genotip oranı 1 : 2 : 1 verir.
+
+### 3. Adım
+Genotiplere karşılık gelen fenotipleri belirle:
+- RR ve Rr genotipleri kırmızı çiçek verir (baskın).
+- rr genotipi beyaz çiçek verir (çekinik).
+Dolayısıyla kırmızı : beyaz fenotip oranı (1 + 2) : 1 = 3 : 1.
+
+## Sonuç
+F2 neslesinde kırmızı çiçekli bitkilerin oranı üç, beyaz çiçekli bitkilerin oranı bir olur; yani **3 kırmızı : 1 beyaz**.
+
+## Kontrol
+Genotip dağılımı 1 : 2 : 1 olduğundan toplam 4 olasılık vardır. Kırmızı fenotip 3/4, beyaz fenotip 1/4; oran 3 : 1, seçenek B ile aynı.
+
+**Doğru cevap: B**

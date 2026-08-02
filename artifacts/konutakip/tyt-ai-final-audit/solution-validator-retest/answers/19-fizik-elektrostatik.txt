@@ -1,0 +1,55 @@
+## Sorular
+
+### 1. Soru
+İki nokta yük birbirine 4 cm uzaklıkta bulunuyor. Birinci yük +2 µC, ikinci yük –3 µC’dür. Coulomb sabiti k = 9 × 10⁹ N·m²/C² olarak verildiğine göre, bu iki yük arasındaki elektrostatik çekim kuvveti kaç N’dir?
+
+A) 33,8 N
+B) 5,4 N
+C) 0,034 N
+D) 1,2 × 10³ N
+E) 0 N
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** q₁ = +2 µC, q₂ = –3 µC, r = 4 cm, k = 9 × 10⁹ N·m²/C²
+- **İstenen:** iki yük arasındaki elektrostatik çekim kuvveti F (Newton)
+- **Kullanılacak yöntem:** Coulomb yasası F = k·|q₁·q₂| / r²
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Yükleri Coulomb birimine çevir: 2 µC = 2 × 10⁻⁶ C, 3 µC = 3 × 10⁻⁶ C.
+Bu, sayısal çarpımı yaparken üstel kısmı doğru kullanmak için gerekir.
+
+### 2. Adım
+Mesafeyi metreye çevir: 4 cm = 0,04 m.
+
+### 3. Adım
+Coulomb yasasını uygulayarak kuvveti bul:
+F = k·|q₁·q₂| / r² = 9 × 10⁹ · (2 × 10⁻⁶ · 3 × 10⁻⁶) / (0,04)²
+
+### 4. Adım
+İşlemleri adım adım yap:
+q₁·q₂ = (2 × 10⁻⁶)·(3 × 10⁻⁶) = 6 × 10⁻¹² C²
+r² = (0,04)² = 0,0016 m²
+k·|q₁·q₂| = 9 × 10⁹ · 6 × 10⁻¹² = 0,054
+F = 0,054 / 0,0016 ≈ 33,75 N
+
+### 5. Adım
+Sonucu bir ondalık basamağa yuvarla: F ≈ 33,8 N
+
+## Sonuç
+Elektrostatik çekim kuvveti yaklaşık **33,8 N**’dir.
+
+## Kontrol
+F = k·|q₁·q₂| / r² formülünü tekrar yerine koyarak:
+0,054 ÷ 0,0016 = 33,75 N → yuvarlandığında 33,8 N, seçenek A ile aynı.
+
+**Doğru cevap: A**

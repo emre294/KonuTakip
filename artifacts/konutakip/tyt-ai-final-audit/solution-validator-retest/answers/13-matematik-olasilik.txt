@@ -1,0 +1,50 @@
+## Sorular
+
+### 1. Soru
+Bir kutuda 3 kırmızı, 2 mavi ve 5 yeşil top bulunmaktadır. Kutudan rastgele iki top çekildiğinde, çekilen iki topun aynı renk olma olasılığı aşağıdakilerden hangisidir?
+
+A) 14/45
+B) 13/45
+C) 12/45
+D) 15/45
+E) 16/45
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** 3 kırmızı, 2 mavi, 5 yeşil top; toplam 10 top. İki top rastgele çekiliyor.
+- **İstenen:** Çekilen iki topun aynı renk olma olasılığı.
+- **Kullanılacak yöntem:** Kombinasyonlarla istenen olayın sayısını bulup, toplam olası çekiş sayısına bölmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Toplam iki topun çekilebileceği sayı = C(10,2) = 45. (Tüm olası çiftler.)
+
+### 2. Adım
+Aynı renk çiftlerinin sayısını renk bazında bul:
+- Kırmızı: C(3,2) = 3
+- Mavi: C(2,2) = 1
+- Yeşil: C(5,2) = 10
+
+### 3. Adım
+Aynı renk çiftlerinin toplamı = 3 + 1 + 10 = 14.
+
+### 4. Adım
+Olasılık = (aynı renk çift sayısı) ÷ (toplam çift sayısı) = 14 ÷ 45 = 14/45.
+
+## Sonuç
+Çekilen iki topun aynı renk olma olasılığı **14/45**’tir.
+
+## Kontrol
+Aynı renk olma olasılığı = 1 – (farklı renk çift olasılığı).
+Farklı renk çift sayısı = toplam çift 45 – aynı renk çift 14 = 31.
+31/45 ≈ 0.6889, 1 – 0.6889 = 0.3111 = 14/45. Sonuç tutarlı.
+
+**Doğru cevap: A**

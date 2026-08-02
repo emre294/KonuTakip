@@ -1,0 +1,43 @@
+## Kısa Tanım
+Difüzyon, maddelerin yüksek konsantrasyondan düşük konsantrasyona doğru, enerji harcamadan gerçekleşen pasif taşıma şeklidir. Aktif taşıma ise hücre zarından maddeyi düşük konsantrasyondan yüksek konsantrasyona doğru, ATP enerjisi kullanarak taşıyan bir mekanizmadır.
+
+## Temel Kavramlar
+- **Difüzyon:** Konsantrasyon farkı (gradyan) nedeniyle gerçekleşen, enerji gerektirmeyen madde geçişi.
+- **Yoğunluk farkı (konsantrasyon farkı):** Maddelerin iki bölge arasındaki miktar farkı; difüzyonun yönünü belirler.
+- **Aktif taşıma:** ATP hidroliziyle elde edilen enerjiyle, maddeyi konsantrasyon gradyanına karşı taşıma.
+- **ATP kullanımı:** Aktif taşıma proteinleri (pompa, taşıyıcı) ATP’den fosfat grubunu alarak konformasyon değiştirir.
+- **Taşıma yönü:** Difüzyonda madde düşükten yükseğe, aktif taşımada ise düşükten yüksek konsantrasyona doğru hareket eder.
+- **Taşıma hızı:** Difüzyon hızı konsantrasyon farkına bağlıdır; aktif taşıma hızı ATP miktarı ve taşıyıcı sayısına bağlıdır.
+
+## Formüller ve Kurallar
+- **Fick’in birinci yasası (basit ifade):** Net madde akısı ∝ (yüksek konsantrasyon – düşük konsantrasyon).
+- **Aktif taşıma kuralı:** Taşıma gerçekleşir **eğer** (ATP mevcut) **ve** (taşıyıcı protein aktif).
+- **Enerji dengesi:** ATP → ADP + Pi enerji verir; bu enerji maddeyi gradyana karşı itmek için harcanır.
+
+## Adım Adım Anlatım
+1. **Konsantrasyon farkını belirle.** Madde yüksek konsantrasyondan düşük konsantrasyona doğru hareket eder.
+2. **Enerji ihtiyacını kontrol et.** Eğer madde gradyana karşı hareket edecekse ATP gerekir; aksi takdirde pasif difüzyon gerçekleşir.
+3. **Taşıma yönünü tanımla.** Difüzyonda yön düşük konsantrasyona, aktif taşımada yön yüksek konsantrasyona doğrudur.
+4. **Taşıma hızını değerlendir.** Difüzyon hızı farkın büyüklüğüne, aktif taşıma hızı ATP ve taşıyıcı sayısına bağlıdır.
+5. **Örnekleri ilişkilendir.** Oksijen hücre dışından içeri difüze olur; Na⁺/K⁺ pompası ATP ile Na⁺’ı dışarı, K⁺’ı içeri pompalar.
+
+## Çözümlü Örnek
+**Soru:** Bir hücre dışındaki glukoz konsantrasyonu 10 mM, hücre içindeki konsantrasyon 2 mM’dir. Glukozun hücre içine girişi hangi taşıma yoluyla gerçekleşir?
+
+**Çözüm:**
+- Konsantrasyon farkı dışarıda yüksek, içeride düşük olduğundan madde yüksekten düşük konsantrasyona doğru hareket eder.
+- Bu yön gradyana uygundur, enerji gerektirmez.
+- Dolayısıyla glukoz pasif difüzyon (veya kolaylaştırılmış difüzyon) yoluyla hücre içine girer.
+
+**Sonuç:** Glukoz difüzyonla hücre içine alınır; ATP kullanılmaz.
+
+## Sık Yapılan Hatalar
+- **Aktif taşıma ATP gerektirmez** diye düşünmek.
+- **Difüzyonun yönünü** düşükten yüksek konsantrasyona olarak karıştırmak.
+- **Yoğunluk farkı** yerine sadece “madde var mı yok mu” demek.
+- **Osmoz ile difüzyonu** aynı işlem olarak kabul etmek.
+
+## Kısa Tekrar Önerisi
+- Difüzyon = enerji yok, yüksek → düşük, konsantrasyon farkına bağlı.
+- Aktif taşıma = ATP gerekir, düşük → yüksek, gradyana karşı.
+- Taşıma yönü ve enerji ihtiyacını sorunun konsantrasyon farkına bakarak belirle.

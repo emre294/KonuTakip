@@ -1,0 +1,72 @@
+﻿============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+STATUS: 500
+
+GERCEK VALIDATOR HATASI:
+{"error":"Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: INVALID: 1, hedef seçenek sayısı 0, hatalı seçenekler -"}
+
+============================================================
+DERS: Fizik
+KONU: Hareket ve Kuvvet
+STATUS: 200
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+
+CEVAP:
+## Sorular
+
+### 1. Soru
+Yatay bir düzlemde, aynı 20 N itme kuvveti iki farklı kütleli kutuya aynı anda uygulanmaktadır. Birinci kutunun kütlesi 2 kg, ikinci kutunun kütlesi 5 kg’dir. Aşağıdaki ifadelerden hangisi doğrudur?
+
+A) İki kutu aynı ivme kazanır.
+B) 2 kg kütleli kutu daha büyük ivme kazanır.
+C) 5 kg kütleli kutu daha büyük ivme kazanır.
+D) İki kutu da hareketsiz kalır.
+E) İki kutu da sabit hızla hareket eder.
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** itme kuvveti = 20 N, kütle₁ = 2 kg, kütle₂ = 5 kg, hareket yatay.
+- **İstenen:** iki kutunun ivmeleri arasındaki ilişki.
+- **Kullanılacak yöntem:** Newton’un ikinci yasası (F = m·a) ile ivme hesaplanır.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İlk kutu için ivme: a₁ = F / m₁ = 20 N ÷ 2 kg = 10 m/s².
+*F = m·a formülünden ivme bulunur.*
+
+### 2. Adım
+İkinci kutu için ivme: a₂ = F / m₂ = 20 N ÷ 5 kg = 4 m/s².
+*Aynı formül ikinci kütleye uygulanır.*
+
+### 3. Adım
+a₁ (10 m/s²) > a₂ (4 m/s²) olduğu görülür.
+*Büyük ivme, daha küçük kütleye sahip cisme aittir.*
+
+## Sonuç
+
+2 kg kütleli kutu, 5 kg kütleli kutuya göre daha büyük ivme kazanır → **B şıkkı doğrudur.**
+
+## Kontrol
+
+İvme formülü a = F/m doğru uygulanmıştır; iki ivme değeri (10 m/s² ve 4 m/s²) karşılaştırıldığında B seçeneği tek doğru cevaptır.
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+STATUS: 500
+
+GERCEK VALIDATOR HATASI:
+{"error":"Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: INVALID: 1. 0 hedef seçenek, hatalı seçenek yok."}
+
+

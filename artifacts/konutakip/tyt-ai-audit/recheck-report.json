@@ -1,0 +1,714 @@
+{
+  "updatedAt": "2026-07-29T01:29:31.842Z",
+  "results": [
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Sözcükte Anlam",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Cümlede Anlam",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Sözcük Türleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "PROMPT_IYILESTIRME",
+        "issues": [
+          "Çözüm C cevabını açık biçimde doğrulamıyor."
+        ]
+      },
+      "finalStatus": "PROMPT_IYILESTIRME"
+    },
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Paragraf",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Türkçe",
+      "topicName": "Noktalama İşaretleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Sayılar ve Sayı Sistemleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Doğal Sayılarda İşlemler",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Bölme ve Bölünebilme",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "EBOB ve EKOK",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Kesirler ve Ondalıklar",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Üslü Sayılar",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Köklü Sayılar",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Oran-Orantı",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Y�zde ve K�r-Zarar",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Temel Kavramlar",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Denklemler",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Eşitsizlikler",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Dörtgenler ve Çokgenler",
+      "explanation": {
+        "passed": false,
+        "category": "PROMPT_IYILESTIRME",
+        "issues": [
+          "Konu ilişkisi manuel kontrol edilmeli."
+        ]
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Çember ve Daire",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Olasılık",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "İstatistik",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Matematik",
+      "topicName": "Problemler",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Fiziksel Büyüklükler ve Ölçme",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "PROMPT_IYILESTIRME",
+        "issues": [
+          "Çözüm A cevabını açık biçimde doğrulamıyor."
+        ]
+      },
+      "finalStatus": "PROMPT_IYILESTIRME"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Madde ve Özellikleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Hareket ve Kuvvet",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Basınç ve Kaldırma Kuvveti",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Isı ve Sıcaklık",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Elektrostatik",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Fizik",
+      "topicName": "Optik",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Atom ve Periyodik Sistem",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Karışımlar",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Kimyasal Tepkimeler",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Kimya",
+      "topicName": "Organik Kimya Temelleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Biyoloji",
+      "topicName": "Kalıtım",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Biyoloji",
+      "topicName": "Ekosistem",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Tarih",
+      "topicName": "Tarih Bilimine Giriş",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Tarih",
+      "topicName": "İlk Türk Devletleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Tarih",
+      "topicName": "İslam Tarihi",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "PROMPT_IYILESTIRME",
+        "issues": [
+          "Çözüm B cevabını açık biçimde doğrulamıyor."
+        ]
+      },
+      "finalStatus": "PROMPT_IYILESTIRME"
+    },
+    {
+      "subjectName": "Coğrafya",
+      "topicName": "Dünya'nın Şekli ve Hareketleri",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Coğrafya",
+      "topicName": "Nüfus",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Felsefe",
+      "topicName": "Felsefeye Giriş",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "finalStatus": "BASARILI"
+    },
+    {
+      "subjectName": "Felsefe",
+      "topicName": "Bilgi Felsefesi",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "YENIDEN_URETIM_GEREKLI",
+        "issues": [
+          "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin."
+        ]
+      },
+      "finalStatus": "GERCEK_ISTEK_HATASI"
+    },
+    {
+      "subjectName": "Felsefe",
+      "topicName": "Ahlak Felsefesi",
+      "explanation": {
+        "passed": true,
+        "category": "BASARILI",
+        "issues": []
+      },
+      "question": {
+        "passed": false,
+        "category": "PROMPT_IYILESTIRME",
+        "issues": [
+          "Çözüm C cevabını açık biçimde doğrulamıyor."
+        ]
+      },
+      "finalStatus": "PROMPT_IYILESTIRME"
+    }
+  ]
+}

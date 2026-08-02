@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlelerden hangisinde **gelmek** fiili, gereklilik kipi (-meli/-malı) almış ve aynı zamanda olumsuzluk eki (-me) içermektedir?
+
+A) Yarın okula gelmeliyiz.
+B) Yarın okula **gelmemeliyiz**.
+C) Yarın okula gelmek zorundayız.
+D) Yarın okula gelmiş olacağız.
+E) Yarın okula gelmek istemiyoruz.
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: Beş farklı cümle, her birinde *gelmek* fiili farklı eklerle çekimlenmiş.
+- İstenen: Gereklilik kipi (-meli/-malı) ve olumsuzluk eki (-me) aynı anda bulunan cümleyi bulmak.
+- Kullanılacak yöntem: Her seçeneğin fiil eklerini inceleyerek -meli/-malı ve -me eklerinin varlığını kontrol etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A seçeneğini incele: “gel**meliyiz**” → sadece gereklilik kipi, olumsuzluk eki yok.
+
+### 2. Adım
+B seçeneğini incele: “gel**memeliyiz**” → “gel‑**me**‑**meli**‑yiz” yapısı; hem -me (olumsuzluk) hem -meli (gereklilik) bulunuyor.
+
+### 3. Adım
+C seçeneğini incele: “gelmek zorundayız” → “zorunluluk” kipi, -meli/-malı yok.
+
+### 4. Adım
+D seçeneğini incele: “gelmiş olacağız” → geçmiş zamanın -miş eki ve gelecek zaman, -meli/-malı ve -me yok.
+
+### 5. Adım
+E seçeneğini incele: “gelmek istemiyoruz” → “istemek” fiiliyle birleşik yapı, -meli/-malı ve -me yok.
+
+## Sonuç
+Gereklilik kipi ve olumsuzluk eki aynı anda bulunan tek cümle **B) Yarın okula gelmemeliyiz.**
+
+## Kontrol
+“gelmemeliyiz” kelimesi “gel‑me‑meli‑yiz” biçiminde çözülür; –me olumsuzluk, –meli gereklilik kipi, –yiz 1. çoğul şahıs ekidir. Bu iki ekin bir arada bulunması yalnızca B seçeneğinde gerçekleşir. Dolayısıyla sonuç doğru.

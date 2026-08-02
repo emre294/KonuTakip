@@ -1,0 +1,596 @@
+AYT 3/7 DETAYLI HATA INCELEME RAPORU
+
+TOPLAM AYT KONU: 197
+TAMAMLANAN: 127
+KALAN: 70
+KAYITLI HATA: 70
+SUPHELI TAMAMLANAN KAYIT: 0
+
+HATA KATEGORILERI:
+- KALITE_FILTRESI: 27
+- JSON_CIKTI_HATASI: 18
+- YETERSIZ_ALT_KAZANIM: 23
+- BACKEND_VALIDATOR_RED: 2
+
+============================================================
+KATEGORI: KALITE_FILTRESI
+ADET: 27
+
+1. DERS: AYT Matematik
+KONU ID: ayt-matematik-2
+KONU: Fonksiyonlar
+SON HATA ZAMANI: 2026-07-31T12:25:59.504Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Not: verilen kanıt metni fonksiyonlarla ilgili olmadığı için aşağıdaki alt kazanımlar genel müfredat baz alınarak oluşturulmuştur.
+
+2. DERS: AYT Matematik
+KONU ID: ayt-matematik-3
+KONU: Denklemler
+SON HATA ZAMANI: 2026-07-31T12:26:25.332Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Çarpanlara ayırma, tam kareye tamamlama ve değişken değiştirme yöntemleriyle ikinci dereceden denklemleri çözebilme
+
+3. DERS: AYT Geometri
+KONU ID: ayt-geometri-1
+KONU: Üçgende Benzerlik
+SON HATA ZAMANI: 2026-07-31T12:28:28.413Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Üçgenlerde benzerlik ilişkisini kullanarak karmaşık problemleri sadeleştirerek çözüm adımlarını oluşturabilmek
+
+4. DERS: AYT Kimya
+KONU ID: ayt-kimya-5
+KONU: Karbon Kimyası
+SON HATA ZAMANI: 2026-07-31T12:06:03.925Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Karbonun fotosentezde CO₂ kaynağı olarak alınması ve ışık bağımlı reaksiyonlarda organik maddeye dönüşümü
+
+5. DERS: AYT Kimya
+KONU ID: ayt-kimya-4
+KONU: Organik Kimya
+SON HATA ZAMANI: 2026-07-31T12:06:14.642Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Kimyasal reaksiyon hızını etkileyen faktörleri (derişim, sıcaklık, katalizör, temas yüzeyi) tanımlama ve örnekleme
+
+6. DERS: AYT Kimya
+KONU ID: ayt-kimya-11
+KONU: Çevre Kimyası
+SON HATA ZAMANI: 2026-07-31T12:06:48.231Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Aldehit ve ketonların yapısal ilişkisini, indirgenme‑yükseltgenme özelliklerini ve çevresel etkilerini tanımlama
+
+7. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-14
+KONU: Canlılarda Enerji Dönüşümleri
+SON HATA ZAMANI: 2026-07-31T12:09:58.941Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Enerji dönüşümlerinde entegre metabolik yolların (glikoliz, Krebs döngüsü, oksidatif fosforilasyon) birbirine bağlanmasını gösterme
+
+8. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-6
+KONU: Sindirim Sistemi
+SON HATA ZAMANI: 2026-07-31T12:10:09.762Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Ülser, reflü ve malabsorpsiyon gibi yaygın sindirim sistemi hastalıklarının patofizyolojisini özetleyebilme
+
+9. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-4
+KONU: Evrim
+SON HATA ZAMANI: 2026-07-31T12:10:56.254Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Evrim sürecinin temel mekanizmalarını (mutasyon, gen akışı, genetik sürüklenme, doğal seçilim) açıklar.
+
+10. DERS: AYT Edebiyat
+KONU ID: ayt-edebiyat-17
+KONU: Dünya Edebiyatı
+SON HATA ZAMANI: 2026-07-31T12:11:39.877Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Dünya edebiyatı tiyatro örneklerinde farklı tür (trajedi, komedi, dram) özelliklerini ayırt edebilmek
+
+11. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-10
+KONU: İslam Medeniyetinin Doğuşu
+SON HATA ZAMANI: 2026-07-31T12:12:10.941Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Moğol istilasının Anadolu'daki siyasi ve sosyal dönüşümünü, Beylikler Dönemi'ni ortaya çıkışını açıklamak
+
+12. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-11
+KONU: Türklerin İslamiyet'i Kabulü
+SON HATA ZAMANI: 2026-07-31T12:12:19.303Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı devlet idaresindeki ilmiye, kalemiye ve seyfiye sınıflarının İslamlaşma sürecine etkisini değerlendirmek
+
+13. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-0
+KONU: Osmanlı Devleti'nin Kuruluşu
+SON HATA ZAMANI: 2026-07-31T12:12:27.529Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Kuruluş sürecinde dış faktörlerin (beylikler arası rekabet, Selçuklu mirası, Haçlı seferleri) etkisini yorumlamak
+
+14. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-1
+KONU: Osmanlı Devleti'nin Yükselişi
+SON HATA ZAMANI: 2026-07-31T12:12:38.248Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı Devleti’nin yeni düzenli ordusunun kurulma gerekçelerini ve toplumsal etkilerini analiz etmek
+
+15. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-2
+KONU: Osmanlı Devleti'nde Değişim
+SON HATA ZAMANI: 2026-07-31T12:12:49.717Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı Devleti’nin son dönem sanayileşme çabalarının önündeki ekonomik ve teknik engelleri açıklamak
+
+16. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-7
+KONU: Osmanlı Devleti'nin Dağılma Süreci
+SON HATA ZAMANI: 2026-07-31T12:13:26.480Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı Devleti'nin dış ilişkilerinde Yunanistan, İngiltere, Fransa ve SSCB ile yapılan antlaşma ve diplomatik girişimler
+
+17. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-11
+KONU: Türk-İslam Devletleri
+SON HATA ZAMANI: 2026-07-31T12:15:09.087Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı coğrafyasındaki bilim, kültür, sanat ve zanaat faaliyetlerinin toplumsal değişimlere etkisini değerlendirir.
+
+18. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-2
+KONU: Milliyetçilik Hareketleri
+SON HATA ZAMANI: 2026-07-31T12:16:04.596Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Milliyetçilik hareketlerinin çok uluslu imparatorlukların çöküşüne ve yeni ulus‑devletlerin oluşumuna etkisi
+
+19. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-15
+KONU: Küreselleşen Dünya
+SON HATA ZAMANI: 2026-07-31T12:17:35.728Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Küresel ölçekte sanayileşmenin ülkeler arasındaki ekonomik ilişkileri nasıl etkilediğini analiz etmek.
+
+20. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-7
+KONU: Kıtalar Coğrafyası
+SON HATA ZAMANI: 2026-07-31T12:18:40.968Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Kıtalar arası teknolojik ve iletişim gelişmelerinin kültürel ve ekonomik etkileşimlere katkısını değerlendirme
+
+21. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-9
+KONU: Türkiye'nin Jeopolitiği
+SON HATA ZAMANI: 2026-07-31T12:18:50.796Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Osmanlı şehirlerindeki ticaret merkezlerinin (liman, kervansaray, pazar) jeopolitik önemini açıklamak
+
+22. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-11
+KONU: Uluslararası Örgütler
+SON HATA ZAMANI: 2026-07-31T12:19:13.427Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Bölgesel uluslararası örgütlerin (AB, NATO, OPEC, ASEAN vb.) amaçlarını ve coğrafi etkilerini değerlendirebilmek
+
+23. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-12
+KONU: Doğal Afetler ve Çevre Yönetimi
+SON HATA ZAMANI: 2026-07-31T12:19:20.922Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Afet risk yönetimi sürecinin aşamalarını (risk analizi, önleme, hazırlık, müdahale, iyileştirme) açıklayabilmek
+
+24. DERS: AYT Felsefe Grubu
+KONU ID: ayt-felsefe-10
+KONU: Toplumsal Değişme ve Gelişme
+SON HATA ZAMANI: 2026-07-31T12:19:51.517Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Ekonomik liberalleşme politikalarının (serbest piyasa, özelleştirme, IMF ilişkisi vb.) toplumsal sonuçlarını değerlendirme
+
+25. DERS: AYT Din Kültürü
+KONU ID: ayt-din-4
+KONU: Dinler Tarihi
+SON HATA ZAMANI: 2026-07-31T12:21:16.617Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Horasan, Anadolu ve Rumeli erenlerinin İslam medeniyetinin Anadolu ve Balkanlara taşınmasındaki rollerini açıklama
+
+26. DERS: AYT Din Kültürü
+KONU ID: ayt-din-8
+KONU: İslam Düşüncesinde Yorumlar
+SON HATA ZAMANI: 2026-07-31T12:21:55.533Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Kur’an-ı Kerim’de geçen cihad, ceht, mücâhede, davet, tebliğ, irşat, emr‑i bi’l‑maruf, nehy‑i ani’l‑münker, kıtal/mukatele ve şehadet kavramlarını çok yönlü olarak yorumlayabilmek
+
+27. DERS: AYT Din Kültürü
+KONU ID: ayt-din-11
+KONU: Yaşayan Dinler
+SON HATA ZAMANI: 2026-07-31T12:22:18.470Z
+
+GERCEK HATA:
+Alt kazanım çok uzun: Kur’an‑ı Kerim mealini kullanma, anlama ve yorumlama; ayetlerdeki şahıs, yer, konu ve kavramları belirleme
+
+============================================================
+KATEGORI: JSON_CIKTI_HATASI
+ADET: 18
+
+1. DERS: AYT Geometri
+KONU ID: ayt-geometri-7
+KONU: Çemberde Açılar
+SON HATA ZAMANI: 2026-07-31T12:29:07.467Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+2. DERS: AYT Geometri
+KONU ID: ayt-geometri-10
+KONU: Dönüşüm Geometrisi
+SON HATA ZAMANI: 2026-07-31T12:29:28.104Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+3. DERS: AYT Fizik
+KONU ID: ayt-fizik-16
+KONU: Elektriksel Potansiyel
+SON HATA ZAMANI: 2026-07-31T12:30:58.025Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+4. DERS: AYT Fizik
+KONU ID: ayt-fizik-6
+KONU: Dalgalar
+SON HATA ZAMANI: 2026-07-31T12:31:31.662Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+5. DERS: AYT Fizik
+KONU ID: ayt-fizik-19
+KONU: Çembersel Hareket
+SON HATA ZAMANI: 2026-07-31T12:31:40.763Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+6. DERS: AYT Kimya
+KONU ID: ayt-kimya-8
+KONU: Kimyasal Denge
+SON HATA ZAMANI: 2026-07-31T12:32:39.521Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+7. DERS: AYT Kimya
+KONU ID: ayt-kimya-3
+KONU: Elektrokimya
+SON HATA ZAMANI: 2026-07-31T12:33:18.295Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+8. DERS: AYT Kimya
+KONU ID: ayt-kimya-12
+KONU: Kimya ve Elektrik
+SON HATA ZAMANI: 2026-07-31T12:03:16.497Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+9. DERS: AYT Edebiyat
+KONU ID: ayt-edebiyat-6
+KONU: Cumhuriyet Dönemi Türk Edebiyatı
+SON HATA ZAMANI: 2026-07-31T12:11:30.966Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+10. DERS: AYT Coğrafya 1
+KONU ID: ayt-cografya1-1
+KONU: Ulaşım Sistemleri
+SON HATA ZAMANI: 2026-07-31T12:13:53.628Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+11. DERS: AYT Coğrafya 1
+KONU ID: ayt-cografya1-3
+KONU: Sanayi
+SON HATA ZAMANI: 2026-07-31T12:14:17.787Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+12. DERS: AYT Coğrafya 1
+KONU ID: ayt-cografya1-5
+KONU: Türkiye'nin İklimi
+SON HATA ZAMANI: 2026-07-31T12:14:48.437Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+13. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-3
+KONU: I. Dünya Savaşı
+SON HATA ZAMANI: 2026-07-31T12:16:20.463Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+14. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-5
+KONU: Atatürk İlke ve İnkılapları
+SON HATA ZAMANI: 2026-07-31T12:16:39.720Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+15. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-14
+KONU: Yumuşama Dönemi ve Sonrası
+SON HATA ZAMANI: 2026-07-31T12:17:25.793Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+16. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-2
+KONU: Çevre Sorunları
+SON HATA ZAMANI: 2026-07-31T12:17:52.215Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+17. DERS: AYT Felsefe Grubu
+KONU ID: ayt-felsefe-9
+KONU: Ruh Sağlığının Temelleri
+SON HATA ZAMANI: 2026-07-31T12:19:40.868Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+18. DERS: AYT Felsefe Grubu
+KONU ID: ayt-felsefe-12
+KONU: Mantık ve Dil
+SON HATA ZAMANI: 2026-07-31T12:20:14.866Z
+
+GERCEK HATA:
+AI cevabında JSON dizisi bulunamadı
+
+============================================================
+KATEGORI: YETERSIZ_ALT_KAZANIM
+ADET: 23
+
+1. DERS: AYT Fizik
+KONU ID: ayt-fizik-4
+KONU: Momentum ve İmpuls
+SON HATA ZAMANI: 2026-07-31T12:29:47.954Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 1
+
+2. DERS: AYT Fizik
+KONU ID: ayt-fizik-17
+KONU: Kondansatörler
+SON HATA ZAMANI: 2026-07-31T12:31:14.215Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+3. DERS: AYT Kimya
+KONU ID: ayt-kimya-7
+KONU: Tepkime Hızı
+SON HATA ZAMANI: 2026-07-31T12:32:16.831Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 1
+
+4. DERS: AYT Kimya
+KONU ID: ayt-kimya-6
+KONU: Makromoleküller
+SON HATA ZAMANI: 2026-07-31T12:06:37.581Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+5. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-0
+KONU: Hücre Biyolojisi
+SON HATA ZAMANI: 2026-07-31T12:06:55.910Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+6. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-21
+KONU: Duyu Organları
+SON HATA ZAMANI: 2026-07-31T12:10:31.062Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+7. DERS: AYT Edebiyat
+KONU ID: ayt-edebiyat-0
+KONU: Divan Edebiyatı
+SON HATA ZAMANI: 2026-07-31T12:11:04.426Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+8. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-3
+KONU: XVII. Yüzyıl Osmanlı Devleti
+SON HATA ZAMANI: 2026-07-31T12:13:03.436Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+9. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-6
+KONU: II. Meşrutiyet
+SON HATA ZAMANI: 2026-07-31T12:13:13.578Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 1
+
+10. DERS: AYT Tarih 1
+KONU ID: ayt-tarih1-12
+KONU: Millî Mücadele
+SON HATA ZAMANI: 2026-07-31T12:13:36.825Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+11. DERS: AYT Coğrafya 1
+KONU ID: ayt-cografya1-4
+KONU: Enerji Kaynakları
+SON HATA ZAMANI: 2026-07-31T12:14:29.766Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+12. DERS: AYT Coğrafya 1
+KONU ID: ayt-cografya1-11
+KONU: Ticaret ve Turizm
+SON HATA ZAMANI: 2026-07-31T12:14:37.438Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+13. DERS: AYT Coğrafya 1
+KONU ID: ayt-cografya1-6
+KONU: Bitki ve Toprak
+SON HATA ZAMANI: 2026-07-31T12:14:58.337Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+14. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-12
+KONU: Osmanlı Siyasi Tarihi
+SON HATA ZAMANI: 2026-07-31T12:15:19.121Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+15. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-0
+KONU: Fransız İhtilali
+SON HATA ZAMANI: 2026-07-31T12:15:29.124Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+16. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-4
+KONU: Millî Mücadele
+SON HATA ZAMANI: 2026-07-31T12:16:27.326Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+17. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-6
+KONU: II. Dünya Savaşı
+SON HATA ZAMANI: 2026-07-31T12:16:48.626Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+18. DERS: AYT Tarih 2
+KONU ID: ayt-tarih2-7
+KONU: Soğuk Savaş Dönemi
+SON HATA ZAMANI: 2026-07-31T12:16:57.638Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 1
+
+19. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-0
+KONU: Ülkeler ve Bölgeler
+SON HATA ZAMANI: 2026-07-31T12:17:44.124Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+20. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-3
+KONU: Kalkınma ve Ekonomi
+SON HATA ZAMANI: 2026-07-31T12:18:04.810Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 1
+
+21. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-6
+KONU: Enerji Politikaları
+SON HATA ZAMANI: 2026-07-31T12:18:25.188Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+22. DERS: AYT Coğrafya 2
+KONU ID: ayt-cografya2-10
+KONU: Kültür Bölgeleri
+SON HATA ZAMANI: 2026-07-31T12:19:01.779Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 0
+
+23. DERS: AYT Felsefe Grubu
+KONU ID: ayt-felsefe-8
+KONU: Öğrenme, Bellek ve Düşünme
+SON HATA ZAMANI: 2026-07-31T12:19:31.261Z
+
+GERCEK HATA:
+En az 3 geçerli alt kazanım gerekli: 1
+
+============================================================
+KATEGORI: BACKEND_VALIDATOR_RED
+ADET: 2
+
+1. DERS: AYT Kimya
+KONU ID: ayt-kimya-13
+KONU: Enerji Kaynakları ve Bilimsel Gelişmeler
+SON HATA ZAMANI: 2026-07-31T12:05:52.317Z
+
+GERCEK HATA:
+HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: Eksik seçenekler; içerik AYT Kimya müfredatı dışı QUESTION 2 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: Eksik seçenekler; içerik AYT Kimya müfredatı dışı QUESTION 3 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: Eksik seçenekler; içerik AYT Kimya müfredatı dışı FINAL: INVALID REASONS: - Soru 1: Eksik seçenekler ve müfredat dışı içerik - Soru 2: Eksik seçenekler ve müfredat dışı içerik - Soru 3: Eksik seçenekler ve müfredat dışı içerik
+
+2. DERS: AYT Biyoloji
+KONU ID: ayt-biyoloji-12
+KONU: Nükleik Asitler
+SON HATA ZAMANI: 2026-07-31T12:09:50.197Z
+
+GERCEK HATA:
+HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: OPTIONS MISSING QUESTION 2 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: OPTIONS MISSING QUESTION 3 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: OPTIONS MISSING QUESTION 4 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: OPTIONS MISSING QUESTION 5 A: FALSE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 0 ANSWER_KEY_MATCH: NO ISSUE: OPTIONS MISSING FINAL: VALID
+
+============================================================
+SUPHELI TAMAMLANAN KAYITLAR:
+YOK
+
+SONUC:
+HATALAR KATEGORI BAZINDA DUZELTILMELI

@@ -1,0 +1,53 @@
+## Sorular
+
+### 1. Soru
+
+f(x)= (3x² - 2x + 1)·e^(2x) fonksiyonunun türevi f'(x) bulunarak f'(1) değeri hesaplanmak isteniyor. Aşağıdaki seçeneklerden doğru olanı işaretleyiniz.
+
+A) 56.0
+B) 59.1
+C) 62.0
+D) 65.0
+E) 68.0
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: f(x)= (3x² - 2x + 1)·e^(2x)
+- İstenen: f'(1) değeri
+- Kullanılacak yöntem: Ürün kuralı ve zincir kuralı
+
+## Adım Adım Çözüm
+
+### 1. Adım
+f(x) = u(x)·v(x) şeklinde alalım; u(x)=3x²-2x+1, v(x)=e^(2x). Ürün kuralı: f' = u'·v + u·v'.
+
+### 2. Adım
+u'(x)=6x-2, v'(x)=2e^(2x) (zincir kuralı). Bu değerleri yerine koyarak f'(x)= (6x-2)e^(2x) + (3x²-2x+1)·2e^(2x).
+
+### 3. Adım
+Ortak e^(2x) faktörünü dışarı alalım: f'(x)= e^(2x)[ (6x-2) + 2(3x²-2x+1) ].
+
+### 4. Adım
+Parantez içini sadeleştirelim: (6x-2) + (6x²-4x+2) = 6x² + 2x.
+
+### 5. Adım
+Dolayısıyla f'(x)= e^(2x)(6x²+2x). x=1 koyarsak f'(1)= e^(2)(6·1²+2·1)= e^(2)·8.
+
+### 6. Adım
+e^(2)≈7.389056 olduğu için f'(1)≈8·7.389056≈59.1.
+
+## Sonuç
+f'(1)≈59.1.
+
+## Kontrol
+8·7.389056 = 59.112448 ≈ 59.1, seçenek B ile aynı.
+
+**Doğru cevap: B**

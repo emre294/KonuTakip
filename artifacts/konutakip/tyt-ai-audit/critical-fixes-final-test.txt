@@ -1,0 +1,37 @@
+﻿============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+STATUS: 
+SURE: 900 saniye
+
+GERCEK HATA:
+İşlem zaman aşımına uğradı
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+STATUS: 500
+SURE: 155 saniye
+
+GERCEK HATA:
+{"error":"Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: FALSE C: TRUE D: FALSE E: FALSE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID"}
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+STATUS: 
+SURE: 900 saniye
+
+GERCEK HATA:
+İşlem zaman aşımına uğradı
+
+============================================================
+DERS: Fizik
+KONU: Optik
+STATUS: 
+SURE: 900 saniye
+
+GERCEK HATA:
+İşlem zaman aşımına uğradı
+
+

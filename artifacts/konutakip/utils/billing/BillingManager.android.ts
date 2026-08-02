@@ -1,11 +1,25 @@
-/**
+﻿/**
  * Android billing entry point.
  *
- * Metro resolves this platform file on Android. Keep the no-op implementation
- * in BillingManager.ts for web/iOS only; Android must use the real provider or
- * the purchase button can never open Google Play.
+ * Expo Go uses the safe no-op billing manager.
+ * Development builds and Play Store builds use Google Play Billing.
  */
 
-import { GooglePlayBillingProvider } from "./GooglePlayBillingProvider";
+import Constants from "expo-constants";
 
-export const BillingManager = new GooglePlayBillingProvider();
+import { BillingManager as StubBillingManager } from "./BillingManager";
+import type { IBillingService } from "./types";
+
+const isExpoGo = Constants.executionEnvironment === "storeClient";
+
+let BillingManagerInstance: IBillingService = StubBillingManager;
+
+if (!isExpoGo) {
+  const { GooglePlayBillingProvider } = require(
+    "./GooglePlayBillingProvider"
+  ) as typeof import("./GooglePlayBillingProvider");
+
+  BillingManagerInstance = new GooglePlayBillingProvider();
+}
+
+export const BillingManager = BillingManagerInstance;

@@ -1,0 +1,20 @@
+﻿5/5 KONTROL TAMAMLANDI - BAZI DERSLER TEKRAR INCELENECEK
+
+LOCAL COMMIT: 51b8434bb909359f3678baf0dcc63defeb731f12
+GITHUB MAIN: 51b8434bb909359f3678baf0dcc63defeb731f12
+RENDER HEALTH: BASARILI
+BACKEND TYPESCRIPT: BASARILI
+
+
+Ders      Durum    Provider Model               Uzunluk
+----      -----    -------- -----               -------
+Matematik HATA     -        -                         0
+Fizik     HATA     -        -                         0
+Kimya     HATA     -        -                         0
+Biyoloji  HATA     -        -                         0
+Türkçe    BASARILI nvidia   openai/gpt-oss-120b    1520
+Tarih     HATA     -        -                         0
+Coğrafya  HATA     -        -                         0
+
+
+

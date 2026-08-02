@@ -1,0 +1,48 @@
+## Sorular
+
+### 1. Soru
+Bilgi felsefesinde, “doğruluk ölçütü” olarak kabul edilen ve bir önermenin gerçek dünyadaki durumla uyumunu ifade eden kavram aşağıdakilerden hangisidir?
+
+A) Tutarlılık
+B) Uyum
+C) Açıklanabilirlik
+D) Doğruluk
+E) Kanıtlanabilirlik
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: “doğruluk ölçütü” kavramının tanımı ve seçeneklerdeki beş kavram.
+- İstenen: Doğruluk ölçütü olarak tanımlanan kavramı seçmek.
+- Kullanılacak yöntem: Kavramların tanımlarını karşılaştırarak doğru seçeneği belirleme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Her seçeneğin bilgi felsefesindeki tanımını hatırlayın.
+
+### 2. Adım
+A) Tutarlılık: Bir sistem içinde çelişki olmaması; doğruluk ölçütü değildir.
+### 3. Adım
+B) Uyum: Bilginin deneyimle örtüşmesi; “uyum” kavramı genellikle bilimsel teorilerin deneysel verilerle ilişkisini ifade eder, ancak klasik “doğruluk ölçütü” tanımı değildir.
+### 4. Adım
+C) Açıklanabilirlik: Bir önermenin neden-sonuç ilişkileriyle açıklanabilir olması; doğruluk ölçütü değildir.
+### 5. Adım
+D) Doğruluk: Bir önermenin gerçek dünyadaki durumla tam uyumunu ifade eden kavram; klasik “doğruluk ölçütü” tanımı budur.
+### 6. Adım
+E) Kanıtlanabilirlik: Bir önermenin mantıksal ya da deneysel kanıtlarla desteklenebilir olması; doğruluk ölçütüyle karıştırılamaz.
+
+## Sonuç
+
+Doğruluk ölçütü olarak tanımlanan kavram **D) Doğruluk** seçeneğidir.
+
+## Kontrol
+
+Doğruluk, felsefede “bir önermenin gerçek durumla uyumu” olarak tanımlanır; diğer seçeneklerin tanımları bu ölçüte uymadığı için seçim doğru.

@@ -1,0 +1,45 @@
+## Sorular
+
+### 1. Soru
+Bir öğrenci, bir masanın uzunluğunu santimetre ölçeği bulunan bir cetvelle ölçmüş ve 123,4 cm olarak kaydetmiştir. Cetvelin en küçük bölmesi 0,1 cm’dir. Bu ölçümün metre cinsinden değeri ve mutlak belirsizliği aşağıdakilerden hangisidir?
+
+A) 1,234 m ± 0,0005 m
+B) 1,234 m ± 0,001 m
+C) 1,23 m ± 0,001 m
+D) 1,23 m ± 0,005 m
+E) 1,234 m ± 0,005 m
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** Ölçülen uzunluk 123,4 cm, cetvelin en küçük bölmesi 0,1 cm.
+- **İstenen:** Uzunluğun metre cinsinden değeri ve mutlak belirsizliği.
+- **Kullanılacak yöntem:** Ölçüm belirsizliği, en küçük bölmenin yarısı olarak bulunur; ardından birim dönüşümü yapılır.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+En küçük bölmenin yarısını alarak mutlak belirsizliği bul: 0,1 cm ÷ 2 = 0,05 cm.
+Bu, ölçümün ±0,05 cm olduğu anlamına gelir.
+
+### 2. Adım
+Belirsizliği metreye çevir: 0,05 cm = 0,0005 m (1 cm = 0,01 m).
+
+### 3. Adım
+Ölçülen uzunluğu metreye çevir: 123,4 cm = 1,234 m.
+
+### 4. Adım
+Sonuçları birleştir: 1,234 m ± 0,0005 m.
+
+## Sonuç
+1,234 m ± 0,0005 m
+
+## Kontrol
+0,05 cm = 0,0005 m ve 123,4 cm = 1,234 m olduğundan sonuç tutarlı.
+
+**Doğru cevap: A**

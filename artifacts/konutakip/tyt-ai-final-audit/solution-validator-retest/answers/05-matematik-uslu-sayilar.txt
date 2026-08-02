@@ -1,0 +1,55 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerin değerini bulunuz: \((3^{4}\times 9^{-1})\div 27^{2}\)
+
+A) 1/9
+B) 1/27
+C) 1/81
+D) 1/3
+E) 5/81
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: \((3^{4}\times 9^{-1})\div 27^{2}\)
+- İstenen: İfadenin değeri
+- Kullanılacak yöntem: Üslü sayıların aynı tabana dönüştürülmesi, çarpma ve bölme kurallarının uygulanması
+
+## Adım Adım Çözüm
+
+### 1. Adım
+\(9^{-1}\) ve \(27^{2}\) ifadelerini tabanı 3 olan üslü sayıya çeviririz:
+\(9 = 3^{2}\) olduğundan \(9^{-1}=3^{-2}\);
+\(27 = 3^{3}\) olduğundan \(27^{2}=3^{6}\).
+Bu adım, tüm terimleri aynı tabana getirerek işlem kolaylığı sağlar.
+
+### 2. Adım
+Üstteki çarpma işlemini aynı tabanda yaparız:
+\(3^{4}\times 3^{-2}=3^{4+(-2)}=3^{2}\).
+Üsleri toplamak çarpma kuralıdır.
+
+### 3. Adım
+Elde edilen \(3^{2}\) ifadesini aşağıdaki üs ile böleriz:
+\(3^{2}\div 3^{6}=3^{2-6}=3^{-4}\).
+Bölme kuralı, üsleri çıkarmayı gerektirir.
+
+### 4. Adım
+Negatif üssü pozitif kesire çeviririz:
+\(3^{-4}=1/3^{4}=1/81\).
+Negatif üs, sayının tersini almayı gösterir.
+
+## Sonuç
+\((3^{4}\times 9^{-1})\div 27^{2}=1/81\)
+
+## Kontrol
+Sayısal olarak: \(3^{4}=81\), \(9^{-1}=1/9\) → çarpım \(81\times 1/9=9\).
+\(27^{2}=729\).
+\(9\div 729=1/81\). Sonuç aynı, doğru.
+
+**Doğru cevap: C**

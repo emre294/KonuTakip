@@ -1,0 +1,54 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerden √(7+4√3) ifadesine eşit olanı hangisidir?
+
+A) √3 + 2
+B) 2 - √3
+C) √6 + 1
+D) 1 + √5
+E) 3 - √1
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: √(7+4√3) ifadesi.
+- İstenen: Bu ifadeye eşit olan seçenek.
+- Kullanılacak yöntem: İfadeyi a + b√3 biçiminde yazarak karesini alıp a ve b değerlerini bulmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+√(7+4√3) = a + b√3 (a, b pozitif tam sayılar) diyelim; çünkü kök içinde √3 bulunuyor.
+
+### 2. Adım
+Her iki tarafı karesini alalım: 7 + 4√3 = (a + b√3)² = a² + 2ab√3 + 3b².
+
+### 3. Adım
+Rasyonel kısımları ve √3 katsayılarını karşılaştıralım:
+Rasyonel kısım: a² + 3b² = 7
+√3 katsayısı: 2ab = 4 → ab = 2.
+
+### 4. Adım
+ab = 2 olduğundan (a,b) çifti (1,2) veya (2,1) olabilir.
+
+### 5. Adım
+a=1, b=2 koyarsak a²+3b² = 1+12 = 13 ≠ 7.
+a=2, b=1 koyarsak a²+3b² = 4+3 = 7, koşulu sağlıyor.
+
+### 6. Adım
+Dolayısıyla √(7+4√3) = 2 + √3.
+
+## Sonuç
+İfade 2 + √3’e eşittir; bu da seçenek A’da verilmiştir.
+
+## Kontrol
+(2 + √3)² = 4 + 3 + 4√3 = 7 + 4√3, kök içinde verilen ifadeye eşit olduğundan sonuç doğrudur.
+
+**Doğru cevap: A**

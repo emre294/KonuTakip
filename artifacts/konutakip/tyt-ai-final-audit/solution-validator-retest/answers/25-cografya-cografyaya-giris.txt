@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Bir haritada ölçek 1 : 250 000 olarak verilmiştir. Haritada iki yer arasındaki ölçülen uzaklık 3,2 cm ise bu iki yer arasındaki gerçek uzaklık kaç kilometredir?
+
+A) 6,4 km
+B) 8 km
+C) 10 km
+D) 12,8 km
+E) 16 km
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: Harita ölçeği 1 : 250 000, haritada ölçülen uzaklık 3,2 cm.
+- İstenen: Gerçek (yeryüzündeki) uzaklık kilometre cinsinden.
+- Kullanılacak yöntem: Ölçek oranını kullanarak cm’yi kilometreye çevirme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+1 cm haritada 250 000 cm gerçekte eder; 250 000 cm = 2,5 km. Bu oran, 1 cm’ye karşılık gelen gerçek uzunluğu verir.
+
+### 2. Adım
+Gerçek uzaklık = ölçülen uzunluk × 1 cm’ye karşılık gelen kilometre = 3,2 cm × 2,5 km = 8 km. Çarpma işlemi sonucu gerçek mesafe 8 km olur.
+
+## Sonuç
+
+Gerçek uzaklık **8 km**’dir.
+
+## Kontrol
+
+3,2 cm × (250 000 cm / 1 cm) = 800 000 cm = 8 km. Hesaplama tutarlı, sonuç doğru.
+
+**Doğru cevap: B**

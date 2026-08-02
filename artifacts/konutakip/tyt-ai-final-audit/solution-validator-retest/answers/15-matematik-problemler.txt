@@ -1,0 +1,48 @@
+## Sorular
+
+### 1. Soru
+Bir su deposu iki ayrı boru ile doldurulmaktadır. A borusu tek başına deposu 8 saatte, B borusu ise tek başına 12 saatte doldurur. Her iki boru aynı anda 3 saat açık bırakılır, ardından A borusu kapatılır ve B borusu tek başına depo tamamen doluncaya kadar çalıştırılır. Depoyu doldurmak için geçen toplam süre kaç saat olur?
+
+A) 6,5
+B) 7,0
+C) 7,5
+D) 8,0
+E) 8,5
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** A borusunun doldurma süresi = 8 saat, B borusunun doldurma süresi = 12 saat, iki boru birlikte 3 saat açık.
+- **İstenen:** Depoyu tamamen doldurmak için geçen toplam süre.
+- **Kullanılacak yöntem:** İş oranı (hız) hesabı ve kalan kısmın tek boru ile doldurulması.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A borusunun saatte doldurduğu kısmı (1)/(8) depo, B borusunun saatte doldurduğu kısmı (1)/(12) depo olarak yazarız. Bu iki oranı toplarız: (1)/(8) + (1)/(12) = (3 + 2)/(24) = 5/24 depo/saat. Bu, iki boru birlikte çalıştığında bir saat içinde doldurulan deponun oranıdır. (İki borunun aynı anda çalıştığı durumda toplam hızı bulmak için oranları toplarız.)
+
+### 2. Adım
+Üç saat boyunca iki boru birlikte çalıştığında doldurulan deponun miktarını buluruz: 3 × 5/24 = 15/24 = 5/8 depo.
+
+### 3. Adım
+Depoda kalan kısmı hesaplarız: 1 – 5/8 = 3/8 depo.
+
+### 4. Adım
+Kalan 3/8 depoyu sadece B borusu dolduracak. B borusunun hızı (1)/(12) depo/saat olduğundan, gereken süre: (3/8) ÷ (1/12) = (3/8) × 12 = 36/8 = 4,5 saat.
+
+### 5. Adım
+Toplam süre = birlikte çalışılan 3 saat + B borusunun tek başına çalıştığı 4,5 saat = 7,5 saat.
+
+## Sonuç
+Depoyu tamamen doldurmak için geçen toplam süre **7,5 saat**tir.
+
+## Kontrol
+Toplam yol (depo) = 1 depo. Toplam süre = 3 saat + 4,5 saat = 7,5 saat. Ortalama hız = 1 ÷ 7,5 = 0,1333 depo/saat. İki borunun birlikte hızı 5/24 ≈ 0,2083 depo/saat, B borusunun tek başına hızı 1/12 ≈ 0,0833 depo/saat. 3 saat × 0,2083 ≈ 0,625 depo (5/8) ve kalan 0,375 depo ÷ 0,0833 ≈ 4,5 saat. Hesaplar tutuyor.
+
+**Doğru cevap: C**

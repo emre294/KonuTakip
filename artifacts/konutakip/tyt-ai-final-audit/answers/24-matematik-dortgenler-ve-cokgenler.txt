@@ -1,0 +1,52 @@
+## Sorular
+
+### 1. Soru
+Bir dikdörtgenin alanı 48 cm² ve çevresi 28 cm’dir. Bu dikdörtgenin kısa kenarının uzunluğu kaç santimetredir?
+
+A) 4 cm
+B) 5 cm
+C) 6 cm
+D) 7 cm
+E) 8 cm
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: alan = 48 cm², çevre = 28 cm, dikdörtgen.
+- İstenen: kısa kenarın uzunluğu.
+- Kullanılacak yöntem: Alan ve çevre formüllerini kullanarak iki bilinmeyenli denklem kurup çözmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+a ve b kenar uzunlukları (a ≤ b) olsun. Alan denklemi a·b = 48. Çünkü dikdörtgenin alanı kenarların çarpımıdır.
+
+### 2. Adım
+Çevre denklemi 2(a + b) = 28 → a + b = 14. Çünkü çevre iki kenar toplamının iki katıdır.
+
+### 3. Adım
+b = 14 − a ifadesini alan denklemine koy: a(14 − a) = 48. Böylece tek bilinmeyenli ikinci dereceden denklem elde ederiz.
+
+### 4. Adım
+Denklemi aç: –a² + 14a – 48 = 0 → a² – 14a + 48 = 0. İşareti düzeltmek için her iki tarafı –1 ile çarparız.
+
+### 5. Adım
+Karekök yöntemiyle çarpanlara ayır: (a – 6)(a – 8) = 0. Çünkü 6 + 8 = 14 ve 6·8 = 48.
+
+### 6. Adım
+a = 6 veya a = 8. Kısa kenar a ≤ b olduğundan a = 6 cm seçilir.
+
+## Sonuç
+
+Kısa kenarın uzunluğu **6 cm**’dir.
+
+## Kontrol
+
+a = 6 cm, b = 8 cm → alan 6×8 = 48 cm², çevre 2(6 + 8) = 28 cm. Verilen değerlerle tutarlıdır.

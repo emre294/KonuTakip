@@ -1,0 +1,48 @@
+## Sorular
+
+### 1. Soru
+A ve B iki çözelti aşağıdaki kütlece NaCl oranlarına sahiptir.
+A çözeltisi %30 NaCl, B çözeltisi %10 NaCl içerir. 50 g A çözeltisi ile 30 g B çözeltisi karıştırıldığında elde edilen karışımın kütlece NaCl oranı kaçtır?
+
+A) %20
+B) %22,5
+C) %25
+D) %27,5
+E) %30
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** A çözeltisi %30 NaCl, 50 g; B çözeltisi %10 NaCl, 30 g.
+- **İstenen:** Karışımın %k NaCl kütle oranı.
+- **Kullanılacak yöntem:** Kütlece NaCl miktarını bul, toplam kütleye böl ve yüzdeye çevir.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A çözeltisindeki NaCl kütlesi = %30 × 50 g = 0,30 × 50 = 15 g.
+(Neden: yüzdeyi ondalık olarak çevirip kütleyle çarparız.)
+
+### 2. Adım
+B çözeltisindeki NaCl kütlesi = %10 × 30 g = 0,10 × 30 = 3 g.
+
+### 3. Adım
+Toplam NaCl kütlesi = 15 g + 3 g = 18 g.
+
+### 4. Adım
+Karışımın toplam kütlesi = 50 g + 30 g = 80 g.
+
+### 5. Adım
+NaCl oranı = (18 g ÷ 80 g) × 100 = 0,225 × 100 = 22,5 %.
+
+## Sonuç
+Karışımın kütlece NaCl oranı **%22,5**’tir.
+
+## Kontrol
+Toplam NaCl 18 g, toplam kütle 80 g. 18/80 = 0,225 → %22,5. Hesaplama tutarlı, seçenek B doğru.

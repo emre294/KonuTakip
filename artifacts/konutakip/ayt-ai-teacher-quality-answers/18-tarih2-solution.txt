@@ -1,0 +1,35 @@
+## Soru Analizi
+
+- Verilen: II. Dünya Savaşı sonrası ABD’nin Avrupa ülkelerine ekonomik yardım amacıyla uyguladığı program soruluyor.
+- İstenen: Doğru programın adı ve seçeneği.
+- Kullanılacak yöntem: Tarih bilgisiyle seçenekleri karşılaştırarak doğru programı belirleme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+
+Truman Doktrini (A) Sovyet etkisine karşı siyasi destek verir, ekonomik yardım programı değildir. Bu yüzden elenir.
+
+### 2. Adım
+
+Varşova Paktı (C) 1955’te Sovyetler Birliği liderliğinde kurulan askeri ittifaktır; ABD’nin programı değildir. Elenir.
+
+### 3. Adım
+
+Schuman Planı (D) 1950’lerde Avrupa Kömür ve Çelik Topluluğu’nun temeli olan plan, ABD tarafından yürütülen bir ekonomik yardım programı değildir. Elenir.
+
+### 4. Adım
+
+Molotov Planı (E) Sovyetler Birliği’nin Doğu Bloğu ülkelerine verdiği ekonomik yardım planıdır; ABD’ye ait değildir. Elenir.
+
+### 5. Adım
+
+Marshall Planı (B) 1947‑1952 yıllarında ABD’nin Avrupa’nın savaş sonrası yeniden inşasını desteklemek için sunduğu kapsamlı ekonomik yardım programıdır. Bu tanım sorudaki tanımla tam uyumludur.
+
+## Sonuç
+
+**B) Marshall Planı** doğru seçenektir.
+
+## Kontrol
+
+Marshall Planı, 1948‑1951 yıllarında 12 milyar dolar yardım sağlayarak Batı Avrupa’nın ekonomik toparlanmasını desteklemiştir; diğer seçenekler farklı amaç ve aktörlere aittir. Bu tutarlılık doğru cevabı onaylar.

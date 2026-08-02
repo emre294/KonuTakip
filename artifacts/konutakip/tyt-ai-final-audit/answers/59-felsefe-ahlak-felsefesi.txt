@@ -1,0 +1,44 @@
+## Sorular
+
+### 1. Soru
+Ahlak felsefesinde “iyi” kavramının tanımı aşağıdakilerden hangisinde doğru verilmiştir?
+
+A) Bireyin kendi çıkarlarını maksimize etmesi.
+B) Toplumun genel mutluluğunu artıran eylemler.
+C) Tanrı’nın buyruklarına uymak.
+D) Doğal yasaların gerektirdiği davranışlar.
+E) Kişinin duygusal tatminini sağlayan davranışlar.
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** “iyi” kavramının ahlak felsefesindeki tanımı soruluyor.
+- **İstenen:** Tanıma en uygun seçeneğin bulunması.
+- **Kullanılacak yöntem:** Kavram tanımını ahlak felsefesindeki genel kabul edilen tanımla karşılaştırmak ve seçenekleri elenerek doğruyu seçmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Ahlak felsefesinde “iyi”, bireylerin ve toplumun refahını, mutluluğunu artıran eylemler olarak tanımlanır. Bu tanım, faydacılık (utilitarianism) gibi akımlarda da temel kabul edilir.
+
+### 2. Adım
+Seçenekleri bu tanımla karşılaştıralım:
+- A) Bireyin çıkarını maksimize etmesi, egoist bir yaklaşımdır; “iyi” tanımıyla uyumlu değildir.
+- B) Toplumun genel mutluluğunu artıran eylemler, tanımımızla birebir örtüşür.
+- C) Tanrı’nın buyruklarına uymak, ilahi komut teorisine aittir; “iyi” kavramının genel tanımını kapsamaz.
+- D) Doğal yasaların gerektirdiği davranışlar, doğal hukuk akımına yöneliktir; “iyi” tanımına uygun değildir.
+- E) Kişinin duygusal tatmini, hedonist bir bakış açısıdır; toplumsal refahı içermez.
+
+### 3. Adım
+Yukarıdaki karşılaştırmadan yalnızca B seçeneği tanıma tam olarak uymaktadır.
+
+## Sonuç
+Doğru seçenek **B** şıkkıdır: “Toplumun genel mutluluğunu artıran eylemler.”
+
+## Kontrol
+Diğer dört seçenek, ahlak felsefesindeki “iyi” tanımının dışındaki farklı akımları (egoizm, ilahi komut, doğal hukuk, hedonizm) temsil eder; bu yüzden yalnızca B seçeneği doğru olur.

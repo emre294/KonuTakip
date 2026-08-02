@@ -1,0 +1,19 @@
+## Soru Analizi
+
+- Verilen: Akdeniz iklimi
+- İstenen: Bu iklimin doğal bitki örtüsü
+- Kullanılacak yöntem: İklim‑bitki ilişkisini hatırlama
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Akdeniz iklimi, sıcak ve kurak yazlar, ılımlı ve yağışlı kışlar gösterir. Bu iklimde su kaybını azaltan, kalın yapraklı ve yaprak dökmeyen bitkiler hâkimdir.
+
+### 2. Adım
+Bu iklimin tipik doğal bitki örtüsü, “maquis” (Maki) adı verilen, uzun, yaprak dökmeyen çalı ve ağaçlardan oluşan yoğun bir ormandır.
+
+## Sonuç
+C) Maki
+
+## Kontrol
+Diğer seçenekler: Tundra (soğuk kutup iklimi), Tayga (soğuk karasal iklim), Bozkır (yarı kurak iklim), Savan (tropikal savan). Akdeniz iklimiyle eşleşen tek doğal örtü Maki olduğundan cevap C doğrudur.

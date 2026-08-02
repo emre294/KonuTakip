@@ -1,0 +1,38 @@
+## Sorular
+
+### 1. Soru
+Bir haritada ölçek 1 : 50 000 olarak verilmiştir. Haritada 3 cm uzunluğundaki bir yol, gerçek hayatta kaç metre uzunluktadır?
+
+A) 150 m
+B) 1 500 m
+C) 15 000 m
+D) 0,15 km
+E) 15 km
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: Ölçek 1 : 50 000, harita üzerindeki uzunluk 3 cm.
+- İstenen: Gerçek hayattaki uzunluk (metre cinsinden).
+- Kullanılacak yöntem: Ölçek oranı ile gerçek uzunluk hesabı, birim dönüşümü.
+
+## Adım Adım Çözüm
+### 1. Adım
+1 cm harita = 50 000 cm gerçek. Bu oranı kullanarak harita uzunluğunu gerçek uzunluğa çeviririz.
+
+### 2. Adım
+Harita uzunluğu 3 cm olduğundan, gerçek uzunluk = 3 × 50 000 cm = 150 000 cm.
+
+### 3. Adım
+150 000 cm’yi metreye çevirmek için 100’e böleriz: 150 000 ÷ 100 = 1 500 m.
+
+## Sonuç
+Gerçek uzunluk 1 500 m’dir.
+
+## Kontrol
+1 500 m = 150 000 cm. 150 000 cm ÷ 50 000 = 3 cm, yani harita üzerindeki ölçümle tutarlı.

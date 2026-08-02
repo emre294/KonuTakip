@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki çözeltilerden hangisinin pH değeri 3,0’dır?
+
+A) 1 × 10⁻³ M HCl
+B) 1 × 10⁻⁴ M HCl
+C) 5 × 10⁻³ M HNO₃
+D) 1 × 10⁻³ M NaOH
+E) 0,01 M CH₃COOH
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: pH = 3,0
+- İstenen: pH değeri 3,0 olan çözeltiyi bulmak
+- Kullanılacak yöntem: pH‑[H⁺] ilişkisi ve güçlü/ zayıf asit‑baz çözeltilerinin iyon konsantrasyonları
+
+## Adım Adım Çözüm
+
+### 1. Adım
+pH = –log[H⁺] olduğundan [H⁺] = 10^(–pH) = 10^(–3) = 1 × 10⁻³ M.
+Bu, pH 3,0 için gereken hidrojen iyonu derişimidir.
+
+### 2. Adım
+Her seçenekteki iyon derişimini karşılaştıralım.
+
+- A) HCl güçlü asit, [H⁺] = 1 × 10⁻³ M → pH = 3,0 (uyuyor)
+- B) HCl 1 × 10⁻⁴ M → [H⁺] = 1 × 10⁻⁴ M, pH = 4,0 (uymamaktadır)
+- C) HNO₃ 5 × 10⁻³ M → [H⁺] = 5 × 10⁻³ M, pH ≈ 2,3 (uymamaktadır)
+- D) NaOH 1 × 10⁻³ M → bazik çözelti, pH > 7 (uymamaktadır)
+- E) CH₃COOH 0,01 M zayıf asit; [H⁺] ≈ √(Ka·C) = √(1,8 × 10⁻⁵ × 0,01) ≈ 4,2 × 10⁻⁴ M, pH ≈ 3,38 (uymamaktadır)
+
+### 3. Adım
+Tek bir seçenek istenen [H⁺] değerine tam olarak eşit olduğundan doğru cevap A şıkkıdır.
+
+## Sonuç
+pH değeri 3,0 olan çözelti **A) 1 × 10⁻³ M HCl**’dir.
+
+## Kontrol
+[H⁺] = 1 × 10⁻³ M için pH = –log(1 × 10⁻³) = 3,0 → sonuç soruya tam uyuyor.

@@ -1,0 +1,41 @@
+## Sorular
+
+### 1. Soru
+Bir sayının %20 fazlası 84 ise, sayının %30 eksik olan değeri kaçtır?
+
+A) 42
+B) 49
+C) 56
+D) 63
+E) 70
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: Sayının %20 fazlası 84.
+- İstenen: Sayının %30 eksik olan değeri.
+- Kullanılacak yöntem: Oran kurarak sayıyı bulma, ardından yüzde hesabı.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Sayının kendisini x olarak al. “%20 fazlası 84” ifadesi 1.20 × x = 84 olur; bu adım verilen bilgiyi denkleme dökmek içindir.
+
+### 2. Adım
+x’i bulmak için denklemi çöz: x = 84 ÷ 1.20 = 70. Sayının değeri 70’tir.
+
+### 3. Adım
+Sayının %30 eksik olanını bulmak için 0.70 × x hesabını yap: 0.70 × 70 = 49.
+
+## Sonuç
+Sayının %30 eksik olan değeri **49**’dur.
+
+## Kontrol
+70 sayısının %20 fazlası 1.20 × 70 = 84, %30 eksik kısmı 0.70 × 70 = 49; iki işlem de tutarlı.
+
+**Doğru cevap: B**

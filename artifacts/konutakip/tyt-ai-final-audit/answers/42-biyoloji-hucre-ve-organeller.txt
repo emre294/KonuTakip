@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki ifadelerden hangisi, bitki hücresindeki kloroplastın yapısı ve işlevi hakkında doğrudur?
+
+A) Kloroplast, hücre zarının içinde bulunan ve glikoz sentezleyen bir organeldir.
+B) Kloroplast, thylakoid adı verilen zar katmanlarından oluşan bir iç yapıya sahiptir ve ışık reaksiyonları burada gerçekleşir.
+C) Kloroplast, sadece bitki hücresinin çekirdeğinde bulunur ve enerji üretir.
+D) Kloroplast, ribozom içerir ve protein sentezinde görev alır.
+E) Kloroplast, hücre içinde serbestçe dolaşır ve hücre bölünmesinde rol oynar.
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Bitki hücresindeki organeller ve kloroplastın tanımı.
+- **İstenen:** Kloroplastın yapısı ve işleviyle ilgili doğru ifade.
+- **Kullanılacak yöntem:** Kloroplastun morfolojisi ve fotosentezdeki rolü hakkında temel bilgi.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Kloroplastun temel yapısı hatırlanır: iç zar katmanları olan thylakoidler, granüller ve stroma bulunur. Bu yapı ışık reaksiyonlarının gerçekleştiği yerdir.
+
+### 2. Adım
+Seçenekler tek tek incelenir.
+- A) Kloroplast hücre zarının içinde değildir; glikoz sentezi doğrudan kloroplastta gerçekleşmez.
+- B) Thylakoid zar katmanlarından oluşur ve ışık reaksiyonları burada gerçekleşir → doğru.
+- C) Kloroplast çekirdekte bulunmaz; enerji üretimi fotosentezle olur.
+- D) Kloroplastta ribozom bulunabilir ancak ana işlevi protein sentezi değil fotosentezdir.
+- E) Kloroplast sabit konumdadır, hücre bölünmesinde rolü yoktur.
+
+## Sonuç
+Doğru seçenek **B** şıkkıdır.
+
+## Kontrol
+Kloroplastun içinde thylakoid membranları bulunur ve bu membranlarda ışık enerjisi kimyasal enerjiye dönüştüren reaksiyonlar gerçekleşir. Diğer şıkların her biri kloroplastun tanımıyla çeliştiği için B şıkkı tek doğru cevaptır.

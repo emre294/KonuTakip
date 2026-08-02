@@ -1,0 +1,15 @@
+## Hedef
+
+- Üslü ifadelerde negatif üs ve üslü denklemleri pekiştirmek.
+- Optikte kırılma, mercekler ve renk konularındaki eksikleri gidermek.
+- 90 dakikalık verimli çalışma ile TYT performansını artırmak.
+
+## Günlük Program
+
+### Pazartesi
+
+- **09:00–09:20 — Matematik (Üslü İfadeler):** Negatif üs kurallarını tekrar, örnek sorular çöz.
+- **09:25–09:45 — Matematik (Üslü Denklemler):** Taban eşitleme ve ortak üs yöntemiyle denklemler çöz.
+- **09:50–10:10 — Fizik (Optik):** Kırılma kanunu ve Snell yasasını özet, temel sorular.
+- **10:15–10:30 — Fizik (Mercekler ve Renk):** İnce mercek formülleri, renk karışımı kavramı, uygulamalı soru.
+- **10:35–10:50 — Tekrar & Analiz:** Yanlış çözülen soruları gözden geçir, kısa notlar al.

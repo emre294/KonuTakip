@@ -1,0 +1,224 @@
+﻿DOSYA: .\app\(tabs)\subjects.tsx
+TOPLAM SATIR: 560
+GOSTERILEN ARALIK: 341 - 560
+
+ 341:   const remaining = allTopics.length - done;
+ 342:   const pct = allTopics.length > 0 ? Math.round((done / allTopics.length) * 100) : 0;
+ 343: 
+ 344:   return (
+ 345:     <View style={styles.examSection}>
+ 346:       <TouchableOpacity
+ 347:         onPress={() => { setOpen((o) => !o); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+ 348:         style={[styles.examHeader, { backgroundColor: accentColor }]}
+ 349:         activeOpacity={0.85}
+ 350:       >
+ 351:         <View style={{ flex: 1 }}>
+ 352:           <Text style={[styles.examTitle, { color: "#fff" }]}>{title}</Text>
+ 353:           <View style={styles.examMetaRow}>
+ 354:             <Text style={[styles.examPct, { color: "rgba(255,255,255,0.9)" }]}>
+ 355:               {done}/{allTopics.length} konu{pct > 0 ? ` • %${pct}` : ""}
+ 356:             </Text>
+ 357:             {remaining > 0 && (
+ 358:               <View style={styles.examRemainingBadge}>
+ 359:                 <Text style={styles.examRemainingText}>{remaining} kaldı</Text>
+ 360:               </View>
+ 361:             )}
+ 362:           </View>
+ 363:         </View>
+ 364:         <Ionicons name={open ? "chevron-up" : "chevron-down"} size={20} color="#fff" />
+ 365:       </TouchableOpacity>
+ 366: 
+ 367:       {open && (
+ 368:         <View style={styles.subjectsContainer}>
+ 369:           {subjects.map((s) => (
+ 370:             <SubjectCard
+ 371:               key={s.id}
+ 372:               subject={s}
+ 373:               topicCompletion={topicCompletion}
+ 374:               topicSolvedQuestions={topicSolvedQuestions}
+ 375:               topicReminders={topicReminders}
+ 376:               onToggle={onToggle}
+ 377:               onSetSolved={onSetSolved}
+ 378:               onBellPress={onBellPress}
+ 379:               colors={colors}
+ 380:             />
+ 381:           ))}
+ 382:         </View>
+ 383:       )}
+ 384:     </View>
+ 385:   );
+ 386: }
+ 387: 
+ 388: // ─── Screen ────────────────────────────────────────────────────────────────────
+ 389: 
+ 390: export default function SubjectsScreen() {
+ 391:   const colors = useColors();
+ 392:   const insets = useSafeAreaInsets();
+ 393:   const {
+ 394:     profile, topicCompletion, toggleTopic,
+ 395:     topicSolvedQuestions, setTopicSolvedQuestion,
+ 396:     topicReminders, setTopicReminder, removeTopicReminder,
+ 397:   } = useApp();
+ 398: 
+ 399:   const aytSubjects = useMemo(() => profile ? AYT_SUBJECTS_BY_FIELD[profile.studyField] ?? [] : [], [profile]);
+ 400:   const fieldLabel = useMemo(() => profile ? FIELD_LABELS[profile.studyField] : "AYT", [profile]);
+ 401: 
+ 402:   const [reminderModal, setReminderModal] = useState<{
+ 403:     topicId: string; topicName: string; subjectName: string;
+ 404:   } | null>(null);
+ 405: 
+ 406:   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+ 407:   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 90;
+ 408: 
+ 409:   const handleBellPress = useCallback((topicId: string, topicName: string, subjectName: string) => {
+ 410:     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+ 411:     setReminderModal({ topicId, topicName, subjectName });
+ 412:   }, []);
+ 413: 
+ 414:   const handleReminderSelect = useCallback(async (interval: 3 | 5 | 7) => {
+ 415:     if (!reminderModal) return;
+ 416:     try {
+ 417:       await setTopicReminder(reminderModal.topicId, reminderModal.topicName, reminderModal.subjectName, interval);
+ 418:     } catch (err) {
+ 419:       Alert.alert("Hata", "Hatırlatma ayarlanamadı. Bildirim izinlerini kontrol edin.");
+ 420:     }
+ 421:   }, [reminderModal, setTopicReminder]);
+ 422: 
+ 423:   const handleReminderRemove = useCallback(async () => {
+ 424:     if (!reminderModal) return;
+ 425:     await removeTopicReminder(reminderModal.topicId);
+ 426:   }, [reminderModal, removeTopicReminder]);
+ 427: 
+ 428:   return (
+ 429:     <View style={[styles.container, { backgroundColor: colors.background }]}>
+ 430:       <ScrollView
+ 431:         contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: botPad, paddingHorizontal: 20 }}
+ 432:         showsVerticalScrollIndicator={false}
+ 433:         keyboardShouldPersistTaps="handled"
+ 434:       >
+ 435:         <Animated.View entering={FadeIn.duration(400)}>
+ 436:           <Text style={[styles.pageTitle, { color: colors.foreground }]}>Konular</Text>
+ 437:           <Text style={[styles.pageSubtitle, { color: colors.mutedForeground }]}>Tamamladığın konuları işaretle ve çözdüğün soru sayısını gir</Text>
+ 438:         </Animated.View>
+ 439: 
+ 440:         <ExamSection
+ 441:           title="TYT — Temel Yeterlilik"
+ 442:           subjects={TYT_SUBJECTS}
+ 443:           topicCompletion={topicCompletion}
+ 444:           topicSolvedQuestions={topicSolvedQuestions}
+ 445:           topicReminders={topicReminders}
+ 446:           onToggle={toggleTopic}
+ 447:           onSetSolved={setTopicSolvedQuestion}
+ 448:           onBellPress={handleBellPress}
+ 449:           accentColor="#2563EB"
+ 450:           colors={colors}
+ 451:         />
+ 452: 
+ 453:         <ExamSection
+ 454:           title={`AYT — ${fieldLabel}`}
+ 455:           subjects={aytSubjects}
+ 456:           topicCompletion={topicCompletion}
+ 457:           topicSolvedQuestions={topicSolvedQuestions}
+ 458:           topicReminders={topicReminders}
+ 459:           onToggle={toggleTopic}
+ 460:           onSetSolved={setTopicSolvedQuestion}
+ 461:           onBellPress={handleBellPress}
+ 462:           accentColor="#7C3AED"
+ 463:           colors={colors}
+ 464:         />
+ 465:       </ScrollView>
+ 466: 
+ 467:       {reminderModal && (
+ 468:         <ReminderModal
+ 469:           visible={!!reminderModal}
+ 470:           topicName={reminderModal.topicName}
+ 471:           subjectName={reminderModal.subjectName}
+ 472:           currentInterval={topicReminders[reminderModal.topicId]?.interval ?? null}
+ 473:           onSelect={handleReminderSelect}
+ 474:           onRemove={handleReminderRemove}
+ 475:           onClose={() => setReminderModal(null)}
+ 476:           colors={colors}
+ 477:         />
+ 478:       )}
+ 479:     </View>
+ 480:   );
+ 481: }
+ 482: 
+ 483: // ─── Styles ────────────────────────────────────────────────────────────────────
+ 484: 
+ 485: const styles = StyleSheet.create({
+ 486:   container: { flex: 1 },
+ 487:   pageTitle: { fontSize: 28, fontFamily: "Inter_700Bold", marginBottom: 4 },
+ 488:   pageSubtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 24 },
+ 489:   examSection: { marginBottom: 24 },
+ 490:   examHeader: {
+ 491:     borderRadius: 20, padding: 20, flexDirection: "row",
+ 492:     justifyContent: "space-between", alignItems: "center", marginBottom: 12,
+ 493:   },
+ 494:   examTitle: { fontSize: 17, fontFamily: "Inter_700Bold", marginBottom: 4 },
+ 495:   examMetaRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+ 496:   examPct: { fontSize: 13, fontFamily: "Inter_500Medium" },
+ 497:   examRemainingBadge: { backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
+ 498:   examRemainingText: { fontSize: 11, fontFamily: "Inter_600SemiBold", color: "#fff" },
+ 499:   subjectsContainer: { gap: 10 },
+ 500:   subjectCard: {
+ 501:     borderRadius: 16,
+ 502:     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+ 503:     overflow: "hidden",
+ 504:   },
+ 505:   subjectHeader: { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
+ 506:   subjectDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+ 507:   subjectInfo: { flex: 1 },
+ 508:   subjectName: { fontSize: 15, fontFamily: "Inter_600SemiBold", marginBottom: 8 },
+ 509:   subjectMeta: { marginBottom: 6 },
+ 510:   progressBar: { height: 4, borderRadius: 2, overflow: "hidden" },
+ 511:   progressFill: { height: "100%", borderRadius: 2 },
+ 512:   subjectStats: { flexDirection: "row", alignItems: "center", gap: 6 },
+ 513:   subjectStatItem: { flexDirection: "row", alignItems: "center", gap: 3 },
+ 514:   subjectStatText: { fontSize: 11, fontFamily: "Inter_400Regular" },
+ 515:   subjectStatSep: { fontSize: 10 },
+ 516:   pctText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
+ 517:   topicsContainer: { borderTopWidth: 1 },
+ 518:   topicRow: {
+ 519:     flexDirection: "row", alignItems: "center",
+ 520:     paddingHorizontal: 12, paddingVertical: 10,
+ 521:     gap: 10, borderBottomWidth: 1, minHeight: 52,
+ 522:   },
+ 523:   topicCheckBtn: { padding: 2 },
+ 524:   topicCheck: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
+ 525:   topicName: { fontSize: 13, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
+ 526:   // flexGrow: 0 ensures the right cluster never expands and displaces topicName
+ 527:   topicRight: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0, flexGrow: 0 },
+ 528:   solvedInput: {
+ 529:     // Fixed dimensions — wide enough for 5 digits at the smallest font, never grows
+ 530:     width: 54, height: 30, borderRadius: 8, borderWidth: 1,
+ 531:     fontSize: 12, fontFamily: "Inter_500Medium",
+ 532:     textAlign: "center", paddingHorizontal: 2,
+ 533:   },
+ 534:   soruLabel: { fontSize: 11, fontFamily: "Inter_400Regular", flexShrink: 0 },
+ 535: });
+ 536: 
+ 537: const rStyles = StyleSheet.create({
+ 538:   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)" },
+ 539:   sheet: {
+ 540:     borderTopLeftRadius: 24, borderTopRightRadius: 24,
+ 541:     padding: 20, paddingBottom: 36,
+ 542:     shadowColor: "#000", shadowOffset: { width: 0, height: -4 },
+ 543:     shadowOpacity: 0.12, shadowRadius: 16, elevation: 12,
+ 544:   },
+ 545:   header: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottomWidth: 1 },
+ 546:   bellCircle: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+ 547:   title: { fontSize: 16, fontFamily: "Inter_700Bold" },
+ 548:   subtitle: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 2 },
+ 549:   prompt: { fontSize: 12, fontFamily: "Inter_500Medium", marginBottom: 10 },
+ 550:   option: {
+ 551:     flexDirection: "row", alignItems: "center", gap: 10,
+ 552:     borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1.5,
+ 553:   },
+ 554:   optionText: { flex: 1, fontSize: 15, fontFamily: "Inter_500Medium" },
+ 555:   removeBtn: {
+ 556:     flexDirection: "row", alignItems: "center", gap: 8,
+ 557:     borderRadius: 12, padding: 12, marginTop: 4, borderWidth: 1,
+ 558:   },
+ 559:   removeBtnText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+ 560: });

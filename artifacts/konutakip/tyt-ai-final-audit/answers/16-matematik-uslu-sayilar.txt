@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+\(2⁴ \times 8^{⁻1}\) ifadesini \(4³\) sayısına bölerek elde edilen değerin kaç olduğunu bulunuz.
+
+A) 1/8
+B) 1/16
+C) 1/32
+D) 1/64
+E) 1/128
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: \(2⁴ \times 8^{⁻1} \div 4³\)
+- İstenen: İfadenin değeri
+- Kullanılacak yöntem: Üs kuralları, aynı tabana çevirme, üs toplama ve çıkarma
+
+## Adım Adım Çözüm
+### 1. Adım
+\(8\) ve \(4\) sayılarının tabanını \(2\) olarak yazarız: \(8 = 2³\), \(4 = 2²\).
+
+### 2. Adım
+İfadeyi tek tabanlı hâle getiririz: \((2⁴) \times (2³)^{⁻1} \div (2²)³\).
+
+### 3. Adım
+Üsleri uygularız: \((2⁴) \times 2^{⁻3} \div 2^{6}\) (çünkü \((2³)^{⁻1}=2^{⁻3}\) ve \((2²)³=2^{6}\)).
+
+### 4. Adım
+Çarpma için üsleri toplarız: \(2^{4-3}=2¹\). Şimdi ifade \(2¹ \div 2^{6}\).
+
+### 5. Adım
+Bölme için üsleri çıkarırız: \(2^{1-6}=2^{⁻5}\).
+
+### 6. Adım
+Negatif üs kuralını uygularız: \(2^{⁻5}=1 \div 2⁵ = 1/32\).
+
+## Sonuç
+İfadenin değeri **1/32**’dir.
+
+## Kontrol
+\(2⁴ = 16\), \(8^{⁻1}=1/8\) → çarpım \(16 \times 1/8 = 2\).
+\(4³ = 64\).
+\(2 \div 64 = 1/32\). Sonuç tutarlı.

@@ -1,0 +1,45 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki olaylardan hangisi, 1 Kasım 1922 tarihinde Osmanlı Saltanatı’nın kaldırılmasına doğrudan yol açan kararı almıştır?
+
+A) Sevr Antlaşması’nın imzalanması
+B) Türk Kurtuluş Savaşı’nın zaferle sonuçlanması
+C) 1876 Anayasası’nın ilan edilmesi
+D) Türkiye Büyük Millet Meclisi’nin kurulması
+E) Türkiye Cumhuriyeti’nin ilanı
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** 1 Kasım 1922 tarihinde Osmanlı Saltanatı’nın kaldırılması.
+- **İstenen:** Bu kararı doğrudan almış olayı seçmek.
+- **Kullanılacak yöntem:** Tarihsel kronoloji ve karar veren kurumun belirlenmesi.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Osmanlı Saltanatı’nın 1 Kasım 1922’de kaldırıldığını hatırla; bu karar TBMM tarafından alınmıştır.
+
+### 2. Adım
+Seçenekleri incele:
+- A) Sevr Antlaşması (1920) bir dış antlaşmadır, saltanatın kaldırılmasını doğrudan kararlaştırmaz.
+- B) Kurtuluş Savaşı zaferi (1922) sonuçta gelmiştir, fakat karar TBMM’nin iç kararıdır.
+- C) 1876 Anayasası çok daha önce ilan edilmiştir, doğrudan bir etkisi yoktur.
+- D) TBMM’nin kurulması (23 Nisan 1920) ile meclis, saltanatın kaldırılmasına karar veren organdır.
+- E) Cumhuriyet ilanı (29 Ekim 1923) saltanat kaldırıldıktan sonra gerçekleşir.
+
+### 3. Adım
+Doğrudan karar veren kurumun TBMM olduğunu ve TBMM’nin kuruluşunun bu kararı almasını mümkün kıldığını belirle.
+
+## Sonuç
+Doğru seçenek **D) Türkiye Büyük Millet Meclisi’nin kurulması**dır.
+
+## Kontrol
+TBMM, 23 Nisan 1920’de kuruldu ve 1 Kasım 1922’de “Saltanatın kaldırılmasına” karar verdi. Diğer seçenekler bu kararı doğrudan vermemiştir; bu yüzden cevap D kesin olarak doğrudur.

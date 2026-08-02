@@ -1,0 +1,44 @@
+## Sorular
+
+### 1. Soru
+Bir mağaza bir ürünü 180 TL’ye almıştır. Üründen %25 net kâr elde etmek istemektedir. Satıştan önce işaret fiyatına %10 indirim uygulamaktadır. İşaret fiyatı kaç TL olmalıdır?
+
+A) 240 TL
+B) 245 TL
+C) 250 TL
+D) 255 TL
+E) 260 TL
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: alış fiyatı 180 TL, istenen net kâr %25, indirim %10.
+- İstenen: işaret fiyatı (işaret fiyatı) nedir.
+- Kullanılacak yöntem: önce istenen satış fiyatısını bul, sonra indirimli satış fiyatısı = işaret fiyatı × (1‑indirim oranı) denklemiyle işaret fiyatını çöz.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İstenen net satış fiyatısını hesapla: 180 × 1.25 = 225 TL. (%25 kâr = maliyet × (1 + %kâr))
+
+### 2. Adım
+İşaret fiyatını (M) bulmak için M × 0.9 = 225. (%10 indirim = satış fiyatı = işaret fiyatı × (1‑0.10))
+
+### 3. Adım
+M = 225 ÷ 0.9 = 250 TL. (Bölme işlemi)
+
+## Sonuç
+
+İşaret fiyatı 250 TL’dir.
+
+## Kontrol
+
+250 TL üzerinden %10 indirim = 250 × 0.9 = 225 TL.
+225 TL – 180 TL = 45 TL kâr, 45 ÷ 180 = 0.25 = %25 kâr. Sonuç doğru.

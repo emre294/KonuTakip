@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Bir haritada ölçek 1 : 250 000 olarak verilmiştir. Harita üzerinde iki şehir arasındaki ölçülen mesafe 6 cm’dir. Gerçekte bu iki şehir arasındaki mesafe kaç kilometredir?
+
+A) 12 km
+B) 15 km
+C) 18 km
+D) 20 km
+E) 25 km
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Ölçek 1 : 250 000, harita üzerindeki mesafe 6 cm.
+- İstenen: Gerçek mesafe (km).
+- Kullanılacak yöntem: Ölçek oranı ile gerçek mesafeyi bulma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Harita ölçeği 1 : 250 000 demek, haritadaki 1 cm gerçek dünyada 250 000 cm’ye eşittir. Bu oranı kullanacağız.
+
+### 2. Adım
+Harita üzerindeki 6 cm’yi gerçek mesafeye çevirelim: 6 cm × 250 000 = 1 500 000 cm.
+
+### 3. Adım
+Centimetreyi kilometreye dönüştürelim: 1 km = 100 000 cm, dolayısıyla 1 500 000 cm ÷ 100 000 = 15 km.
+
+## Sonuç
+Gerçek mesafe **15 km**’dir.
+
+## Kontrol
+6 cm × 250 000 = 1 500 000 cm; 1 500 000 cm ÷ 100 000 = 15 km. Hesaplama tutarlı.
+
+**Doğru cevap: B**

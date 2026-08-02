@@ -1,0 +1,62 @@
+## Sorular
+
+### 1. Soru
+2020 yılı verilerine göre Türkiye’nin bazı illerinin nüfusu ve yüzölçümü aşağıdaki tabloda verilmiştir.
+
+| İl      | Nüfus (kişi) | Yüzölçümü (km²) |
+|---------|--------------|-----------------|
+| İstanbul| 15 500 000   | 5 343           |
+| Ankara  | 5 600 000    | 24 521          |
+| Konya   | 2 200 000    | 40 814          |
+| Erzurum |   770 000    | 25 066          |
+| Muğla   | 1 020 000    | 11 334          |
+
+Bu illerden hangisinin nüfus yoğunluğu (kişi/km²) en düşüktür?
+
+A) İstanbul
+B) Ankara
+C) Konya
+D) Muğla
+E) Erzurum
+
+## Cevap Anahtarı
+
+1. E
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Her ilin nüfusu ve yüzölçümü.
+- **İstenen:** Nüfus yoğunluğu en düşük olan ilin seçilmesi.
+- **Kullanılacak yöntem:** Nüfus yoğunluğu = nüfus ÷ yüzölçümü hesabı.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İstanbul’un nüfus yoğunluğunu hesapla: 15 500 000 ÷ 5 343 ≈ 2 898 kişi/km².
+(Neden: Yoğunluk bulmak için nüfusu alana bölüyoruz.)
+
+### 2. Adım
+Ankara’nın nüfus yoğunluğunu hesapla: 5 600 000 ÷ 24 521 ≈ 228 kişi/km².
+
+### 3. Adım
+Konya’nın nüfus yoğunluğunu hesapla: 2 200 000 ÷ 40 814 ≈ 54 kişi/km².
+
+### 4. Adım
+Erzurum’un nüfus yoğunluğunu hesapla: 770 000 ÷ 25 066 ≈ 31 kişi/km².
+
+### 5. Adım
+Muğla’nın nüfus yoğunluğunu hesapla: 1 020 000 ÷ 11 334 ≈ 90 kişi/km².
+
+### 6. Adım
+Elde edilen yoğunlukları karşılaştır:
+İstanbul ≈ 2 898, Ankara ≈ 228, Konya ≈ 54, Muğla ≈ 90, Erzurum ≈ 31.
+En düşük değer Erzurum’a aittir.
+
+## Sonuç
+Nüfus yoğunluğu en düşük olan il **Erzurum**’dur. → **E seçeneği**
+
+## Kontrol
+Erzurum’un yoğunluğu 31 kişi/km², diğer tüm illerin yoğunlukları bundan büyüktür; dolayısıyla en düşük olduğu kesinleşir.

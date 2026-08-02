@@ -1,0 +1,87 @@
+AI OGRETMEN VE AI KOC ALT KAZANIM TEST RAPORU
+
+TOPLAM TEST: 6
+BASARILI: 2
+KONTROL GEREKLI: 4
+HATA: 0
+
+============================================================
+1. TEST: AI Öğretmen açık alt kazanımı algılıyor
+DURUM: KONTROL_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 30 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+CEVAP UZUNLUGU: 1496
+
+BULGULAR:
+- Gerekli kavram bulunamadı: üslü / uslu
+
+============================================================
+2. TEST: AI Öğretmen hedef kazanımdan soru üretiyor
+DURUM: KONTROL_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 19 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+CEVAP UZUNLUGU: 977
+
+BULGULAR:
+- Gerekli kavram bulunamadı: uzaklık / uzaklik
+
+============================================================
+3. TEST: AI Öğretmen kazanım sınırında kalıyor
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 18 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+CEVAP UZUNLUGU: 3005
+
+BULGULAR: YOK
+
+============================================================
+4. TEST: AI Öğretmen de/da özel kazanımını tanıyor
+DURUM: KONTROL_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 1 saniye
+PROVIDER: local_verified
+MODEL: konutakip-de-da-v1
+CEVAP UZUNLUGU: 1990
+
+BULGULAR:
+- Gerekli kavram bulunamadı: doğru cevap / dogru cevap
+
+============================================================
+5. TEST: AI Koç yarım kalan kazanımı önceliklendiriyor
+DURUM: KONTROL_GEREKLI
+HTTP: 200
+DENEME: 1
+SURE: 10 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+CEVAP UZUNLUGU: 965
+
+BULGULAR:
+- Gerekli kavram bulunamadı: 90 / dakika
+
+============================================================
+6. TEST: AI Koç tamamlanan kazanımı ana hedef yapmıyor
+DURUM: BASARILI
+HTTP: 200
+DENEME: 1
+SURE: 8 saniye
+PROVIDER: nvidia
+MODEL: openai/gpt-oss-120b
+CEVAP UZUNLUGU: 706
+
+BULGULAR: YOK
+
+============================================================
+SONUC: BAZI AI BAGLANTILARI TEKRAR INCELENMELI
+
+CEVAPLAR: C:\Users\arife\Desktop\KonuTakip\artifacts\konutakip\ai-subtopic-learning-answers

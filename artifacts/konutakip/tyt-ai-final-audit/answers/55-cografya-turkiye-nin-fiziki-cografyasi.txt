@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Türkiye'nin iklim çeşitliliğinin en önemli nedeni aşağıdakilerden hangisidir?
+
+A) Geniş enlem farkı
+B) Yüksek dağlık arazi
+C) Sınırlı deniz kıyısı
+D) Büyük göl sayısı
+E) Düşük nüfus yoğunluğu
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: Türkiye'nin iklim çeşitliliğiyle ilgili bir soru.
+- İstenen: İklim çeşitliliğinin en önemli nedenini belirlemek.
+- Kullanılacak yöntem: Coğrafi faktörlerin iklim üzerindeki etkisini değerlendirme.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Dağlık arazi, deniz etkisini bölgelere göre keserek sıcaklık ve yağış farklılıkları yaratır; bu, iklim çeşitliliğinin başlıca kaynağıdır.
+
+### 2. Adım
+Türkiye’nin enlem aralığı (≈ 36°‑42° N) sınırlıdır; enlem farkı iklimde büyük farklılıklar oluşturmaz.
+
+### 3. Adım
+Sınırlı deniz kıyısı, deniz etkisini azaltır ancak iklim çeşitliliğini artırmaz, aksine tek tip iklime yönlendirebilir.
+
+### 4. Adım
+Büyük göl sayısı Türkiye’de yok denecek kadar azdır; göl etkisi iklim çeşitliliğine sınırlı katkı sağlar.
+
+### 5. Adım
+Nüfus yoğunluğu iklim oluşumunu etkilemez; bu faktör iklim çeşitliliğiyle ilgili değildir.
+
+## Sonuç
+İklim çeşitliliğinin en önemli nedeni **B) Yüksek dağlık arazi** seçeneğidir.
+
+## Kontrol
+Coğrafya ders kitapları, Türkiye’nin iklim çeşitliliğinin temel nedenini “dağlık arazi yapısı ve deniz etkisinin bölgelere göre farklılaşması” olarak verir. Diğer seçeneklerin etkileri ya sınırlı ya da iklime doğrudan etkili değildir; bu nedenle yalnızca B seçeneği doğrudur.

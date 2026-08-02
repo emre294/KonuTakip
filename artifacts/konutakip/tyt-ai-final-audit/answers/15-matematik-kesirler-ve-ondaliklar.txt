@@ -1,0 +1,43 @@
+## Sorular
+
+### 1. Soru
+Bir sayının 2/3'ü 0,56’ya eşittir. Bu sayının 1/4'ü kaçtır?
+
+A) 0,21
+B) 0,28
+C) 0,14
+D) 0,35
+E) 0,42
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Sayının 2/5'i 0,56 değil, 2/3'ü 0,56.
+- İstenen: Aynı sayının 1/4'ünün değeri.
+- Kullanılacak yöntem: İlk olarak sayıyı bul, ardından 1/4'ünü hesapla.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Sayının kendisini \(x\) olarak al. \( \frac{2}{3} \times x = 0,56 \) eşitliğini kur. Bu adım, verilen oranı kullanarak \(x\)’i bulmamızı sağlar.
+
+### 2. Adım
+\(x\)’i yalnız bırak: \(x = 0,56 \times \frac{3}{2}\). Çarpma, verilen değeri ters oranla genişletir.
+
+### 3. Adım
+\(0,56 \times \frac{3}{2} = 0,56 \times 1,5 = 0,84\). Sayının değeri 0,84 olur.
+
+### 4. Adım
+Şimdi sayının 1/4'ünü bul: \(\frac{1}{4} \times 0,84 = 0,84 ÷ 4 = 0,21\).
+
+## Sonuç
+Sayının 1/4'ü **0,21**’dir.
+
+## Kontrol
+\(0,21 \times 4 = 0,84\) ve \(0,84 \times \frac{2}{3} = 0,56\) olduğundan sonuç tutarlı.

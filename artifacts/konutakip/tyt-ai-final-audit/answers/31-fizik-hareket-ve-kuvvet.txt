@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Bir 2 kg kütleli blok, pürüzsüz olmayan bir eğik düzlem üzerinde aşağı doğru kaymaktadır. Düzlemin eğimi 30° ve kinetik sürtünme katsayısı 0,10’dur. Blokun ivmesini bulunuz. (g = 10 m/s² alınız.)
+
+A) 3,9 m/s²
+B) 4,1 m/s²
+C) 4,5 m/s²
+D) 5,0 m/s²
+E) 5,5 m/s²
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** m = 2 kg, θ = 30°, μk = 0,10, g = 10 m/s²
+- **İstenen:** Blokun ivmesi a
+- **Kullanılacak yöntem:** Newton’un ikinci yasası, eğik düzlemdeki ağırlık bileşenleri ve kinetik sürtünme kuvveti
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Ağırlığın eğik düzleme paralel bileşenini bul: Fg‖ = m g sin θ = 2 × 10 × sin 30° = 10 N.
+(Paralel bileşen, blokun aşağı kaymasını sağlayan kuvvettir.)
+
+### 2. Adım
+Normal kuvveti hesapla: N = m g cos θ = 2 × 10 × cos 30° ≈ 20 × 0,866 = 17,32 N.
+
+### 3. Adım
+Kinetik sürtünme kuvvetini bul: Fk = μk N = 0,10 × 17,32 ≈ 1,732 N.
+(Sürtünme, hareket yönüne zıt çalışır.)
+
+### 4. Adım
+Net kuvveti bulun: Fnet = Fg‖ – Fk = 10 N – 1,732 N ≈ 8,268 N.
+
+### 5. Adım
+Newton’un ikinci yasasını uygulayarak ivmeyi elde et: a = Fnet / m = 8,268 N / 2 kg ≈ 4,134 m/s² ≈ 4,1 m/s².
+
+## Sonuç
+Blokun ivmesi **4,1 m/s²** dir.
+
+## Kontrol
+a = (m g sin θ – μk m g cos θ) / m = g (sin θ – μk cos θ) = 10 × (0,5 – 0,10 × 0,866) ≈ 10 × 0,4134 = 4,134 m/s² → 4,1 m/s². Hesaplama tutarlı.

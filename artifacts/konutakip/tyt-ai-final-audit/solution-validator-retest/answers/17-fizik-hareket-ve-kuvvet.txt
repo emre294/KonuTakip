@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+5 kg’lik bir cisim, yatay bir zeminde 2 m/s² ivme ile hareket ediyor. Zeminin sürtünme katsayısı µ = 0,2’dir (g = 10 m/s²). Cisme, hareketini sağlamak için uygulanan itme kuvvetinin büyüklüğü kaç N’dir?
+
+A) 10 N
+B) 15 N
+C) 20 N
+D) 25 N
+E) 30 N
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: m = 5 kg, a = 2 m/s², µ = 0,2, g = 10 m/s²
+- İstenen: itme kuvveti (F₁) büyüklüğü
+- Kullanılacak yöntem: Newton’un ikinci yasası ve sürtünme kuvveti hesabı
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Net kuvveti bul: Fₙₑₜ = m × a = 5 kg × 2 m/s² = 10 N.
+(Nedeni: Newton’un ikinci yasası)
+
+### 2. Adım
+Sürtünme kuvvetini hesapla: Fₛ = µ × m × g = 0,2 × 5 kg × 10 m/s² = 10 N.
+(Nedeni: Kayma sürtünmesi formülü)
+
+### 3. Adım
+Uygulanan itme kuvveti: F₁ = Fₙₑₜ + Fₛ = 10 N + 10 N = 20 N.
+(Nedeni: Net kuvvet, itme kuvveti ile sürtünme kuvvetinin farkıdır; aynı yönde hareket için itme = net + sürtünme)
+
+## Sonuç
+
+Uygulanan itme kuvvetinin büyüklüğü **20 N**’dir.
+
+## Kontrol
+
+20 N itme kuvveti, 10 N sürtünme kuvvetine karşı yönelirse net = 20 N − 10 N = 10 N.
+Net = m × a → 10 N = 5 kg × a → a = 2 m/s², verilen ivmeyle aynı.
+
+**Doğru cevap: C**

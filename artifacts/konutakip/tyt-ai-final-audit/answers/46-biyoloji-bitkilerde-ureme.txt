@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+Aşağıdakilerden hangisi çiçekli (angiosperm) bitkilerde tohum oluşum sürecinde gerçekleşen bir olayı doğru tanımlar?
+
+A) Polen tüpü, stigma üzerine konur ve hemen döllenme gerçekleşir.
+B) Çiftleşme, çiçek yaprakları arasında gerçekleşir.
+C) Polen tüpü, ovüllerin içinde bulunan iki çekirdeği birleştirir.
+D) Polen tüpü, stilus boyunca uzayarak iki sperm hücresini ovüle taşır; bir sperm yumurta hücresiyle, diğeri ise çift çekirdekli endosperm hücresiyle birleşir.
+E) Tohum, sadece meyve gelişimiyle oluşur, döllenme gerektirmez.
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Çiçekli bitkilerde tohum oluşum sürecine ilişkin beş farklı ifade.
+- **İstenen:** Bu ifadelerden hangisinin tohum oluşumunda gerçekleşen olayı doğru tanımladığını belirlemek.
+- **Kullanılacak yöntem:** Her seçeneği biyoloji müfredatına uygun olarak değerlendirmek; doğru süreci tanımlayan ifadeyi bulmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Seçenek A’yı incele: Polen tüpünün stigma üzerine konur konur, fakat döllenme hemen gerçekleşmez; polenin stilus boyunca uzaması gerekir. Bu yüzden A yanlıştır.
+
+### 2. Adım
+Seçenek B’yı incele: Çiftleşme çiçek yaprakları arasında olmaz; çiçek organları (stigma, stilus, ovül) içinde gerçekleşir. B yanlıştır.
+
+### 3. Adım
+Seçenek C’yı incele: Polen tüpü ovül içine iki sperm hücresi taşır, ancak “iki çekirdeği birleştirir” ifadesi hatalıdır; bir sperm yumurta hücresiyle, diğeri ise çift çekirdekli endosperm hücresiyle birleşir. C yanlıştır.
+
+### 4. Adım
+Seçenek D’yı incele: Tanım, polenin stilus boyunca uzayıp iki sperm hücresini ovüle taşıdığını, birinin yumurta hücresiyle, diğerinin ise çift çekirdekli endosperm hücresiyle birleştiğini doğru şekilde verir. Bu, çiçekli bitkilerde tohum oluşumunun biyolojik sürecine tam olarak uyar. D doğrudur.
+
+### 5. Adım
+Seçenek E’yi incele: Tohum oluşumu döllenmeye (fertilizasyona) bağlıdır; döllenme olmadan tohum oluşmaz. E yanlıştır.
+
+## Sonuç
+Doğru seçenek **D** şıkkıdır.
+
+## Kontrol
+Seçenek D, polen tüpünün stilus boyunca uzanması, iki sperm hücresinin ovüle taşınması ve sırasıyla yumurta hücresi ile endosperm hücresiyle birleşmesi sürecini tanımlar; bu, TYT biyoloji müfredatında “çiftleşme ve tohum oluşumu” başlığı altında verilen tanımla birebirdir. Diğer seçeneklerdeki hatalar (erken döllenme, yapraklar arası çiftleşme, sadece meyve gelişimi) müfredata aykırıdır. Bu nedenle cevap D kesin olarak doğrudur.

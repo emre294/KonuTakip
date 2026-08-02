@@ -1,0 +1,52 @@
+## Sorular
+
+### 1. Soru
+84 sayısının ikili (binary) gösterimi aşağıdakilerden hangisidir?
+
+A) 1010100
+B) 1010110
+C) 1010010
+D) 1101010
+E) 1001010
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** 84 sayısı (onluk tabanda)
+- **İstenen:** Bu sayının ikili (2 tabanı) gösterimi
+- **Kullanılacak yöntem:** En büyük 2’nin kuvvetini bulma ve kalan sayıyı tekrarlayarak ikili basamakları oluşturma
+
+## Adım Adım Çözüm
+
+### 1. Adım
+84 ≤ 2⁶ = 64 < 2⁷, bu yüzden en yüksek basamak 2⁶’dır. 84‑64 = 20, ilk basamak 1 olur.
+
+### 2. Adım
+20 < 2⁵ = 32, bu yüzden 2⁵ basamağı 0 olur.
+
+### 3. Adım
+20 ≥ 2⁴ = 16, 20‑16 = 4, 2⁴ basamağı 1 olur.
+
+### 4. Adım
+4 < 2³ = 8, bu yüzden 2³ basamağı 0 olur.
+
+### 5. Adım
+4 ≥ 2² = 4, 4‑4 = 0, 2² basamağı 1 olur.
+
+### 6. Adım
+Kalan 0 olduğundan 2¹ ve 2⁰ basamakları 0 olur.
+
+### 7. Adım
+Basamakları en yüksekten en düşüğe sıralarsak: 1 0 1 0 1 0 0 → 1010100
+
+## Sonuç
+84 sayısının ikili gösterimi **1010100**’tür. Doğru seçenek **A**.
+
+## Kontrol
+1010100₂ = 1·2⁶ + 0·2⁵ + 1·2⁴ + 0·2³ + 1·2² + 0·2¹ + 0·2⁰
+= 64 + 0 + 16 + 0 + 4 + 0 + 0 = 84 ✔️

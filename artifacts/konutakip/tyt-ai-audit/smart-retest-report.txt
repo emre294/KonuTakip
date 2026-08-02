@@ -1,0 +1,289 @@
+TYT AKILLI KALITE KAPISI SON TEST RAPORU
+
+ONCEDEN BASARILI: 19
+YENIDEN TEST EDILEN: 31
+YENIDEN BASARILI: 16
+KALAN HATA: 15
+TOPLAM BASARILI: 35 / 62
+
+============================================================
+DERS: Türkçe
+KONU: Sözcük Türleri
+DURUM: BASARILI
+DENEME: 3
+SURE: 286 saniye
+
+
+
+============================================================
+DERS: Türkçe
+KONU: Noktalama İşaretleri
+DURUM: BASARILI
+DENEME: 3
+SURE: 206 saniye
+
+
+
+============================================================
+DERS: Matematik
+KONU: Sayılar ve Sayı Sistemleri
+DURUM: KONTROL_GEREKLI
+DENEME: 2
+SURE: 78 saniye
+
+- Çözüm B cevabını açık biçimde doğrulamıyor.
+
+
+============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 273 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Kesirler ve Ondalıklar
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 158 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Üslü Sayılar
+DURUM: BASARILI
+DENEME: 2
+SURE: 181 saniye
+
+
+
+============================================================
+DERS: Matematik
+KONU: Köklü Sayılar
+DURUM: KONTROL_GEREKLI
+DENEME: 1
+SURE: 63 saniye
+
+- Çözüm A cevabını açık biçimde doğrulamıyor.
+
+
+============================================================
+DERS: Matematik
+KONU: Oran-Orantı
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 179 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Y�zde ve K�r-Zarar
+DURUM: BASARILI
+DENEME: 3
+SURE: 261 saniye
+
+
+
+============================================================
+DERS: Matematik
+KONU: Temel Kavramlar
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 299 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 385 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Eşitsizlikler
+DURUM: BASARILI
+DENEME: 2
+SURE: 157 saniye
+
+
+
+============================================================
+DERS: Matematik
+KONU: Dörtgenler ve Çokgenler
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 426 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Çember ve Daire
+DURUM: BASARILI
+DENEME: 1
+SURE: 82 saniye
+
+
+
+============================================================
+DERS: Matematik
+KONU: Olasılık
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 352 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: İstatistik
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 406 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Problemler
+DURUM: BASARILI
+DENEME: 3
+SURE: 300 saniye
+
+
+
+============================================================
+DERS: Fizik
+KONU: Fiziksel Büyüklükler ve Ölçme
+DURUM: BASARILI
+DENEME: 1
+SURE: 113 saniye
+
+
+
+============================================================
+DERS: Fizik
+KONU: Madde ve Özellikleri
+DURUM: BASARILI
+DENEME: 1
+SURE: 76 saniye
+
+
+
+============================================================
+DERS: Fizik
+KONU: Hareket ve Kuvvet
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 426 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Basınç ve Kaldırma Kuvveti
+DURUM: KONTROL_GEREKLI
+DENEME: 2
+SURE: 220 saniye
+
+- Çözüm B cevabını açık biçimde doğrulamıyor.
+
+
+============================================================
+DERS: Fizik
+KONU: Isı ve Sıcaklık
+DURUM: BASARILI
+DENEME: 3
+SURE: 414 saniye
+
+
+
+============================================================
+DERS: Fizik
+KONU: Elektrostatik
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 401 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Optik
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 475 saniye
+
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Kimya
+KONU: Atom ve Periyodik Sistem
+DURUM: BASARILI
+DENEME: 2
+SURE: 256 saniye
+
+
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+DURUM: GERCEK_ISTEK_HATASI
+DENEME: -
+SURE: 463 saniye
+
+- HTTP 500: NVIDIA düşünme çıktısı üretti ancak nihai cevap metni boş kaldı.
+
+============================================================
+DERS: Kimya
+KONU: Organik Kimya Temelleri
+DURUM: BASARILI
+DENEME: 3
+SURE: 382 saniye
+
+
+
+============================================================
+DERS: Biyoloji
+KONU: Kalıtım
+DURUM: BASARILI
+DENEME: 1
+SURE: 81 saniye
+
+
+
+============================================================
+DERS: Tarih
+KONU: İslam Tarihi
+DURUM: BASARILI
+DENEME: 2
+SURE: 223 saniye
+
+
+
+============================================================
+DERS: Felsefe
+KONU: Bilgi Felsefesi
+DURUM: BASARILI
+DENEME: 1
+SURE: 38 saniye
+
+
+
+============================================================
+DERS: Felsefe
+KONU: Ahlak Felsefesi
+DURUM: BASARILI
+DENEME: 3
+SURE: 281 saniye
+
+

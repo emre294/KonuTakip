@@ -65,22 +65,17 @@ const PremiumContext = createContext<PremiumContextValue | null>(null);
 // â”€â”€â”€ Provider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function PremiumProvider({ children }: { children: React.ReactNode }) {
-  const [isPremium, setIsPremium] = useState(__DEV__);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Development test mode: Premium açık. Production/AAB etkilenmez.
+  // Load persisted status once on mount
   useEffect(() => {
-    if (__DEV__) {
-      setIsPremium(true);
-      setIsLoading(false);
-      return;
-    }
-
     PremiumManager.load()
       .then(() => {
         setIsPremium(false);
       })
       .catch(() => {
+        // Non-fatal â€” default to free
         setIsPremium(false);
       })
       .finally(() => {
@@ -129,7 +124,6 @@ export function usePremium(): PremiumContextValue {
   if (!ctx) throw new Error("usePremium must be used within PremiumProvider");
   return ctx;
 }
-
 
 
 

@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki bileşiklerden hangisi bir aldehit içerir?
+
+A) 2‑metilpropan‑1‑ol
+B) propan‑1‑on
+C) butanal
+D) etan‑1‑ol
+E) 2‑bütanol
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: 5 farklı organik bileşik ismi.
+- İstenen: Aldehit fonksiyonel grubunu (‑al) içeren bileşiği seçmek.
+- Kullanılacak yöntem: İsimlerdeki fonksiyonel grup soneklerini incelemek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Her seçenekte “‑al” soneki var mı kontrol et. “‑al” soneki aldehitleri gösterir.
+
+### 2. Adım
+A) 2‑metilpropan‑1‑ol → “‑ol” soneki, alkol.
+B) propan‑1‑on → “‑on” soneki, keton.
+C) butanal → “‑al” soneki, aldehit.
+D) etan‑1‑ol → “‑ol” soneki, alkol.
+E) 2‑bütanol → “‑ol” soneki, alkol.
+
+### 3. Adım
+Sadece C seçeneğinde “‑al” soneki bulunduğu için doğru cevap C)’dir.
+
+## Sonuç
+
+Doğru seçenek **C) butanal**’dır.
+
+## Kontrol
+
+Butanal formülü C₄H₈O, karbon zincirinin bir ucunda karbonil (C=O) grubu ve hidrojen bağlıdır; bu tanım aldehit özelliğini sağlar. Diğer seçeneklerde aldehit grubu yoktur.
+
+**Doğru cevap: C**

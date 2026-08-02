@@ -1,0 +1,40 @@
+## Sorular
+
+### 1. Soru
+Bir madde için 1 atm basınçta erime ısısı 6 kJ/mol, buharlaşma ısısı 40 kJ/mol’dür. Bu madde 2 mol miktarında katı hâlden doğrudan buhar hâline geçene kadar toplam kaç kJ ısı alır?
+
+A) 46 kJ
+B) 76 kJ
+C) 92 kJ
+D) 102 kJ
+E) 112 kJ
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** erime ısısı = 6 kJ/mol, buharlaşma ısısı = 40 kJ/mol, madde miktarı = 2 mol
+- **İstenen:** katı → buhar dönüşümünde alınan toplam ısı miktarı
+- **Kullanılacak yöntem:** toplam ısı = mol sayısı × (erime ısısı + buharlaşma ısısı)
+
+## Adım Adım Çözüm
+### 1. Adım
+Erime ısısını 2 mol ile çarp: 6 kJ/mol × 2 mol = 12 kJ. Bu, katıdan sıvıya geçerken alınan ısıdır.
+
+### 2. Adım
+Buharlaşma ısısını 2 mol ile çarp: 40 kJ/mol × 2 mol = 80 kJ. Bu, sıvıdan buhara geçerken alınan ısıdır.
+
+### 3. Adım
+İki ısı miktarını topla: 12 kJ + 80 kJ = 92 kJ.
+
+## Sonuç
+Toplam alınan ısı miktarı **92 kJ**’dir.
+
+## Kontrol
+Toplam ısı = 2 mol × (6 kJ/mol + 40 kJ/mol) = 2 mol × 46 kJ/mol = 92 kJ. Hesaplama tutarlı.
+
+**Doğru cevap: C**

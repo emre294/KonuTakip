@@ -1,0 +1,53 @@
+## Sorular
+
+### 1. Soru
+Bir torbada 4 kırmızı, 5 mavi ve 3 yeşil top bulunmaktadır. İki top, birbiri ardına yerine koymadan çekilir. Çekilen iki topun aynı renkte olma olasılığı aşağıdakilerden hangisidir?
+
+A) 19/66
+B) 5/12
+C) 7/22
+D) 13/66
+E) 1/3
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** 4 kırmızı, 5 mavi, 3 yeşil top; iki top çekilecek, yerine koyma yok.
+- **İstenen:** İki topun aynı renkte olma olasılığı.
+- **Kullanılacak yöntem:** Kombinasyonla istenen durumların sayısını bulup toplam olası durum sayısına bölmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Toplam top sayısını bul: 4 + 5 + 3 = 12.
+
+### 2. Adım
+İki topun çekilebileceği toplam farklı çift sayısını kombinasyonla hesapla: C(12,2) = 12 × 11 ÷ 2 = 66.
+
+### 3. Adım
+Aynı renkten iki top seçmenin yollarını ayrı ayrı bul:
+- Kırmızı: C(4,2) = 4 × 3 ÷ 2 = 6
+- Mavi: C(5,2) = 5 × 4 ÷ 2 = 10
+- Yeşil: C(3,2) = 3 × 2 ÷ 2 = 3
+
+### 4. Adım
+İstenilen durumların toplam sayısını topla: 6 + 10 + 3 = 19.
+
+### 5. Adım
+Olasılığı, istenen durum sayısını toplam durum sayısına böl: 19 ÷ 66 = 19/66.
+
+## Sonuç
+İki topun aynı renkte olma olasılığı **19/66**’dır.
+
+## Kontrol
+Sıralı çekimle kontrol edelim:
+- İlk top kırmızı olma ihtimali 4/12, ikinci top da kırmızı olma ihtimali (4‑1)/11 = 3/11 → (4/12)·(3/11)=12/132
+- İlk top mavi olma ihtimali 5/12, ikinci top da mavi olma ihtimali 4/11 → (5/12)·(4/11)=20/132
+- İlk top yeşil olma ihtimali 3/12, ikinci top da yeşil olma ihtimali 2/11 → (3/12)·(2/11)=6/132
+Toplam = (12 + 20 + 6)/132 = 38/132 = 19/66. Sonuç aynı, doğru.

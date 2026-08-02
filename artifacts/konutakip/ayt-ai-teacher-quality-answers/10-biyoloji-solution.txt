@@ -1,0 +1,26 @@
+## Soru Analizi
+
+- Verilen: DNA'nın yarı korunumlu eşlenmesiyle ilgili beş seçenek.
+- İstenen: Doğru seçeneğin belirlenmesi ve gerekçelendirilmesi.
+- Kullanılacak yöntem: Yarı korunumlu replikasyon kavramını hatırlama ve seçenekleri bu kavramla karşılaştırma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Yarı korunumlu eşlenmede, her yeni DNA molekülü bir eski (parental) zincir ve bir yeni sentezlenmiş zincir içerir. Bu temel bilgiyi hatırlayarak seçenekleri incele.
+
+### 2. Adım
+Seçenekleri tek tek değerlendirelim:
+- A) “Yeni DNA'ların ikisi de yalnızca eski zincirlerden oluşur.” → Yanlış, çünkü yeni zincirler sentezlenir.
+- B) “Yeni DNA'ların ikisi de yalnızca yeni zincirlerden oluşur.” → Yanlış, eski zincirler korunur.
+- C) “Her yeni DNA bir eski ve bir yeni zincir içerir.” → Yarı korunumlu modelle tam uyumlu, doğru.
+- D) “Eski DNA tamamen parçalanır.” → Yanlış, eski zincirler korunur.
+- E) “Yalnızca bir DNA molekülü oluşur.” → Yanlış, iki yeni DNA molekülü oluşur.
+
+## Sonuç
+
+**Doğru cevap: C seçeneği**
+
+## Kontrol
+
+Yarı korunumlu replikasyonda iki yeni DNA molekülü oluşur; her biri bir eski ve bir yeni zincir içerir. Bu, seçenek C’nin tanımıyla birebir eşleşir, diğer seçenekler ise bu tanıma aykırıdır.

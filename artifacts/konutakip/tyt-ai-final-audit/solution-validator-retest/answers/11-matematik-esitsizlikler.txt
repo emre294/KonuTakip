@@ -1,0 +1,61 @@
+## Sorular
+
+### 1. Soru
+\[
+\frac{2x-3}{x+1}\ge 0
+\]
+
+A) \(x < -1\) veya \(x \ge \dfrac{3}{2}\)
+B) \(x \le -1\) veya \(x > \dfrac{3}{2}\)
+C) \(-1 < x < \dfrac{3}{2}\)
+D) \(x \le -1\) ve \(x \ge \dfrac{3}{2}\)
+E) \(-1 < x < \dfrac{3}{2}\)
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** \((2x-3)/(x+1) \ge 0\)
+- **İstenen:** Gerçek sayıların hangi aralıkta bu eşitsizliği sağladığını bulmak.
+- **Kullanılacak yöntem:** İşaret çizelgesi (kritik noktalar belirleyip işaret değişimini inceleme).
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Pay ve paydanın sıfır olduğu değerleri bul:
+\(2x-3=0 \Rightarrow x=\dfrac{3}{2}\) (pay sıfır).
+\(x+1=0 \Rightarrow x=-1\) (payda sıfır, tanımsız nokta).
+
+### 2. Adım
+Kritik noktalar \(-1\) ve \(\dfrac{3}{2}\) sayılarının oluşturduğu üç aralığı işaret çizelgesiyle incele:
+
+- \((-∞,-1)\)
+- \((-1,\dfrac{3}{2})\)
+- \((\dfrac{3}{2},∞)\)
+
+### 3. Adım
+Her aralıkta bir test sayısı koyarak işareti belirle:
+
+- \(x=-2\) için: \((2(-2)-3)/(-2+1)=(-7)/(-1)=+7>0\) → işaret pozitif.
+- \(x=0\) için: \((2·0-3)/(0+1)=(-3)/1=-3<0\) → işaret negatif.
+- \(x=2\) için: \((2·2-3)/(2+1)=(1)/3>0\) → işaret pozitif.
+
+### 4. Adım
+Eşitsizlik “\(\ge 0\)” olduğundan pozitif aralıklar ve sıfır olduğu nokta kabul edilir.
+\(x=\dfrac{3}{2}\) payın sıfır olduğu nokta, payda sıfır olmadığı için eşitsizlik sağlanır ve dâhil edilir.
+\(x=-1\) payda sıfır olduğu için tanımsızdır, dışarıda bırakılır.
+
+## Sonuç
+\[
+x \in (-\infty,-1)\ \cup\ \left[\,\dfrac{3}{2},\infty\right)
+\]
+
+## Kontrol
+İşaret çizelgesine göre iki pozitif bölge elde edildi ve kritik nokta \(\dfrac{3}{2}\) sıfır olduğu için dahil edildi; \(-1\) tanımsız olduğu için dışarıda bırakıldı. Sonuç tutarlı.
+
+**Doğru cevap: A**

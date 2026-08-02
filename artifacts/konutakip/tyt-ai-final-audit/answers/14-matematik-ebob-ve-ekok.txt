@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+A = 2³·3²·5 ve B = 2²·3³·7 sayıları verilmektedir. A ve B sayıların EBOB'u ile EKOK'u toplamı kaçtır?
+
+A) 7596
+B) 7920
+C) 7200
+D) 7560
+E) 3600
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- Verilen: A = 2³·3²·5, B = 2²·3³·7
+- İstenen: EBOB ve EKOK'un toplamı
+- Kullanılacak yöntem: Asal çarpanlara ayırma, EBOB ve EKOK formülleri
+
+## Adım Adım Çözüm
+
+### 1. Adım
+A ve B sayılarını asal çarpanlara ayır: A = 2³·3²·5, B = 2²·3³·7. (Verilen formda zaten)
+
+### 2. Adım
+EBOB için ortak asal sayıların en küçük üslerini al: 2²·3² = 4·9 = 36.
+
+### 3. Adım
+EKOK için her asal sayının en büyük üslerini al: 2³·3³·5·7 = 8·27·5·7 = 7560.
+
+### 4. Adım
+Toplamı bul: 36 + 7560 = 7596.
+
+## Sonuç
+
+EBOB ve EKOK'un toplamı 7596’tır.
+
+## Kontrol
+
+EKOK = (A·B) ÷ EBOB = (360·756) ÷ 36 = 272160 ÷ 36 = 7560, doğru. Toplam 36+7560=7596.

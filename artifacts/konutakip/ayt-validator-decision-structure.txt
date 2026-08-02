@@ -1,0 +1,986 @@
+AYT SORU VALIDATOR KARAR MOTORU RAPORU
+
+BACKEND SATIR: 2144
+BULUNAN BOLUM: 5
+
+TEST RAPORU YAZIM HATASI:
+- test.test.subject: VAR
+- test.subject: VAR
+
+============================================================
+BOLUM 1
+SATIR 1-63
+
+    1: import { Router } from "express";
+    2: import {
+    3:   askNvidia,
+    4:   type NvidiaAttachment,
+    5:   type NvidiaRequestOptions,
+    6: } from "../services/nvidiaService.js";
+    7: import { aiRequestSchema } from "../validation/aiRequestSchema.js";
+    8: import { aiFeatureRequestSchema } from "../validation/aiFeatureRequestSchema.js";
+    9: import { aiRateLimiter } from "../middleware/rateLimiter.js";
+   10: import {
+   11:   buildFeaturePrompt,
+   12:   type AIFeature,
+   13: } from "../featurePrompts.js";
+   14: 
+   15: export const aiRouter = Router();
+   16: 
+   17: const AI_FEATURES: readonly AIFeature[] = [
+   18:   "generate-questions",
+   19:   "evaluate-question",
+   20:   "teach-topic",
+   21:   "explain-question",
+   22:   "analyze-mistakes",
+   23:   "practice-question",
+   24:   "coach",
+   25:   "mini-exam",
+   26:   "study-plan",
+   27: ];
+   28: 
+   29: function isAIFeature(value: string): value is AIFeature {
+   30:   return AI_FEATURES.includes(value as AIFeature);
+   31: }
+   32: 
+   33: const QUESTION_GENERATION_PATTERNS = [
+   34:   /\bsoru(?:su|ları|lar|luk|lik)?\b[\s\S]{0,60}\b(hazırla|oluştur|üret|yaz|sor)\b/i,
+   35:   /\b(hazırla|oluştur|üret|yaz)\b[\s\S]{0,60}\bsoru(?:su|ları|lar|luk|lik)?\b/i,
+   36:   /\b\d+\s*(?:adet|tane)?[\s\S]{0,40}\bsoru(?:su|ları|lar|luk|lik)?\b/i,
+   37:   /\btest\b[\s\S]{0,40}\b(hazırla|oluştur|üret|yaz)\b/i,
+   38:   /\bmini\s*(sınav|deneme)\b/i,
+   39:   /\bçoktan\s*seçmeli\b/i,
+   40:   /\b5\s*şık(?:lı)?\b/i,
+   41:   /\bbeş\s*şık(?:lı)?\b/i,
+   42:   /\bpratik\s*soru(?:su)?\b/i,
+   43:   /\bcevap\s*anahtarı\b/i,
+   44: ];
+   45: 
+   46: function isQuestionGenerationRequest(
+   47:   feature: AIFeature,
+   48:   requestData: Record<string, unknown>,
+   49: ): boolean {
+   50:   if (
+   51:     feature === "generate-questions" ||
+   52:     feature === "practice-question" ||
+   53:     feature === "mini-exam"
+   54:   ) {
+   55:     return true;
+   56:   }
+   57: 
+   58:   const serialized = JSON.stringify(requestData);
+   59: 
+   60:   return QUESTION_GENERATION_PATTERNS.some((pattern) =>
+   61:     pattern.test(serialized),
+   62:   );
+   63: }
+
+============================================================
+BOLUM 2
+SATIR 101-262
+
+  101: ## Sorular
+  102: 
+  103: ### 1. Soru
+  104: Soru metni
+  105: 
+  106: A) ...
+  107: B) ...
+  108: C) ...
+  109: D) ...
+  110: E) ...
+  111: 
+  112: ## Cevap Anahtarı
+  113: 
+  114: 1. X
+  115: 
+  116: ## Çözümler
+  117: 
+  118: ### 1. Soru Çözümü
+  119: Kısa, doğru ve adım adım çözüm.
+  120: 
+  121: Yalnızca okunabilir Türkçe Markdown üret.
+  122: JSON, HTML veya kod bloğu üretme.
+  123: Cevabın başında boş satır bırakma.
+  124: `.trim();
+  125: 
+  126: function buildDeDaValidationPrompt(
+  127:   answer: string,
+  128: ): string {
+  129:   return `
+  130: Aşağıdaki de/da sorularını çok sıkı biçimde denetle.
+  131: 
+  132: HER SORU İÇİN:
+  133: 1. Soru kökü "doğrudur" mu, "yanlıştır" mı belirle.
+  134: 2. A, B, C, D ve E seçeneklerini tek tek çöz.
+  135: 3. Her seçeneği DOĞRU veya YANLIŞ diye sınıflandır.
+  136: 4. "Yanlıştır" sorusunda tam olarak 1 yanlış ve 4 doğru olmalı.
+  137: 5. "Doğrudur" sorusunda tam olarak 1 doğru ve 4 yanlış olmalı.
+  138: 6. İki veya daha fazla hedef seçenek varsa INVALID yaz.
+  139: 7. Hiç hedef seçenek yoksa INVALID yaz.
+  140: 8. Anlatım bozukluğu veya doğal olmayan cümle varsa INVALID yaz.
+  141: 9. Cevap anahtarı çözümle uyuşmuyorsa INVALID yaz.
+  142: 10. "de/da" bağlacı ayrı, bulunma hâl eki bitişik yazılmalıdır.
+  143: 11. Özel adlara gelen ek kesme işaretiyle ayrılmalıdır.
+  144: 12. Bağlaç olan de/da hiçbir zaman te/ta olmaz.
+  145: 
+  146: YANIT:
+  147: - Bütün sorular kusursuzsa yalnızca VALID yaz.
+  148: - Sorun varsa INVALID: ile başla.
+  149: - Hatalı soru numarasını, hedef seçenek sayısını ve hatalı seçenekleri yaz.
+  150: - Başka açıklama ekleme.
+  151: 
+  152: SORULAR:
+  153: 
+  154: ${answer}
+  155: `.trim();
+  156: }
+  157: 
+  158: function isValidationSuccessful(
+  159:   validation: string,
+  160: ): boolean {
+  161:   const normalized = validation
+  162:     .replace(/^\uFEFF/, "")
+  163:     .replace(/[\u200B-\u200D\u2060]/g, "")
+  164:     .replace(/：/g, ":")
+  165:     .replace(/\r\n/g, "\n")
+  166:     .replace(/[\*_\x60]/g, "")
+  167:     .trim();
+  168: 
+  169:   const verdictMatches = [
+  170:     ...normalized.matchAll(
+  171:       /(?:^|\n)\s*(?:FINAL\s*:\s*)?(VALID|INVALID)\s*(?=\n|$)/gi,
+  172:     ),
+  173:   ];
+  174: 
+  175:   if (verdictMatches.length === 0) {
+  176:     return false;
+  177:   }
+  178: 
+  179:   const lastVerdict =
+  180:     verdictMatches[
+  181:       verdictMatches.length - 1
+  182:     ][1].toUpperCase();
+  183: 
+  184:   return lastVerdict === "VALID";
+  185: }
+  186: 
+  187: function buildFinalSafeQuestionPrompt(
+  188:   originalPrompt: string,
+  189:   previousAnswer: string,
+  190:   validation: string,
+  191: ): string {
+  192:   return `
+  193: Aşağıdaki soru üretim isteğini sıfırdan yeniden hazırla.
+  194: 
+  195: Bu son ve en sıkı üretim turudur.
+  196: 
+  197: ORİJİNAL İSTEK:
+  198: 
+  199: ${originalPrompt}
+  200: 
+  201: ÖNCEKİ HATALI TASLAK:
+  202: 
+  203: ${previousAnswer}
+  204: 
+  205: DENETİM HATALARI:
+  206: 
+  207: ${validation}
+  208: 
+  209: ZORUNLU KURALLAR:
+  210: 
+  211: - Önceki taslağı düzeltmeye çalışma; soruyu tamamen yeniden üret.
+  212: - İstenen soru sayısına tam uy.
+  213: - Her soru A, B, C, D ve E olmak üzere 5 seçenekli olsun.
+  214: - Her soruda tam olarak bir doğru cevap bulunsun.
+  215: - Bütün seçenekleri tek tek çözmeden cevabı gönderme.
+  216: - Cevap anahtarı ile çözüm birebir uyumlu olsun.
+  217: - Tartışmalı, istisnalı veya birden fazla yoruma açık soru kullanma.
+  218: - Şekil olmadan çözülemeyen soru üretme.
+  219: - Müfredat dışı ayrıntı kullanma.
+  220: - Soru zorluğunu uzunlukla değil düşünme gereksinimiyle oluştur.
+  221: - Cevabı soru kökünde ele verme.
+  222: - Çözümü kısa, doğru ve yeterli yaz.
+  223: - Her çözümün sonunda cevap anahtarındaki harfi "**Doğru cevap: X**" biçiminde yaz.
+  224: - Cevap harfi cevap anahtarıyla birebir aynı olmalıdır.
+  225: - Yalnızca nihai soruları göster.
+  226: - Denetim notlarını kullanıcıya gösterme.
+  227: 
+  228: MATEMATİK:
+  229: - Sonucu yeniden hesapla.
+  230: - Yüzde, kâr, indirim ve karışım oranlarının hangi değer üzerinden alındığını kontrol et.
+  231: - Geometri sorusunda verilenlerin tek sonuca yettiğini doğrula.
+  232: - Aynı sayısal değeri veren iki seçenek oluşturma.
+  233: 
+  234: FİZİK:
+  235: - TYT düzeyinde günlük yaşam, grafik ve temel yorum ağırlıklı soru üret.
+  236: - Kullanıcı özellikle istemedikçe eğik düzlem sürtünmesi, basit harmonik hareket veya ileri işlem kullanma.
+  237: - Yön, işaret, vektör ve birimleri kontrol et.
+  238: - Tam değer ile yaklaşık değeri iki farklı doğru seçenek hâline getirme.
+  239: 
+  240: KİMYA:
+  241: - TYT sorularında kompleks iyon, ileri denge veya tartışmalı moleküller arası etkileşim örnekleri kullanma.
+  242: - Atom, yük ve denklem denkliğini kontrol et.
+  243: - Redoks sorusunda bütün seçeneklerin yükseltgenme basamaklarını ayrı ayrı kontrol et.
+  244: - Birden fazla doğru tepkime oluşturma.
+  245: 
+  246: BİYOLOJİ:
+  247: - Salt ezber yerine kısa deney, gözlem veya neden-sonuç yorumu kullan.
+  248: - Organelleri yalnızca tek göreve sahipmiş gibi anlatma.
+  249: - Kloroplast ve mitokondride ATP üretimi gibi bilimsel ayrıntıları yanlış sınıflandırma.
+  250: - "Her zaman", "yalnızca" ve "kesinlikle" ifadelerini dikkatle kontrol et.
+  251: 
+  252: TÜRKÇE:
+  253: - Doğru cevap yalnızca metinden çıkarılabilsin.
+  254: - Yakın anlamlı iki seçenek birlikte doğru olmasın.
+  255: - Dil bilgisi sorularında bütün seçenekleri TDK kuralına göre kontrol et.
+  256: 
+  257: TARİH:
+  258: - Yalnızca doğruluğundan emin olduğun tarih, olay, kişi ve devlet bilgilerini kullan.
+  259: - Kronoloji sorusunda sıralamayı yeniden kontrol et.
+  260: - Tartışmalı yorumu kesin bilgi gibi sunma.
+  261: - Ezber ayrıntısı yerine neden-sonuç ve kavram bilgisi ölç.
+  262: 
+
+============================================================
+BOLUM 3
+SATIR 268-677
+
+  268: 
+  269: ÇIKTI DÜZENİ:
+  270: 
+  271: ## Sorular
+  272: 
+  273: ### 1. Soru
+  274: Soru metni
+  275: 
+  276: A) ...
+  277: B) ...
+  278: C) ...
+  279: D) ...
+  280: E) ...
+  281: 
+  282: ## Cevap Anahtarı
+  283: 
+  284: 1. X
+  285: 
+  286: ## Çözümler
+  287: 
+  288: ### 1. Soru Çözümü
+  289: Kısa ve doğrulanmış çözüm.
+  290: `.trim();
+  291: }
+  292: 
+  293: function isQuestionValidationAccepted(
+  294:   validation: string,
+  295:   _strictMode = false,
+  296: ): boolean {
+  297:   return isValidationSuccessful(validation);
+  298: }
+  299: 
+  300: function compactValidationLog(
+  301:   validation: string,
+  302: ): string {
+  303:   return validation
+  304:     .replace(/\r\n/g, "\n")
+  305:     .replace(/[ \t]+$/gm, "")
+  306:     .trim()
+  307:     .slice(0, 12_000);
+  308: }
+  309: 
+  310: function logValidationResult(
+  311:   stage: "FIRST" | "SECOND" | "THIRD" | "ADJUDICATION",
+  312:   prompt: string,
+  313:   validation: string,
+  314: ): void {
+  315:   const subjectMatch = prompt.match(
+  316:     /(?:Ders|subjectName|DERS):\s*([^\n]+)/i,
+  317:   );
+  318: 
+  319:   const topicMatch = prompt.match(
+  320:     /(?:Konu|topicName|KONU):\s*([^\n]+)/i,
+  321:   );
+  322: 
+  323:   console.log(
+  324:     [
+  325:       "",
+  326:       "============================================================",
+  327:       `[AI VALIDATION ${stage}]`,
+  328:       `SUBJECT: ${subjectMatch?.[1]?.trim() ?? "UNKNOWN"}`,
+  329:       `TOPIC: ${topicMatch?.[1]?.trim() ?? "UNKNOWN"}`,
+  330:       "RESULT:",
+  331:       compactValidationLog(validation),
+  332:       "============================================================",
+  333:       "",
+  334:     ].join("\n"),
+  335:   );
+  336: }
+  337: 
+  338: function isInconclusiveZeroTargetValidation(
+  339:   validation: string,
+  340: ): boolean {
+  341:   const normalized = validation
+  342:     .toLocaleLowerCase("tr-TR")
+  343:     .replace(/\r\n/g, "\n")
+  344:     .replace(/\s+/g, " ")
+  345:     .trim();
+  346: 
+  347:   const hasZeroTarget =
+  348:     /target_count:\s*0\b/.test(normalized) ||
+  349:     /hedef seçenek sayısı\s*0\b/.test(normalized) ||
+  350:     /0 hedef seçenek\b/.test(normalized);
+  351: 
+  352:   const hasNoConcreteFault =
+  353:     /hatalı seçenek(?:ler)?\s*[-:]*\s*(?:yok|-|none)\b/.test(
+  354:       normalized,
+  355:     ) ||
+  356:     /issue:\s*none\b/.test(normalized) ||
+  357:     /hatalı seçenek yok\b/.test(normalized);
+  358: 
+  359:   return hasZeroTarget && hasNoConcreteFault;
+  360: }
+  361: 
+  362: function buildQuestionAdjudicationPrompt(
+  363:   originalPrompt: string,
+  364:   answer: string,
+  365:   previousValidation: string,
+  366: ): string {
+  367:   return `
+  368: Sen önceki validatordan tamamen bağımsız son karar hakemisin.
+  369: 
+  370: ÖNCEKİ VALIDATOR KARARSIZ SONUÇ ÜRETTİ:
+  371: 
+  372: ${previousValidation}
+  373: 
+  374: Bu sonuçta "0 hedef seçenek" denmesine rağmen somut hatalı seçenek
+  375: gösterilmemiş olabilir. Önceki karara güvenme.
+  376: 
+  377: ZORUNLU İŞLEM:
+  378: 
+  379: 1. Soru kökünü dikkatle oku.
+  380: 2. Soru "hangisi doğrudur" diyorsa doğru seçenekleri say.
+  381: 3. Soru "hangisi yanlıştır" diyorsa yanlış seçenekleri say.
+  382: 4. A, B, C, D ve E seçeneklerini bağımsız biçimde çöz.
+  383: 5. Her seçeneğin neden doğru veya yanlış olduğunu içinden doğrula.
+  384: 6. Cevap anahtarına güvenmeden kendi cevabını bul.
+  385: 7. Kendi cevabını cevap anahtarıyla karşılaştır.
+  386: 8. Çözümün kendi bulduğun cevabı desteklediğini kontrol et.
+  387: 9. Bilimsel, matematiksel veya dil bilgisel hata varsa INVALID ver.
+  388: 10. Tam olarak bir hedef seçenek varsa, cevap anahtarı ve çözüm de
+  389:     onunla uyumluysa VALID ver.
+  390: 11. Emin değilsen VALID verme.
+  391: 
+  392: YANIT BİÇİMİ:
+  393: 
+  394: QUESTION 1
+  395: STEM_TARGET: TRUE veya FALSE
+  396: A: TRUE veya FALSE
+  397: B: TRUE veya FALSE
+  398: C: TRUE veya FALSE
+  399: D: TRUE veya FALSE
+  400: E: TRUE veya FALSE
+  401: STEM_TARGET: TRUE veya FALSE
+  402: TARGET_COUNT: sayı
+  403: INDEPENDENT_ANSWER: A-E
+  404: ANSWER_KEY_MATCH: YES veya NO
+  405: SOLUTION_MATCH: YES veya NO
+  406: ISSUE: NONE veya somut hata
+  407: 
+  408: En son yalnızca şu satırlardan biriyle bitir:
+  409: 
+  410: FINAL: VALID
+  411: 
+  412: veya
+  413: 
+  414: FINAL: INVALID
+  415: REASONS:
+  416: - Somut hata
+  417: 
+  418: ORİJİNAL İSTEK:
+  419: 
+  420: ${originalPrompt}
+  421: 
+  422: DENETLENECEK SORU:
+  423: 
+  424: ${answer}
+  425: `.trim();
+  426: }
+  427: 
+  428: async function adjudicateInconclusiveValidation(
+  429:   prompt: string,
+  430:   answer: string,
+  431:   validation: string,
+  432: ): Promise<boolean> {
+  433:   if (!isInconclusiveZeroTargetValidation(validation)) {
+  434:     return false;
+  435:   }
+  436: 
+  437:   const adjudication = await askNvidia(
+  438:     buildQuestionAdjudicationPrompt(
+  439:       prompt,
+  440:       answer,
+  441:       validation,
+  442:     ),
+  443:     [],
+  444:     [],
+  445:     {
+  446:       temperature: 0.01,
+  447:       topP: 0.2,
+  448:       maxTokens: 4096,
+  449:       allowReasoningValidationFallback: true,
+  450:     },
+  451:   );
+  452: 
+  453:   logValidationResult(
+  454:     "ADJUDICATION",
+  455:     prompt,
+  456:     adjudication,
+  457:   );
+  458: 
+  459:   return isValidationSuccessful(adjudication);
+  460: }
+  461: 
+  462: function buildSubjectAuditPrompt(
+  463:   originalPrompt: string,
+  464:   answer: string,
+  465: ): string {
+  466:   return `
+  467: Aşağıdaki soru setini soruları üreten öğretmenden bağımsız,
+  468: çok sıkı bir YKS editörü olarak denetle.
+  469: 
+  470: ÖNEMLİ:
+  471: - Soru üretme.
+  472: - Yalnızca öğrenciyi yanlış yönlendirecek gerçek hatalarda INVALID kararı ver.
+  473: - Üslup, uzunluk, başlık, küçük ifade tercihi veya çeldirici gücü gibi küçük sorunlarda INVALID verme.
+  474: - Tek doğru cevap, bilimsel doğruluk, cevap anahtarı ve çözüm doğruysa FINAL: VALID ile bitir.
+  475: - Önce bütün soruları kendin çöz.
+  476: - Cevap anahtarına güvenme.
+  477: - Her seçeneği ayrı ayrı incele.
+  478: - Benzer görünen seçenekleri eş değerlik açısından kontrol et.
+  479: - Tam olarak bir doğru seçenek yoksa set geçersizdir.
+  480: - Bilimsel veya matematiksel olarak tartışmalı ifade varsa set geçersizdir.
+  481: - Müfredat dışı veya sınav türüne uygun olmayan soru varsa set geçersizdir.
+  482: - Çözüm yanlış, çelişkili veya cevap anahtarıyla uyumsuzsa set geçersizdir.
+  483: - Çözümün matematiksel, bilimsel veya mantıksal sonucu cevap anahtarıyla uyumlu olmalıdır.
+  484: - Çözüm sonunda bulunan "Doğru cevap: X" satırı cevap anahtarıyla aynı olmalıdır.
+  485: - Harf etiketi eksikse yalnızca biçim sorunu olarak belirt; çözüm ve cevap anahtarı doğruysa INVALID verme.
+  486: - Küçük anlatım ve biçim sorunlarını ISSUE alanına yaz fakat seti geçersiz sayma.
+  487: 
+  488: MATEMATİK:
+  489: - Her işlemi bağımsız yeniden yap.
+  490: - Yüzde, kâr, indirim ve karışım sorularında oranın hangi büyüklük üzerinden alındığını kontrol et.
+  491: - Birim, yuvarlama, tanım kümesi ve özel durumları kontrol et.
+  492: - Aynı değeri veren iki farklı seçenek bulunup bulunmadığını kontrol et.
+  493: - Geometri sorularında verilenlerin tek bir sonuca yetip yetmediğini kontrol et.
+  494: 
+  495: FİZİK:
+  496: - Net kuvvet, yön, işaret, vektör ve birimleri kontrol et.
+  497: - Yaklaşık değer ile tam değerin iki ayrı doğru seçenek oluşturup oluşturmadığını kontrol et.
+  498: - Şekil olmadan çözülemeyen soru varsa geçersiz say.
+  499: - TYT sorusunda gereksiz ileri düzey içerik varsa belirt.
+  500: 
+  501: KİMYA:
+  502: - Bütün seçeneklerde yükseltgenme basamaklarını ayrı ayrı kontrol et.
+  503: - Birden fazla redoks, çökelme veya doğru tepkime bulunup bulunmadığını kontrol et.
+  504: - Denklemde atom ve yük denkliğini kontrol et.
+  505: - TYT kapsamını aşan kompleks iyon veya ileri ayrıntıyı kontrol et.
+  506: - "Her zaman", "tümü" gibi genellemelerin istisnalarını kontrol et.
+  507: 
+  508: BİYOLOJİ:
+  509: - Organellerin birden fazla işlevi olabileceğini dikkate al.
+  510: - Kloroplastta ATP üretimi gibi bilimsel istisnaları kontrol et.
+  511: - "Kesinlikle", "yalnızca", "her zaman" ifadelerini kontrol et.
+  512: - Birden fazla doğru yoruma izin veren seçenek varsa geçersiz say.
+  513: 
+  514: TÜRKÇE VE EDEBİYAT:
+  515: - Doğru cevap yalnızca metinden çıkarılabilmeli.
+  516: - Yakın anlamlı iki seçeneğin birlikte doğru olup olmadığını kontrol et.
+  517: - Yazım ve dil bilgisi sorularında bütün seçenekleri ayrı ayrı çöz.
+  518: - Olumsuz soru kökünü ve cevap anahtarını kontrol et.
+  519: 
+  520: TARİH:
+  521: - Tarih, devlet, kişi, antlaşma ve olay eşleşmelerini kontrol et.
+  522: - Kronolojiyi bağımsız olarak sırala.
+  523: - Tartışmalı yorumu kesin bilgi gibi sunan soruyu geçersiz say.
+  524: 
+  525: COĞRAFYA:
+  526: - Ölçek ve birim dönüşümünü bağımsız hesapla.
+  527: - Projeksiyon, yön, izohips ve harita sembollerini kontrol et.
+  528: - Harita veya şekil olmadan çözülemeyen soruyu geçersiz say.
+  529: - Genellemelerin istisnalarını kontrol et.
+  530: 
+  531: ZORUNLU DENETİM ÇIKTISI:
+  532: 
+  533: QUESTION 1
+  534: A: TRUE veya FALSE
+  535: B: TRUE veya FALSE
+  536: C: TRUE veya FALSE
+  537: D: TRUE veya FALSE
+  538: E: TRUE veya FALSE
+  539: TARGET_COUNT: sayı
+  540: ANSWER_KEY_MATCH: YES veya NO
+  541: ISSUE: yoksa NONE, varsa kısa hata
+  542: 
+  543: Aynı düzeni bütün sorular için uygula.
+  544: 
+  545: En son mutlaka tek bir nihai karar ver.
+  546: 
+  547: Karar son satırda olmalıdır.
+  548: Karardan sonra hiçbir karakter veya açıklama yazma.
+  549: VALID ve INVALID kararlarını aynı yanıtta birlikte kullanma.
+  550: 
+  551: Yalnızca:
+  552: 
+  553: FINAL: VALID
+  554: 
+  555: veya
+  556: 
+  557: FINAL: INVALID
+  558: REASONS:
+  559: - Soru numarası: hata
+  560: 
+  561: ORİJİNAL İSTEK:
+  562: 
+  563: ${originalPrompt}
+  564: 
+  565: DENETLENECEK SORULAR:
+  566: 
+  567: ${answer}
+  568: `.trim();
+  569: }
+  570: 
+  571: function buildQuestionValidationPrompt(
+  572:   answer: string,
+  573: ): string {
+  574:   return `
+  575: Aşağıdaki çoktan seçmeli soruları bağımsız bir YKS soru denetçisi olarak kontrol et.
+  576: 
+  577: DENETİM KURALLARI:
+  578: - İstenen soru sayısı doğru mu?
+  579: - Her soru A, B, C, D ve E olmak üzere 5 seçenekli mi?
+  580: - Her soruda tam olarak bir doğru seçenek var mı?
+  581: - Birden fazla doğru seçenek bulunuyor mu?
+  582: - Hiç doğru seçenek bulunmayan soru var mı?
+  583: - Cevap, soru kökünde veya açıklamada sızdırılmış mı?
+  584: - Aynı veya eş anlamlı seçenekler var mı?
+  585: - Soru kökü açık ve tek anlamlı mı?
+  586: - Cevap anahtarı ile çözüm aynı sonucu veriyor mu?
+  587: - Türkçe sorularında bağlaç olan "de/da" ile bulunma hâl eki doğru ayrılmış mı?
+  588: - De/da sorularında seçenekler tam ve doğal cümlelerden mi oluşuyor?
+  589: - "dey", "day", "hiçbiri", "hepsi" veya yalnızca eklerden oluşan seçenek var mı?
+  590: - Bağlaç olan de/da yanlışlıkla te/ta biçiminde kullanılmış mı?
+  591: - Özel adlara gelen eklerde kesme işareti doğru kullanılmış mı?
+  592: - Yazım, noktalama veya anlatım bozukluğu var mı?
+  593: - Matematik ve fen sorularında işlem, birim, işaret veya koşul hatası var mı?
+  594: 
+  595: YANIT BİÇİMİ:
+  596: - Bütün sorular kusursuzsa yalnızca VALID yaz.
+  597: - En az bir sorun varsa INVALID: ile başla.
+  598: - Ardından soru numarasını ve hatayı kısa, açık biçimde yaz.
+  599: - Soruları yeniden çözerek kontrol et.
+  600: - Başka açıklama ekleme.
+  601: 
+  602: DENETLENECEK TASLAK:
+  603: 
+  604: ${answer}
+  605: `.trim();
+  606: }
+  607: 
+  608: function buildQuestionRepairPrompt(
+  609:   originalPrompt: string,
+  610:   draft: string,
+  611:   validation: string,
+  612: ): string {
+  613:   return `
+  614: ${originalPrompt}
+  615: 
+  616: ÖNCEKİ TASLAK:
+  617: 
+  618: ${draft}
+  619: 
+  620: BAĞIMSIZ DENETİM SONUCU:
+  621: 
+  622: ${validation}
+  623: 
+  624: ZORUNLU DÜZELTME:
+  625: - Denetimde belirtilen bütün hataları düzelt.
+  626: - Hatalı soruları tamamen yeniden yaz.
+  627: - Her soruyu yeniden çöz.
+  628: - Her soruda tam olarak bir doğru seçenek bulunduğunu doğrula.
+  629: - Cevabı soru kökünde ele verme.
+  630: - Cevap anahtarı ve çözümleri sorulardan sonra ayrı bölümlerde ver.
+  631: - Her düzeltilmiş çözümün son satırına "**Doğru cevap: X**" ekle.
+  632: - X harfi cevap anahtarıyla aynı olmalıdır.
+  633: - Denetim sonucunu kullanıcıya gösterme.
+  634: - Yalnızca düzeltilmiş nihai soruları üret.
+  635: `.trim();
+  636: }
+  637: 
+  638: function analyzeQuestionStructure(
+  639:   answer: string,
+  640: ): {
+  641:   complete: boolean;
+  642:   questionCount: number;
+  643:   solutionCount: number;
+  644:   answerKeyCount: number;
+  645:   missingSections: string[];
+  646:   missingOptions: string[];
+  647: } {
+  648:   const normalized = answer
+  649:     .replace(/\r\n/g, "\n")
+  650:     .trim();
+  651: 
+  652:   const missingSections: string[] = [];
+  653: 
+  654:   if (!/^##\s+Sorular\s*$/im.test(normalized)) {
+  655:     missingSections.push("Sorular");
+  656:   }
+  657: 
+  658:   if (!/^##\s+Cevap Anahtarı\s*$/im.test(normalized)) {
+  659:     missingSections.push("Cevap Anahtari");
+  660:   }
+  661: 
+  662:   if (!/^##\s+Çözümler\s*$/im.test(normalized)) {
+  663:     missingSections.push("Cozumler");
+  664:   }
+  665: 
+  666:   const questionArea =
+  667:     normalized.split(
+  668:       /^##\s+Cevap Anahtarı\s*$/im,
+  669:     )[0] ?? "";
+  670: 
+  671:   const answerKeyArea =
+  672:     normalized
+  673:       .split(/^##\s+Cevap Anahtarı\s*$/im)[1]
+  674:       ?.split(/^##\s+Çözümler\s*$/im)[0] ?? "";
+  675: 
+  676:   const solutionArea =
+  677:     normalized.split(
+
+============================================================
+BOLUM 4
+SATIR 889-1145
+
+  889:     if (
+  890:       answerLetter &&
+  891:       !/doğru\s+cevap\s*:\s*[A-E]\b/i.test(
+  892:         section,
+  893:       )
+  894:     ) {
+  895:       section =
+  896:         section.trimEnd() +
+  897:         "\n\n**Doğru cevap: " +
+  898:         answerLetter +
+  899:         "**\n";
+  900:     }
+  901: 
+  902:     rebuilt += section;
+  903:   }
+  904: 
+  905:   return (
+  906:     beforeSolutions +
+  907:     "\n\n## Çözümler\n\n" +
+  908:     rebuilt.trim()
+  909:   )
+  910:     .replace(/\n{3,}/g, "\n\n")
+  911:     .trim();
+  912: }
+  913: 
+  914: async function generateVerifiedQuestionAnswer(
+  915:   prompt: string,
+  916:   attachments: NvidiaAttachment[],
+  917:   options: NvidiaRequestOptions,
+  918:   isDeDaQuestion: boolean,
+  919: ): Promise<string> {
+  920:   let draft = ensureSolutionAnswerLabels(
+  921:     await askNvidia(
+  922:       prompt,
+  923:       [],
+  924:       attachments,
+  925:       options,
+  926:       )
+  927:   );
+  928: 
+  929:   const validationPrompt = isDeDaQuestion
+  930:     ? buildDeDaValidationPrompt(draft)
+  931:     : buildSubjectAuditPrompt(prompt, draft);
+  932: 
+  933:   const firstValidation = await askNvidia(
+  934:     validationPrompt,
+  935:     [],
+  936:     [],
+  937:     {
+  938:       temperature: 0.05,
+  939:       topP: 0.35,
+  940:       maxTokens: 4096,
+  941:       allowReasoningValidationFallback: true,
+  942:     },
+  943:   );
+  944: 
+  945:   logValidationResult(
+  946:     "FIRST",
+  947:     prompt,
+  948:     firstValidation,
+  949:   );
+  950: 
+  951:   if (
+  952:     isQuestionResponseStructurallyComplete(draft) &&
+  953:     isQuestionValidationAccepted(firstValidation, isDeDaQuestion)
+  954:   ) {
+  955:     return draft;
+  956:   }
+  957: 
+  958:   if (
+  959:     isQuestionResponseStructurallyComplete(draft) &&
+  960:     !isDeDaQuestion &&
+  961:     await adjudicateInconclusiveValidation(
+  962:       prompt,
+  963:       draft,
+  964:       firstValidation,
+  965:     )
+  966:   ) {
+  967:     return draft;
+  968:   }
+  969: 
+  970:   let repaired = ensureSolutionAnswerLabels(
+  971:     await askNvidia(
+  972:       buildQuestionRepairPrompt(
+  973:       prompt,
+  974:       draft,
+  975:       firstValidation,
+  976:       ),
+  977:       [],
+  978:       attachments,
+  979:       {
+  980:       temperature: 0.12,
+  981:       topP: 0.65,
+  982:       maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
+  983:       },
+  984:       )
+  985:   );
+  986: 
+  987:   const secondValidation = await askNvidia(
+  988:     isDeDaQuestion
+  989:       ? buildDeDaValidationPrompt(repaired)
+  990:       : buildSubjectAuditPrompt(prompt, repaired),
+  991:     [],
+  992:     [],
+  993:     {
+  994:       temperature: 0.03,
+  995:       topP: 0.3,
+  996:       maxTokens: 4096,
+  997:       allowReasoningValidationFallback: true,
+  998:     },
+  999:   );
+ 1000: 
+ 1001:   logValidationResult(
+ 1002:     "SECOND",
+ 1003:     prompt,
+ 1004:     secondValidation,
+ 1005:   );
+ 1006: 
+ 1007:   if (
+ 1008:     isQuestionResponseStructurallyComplete(repaired) &&
+ 1009:     isQuestionValidationAccepted(secondValidation, isDeDaQuestion)
+ 1010:   ) {
+ 1011:     return repaired;
+ 1012:   }
+ 1013: 
+ 1014:   if (
+ 1015:     isQuestionResponseStructurallyComplete(repaired) &&
+ 1016:     !isDeDaQuestion &&
+ 1017:     await adjudicateInconclusiveValidation(
+ 1018:       prompt,
+ 1019:       repaired,
+ 1020:       secondValidation,
+ 1021:     )
+ 1022:   ) {
+ 1023:     return repaired;
+ 1024:   }
+ 1025: 
+ 1026:   let finalSafeAnswer = ensureSolutionAnswerLabels(
+ 1027:     await askNvidia(
+ 1028:       buildFinalSafeQuestionPrompt(
+ 1029:       prompt,
+ 1030:       repaired,
+ 1031:       secondValidation,
+ 1032:       ),
+ 1033:       [],
+ 1034:       attachments,
+ 1035:       {
+ 1036:       temperature: 0.06,
+ 1037:       topP: 0.45,
+ 1038:       maxTokens: Math.max(options.maxTokens ?? 4096, 4096),
+ 1039:       },
+ 1040:       )
+ 1041:   );
+ 1042: 
+ 1043:   const thirdValidation = await askNvidia(
+ 1044:     isDeDaQuestion
+ 1045:       ? buildDeDaValidationPrompt(finalSafeAnswer)
+ 1046:       : buildSubjectAuditPrompt(prompt, finalSafeAnswer),
+ 1047:     [],
+ 1048:     [],
+ 1049:     {
+ 1050:       temperature: 0.02,
+ 1051:       topP: 0.25,
+ 1052:       maxTokens: 4096,
+ 1053:       allowReasoningValidationFallback: true,
+ 1054:     },
+ 1055:   );
+ 1056: 
+ 1057:   logValidationResult(
+ 1058:     "THIRD",
+ 1059:     prompt,
+ 1060:     thirdValidation,
+ 1061:   );
+ 1062: 
+ 1063:   if (
+ 1064:     isQuestionResponseStructurallyComplete(finalSafeAnswer) &&
+ 1065:     isQuestionValidationAccepted(thirdValidation, isDeDaQuestion)
+ 1066:   ) {
+ 1067:     return finalSafeAnswer;
+ 1068:   }
+ 1069: 
+ 1070:   if (
+ 1071:     isQuestionResponseStructurallyComplete(finalSafeAnswer) &&
+ 1072:     !isDeDaQuestion &&
+ 1073:     await adjudicateInconclusiveValidation(
+ 1074:       prompt,
+ 1075:       finalSafeAnswer,
+ 1076:       thirdValidation,
+ 1077:     )
+ 1078:   ) {
+ 1079:     return finalSafeAnswer;
+ 1080:   }
+ 1081: 
+ 1082:   const finalReason = compactValidationLog(
+ 1083:     thirdValidation,
+ 1084:   )
+ 1085:     .replace(/\s+/g, " ")
+ 1086:     .slice(0, 1500);
+ 1087: 
+ 1088:   throw new Error(
+ 1089:     [
+ 1090:       "Soru seti üç bağımsız kalite kontrolünden geçemedi.",
+ 1091:       "Hatalı soru kullanıcıya gösterilmedi.",
+ 1092:       `Son denetim sonucu: ${finalReason}`,
+ 1093:     ].join(" "),
+ 1094:   );
+ 1095: }
+ 1096: 
+ 1097: const DE_DA_QUESTION_RULES = `
+ 1098: DE/DA SORULARI İÇİN ÖZEL ZORUNLU FORMAT:
+ 1099: 
+ 1100: - Boşluk doldurma sorusu üretme.
+ 1101: - Seçenekleri yalnızca "de", "da", "te", "ta" veya uydurma sözcüklerden oluşturma.
+ 1102: - "dey", "day", "hiçbiri", "hepsi" gibi seçenekler kesinlikle kullanma.
+ 1103: - Her seçenekte doğal ve eksiksiz bir Türkçe cümle yaz.
+ 1104: - Her soru şu iki kalıptan biriyle hazırlanmalı:
+ 1105:   1. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı yanlıştır?"
+ 1106:   2. "Aşağıdaki cümlelerin hangisinde de/da'nın yazımı doğrudur?"
+ 1107: - Her soruda yalnızca bir seçenek hedeflenen cevaba uymalıdır.
+ 1108: - Diğer dört seçenek kesin ve tartışmasız biçimde karşıt durumda olmalıdır.
+ 1109: - "Yanlıştır" sorusunda yalnızca bir yanlış, dört doğru seçenek bulunmalıdır.
+ 1110: - "Doğrudur" sorusunda yalnızca bir doğru, dört yanlış seçenek bulunmalıdır.
+ 1111: - Her seçeneği ayrı ayrı çözmeden soruyu gönderme.
+ 1112: - İkinci bir yanlış veya doğru seçenek varsa soruyu tamamen yeniden yaz.
+ 1113: - "Bahçe de çiçekler açtı", "Kardeşimde bizimle geldi" gibi birden fazla hatalı seçeneği aynı soruda kullanma.
+ 1114: - Doğru seçenek dışındaki cümleler de doğal, anlamlı ve dil bilgisi açısından eksiksiz olmalıdır.
+ 1115: - Bağlaç olan "de/da" ayrı yazılır.
+ 1116: - Bulunma hâl eki "-de/-da/-te/-ta" kelimeye bitişik yazılır.
+ 1117: - Özel adlara gelen bulunma hâl eki kesme işaretiyle ayrılır: Ankara'da, İstanbul'da.
+ 1118: - "de/da" bağlacı hiçbir zaman "te/ta" biçimine dönüşmez.
+ 1119: - Ünsüz benzeşmesi yalnızca bulunma hâl ekinde görülür: sınıfta, parkta.
+ 1120: - Her seçeneği cümleden "de/da" çıkarma yöntemiyle kontrol et.
+ 1121: - Çıkarıldığında temel anlam bozulmuyorsa bağlaçtır ve ayrı yazılır.
+ 1122: - Yer, zaman veya bulunma anlamı veriyorsa ektir ve bitişik yazılır.
+ 1123: - Anlatım bozukluğu, eksik öge veya doğal olmayan cümle kullanma.
+ 1124: - Cevap anahtarındaki harf ile çözümdeki harf aynı olmalıdır.
+ 1125: - Çözümde yanlış cümleyi doğruymuş gibi savunma.
+ 1126: 
+ 1127: ÖRNEK SORU YAPISI:
+ 1128: 
+ 1129: ### 1. Soru
+ 1130: Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+ 1131: 
+ 1132: A) Ben de seninle geleceğim.
+ 1133: B) Kitaplar masada duruyor.
+ 1134: C) Ankara'da hava soğuktu.
+ 1135: D) Oda çok sessizdi.
+ 1136: E) Kardeşimde bizimle geldi.
+ 1137: 
+ 1138: Bu örnekte yalnızca E yanlıştır. Çünkü bağlaç olan "de" ayrı yazılmalıdır:
+ 1139: "Kardeşim de bizimle geldi."
+ 1140: 
+ 1141: Bu örneği birebir kopyalama; aynı kesinlikte özgün sorular üret.
+ 1142: `.trim();
+ 1143: 
+ 1144: function buildDeterministicDeDaQuiz(): string {
+ 1145:   return `
+
+============================================================
+BOLUM 5
+SATIR 2092-2144
+
+ 2092:     const requestText = JSON.stringify(parsed.data);
+ 2093: 
+ 2094:     if (
+ 2095:       isQuestionGenerationRequest(feature, parsed.data) &&
+ 2096:       /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(requestText)
+ 2097:     ) {
+ 2098:       prompt = [
+ 2099:         prompt,
+ 2100:         DE_DA_QUESTION_RULES,
+ 2101:       ].join("\n\n");
+ 2102:     }
+ 2103: 
+ 2104:     console.log("[ROUTE] askNvidia baÅŸladÄ±");
+ 2105: 
+ 2106:     const attachments =
+ 2107:       feature === "teach-topic" && Array.isArray(parsed.data.attachments)
+ 2108:         ? (parsed.data.attachments as NvidiaAttachment[])
+ 2109:         : [];
+ 2110: 
+ 2111:     const options = getNvidiaOptions(feature, parsed.data);
+ 2112: 
+ 2113:     const answer = isQuestionGenerationRequest(
+ 2114:       feature,
+ 2115:       parsed.data,
+ 2116:     )
+ 2117:       ? await generateVerifiedQuestionAnswer(
+ 2118:           prompt,
+ 2119:           attachments,
+ 2120:           options,
+ 2121:           /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
+ 2122:             requestText,
+ 2123:           ),
+ 2124:         )
+ 2125:       : await askNvidia(
+ 2126:           prompt,
+ 2127:           [],
+ 2128:           attachments,
+ 2129:           options,
+ 2130:         );
+ 2131: 
+ 2132:     console.log("[ROUTE] askNvidia bitti");
+ 2133: 
+ 2134:     return response.json({
+ 2135:       content: answer,
+ 2136:       provider: "nvidia",
+ 2137:       model: process.env.NVIDIA_MODEL ?? "openai/gpt-oss-120b",
+ 2138:       usage: null,
+ 2139:     });
+ 2140:   } catch (error) {
+ 2141:     next(error);
+ 2142:   }
+ 2143: });
+ 2144: 
+
+============================================================
+BEKLENEN DUZELTME:
+- FINAL: VALID sonucu başarı kabul edilmeli
+- ISSUE: NONE ve tek doğru seçenek geçerli sayılmalı
+- Gerçek INVALID sonuçlar reddedilmeye devam etmeli
+- Kimya, Biyoloji ve Coğrafya 2 gibi hatalı sorular kullanıcıya gösterilmemeli
+- Validator gevşetilmemeli; yalnız karar birleştirme hatası düzeltilmeli

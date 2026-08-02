@@ -1,0 +1,50 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki sözcüklerden hangisinde ek alırken ünsüz yumuşaması gerçekleşir?
+
+A) kitap
+B) kalem
+C) kavram
+D) masa
+E) yazı
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: beş seçenekli sözcük listesi.
+- İstenen: ek alırken ünsüz yumuşaması (p→b, ç→c, t→d, k→ğ) gösteren sözcük.
+- Kullanılacak yöntem: her sözcüğün kökündeki son ünsüzü belirleyip yumuşama kuralına bakmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Seçeneklerdeki sözcüklerin kök hâlindeki son ünsüzü tespit et.
+- A) kitap → **p**
+- B) kalem → **m**
+- C) kavram → **m**
+- D) masa → **s**
+- E) yazı → sesli harf (**ı**)
+
+### 2. Adım
+Ünsüz yumuşaması kuralına göre p, ç, t, k sonundaki sözcükler sesli ek aldığında b, c, d, ğ olur. Diğer ünsüzlerde yumuşama yoktur.
+- A) **p → b** (kitap + ı = **kitabı**) → yumuşama var.
+- B) **m** yumuşamaz (kalem + i = kalemi).
+- C) **m** yumuşamaz (kavram + ı = kavramı).
+- D) **s** yumuşamaz (masa + sı = masası).
+- E) sesli harfle bittiği için yumuşama söz konusu değil (yazı + sı = yazısı).
+
+### 3. Adım
+Yukarıdaki incelemeye göre yalnızca A seçeneğinde ünsüz yumuşaması gerçekleşir.
+
+## Sonuç
+Doğru seçenek **A** şıkkıdır.
+
+## Kontrol
+"kitap" kelimesinin son ünsüzü **p**; sesli ek **-ı** alırken **p → b** dönüşür ve "kitabı" oluşur. Diğer seçeneklerde son ünsüz yumuşama kurallarına uymadığı için değişmez. Sonuç tutarlıdır.

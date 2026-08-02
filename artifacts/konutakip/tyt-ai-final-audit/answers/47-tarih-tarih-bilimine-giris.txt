@@ -1,0 +1,50 @@
+## Sorular
+
+### 1. Soru
+“Tarih Bilimine Giriş” kapsamında tarihsel bir kaynağın güvenilirliğini belirleyen en önemli kriter aşağıdakilerden hangisidir?
+
+A) Kaynağın yazarının sosyal statüsü
+B) Kaynağın üretildiği zaman ile olayın gerçekleştiği zaman arasındaki süre
+C) Kaynağın uzunluğu
+D) Kaynağın bulunduğu coğrafi konum
+E) Kaynağın dili
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** Tarihsel bir kaynağın güvenilirliğini etkileyen faktörler sorulmaktadır.
+- **İstenen:** En önemli kriterin hangisi olduğunu belirlemek.
+- **Kullanılacak yöntem:** Tarih biliminin kaynak eleştirisi ilkeleri incelenir; özellikle “zaman yakınlığı” (kaynağın olayla aynı dönemde üretilmesi) kriteri değerlendirilir.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Kaynağın güvenilirliğini etkileyen temel kriterleri hatırlayalım: yazarın kimliği, kaynağın üretim zamanı, içerik tutarlılığı, coğrafi konum ve dil.
+
+### 2. Adım
+Kaynağın üretim zamanı ile olayın gerçekleştiği zaman arasındaki süre (zaman yakınlığı), tarihsel olayların aslına en yakın bilgiyi verir; bu yüzden en önemli kriterdir.
+
+### 3. Adım
+Diğer seçenekleri inceleyelim:
+- A) Yazarın sosyal statüsü, güvenilirliği etkileyebilir ama tek başına belirleyici değildir.
+- C) Uzunluk, bilginin kapsamını gösterir ancak doğruluğu ölçmez.
+- D) Coğrafi konum, olayın yerel bağlamını etkileyebilir fakat zaman yakınlığı kadar kritik değildir.
+- E) Dil, çeviri hatalarına yol açabilir ama yine de zaman faktörünün yerini tutmaz.
+
+### 4. Adım
+Bu değerlendirmeye göre en doğru seçenek B şıkkıdır.
+
+## Sonuç
+
+En önemli kriter, kaynağın üretildiği zaman ile olayın gerçekleştiği zaman arasındaki süredir. **Doğru cevap: B şıkkı**.
+
+## Kontrol
+
+Kaynağın olayla aynı dönemde üretilmesi, bilgi kaybı ve yorum hatalarını en aza indirir; diğer faktörler ikincil öneme sahiptir. Bu mantıkla B seçeneğinin doğru olduğu teyit edilir.

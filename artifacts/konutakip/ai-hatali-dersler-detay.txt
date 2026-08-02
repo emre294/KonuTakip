@@ -1,0 +1,37 @@
+﻿============================================================
+DERS: Matematik
+STATUS: 500
+ERROR BODY:
+{"error":"Üretilen sorular ikinci kalite kontrolünden geçemedi. Yanlış veya birden fazla doğru cevap içeren soru kullanıcıya gösterilmedi. Lütfen isteği yeniden gönderin."}
+
+============================================================
+DERS: Fizik
+STATUS: 200
+BODY:
+{"content":"## Sorular\n\n### 1. Soru\nBir 5 kg kütleli blok, yatayla 30° açı yapan pürüzlü bir eğik düzleme yerleştirilmiştir. Blok ile düzlem arasındaki statik sürtünme katsayısı μs = 0.4, kayma sürtünme katsayısı μk = 0.3'tür. Aşağıdakilerden hangisi doğrudur?\n\nA) Blok hareketsiz kalır.\nB) Blok, eğik düzlem boyunca aşağı doğru 2.35 m/s² ivme ile hareket eder.\nC) Blok, eğik düzlem boyunca yukarı doğru 2.35 m/s² ivme ile hareket eder.\nD) Blok, eğik düzlem boyunca aşağı doğru 1.20 m/s² ivme ile hareket eder.\nE) Blok, eğik düzlem boyunca aşağı doğru sabit hızla hareket eder.\n\n## Cevap Anahtarı\n\n1. B\n\n## Çözümler\n\n### 1. Soru Çözümü\n**1. Adım**\nBlokun ağırlığını bulun: W = m g = 5 kg × 9.8 m/s² = 49 N.\n\n**2. Adım**\nEğim doğrultusundaki ağırlık bileşeni: W‖ = W sin30° = 49 N × 0.5 = 24.5 N (aşağı doğru).\n\n**3. Adım**\nDüzleme dik bileşen: W⊥ = W cos30° ≈ 49 N × 0.866 ≈ 42.4 N.\n\n**4. Adım**\nMaksimum statik sürtünme: Fs(max) = μs · W⊥ ≈ 0.4 × 42.4 ≈ 16.97 N.\n\n**5. Adım**\nW‖ > Fs(max) olduğu için blok aşağı doğru hareket eder.\n\n**6. Adım**\nKayma sürtünmesi: Fk = μk · W⊥ ≈ 0.3 × 42.4 ≈ 12.73 N (aşağı yönüne karşı).\n\n**7. Adım**\nNet kuvvet: Fnet = W‖ − Fk ≈ 24.5 N − 12.73 N ≈ 11.77 N (aşağı doğru).\n\n**8. Adım**\nİvme: a = Fnet / m ≈ 11.77 N / 5 kg ≈ 2.35 m/s², eğik düzlem aşağı yönünde.\n\n**Sonuç**\nBlok, eğik düzlem boyunca aşağı doğru 2.35 m/s² ivme ile hareket eder; doğru seçenek B'dir.","provider":"nvidia","model":"openai/gpt-oss-120b","usage":null}
+
+============================================================
+DERS: Kimya
+STATUS: 200
+BODY:
+{"content":"## Sorular\n\n### 1. Soru\nAşağıdaki çözeltilerden hangisinde çözücü (su) ile çözünen arasındaki etkileşim hem iyon‑dipol hem de dipol‑dipol (hidrojen bağı) etkileşiminin birlikte etkili olduğu söylenebilir?\n\nA) NaCl suda\nB) CH₃COONa suda\nC) C₆H₁₂O₆ suda\nD) H₂O – CCl₄ karışımı\nE) CO₂ suda\n\n## Cevap Anahtarı\n\n1. B\n\n## Çözümler\n\n### 1. Soru Çözümü\n\n## Soru Analizi\n\n- **Verilen:** Beş farklı çözelti ve çözücü‑çözünen etkileşim türleri.\n- **İstenen:** Hangi çözelti için iyon‑dipol ve dipol‑dipol (hidrojen bağı) etkileşimlerinin aynı anda bulunduğunu belirlemek.\n- **Kullanılacak yöntem:** Çözünenin iyonik ya da poliatomik yapısını ve su molekülünün özelliklerini inceleyerek etkileşim tiplerini sınıflandırmak.\n\n## Adım Adım Çözüm\n\n### 1. Adım\nSu, yüksek dipol momentine sahip polar bir çözücüdür; pozitif (H) ve negatif (O) uçları bulunur. Bu yüzden su, iyonik türler ile iyon‑dipol, polar moleküller ile dipol‑dipol (hidrojen bağı) etkileşimi kurabilir.\n\n### 2. Adım\nA seçeneğinde NaCl tamamen iyonlaşarak Na⁺ ve Cl⁻ iyonları oluşturur. Sadece iyon‑dipol etkileşimi vardır; hidrojen bağı yoktur.\n\n### 3. Adım\nB seçeneğinde CH₃COONa suda Na⁺, CH₃COO⁻ iyonlarına ayrılır. Na⁺ ve CH₃COO⁻ iyonları suyun dipol uçlarıyla iyon‑dipol etkileşimi yapar. Ayrıca, asetat iyonundaki –COO⁻ grubu su molekülleriyle hidrojen bağı (O‑H…O) kurabilir; bu da dipol‑dipol (hidrojen bağ) etkileşimine örnektir. Dolayısıyla iki etkileşim bir arada bulunur.\n\n### 4. Adım\nC seçeneğinde C₆H₁₂O₆ (glukoz) polar bir kovalent molekül olup sadece dipol‑dipol (hidrojen bağ) etkileşimi gösterir; iyon‑dipol yoktur.\n\n### 5. Adım\nD seçeneğinde H₂O – CCl₄ karışımında su ve CCl₄ arasındaki tek etkileşim London dağılım kuvvetidir; iyon‑dipol ve dipol‑dipol yoktur.\n\n### 6. Adım\nE seçeneğinde CO₂, lineer ve non‑polar bir gazdır; suda çözünürken sadece dipol‑indüklenmiş dipol etkileşimi görülür; iyon‑dipol yoktur.\n\n## Sonuç\n\nHem iyon‑dipol hem de dipol‑dipol (hidrojen bağı) etkileşiminin aynı anda etkili olduğu çözelti **B) CH₃COONa suda** seçeneğidir.\n\n## Kontrol\n\nCH₃COONa → Na⁺ + CH₃COO⁻. Na⁺ ve CH₃COO⁻ iyonları suyun dipol uçlarıyla iyon‑dipol bağ kurar. Asetat iyonundaki oksijen atomu suyun H atomu ile H‑O…O hidrojen bağı oluşturur. İki farklı etkileşim mevcut olduğu doğrulanır.","provider":"nvidia","model":"openai/gpt-oss-120b","usage":null}
+
+============================================================
+DERS: Biyoloji
+STATUS: 500
+ERROR BODY:
+{"error":"Üretilen sorular ikinci kalite kontrolünden geçemedi. Yanlış veya birden fazla doğru cevap içeren soru kullanıcıya gösterilmedi. Lütfen isteği yeniden gönderin."}
+
+============================================================
+DERS: Tarih
+STATUS: 500
+ERROR BODY:
+{"error":"Üretilen sorular ikinci kalite kontrolünden geçemedi. Yanlış veya birden fazla doğru cevap içeren soru kullanıcıya gösterilmedi. Lütfen isteği yeniden gönderin."}
+
+============================================================
+DERS: Coğrafya
+STATUS: 500
+ERROR BODY:
+{"error":"Üretilen sorular ikinci kalite kontrolünden geçemedi. Yanlış veya birden fazla doğru cevap içeren soru kullanıcıya gösterilmedi. Lütfen isteği yeniden gönderin."}
+
+

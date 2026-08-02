@@ -1,0 +1,425 @@
+TYT AI YENIDEN SINIFLANDIRMA RAPORU
+
+TOPLAM KONU: 43
+BASARILI: 12
+PROMPT IYILESTIRME: 4
+GERCEK ISTEK HATASI: 27
+
+============================================================
+DERS: Türkçe
+KONU: Sözcükte Anlam
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Cümlede Anlam
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Sözcük Türleri
+SON DURUM: PROMPT_IYILESTIRME
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: PROMPT_IYILESTIRME
+- Çözüm C cevabını açık biçimde doğrulamıyor.
+
+============================================================
+DERS: Türkçe
+KONU: Paragraf
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Türkçe
+KONU: Noktalama İşaretleri
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Sayılar ve Sayı Sistemleri
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Doğal Sayılarda İşlemler
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Matematik
+KONU: Bölme ve Bölünebilme
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Matematik
+KONU: EBOB ve EKOK
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Kesirler ve Ondalıklar
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Üslü Sayılar
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Köklü Sayılar
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Oran-Orantı
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Y�zde ve K�r-Zarar
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Temel Kavramlar
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Denklemler
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Eşitsizlikler
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Dörtgenler ve Çokgenler
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: PROMPT_IYILESTIRME
+- Konu ilişkisi manuel kontrol edilmeli.
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Çember ve Daire
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Olasılık
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: İstatistik
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Matematik
+KONU: Problemler
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Fiziksel Büyüklükler ve Ölçme
+SON DURUM: PROMPT_IYILESTIRME
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: PROMPT_IYILESTIRME
+- Çözüm A cevabını açık biçimde doğrulamıyor.
+
+============================================================
+DERS: Fizik
+KONU: Madde ve Özellikleri
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Hareket ve Kuvvet
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Basınç ve Kaldırma Kuvveti
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Isı ve Sıcaklık
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Elektrostatik
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Fizik
+KONU: Optik
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Kimya
+KONU: Atom ve Periyodik Sistem
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Kimya
+KONU: Karışımlar
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Kimya
+KONU: Kimyasal Tepkimeler
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Kimya
+KONU: Organik Kimya Temelleri
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Biyoloji
+KONU: Kalıtım
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Biyoloji
+KONU: Ekosistem
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Tarih
+KONU: Tarih Bilimine Giriş
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Tarih
+KONU: İlk Türk Devletleri
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Tarih
+KONU: İslam Tarihi
+SON DURUM: PROMPT_IYILESTIRME
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: PROMPT_IYILESTIRME
+- Çözüm B cevabını açık biçimde doğrulamıyor.
+
+============================================================
+DERS: Coğrafya
+KONU: Dünya'nın Şekli ve Hareketleri
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Coğrafya
+KONU: Nüfus
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Felsefe
+KONU: Felsefeye Giriş
+SON DURUM: BASARILI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: BASARILI
+
+============================================================
+DERS: Felsefe
+KONU: Bilgi Felsefesi
+SON DURUM: GERCEK_ISTEK_HATASI
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: YENIDEN_URETIM_GEREKLI
+- HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Lütfen isteği farklı bir konu veya seviye belirterek yeniden gönderin.
+
+============================================================
+DERS: Felsefe
+KONU: Ahlak Felsefesi
+SON DURUM: PROMPT_IYILESTIRME
+
+ANLATIM: BASARILI
+
+SORU/CEVAP/COZUM: PROMPT_IYILESTIRME
+- Çözüm C cevabını açık biçimde doğrulamıyor.

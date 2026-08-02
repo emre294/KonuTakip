@@ -1,0 +1,765 @@
+AYT 4/7 APPCONTEXT YAPI RAPORU
+
+TOPLAM SATIR: 1423
+BULUNAN BOLUM: 7
+
+============================================================
+BOLUM 1
+SATIR 1-43
+
+   1: import { recordCompletedSession, recordCompletedTopic, recordExamResult, addAINote } from "@/utils/coach";
+   2: import AsyncStorage from "@react-native-async-storage/async-storage";
+   3: import React, {
+   4:   createContext,
+   5:   useCallback,
+   6:   useContext,
+   7:   useEffect,
+   8:   useMemo,
+   9:   useRef,
+  10:   useState,
+  11: } from "react";
+  12: 
+  13: import { AYT_SUBJECTS_BY_FIELD, StudyField, TYT_SUBJECTS } from "@/data/subjects";
+  14: import {
+  15:   cancelAllSessionReminders,
+  16:   cancelDailyStudyReminder,
+  17:   cancelQuestionReminder,
+  18:   cancelTopicReminder,
+  19:   scheduleDailyStudyReminder,
+  20:   scheduleEveryDaySessionReminder,
+  21:   scheduleQuestionReminder,
+  22:   scheduleSessionReminder,
+  23:   scheduleTopicReminder,
+  24:   scheduleWeeklySessionReminder,
+  25:   syncNotifications,
+  26: } from "@/utils/notifications";
+  27: 
+  28: import { getSubjectsProgressUnits } from "@/utils/progress/curriculumProgress";
+  29: export interface UserProfile {
+  30:   name: string;
+  31:   grade: "12" | "mezun";
+  32:   targetUniversity: string;
+  33:   targetDepartment: string;
+  34:   tytTargetScore: number;
+  35:   aytTargetScore: number;
+  36:   studyStartDate: string;
+  37:   studyField: StudyField;
+  38: }
+  39: 
+  40: export type RepeatType = "one_time" | "every_day" | "every_week";
+  41: 
+  42: export interface DailySession {
+  43:   id: string;
+
+============================================================
+BOLUM 2
+SATIR 166-210
+
+ 166:   { id: "halfway",            title: "Yarıyolda",            description: "Genel ilerlemenin %50'sine ulaştın",      icon: "target",       unlocked: false },
+ 167:   { id: "almost_ready",       title: "Neredeyse Hazır",      description: "Genel ilerlemenin %80'ine ulaştın",       icon: "award",        unlocked: false },
+ 168:   { id: "goal_chaser",        title: "Hedef Takipçisi",      description: "5 çalışma oturumu planladın",             icon: "calendar",     unlocked: false },
+ 169:   { id: "discipline_master",  title: "Disiplin Ustası",      description: "30 oturumu tamamladın",                   icon: "award",        unlocked: false },
+ 170:   { id: "plan_master",        title: "Plan Ustası",          description: "50 çalışma oturumu planladın",            icon: "calendar",     unlocked: false },
+ 171:   { id: "konutakip_champion", title: "KonuTakip Şampiyonu",  description: "30 başarı kazandın. Efsanesin!",          icon: "crown",        unlocked: false },
+ 172: ];
+ 173: 
+ 174: interface AppContextValue {
+ 175:   profile: UserProfile | null;
+ 176:   setProfile: (p: UserProfile) => void;
+ 177:   topicCompletion: Record<string, boolean>;
+ 178:   toggleTopic: (topicId: string) => void;
+ 179:   subtopicCompletion: Record<string, boolean>;
+ 180:   toggleSubtopic: (
+ 181:     topicId: string,
+ 182:     subtopicId: string,
+ 183:   ) => void;
+ 184:   sessions: DailySession[];
+ 185:   addSession: (s: Omit<DailySession, "id">) => void;
+ 186:   updateSession: (id: string, updates: Partial<Pick<DailySession, "date" | "time" | "topic" | "notes" | "targetQuestions">>) => void;
+ 187:   /** Marks the session complete and, unless already counted, adds its targetQuestions
+ 188:    *  into dailySolvedQuestions. Returns the number of questions just auto-added (0 if
+ 189:    *  the session was already counted, so callers can decide whether to show feedback). */
+ 190:   completeSession: (id: string) => number;
+ 191:   deleteSession: (id: string) => void;
+ 192:   questions: Question[];
+ 193:   addQuestion: (q: Omit<Question, "id" | "addedDate" | "understood" | "nextReviewDate">) => void;
+ 194:   updateQuestion: (id: string, updates: Partial<Pick<Question, "notes" | "attachments">>) => void;
+ 195:   updateQuestionReminder: (id: string, interval: 3 | 5 | 7) => void;
+ 196:   updateQuestionNextReviewDate: (id: string, nextDate: string) => void;
+ 197:   deleteQuestion: (id: string) => void;
+ 198:   markQuestionUnderstood: (id: string) => void;
+ 199:   /**
+ 200:    * Watchdog sync — verifies every active Wrong Question has exactly one future
+ 201:    * OS notification and repairs any that are missing or stale.
+ 202:    * Safe to call repeatedly; a 30-second cooldown prevents over-triggering.
+ 203:    * Called automatically on every cold-start (via loadData) and every foreground
+ 204:    * transition (via the AppState listener in _layout.tsx).
+ 205:    *
+ 206:    * Pass `force = true` to bypass the 30-second cooldown — used immediately
+ 207:    * after the user grants notification permission so scheduling happens without
+ 208:    * waiting for the next foreground transition or 10-minute periodic timer.
+ 209:    */
+ 210:   runWatchdogSync: (force?: boolean) => Promise<void>;
+
+============================================================
+BOLUM 3
+SATIR 233-365
+
+ 233:    *  used to surface the informational double-count warning on manual topic entry. */
+ 234:   hasCompletedSessionTodayForSubject: (subjectId: string) => boolean;
+ 235:   topicReminders: Record<string, TopicReminderRecord>;
+ 236:   setTopicReminder: (topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7) => Promise<void>;
+ 237:   removeTopicReminder: (topicId: string) => Promise<void>;
+ 238:   dailyReminder: DailyReminderSetting | null;
+ 239:   setDailyReminder: (hour: number, minute: number) => Promise<void>;
+ 240:   removeDailyReminder: () => Promise<void>;
+ 241: }
+ 242: 
+ 243: const AppContext = createContext<AppContextValue | null>(null);
+ 244: 
+ 245: const STORAGE_KEY = "konutakip_v3";
+ 246: const SUBTOPIC_MIGRATION_VERSION = 1;
+ 247: 
+ 248: function findTytTopicById(topicId: string) {
+ 249:   return TYT_SUBJECTS
+ 250:     .flatMap((subject) => subject.topics)
+ 251:     .find((topic) => topic.id === topicId);
+ 252: }
+ 253: 
+ 254: function migrateSubtopicCompletion(
+ 255:   topicCompletion: Record<string, boolean>,
+ 256:   existingSubtopicCompletion: Record<string, boolean> = {},
+ 257:   storedVersion = 0,
+ 258: ): {
+ 259:   subtopicCompletion: Record<string, boolean>;
+ 260:   migrationVersion: number;
+ 261:   changed: boolean;
+ 262: } {
+ 263:   if (storedVersion >= SUBTOPIC_MIGRATION_VERSION) {
+ 264:     return {
+ 265:       subtopicCompletion: existingSubtopicCompletion,
+ 266:       migrationVersion: storedVersion,
+ 267:       changed: false,
+ 268:     };
+ 269:   }
+ 270: 
+ 271:   const migrated = {
+ 272:     ...existingSubtopicCompletion,
+ 273:   };
+ 274: 
+ 275:   for (const subject of TYT_SUBJECTS) {
+ 276:     for (const topic of subject.topics) {
+ 277:       if (!topicCompletion[topic.id]) {
+ 278:         continue;
+ 279:       }
+ 280: 
+ 281:       for (const subtopic of topic.subtopics ?? []) {
+ 282:         if (migrated[subtopic.id] === undefined) {
+ 283:           migrated[subtopic.id] = true;
+ 284:         }
+ 285:       }
+ 286:     }
+ 287:   }
+ 288: 
+ 289:   return {
+ 290:     subtopicCompletion: migrated,
+ 291:     migrationVersion: SUBTOPIC_MIGRATION_VERSION,
+ 292:     changed: true,
+ 293:   };
+ 294: }
+ 295: 
+ 296: export function generateId(): string {
+ 297:   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+ 298: }
+ 299: 
+ 300: function getNextReviewDate(from: Date, intervalDays: number = 7): string {
+ 301:   const d = new Date(from);
+ 302:   d.setDate(d.getDate() + intervalDays);
+ 303:   return d.toISOString().split("T")[0];
+ 304: }
+ 305: 
+ 306: function computeStreak(days: string[]): number {
+ 307:   if (days.length === 0) return 0;
+ 308:   const sorted = [...days].sort().reverse();
+ 309:   const today = new Date().toISOString().split("T")[0];
+ 310:   let streak = 0;
+ 311:   const current = new Date(today);
+ 312:   for (let i = 0; i < 365; i++) {
+ 313:     const dateStr = current.toISOString().split("T")[0];
+ 314:     if (sorted.includes(dateStr)) {
+ 315:       streak++;
+ 316:       current.setDate(current.getDate() - 1);
+ 317:     } else {
+ 318:       break;
+ 319:     }
+ 320:   }
+ 321:   return streak;
+ 322: }
+ 323: 
+ 324: function mergeAchievements(saved: Achievement[], template: Achievement[]): Achievement[] {
+ 325:   const savedMap: Record<string, Achievement> = {};
+ 326:   for (const a of saved) savedMap[a.id] = a;
+ 327:   return template.map((t) => savedMap[t.id] ? { ...t, ...savedMap[t.id] } : t);
+ 328: }
+ 329: 
+ 330: export function AppProvider({ children }: { children: React.ReactNode }) {
+ 331:   const [profile, setProfileState] = useState<UserProfile | null>(null);
+ 332:   const [topicCompletion, setTopicCompletion] = useState<Record<string, boolean>>({});
+ 333:   const [
+ 334:     subtopicCompletion,
+ 335:     setSubtopicCompletionState,
+ 336:   ] = useState<Record<string, boolean>>({});
+ 337:   const [sessions, setSessions] = useState<DailySession[]>([]);
+ 338:   const [questions, setQuestions] = useState<Question[]>([]);
+ 339:   const [mockExamResults, setMockExamResults] = useState<MockExamResult[]>([]);
+ 340:   const [achievements, setAchievements] = useState<Achievement[]>(ACHIEVEMENTS_TEMPLATE);
+ 341:   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
+ 342:   const [studyDays, setStudyDays] = useState<string[]>([]);
+ 343:   const [isLoaded, setIsLoaded] = useState(false);
+ 344:   const [topicSolvedQuestions, setTopicSolvedQuestionsState] = useState<Record<string, number>>({});
+ 345:   // Independent running total of questions auto-counted from completed Daily
+ 346:   // Study Plan sessions. Never read or written by the Topic Question Tracking
+ 347:   // system (topicSolvedQuestions) above.
+ 348:   const [dailySolvedQuestions, setDailySolvedQuestions] = useState<number>(0);
+ 349:   const [topicReminders, setTopicRemindersState] = useState<Record<string, TopicReminderRecord>>({});
+ 350:   const [dailyReminder, setDailyReminderState] = useState<DailyReminderSetting | null>(null);
+ 351:   // Guard against double-counting if completeSession is called twice for the
+ 352:   // same id before the first setSessions updater has had a chance to run and
+ 353:   // re-render (e.g. rapid double-tap). A Set of in-flight session ids is stored
+ 354:   // in a ref so it is shared across renders without causing re-renders itself.
+ 355:   const completingSessionIds = useRef(new Set<string>());
+ 356: 
+ 357:   // ── Persisted-data shadow ref ─────────────────────────────────────────────
+ 358:   // Mirrors the last value written to AsyncStorage so saveData can merge and
+ 359:   // write in a single operation without an async disk read on every call.
+ 360:   // Populated from the parsed object in loadData; updated on every saveData call.
+ 361:   const persistedDataRef = useRef<Record<string, unknown>>({});
+ 362: 
+ 363:   // ── Watchdog refs ─────────────────────────────────────────────────────────
+ 364:   // These refs always hold the latest committed state values so runWatchdogSync
+ 365:   // can read them without a stale closure, regardless of when it is called.
+
+============================================================
+BOLUM 4
+SATIR 374-492
+
+ 374: 
+ 375:   // Keep refs in sync with latest state on every render (stable-ref pattern).
+ 376:   // This ensures runWatchdogSync always reads fresh data without stale closures.
+ 377:   questionsRef.current = questions;
+ 378:   sessionsRef.current = sessions;
+ 379:   topicRemindersRef.current = topicReminders;
+ 380:   dailyReminderRef.current = dailyReminder;
+ 381: 
+ 382:   useEffect(() => { loadData(); }, []);
+ 383: 
+ 384:   async function loadData() {
+ 385:     try {
+ 386:       const raw = await AsyncStorage.getItem(STORAGE_KEY);
+ 387: 
+ 388:       if (!raw) {
+ 389:         // Migrate from v2 if present
+ 390:         const oldRaw = await AsyncStorage.getItem("konutakip_v2");
+ 391:         if (oldRaw) {
+ 392:           const old = JSON.parse(oldRaw);
+ 393:           // persistedDataRef starts as {} — first user action will start writing v3
+ 394:           if (old.profile) setProfileState(old.profile);
+ 395:           if (old.topicCompletion) {
+ 396:             const loadedTopicCompletion =
+ 397:               old.topicCompletion as Record<string, boolean>;
+ 398: 
+ 399:             const migratedOldSubtopics =
+ 400:               migrateSubtopicCompletion(
+ 401:                 loadedTopicCompletion,
+ 402:                 {},
+ 403:                 0,
+ 404:               );
+ 405: 
+ 406:             setTopicCompletion(loadedTopicCompletion);
+ 407:             setSubtopicCompletionState(
+ 408:               migratedOldSubtopics.subtopicCompletion,
+ 409:             );
+ 410:           }
+ 411:           if (old.sessions) setSessions(
+ 412:             (old.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
+ 413:           );
+ 414:           if (old.questions) setQuestions((old.questions as Question[]).map(q => ({
+ 415:             ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+ 416:           })));
+ 417:           if (old.achievements) setAchievements(mergeAchievements(old.achievements, ACHIEVEMENTS_TEMPLATE));
+ 418:           if (old.studyDays) setStudyDays(old.studyDays);
+ 419:         }
+ 420:       } else {
+ 421:         const data = JSON.parse(raw);
+ 422:         // Seed the shadow ref so saveData never needs to read from disk again.
+ 423:         persistedDataRef.current = data;
+ 424: 
+ 425:         if (data.profile) {
+ 426:           setProfileState(data.profile);
+ 427:         }
+ 428: 
+ 429:         const loadedTopicCompletion =
+ 430:           (data.topicCompletion ?? {}) as Record<string, boolean>;
+ 431: 
+ 432:         const loadedSubtopicCompletion =
+ 433:           (data.subtopicCompletion ?? {}) as Record<string, boolean>;
+ 434: 
+ 435:         const subtopicMigration =
+ 436:           migrateSubtopicCompletion(
+ 437:             loadedTopicCompletion,
+ 438:             loadedSubtopicCompletion,
+ 439:             typeof data.subtopicMigrationVersion === "number"
+ 440:               ? data.subtopicMigrationVersion
+ 441:               : 0,
+ 442:           );
+ 443: 
+ 444:         setTopicCompletion(loadedTopicCompletion);
+ 445:         setSubtopicCompletionState(
+ 446:           subtopicMigration.subtopicCompletion,
+ 447:         );
+ 448: 
+ 449:         if (subtopicMigration.changed) {
+ 450:           const migratedData = {
+ 451:             ...data,
+ 452:             topicCompletion: loadedTopicCompletion,
+ 453:             subtopicCompletion:
+ 454:               subtopicMigration.subtopicCompletion,
+ 455:             subtopicMigrationVersion:
+ 456:               subtopicMigration.migrationVersion,
+ 457:           };
+ 458: 
+ 459:           persistedDataRef.current = migratedData;
+ 460: 
+ 461:           await AsyncStorage.setItem(
+ 462:             STORAGE_KEY,
+ 463:             JSON.stringify(migratedData),
+ 464:           );
+ 465:         }
+ 466:         if (data.sessions) setSessions(
+ 467:           (data.sessions as DailySession[]).map(s => ({ ...s, repeatType: s.repeatType ?? "one_time" }))
+ 468:         );
+ 469:         if (data.questions) setQuestions((data.questions as Question[]).map(q => ({
+ 470:           ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+ 471:         })));
+ 472:         if (data.mockExamResults) setMockExamResults((data.mockExamResults as MockExamResult[]).map(r => ({
+ 473:           ...r, name: r.name ?? "",
+ 474:         })));
+ 475:         if (data.achievements) setAchievements(mergeAchievements(data.achievements, ACHIEVEMENTS_TEMPLATE));
+ 476:         if (data.studyDays) setStudyDays(data.studyDays);
+ 477:         if (data.topicSolvedQuestions) setTopicSolvedQuestionsState(data.topicSolvedQuestions);
+ 478:         if (typeof data.dailySolvedQuestions === "number") setDailySolvedQuestions(data.dailySolvedQuestions);
+ 479:         if (data.topicReminders) setTopicRemindersState(data.topicReminders);
+ 480:         if (data.dailyReminder) setDailyReminderState(data.dailyReminder);
+ 481: 
+ 482:         // ── App-start sync: validate & restore notifications ────────────────
+ 483:         // Run asynchronously so it never blocks the UI from appearing.
+ 484:         const loadedSessions: DailySession[] = (data.sessions ?? []).map((s: DailySession) => ({
+ 485:           ...s, repeatType: s.repeatType ?? "one_time",
+ 486:         }));
+ 487:         const loadedQuestions: Question[] = (data.questions ?? []).map((q: Question) => ({
+ 488:           ...q, attachments: q.attachments ?? [], reminderInterval: q.reminderInterval ?? 7,
+ 489:         }));
+ 490:         const loadedTopicReminders: Record<string, TopicReminderRecord> = data.topicReminders ?? {};
+ 491:         const loadedDailyReminder: DailyReminderSetting | null = data.dailyReminder ?? null;
+ 492: 
+
+============================================================
+BOLUM 5
+SATIR 532-688
+
+ 532:             });
+ 533:           }
+ 534:         }).catch(() => {});
+ 535:       }
+ 536:     } catch { /* ignore */ } finally {
+ 537:       setIsLoaded(true);
+ 538:     }
+ 539:   }
+ 540: 
+ 541:   function saveData(updates: Partial<{
+ 542:     profile: UserProfile | null;
+ 543:     topicCompletion: Record<string, boolean>;
+ 544:     subtopicCompletion: Record<string, boolean>;
+ 545:     subtopicMigrationVersion: number;
+ 546:     sessions: DailySession[];
+ 547:     questions: Question[];
+ 548:     mockExamResults: MockExamResult[];
+ 549:     achievements: Achievement[];
+ 550:     studyDays: string[];
+ 551:     topicSolvedQuestions: Record<string, number>;
+ 552:     dailySolvedQuestions: number;
+ 553:     topicReminders: Record<string, TopicReminderRecord>;
+ 554:     dailyReminder: DailyReminderSetting | null;
+ 555:   }>) {
+ 556:     // Merge into the in-memory shadow and write once — no AsyncStorage.getItem needed.
+ 557:     // persistedDataRef is seeded from the parsed storage object in loadData, so this
+ 558:     // is always a complete merge even when only a single key changes.
+ 559:     persistedDataRef.current = { ...persistedDataRef.current, ...updates };
+ 560:     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(persistedDataRef.current)).catch(() => {});
+ 561:   }
+ 562: 
+ 563:   const setProfile = useCallback((p: UserProfile) => {
+ 564:     setProfileState(p);
+ 565:     saveData({ profile: p });
+ 566:   }, []);
+ 567: 
+ 568:   const tytProgress = useMemo(() => {
+ 569:     return getSubjectsProgressUnits(
+ 570:       TYT_SUBJECTS,
+ 571:       topicCompletion,
+ 572:       subtopicCompletion,
+ 573:     ).percentage;
+ 574:   }, [
+ 575:     topicCompletion,
+ 576:     subtopicCompletion,
+ 577:   ]);
+ 578: 
+ 579:   const aytProgress = useMemo(() => {
+ 580:     if (!profile) {
+ 581:       return 0;
+ 582:     }
+ 583: 
+ 584:     return getSubjectsProgressUnits(
+ 585:       AYT_SUBJECTS_BY_FIELD[
+ 586:         profile.studyField
+ 587:       ] ?? [],
+ 588:       topicCompletion,
+ 589:       subtopicCompletion,
+ 590:     ).percentage;
+ 591:   }, [
+ 592:     profile,
+ 593:     topicCompletion,
+ 594:     subtopicCompletion,
+ 595:   ]);
+ 596: 
+ 597:   const totalTopicsCompleted = useMemo(
+ 598:     () => Object.values(topicCompletion).filter(Boolean).length,
+ 599:     [topicCompletion]
+ 600:   );
+ 601: 
+ 602:   const studyStreak = useMemo(() => computeStreak(studyDays), [studyDays]);
+ 603: 
+ 604:   const totalSolvedQuestions = useMemo(
+ 605:     () => Object.values(topicSolvedQuestions).reduce((sum, n) => sum + (n || 0), 0),
+ 606:     [topicSolvedQuestions]
+ 607:   );
+ 608: 
+ 609:   const totalQuestionsSolved = useMemo(
+ 610:     () => totalSolvedQuestions + dailySolvedQuestions,
+ 611:     [totalSolvedQuestions, dailySolvedQuestions]
+ 612:   );
+ 613: 
+ 614:   const hasCompletedSessionTodayForSubject = useCallback((subjectId: string): boolean => {
+ 615:     const today = new Date().toISOString().split("T")[0];
+ 616:     return sessions.some(s =>
+ 617:       s.subjectId === subjectId && s.completed && s.countedInStatistics && s.date === today
+ 618:     );
+ 619:   }, [sessions]);
+ 620: 
+ 621:   function checkAchievements(
+ 622:     comp: Record<string, boolean>,
+ 623:     sess: DailySession[],
+ 624:     qs: Question[],
+ 625:     exams: MockExamResult[],
+ 626:     prevA: Achievement[],
+ 627:     field?: StudyField,
+ 628:     streak?: number
+ 629:   ): { updated: Achievement[]; triggered: Achievement | null } {
+ 630:     const total = Object.values(comp).filter(Boolean).length;
+ 631:     const tytTopics = TYT_SUBJECTS.flatMap(s => s.topics);
+ 632:     const tytDone = tytTopics.filter(t => comp[t.id]).length;
+ 633:     const tytPct = tytTopics.length ? (tytDone / tytTopics.length) * 100 : 0;
+ 634: 
+ 635:     let aytTopics: typeof tytTopics = [];
+ 636:     let aytDone = 0;
+ 637:     let aytPct = 0;
+ 638:     if (field) {
+ 639:       aytTopics = (AYT_SUBJECTS_BY_FIELD[field] ?? []).flatMap(s => s.topics);
+ 640:       aytDone = aytTopics.filter(t => comp[t.id]).length;
+ 641:       aytPct = aytTopics.length ? (aytDone / aytTopics.length) * 100 : 0;
+ 642:     }
+ 643: 
+ 644:     const allTopics = [...tytTopics, ...aytTopics];
+ 645:     const allDone = allTopics.filter(t => comp[t.id]).length;
+ 646:     const overallPct = allTopics.length ? (allDone / allTopics.length) * 100 : 0;
+ 647: 
+ 648:     const understoodQs = qs.filter(q => q.understood).length;
+ 649:     const completedSess = sess.filter(s => s.completed).length;
+ 650: 
+ 651:     function tytSubDone(idx: number): boolean {
+ 652:       const sub = TYT_SUBJECTS[idx];
+ 653:       return sub ? sub.topics.every(t => comp[t.id]) : false;
+ 654:     }
+ 655: 
+ 656:     function aytSubDone(keyword: string): boolean {
+ 657:       if (!field) return false;
+ 658:       const subs = AYT_SUBJECTS_BY_FIELD[field] ?? [];
+ 659:       const sub = subs.find(s =>
+ 660:         s.name.toLowerCase().includes(keyword.toLowerCase()) ||
+ 661:         s.id.toLowerCase().includes(keyword.toLowerCase())
+ 662:       );
+ 663:       return sub ? sub.topics.every(t => comp[t.id]) : false;
+ 664:     }
+ 665: 
+ 666:     const conditions: Record<string, boolean> = {
+ 667:       first_topic:        total >= 1,
+ 668:       topics_10:          total >= 10,
+ 669:       topics_25:          total >= 25,
+ 670:       topics_50:          total >= 50,
+ 671:       topics_100:         total >= 100,
+ 672:       all_topics:         allTopics.length > 0 && allDone === allTopics.length,
+ 673:       tyt_50:             tytPct >= 50,
+ 674:       tyt_100:            tytPct >= 100,
+ 675:       ayt_50:             aytPct >= 50,
+ 676:       ayt_100:            aytPct >= 100,
+ 677:       first_question:     qs.length >= 1,
+ 678:       questions_10:       qs.length >= 10,
+ 679:       questions_25:       qs.length >= 25,
+ 680:       reviews_25:         understoodQs >= 25,
+ 681:       reviews_100:        understoodQs >= 100,
+ 682:       question_master:    understoodQs >= 200,
+ 683:       first_exam:         exams.length >= 1,
+ 684:       exams_10:           exams.length >= 10,
+ 685:       exams_25:           exams.length >= 25,
+ 686:       exams_50:           exams.length >= 50,
+ 687:       exams_100:          exams.length >= 100,
+ 688:       streak_3:           (streak ?? 0) >= 3,
+
+============================================================
+BOLUM 6
+SATIR 758-915
+
+ 758:   }, [topicCompletion]);
+ 759: 
+ 760:   const setTopicSolvedQuestion = useCallback((topicId: string, count: number) => {
+ 761:     setTopicSolvedQuestionsState(prev => {
+ 762:       const next = { ...prev, [topicId]: count };
+ 763:       saveData({ topicSolvedQuestions: next });
+ 764:       return next;
+ 765:     });
+ 766:   }, []);
+ 767: 
+ 768:   // ── Subtopic completion ────────────────────────────────────────────────────
+ 769: 
+ 770:   const toggleSubtopic = useCallback((
+ 771:     topicId: string,
+ 772:     subtopicId: string,
+ 773:   ) => {
+ 774:     const topic = findTytTopicById(topicId);
+ 775: 
+ 776:     if (!topic?.subtopics?.length) {
+ 777:       return;
+ 778:     }
+ 779: 
+ 780:     setSubtopicCompletionState((previous) => {
+ 781:       const nextValue = !previous[subtopicId];
+ 782: 
+ 783:       const nextSubtopics = {
+ 784:         ...previous,
+ 785:         [subtopicId]: nextValue,
+ 786:       };
+ 787: 
+ 788:       const allSubtopicsCompleted =
+ 789:         topic.subtopics!.every(
+ 790:           (subtopic) =>
+ 791:             !!nextSubtopics[subtopic.id],
+ 792:         );
+ 793: 
+ 794:       setTopicCompletion((previousTopics) => {
+ 795:         const nextTopics = {
+ 796:           ...previousTopics,
+ 797:           [topicId]: allSubtopicsCompleted,
+ 798:         };
+ 799: 
+ 800:         saveData({
+ 801:           topicCompletion: nextTopics,
+ 802:           subtopicCompletion: nextSubtopics,
+ 803:           subtopicMigrationVersion:
+ 804:             SUBTOPIC_MIGRATION_VERSION,
+ 805:         });
+ 806: 
+ 807:         return nextTopics;
+ 808:       });
+ 809: 
+ 810:       return nextSubtopics;
+ 811:     });
+ 812: 
+ 813:     markStudyDay();
+ 814:   }, [markStudyDay]);
+ 815: 
+ 816:   // ── Topic reminders ──────────────────────────────────────────────────────────
+ 817: 
+ 818:   const setTopicReminderCtx = useCallback(async (
+ 819:     topicId: string, topicName: string, subjectName: string, interval: 3 | 5 | 7
+ 820:   ) => {
+ 821:     const nextDate = new Date();
+ 822:     nextDate.setDate(nextDate.getDate() + interval);
+ 823:     const nextDateStr = nextDate.toISOString().split("T")[0];
+ 824: 
+ 825:     const success = await scheduleTopicReminder(topicId, topicName, subjectName, interval);
+ 826:     if (!success) {
+ 827:       throw new Error("Bildirim izni reddedildi veya hatırlatma ayarlanamadı.");
+ 828:     }
+ 829: 
+ 830:     setTopicRemindersState(prev => {
+ 831:       const next = {
+ 832:         ...prev,
+ 833:         [topicId]: { interval, nextDate: nextDateStr, topicName, subjectName },
+ 834:       };
+ 835:       saveData({ topicReminders: next });
+ 836:       return next;
+ 837:     });
+ 838:   }, []);
+ 839: 
+ 840:   const removeTopicReminderCtx = useCallback(async (topicId: string) => {
+ 841:     await cancelTopicReminder(topicId);
+ 842:     setTopicRemindersState(prev => {
+ 843:       const next = { ...prev };
+ 844:       delete next[topicId];
+ 845:       saveData({ topicReminders: next });
+ 846:       return next;
+ 847:     });
+ 848:   }, []);
+ 849: 
+ 850:   // ── toggleTopic ──────────────────────────────────────────────────────────────
+ 851: 
+ 852:   const toggleTopic = useCallback((topicId: string) => {
+ 853:     setTopicCompletion(prev => {
+ 854:       const wasCompleted = !!prev[topicId];
+ 855:       const nextValue = !prev[topicId];
+ 856:       const next = {
+ 857:         ...prev,
+ 858:         [topicId]: nextValue,
+ 859:       };
+ 860: 
+ 861:       const topicForSubtopicSync =
+ 862:         findTytTopicById(topicId);
+ 863: 
+ 864:       if (
+ 865:         topicForSubtopicSync?.subtopics?.length
+ 866:       ) {
+ 867:         setSubtopicCompletionState(
+ 868:           (previousSubtopics) => {
+ 869:             const nextSubtopics = {
+ 870:               ...previousSubtopics,
+ 871:             };
+ 872: 
+ 873:             for (
+ 874:               const subtopic of
+ 875:               topicForSubtopicSync.subtopics ?? []
+ 876:             ) {
+ 877:               nextSubtopics[subtopic.id] =
+ 878:                 nextValue;
+ 879:             }
+ 880: 
+ 881:             saveData({
+ 882:               topicCompletion: next,
+ 883:               subtopicCompletion: nextSubtopics,
+ 884:               subtopicMigrationVersion:
+ 885:                 SUBTOPIC_MIGRATION_VERSION,
+ 886:             });
+ 887: 
+ 888:             return nextSubtopics;
+ 889:           },
+ 890:         );
+ 891:       }
+ 892:       else {
+ 893:         saveData({
+ 894:           topicCompletion: next,
+ 895:         });
+ 896:       }
+ 897:       // Auto-cancel reminder when topic is marked complete
+ 898:       if (!wasCompleted) {
+ 899:         cancelTopicReminder(topicId).catch(() => {});
+ 900:         setTopicRemindersState(prevR => {
+ 901:           if (!prevR[topicId]) return prevR;
+ 902:           const nextR = { ...prevR };
+ 903:           delete nextR[topicId];
+ 904:           saveData({ topicReminders: nextR });
+ 905:           return nextR;
+ 906:         });
+ 907:       }
+ 908:       setSessions(sessSnap => {
+ 909:         setQuestions(qSnap => {
+ 910:           setMockExamResults(examSnap => {
+ 911:             setAchievements(prevA => {
+ 912:               setProfileState(pSnap => {
+ 913:                 const streak = computeStreak(studyDays);
+ 914:                 const { updated, triggered } = checkAchievements(
+ 915:                   next, sessSnap, qSnap, examSnap, prevA, pSnap?.studyField, streak
+
+============================================================
+BOLUM 7
+SATIR 1367-1423
+
+1367:     await cancelDailyStudyReminder();
+1368:     const setting: DailyReminderSetting | null = null;
+1369:     setDailyReminderState(setting);
+1370:     saveData({ dailyReminder: setting });
+1371:   }, []);
+1372: 
+1373:   const clearNewAchievement = useCallback(() => setNewAchievement(null), []);
+1374: 
+1375:   // ─────────────────────────────────────────────────────────────────────────────
+1376: 
+1377:   const value = useMemo<AppContextValue>(() => ({
+1378:     profile, setProfile,
+1379:     topicCompletion, toggleTopic,
+1380:     subtopicCompletion, toggleSubtopic,
+1381:     sessions, addSession, updateSession, completeSession, deleteSession,
+1382:     questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
+1383:     runWatchdogSync,
+1384:     deleteQuestion, markQuestionUnderstood,
+1385:     mockExamResults, addMockExamResult, deleteMockExamResult,
+1386:     achievements, newAchievement, clearNewAchievement,
+1387:     tytProgress, aytProgress, totalTopicsCompleted,
+1388:     studyStreak, studyDays, markStudyDay, isLoaded,
+1389:     topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+1390:     dailySolvedQuestions, totalQuestionsSolved, hasCompletedSessionTodayForSubject,
+1391:     topicReminders,
+1392:     setTopicReminder: setTopicReminderCtx,
+1393:     removeTopicReminder: removeTopicReminderCtx,
+1394:     dailyReminder,
+1395:     setDailyReminder: setDailyReminderCtx,
+1396:     removeDailyReminder: removeDailyReminderCtx,
+1397:   }), [
+1398:     profile, setProfile,
+1399:     topicCompletion, toggleTopic,
+1400:     subtopicCompletion, toggleSubtopic,
+1401:     sessions, addSession, updateSession, completeSession, deleteSession,
+1402:     questions, addQuestion, updateQuestion, updateQuestionReminder, updateQuestionNextReviewDate,
+1403:     runWatchdogSync,
+1404:     deleteQuestion, markQuestionUnderstood,
+1405:     mockExamResults, addMockExamResult, deleteMockExamResult,
+1406:     achievements, newAchievement, clearNewAchievement,
+1407:     tytProgress, aytProgress, totalTopicsCompleted,
+1408:     studyStreak, studyDays, markStudyDay, isLoaded,
+1409:     topicSolvedQuestions, setTopicSolvedQuestion, totalSolvedQuestions,
+1410:     dailySolvedQuestions, totalQuestionsSolved, hasCompletedSessionTodayForSubject,
+1411:     topicReminders, setTopicReminderCtx, removeTopicReminderCtx,
+1412:     dailyReminder, setDailyReminderCtx, removeDailyReminderCtx,
+1413:   ]);
+1414: 
+1415:   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+1416: }
+1417: 
+1418: export function useApp() {
+1419:   const ctx = useContext(AppContext);
+1420:   if (!ctx) throw new Error("useApp must be used within AppProvider");
+1421:   return ctx;
+1422: }
+1423: 
+
+============================================================
+ARAMA SONUCLARI:
+- STORAGE_KEY: VAR
+- SUBTOPIC_MIGRATION_VERSION: VAR
+- migrateSubtopicCompletion: VAR
+- subtopicCompletion: VAR
+- setSubtopicCompletionState: VAR
+- toggleTopic: VAR
+- toggleSubtopic: VAR
+- allSubtopicsCompleted: VAR
+- topicForSubtopicSync: VAR
+- TYT_SUBJECTS: VAR
+- AYT_SUBJECTS_BY_FIELD: VAR

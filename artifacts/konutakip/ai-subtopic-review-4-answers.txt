@@ -1,0 +1,229 @@
+﻿============================================================
+DOSYA: 01-teacher-explicit-subtopic.txt
+
+## Konu Başlığı
+Negatif Üs
+
+## Kısa Tanım
+Negatif üs, bir sayının tersini (1 bölü) aynı sayının pozitif üsüne eşit kılar.
+
+## Temel Kavramlar
+- Üs: bir sayının kendisiyle kaç kez çarpılacağını gösterir.
+- Negatif üs: üs işareti “–” olduğunda, ifadenin çarpımının tersini alır.
+- Ters: 1 bölü ifadenin pozitif üsli hali.
+
+## Formüller ve Kurallar
+- a^(-n) = 1 / (a^n) (a ≠ 0, n pozitif tam sayı)
+- (a/b)^(-n) = (b/a)^n
+- (a^m)^(-n) = a^(-m·n)
+
+## Adım Adım Anlatım
+1. Negatif işareti gördüğünde üsün pozitif hâline çevir.
+2. Çevirdiğin ifadeyi payda olarak al.
+3. Sayı sıfır ise tanımsızdır; bu durumda işlem yapılamaz.
+
+## Çözümlü Örnek
+**Örnek 1**
+Soru: 3^(-2) ifadesinin değeri nedir?
+
+1. Adım: Negatif üs –2’yi pozitif 2’ye çeviririz.
+2. Adım: a^(-n) = 1 / (a^n) kuralını uygularız: 3^(-2) = 1 / (3^2).
+3. Adım: 3^2 = 9 olduğundan sonuç 1 / 9.
+
+**Sonuç** 3^(-2) = 1/9.
+
+**Örnek 2**
+Soru: (2/5)^(-3) ifadesini sadeleştiriniz.
+
+1. Adım: Negatif üs –3’ü pozitif 3’e çeviririz.
+2. Adım: (a/b)^(-n) = (b/a)^n kuralını kullanırız: (2/5)^(-3) = (5/2)^3.
+3. Adım: (5/2)^3 = 5^3 / 2^3 = 125 / 8.
+
+**Sonuç** (2/5)^(-3) = 125/8.
+
+## Sık Yapılan Hatalar
+- Negatif üs alırken sayıyı doğrudan negatif işaretli olarak çarpmak.
+- Payda ve payı karıştırıp ters çevirme adımını atlamak.
+- Sıfırın negatif üs alımını denemek; 0^(-n) tanımsızdır.
+
+## Kısa Tekrar Önerisi
+- Negatif üs gördüğünde “ters al” kuralını hatırla.
+- Payda‑pay değişimini unutma.
+- Sıfırın negatif üs alımının geçersiz olduğunu kontrol et.
+
+
+============================================================
+DOSYA: 02-teacher-targeted-question.txt
+
+## Sorular
+
+### 1. Soru
+Bir haritada ölçek 1 : 250 000 olarak verilmiştir. Harita üzerinde iki şehir arasındaki ölçülen mesafe 6 cm’dir. Gerçekte bu iki şehir arasındaki mesafe kaç kilometredir?
+
+A) 12 km
+B) 15 km
+C) 18 km
+D) 20 km
+E) 25 km
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- Verilen: Ölçek 1 : 250 000, harita üzerindeki mesafe 6 cm.
+- İstenen: Gerçek mesafe (km).
+- Kullanılacak yöntem: Ölçek oranı ile gerçek mesafeyi bulma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Harita ölçeği 1 : 250 000 demek, haritadaki 1 cm gerçek dünyada 250 000 cm’ye eşittir. Bu oranı kullanacağız.
+
+### 2. Adım
+Harita üzerindeki 6 cm’yi gerçek mesafeye çevirelim: 6 cm × 250 000 = 1 500 000 cm.
+
+### 3. Adım
+Centimetreyi kilometreye dönüştürelim: 1 km = 100 000 cm, dolayısıyla 1 500 000 cm ÷ 100 000 = 15 km.
+
+## Sonuç
+Gerçek mesafe **15 km**’dir.
+
+## Kontrol
+6 cm × 250 000 = 1 500 000 cm; 1 500 000 cm ÷ 100 000 = 15 km. Hesaplama tutarlı.
+
+**Doğru cevap: B**
+
+
+============================================================
+DOSYA: 04-teacher-de-da-subtopic.txt
+
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de yarın sizinle geleceğim.
+B) Kitaplar masada duruyor.
+C) Ankara'da hava oldukça soğuktu.
+D) O da bu fikri destekledi.
+E) Kardeşimde bizimle sinemaya geldi.
+
+### 2. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı doğrudur?
+
+A) Ali de bu projeye katıldı.
+B) Okul da ders başladı.
+C) Kardeşimde gelmek istiyor.
+D) Bahçe de çiçekler açtı.
+E) İstanbul da çok kalabalıktı.
+
+### 3. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de seni bekliyordum.
+B) Evde kimse yoktu.
+C) Ankara da yeni bir müze açıldı.
+D) Parkta çocuklar oynuyordu.
+E) O da kitabı dikkatle okudu.
+
+### 4. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı doğrudur?
+
+A) Sınıfta ders işleniyor.
+B) Masa da kitaplar var.
+C) Okul da sınav yapılacak.
+D) Bahçe de çocuklar oynuyor.
+E) Ankara da hava soğuk.
+
+### 5. Soru
+Aşağıdaki cümlelerin hangisinde "de/da"nın yazımı yanlıştır?
+
+A) Ben de yarın gelirim.
+B) Köprüde yoğunluk vardı.
+C) Sokakta çocuklar oynuyordu.
+D) Ev de bugün temizlenmiş.
+E) Bahçede çiçekler açtı.
+
+## Cevap Anahtarı
+
+1. E
+2. A
+3. C
+4. A
+5. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+E seçeneği yanlıştır. Buradaki "de" bağlaçtır ve ayrı yazılmalıdır:
+
+**Kardeşim de bizimle sinemaya geldi.**
+
+### 2. Soru Çözümü
+A seçeneği doğrudur. "De" bağlaçtır ve ayrı yazılmıştır:
+
+**Ali de bu projeye katıldı.**
+
+Diğer seçeneklerde bulunma hâl eki kelimeye bitişik yazılmalıdır:
+
+- Okulda
+- Kardeşim de
+- Bahçede
+- İstanbul'da
+
+### 3. Soru Çözümü
+C seçeneği yanlıştır. Özel ada gelen bulunma hâl eki kesme işaretiyle ayrılır:
+
+**Ankara'da yeni bir müze açıldı.**
+
+### 4. Soru Çözümü
+A seçeneği doğrudur. "Sınıfta" kelimesindeki "-ta" bulunma hâl ekidir ve kelimeye bitişik yazılır.
+
+Diğer seçeneklerin doğru biçimleri:
+
+- Masada
+- Okulda
+- Bahçede
+- Ankara'da
+
+### 5. Soru Çözümü
+D seçeneği yanlıştır. Burada bulunma anlamı vardır ve ek kelimeye bitişik yazılmalıdır:
+
+**Evde bugün temizlenmiş.**
+
+
+============================================================
+DOSYA: 05-coach-partial-topic.txt
+
+## Hedef
+
+- Üslü ifadelerde negatif üs ve üslü denklemleri tamamlamak.
+- Optikte kırılma, mercekler ve renk konularını bitirmek.
+
+## Günlük Program
+
+### 1. Bölüm (30 dk)
+
+- **09:00–09:10 — Üslü İfadeler:** Negatif üs kurallarını tekrar et.
+- **09:10–09:20 — Üslü İfadeler:** Negatif üs içeren 3‑4 örnek soru çöz.
+- **09:20–09:30 — Üslü Denklemler:** Üs eşitleme ve logaritma yöntemiyle 2 soru uygula.
+
+### 2. Bölüm (30 dk)
+
+- **09:30–09:40 — Optik:** Kırılma kanunu ve Snell yasasını özetle.
+- **09:40–09:50 — Optik:** Kırılma ile ilgili 2‑3 sayısal soru çöz.
+- **09:50–10:00 — Optik:** Mercekler ve renk konusunun temel kavramlarını gözden geçir, kısa not al.
+
+### 3. Bölüm (30 dk)
+
+- **10:00–10:10 — Karma Çalışma:** Negatif üs ve üslü denklem karışık soru (10 dk).
+- **10:10–10:20 — Karma Çalışma:** Kırılma ve mercek ilişkili bir uygulama sorusu (10 dk).
+- **10:20–10:30 — Tekrar & Not:** Zorlandığın adımları not al, eksik noktaları belirle ve kısa tekrar yap.
+
+
+

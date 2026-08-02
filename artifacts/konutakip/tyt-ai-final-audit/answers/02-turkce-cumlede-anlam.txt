@@ -1,0 +1,47 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki cümlede geçen “kısacası” ifadesinin anlamı aşağıdakilerden hangisinde en doğru verilmiştir?
+
+Küresel ısınmanın etkileri, deniz seviyesinin yükselmesi, aşırı hava olaylarının artışı ve biyoçeşitliliğin azalması gibi çeşitli sonuçlar doğurur; **kısacası**, insan faaliyetleri doğayı tehdit etmektedir.
+
+A) sonuç olarak
+B) özetle
+C) bir yandan
+D) bir başka deyişle
+E) kesinlikle
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** “kısacası” ifadesi içeren cümle.
+- **İstenen:** “kısacası” ifadesinin anlamının doğru seçeneği.
+- **Kullanılacak yöntem:** Bağlamdan çıkarım ve eş anlamlı kelime bulma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İfade “kısacası” cümlede iki bölüm arasındaki ilişkiyi özetlemek amacıyla kullanılmıştır; bu, bir sonucu ya da ana fikri kısaca belirtme işlevi görür. Bu işlev “özetle” anlamına gelir.
+
+### 2. Adım
+Seçenekleri inceleyelim:
+- A) “sonuç olarak” → sonuç bildirir ama özetleme işlevi taşımaz.
+- B) “özetle” → bir önceki bilgileri kısaca toparlar, bağlamla uyumludur.
+- C) “bir yandan” → zıtlık bildirir, bağlamla uyumsuz.
+- D) “bir başka deyişle” → eş anlamlıdır fakat “kısacası” daha çok özetleme, “bir başka deyişle” ise yeniden ifade etme anlamındadır.
+- E) “kesinlikle” → kesinlik bildirir, bağlamla alakasız.
+
+### 3. Adım
+Bağlam ve seçenek karşılaştırması sonucunda yalnızca B şıkkı “özetle” ifadesi, “kısacası”nın anlamını tam karşılamaktadır.
+
+## Sonuç
+Doğru seçenek **B) özetle** dir.
+
+## Kontrol
+“kısacası” yerine “özetle” koyarsak: “… gibi çeşitli sonuçlar doğurur; **özetle**, insan faaliyetleri doğayı tehdit etmektedir.” Cümle anlamı bozulmaz, dolayısıyla seçim doğrudur.

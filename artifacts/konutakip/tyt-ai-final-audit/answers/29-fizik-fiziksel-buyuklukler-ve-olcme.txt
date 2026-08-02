@@ -1,0 +1,55 @@
+## Sorular
+
+### 1. Soru
+Bir deneyde bir cismin hacmi \(V = 12.3\ \text{cm}^3\) ve yoğunluğu \(\rho = 2.56\ \text{g/cm}^3\) olarak ölçülmüştür. Cismin kütlesi kaç gramdır? Sonucu en uygun yuvarlama ile ifade edin.
+
+A) 31.4 g
+B) 31.48 g
+C) 31.5 g
+D) 31.6 g
+E) 32.0 g
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** \(V = 12.3\ \text{cm}^3\) (3 anlamlı rakam), \(\rho = 2.56\ \text{g/cm}^3\) (3 anlamlı rakam)
+- **İstenen:** Cismin kütlesi \(m\) ve en uygun yuvarlama ile değeri
+- **Kullanılacak yöntem:** Kütle = hacim × yoğunluk formülü, ardından anlamlı rakam kurallarına göre yuvarlama
+
+## Adım Adım Çözüm
+
+### 1. Adım
+\(m = V \times \rho\) formülünü yazarız; çünkü kütle, hacim ile yoğunluğun çarpımıdır.
+
+### 2. Adım
+Değerleri yerine koyarız:
+\(m = 12.3\ \text{cm}^3 \times 2.56\ \text{g/cm}^3\)
+
+### 3. Adım
+Çarpma işlemini yaparız:
+\(12.3 \times 2.56 = 31.488\ \text{g}\)
+
+### 4. Adım
+Sonucun anlamlı rakam sayısını belirleriz. Çarpılan iki büyüklük de 3 anlamlı rakama sahiptir; bu yüzden sonuç da en fazla 3 anlamlı rakam içermelidir.
+
+### 5. Adım
+31.488 sayısını 3 anlamlı rakama yuvarlarız:
+ilk üç rakam 3, 1 ve 5’tir; dördüncü rakam 4 olduğu için yuvarlama yapılmaz. Sonuç \(31.5\ \text{g}\) olur.
+
+## Sonuç
+
+Cismin kütlesi \(31.5\ \text{g}\) olarak bulunur.
+
+## Kontrol
+
+\(31.5\ \text{g}\) değerini 3 anlamlı rakam kuralına göre geri kontrol ederiz:
+- Hacim 12.3 cm³ → ±0.1 cm³
+- Yoğunluk 2.56 g/cm³ → ±0.01 g/cm³
+Bu hatalar çarpıldığında yaklaşık ±0.2 g olur; 31.5 g değeri bu aralık içinde mantıklıdır. Dolayısıyla sonuç tutarlıdır.

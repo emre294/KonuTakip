@@ -1,0 +1,27 @@
+## Soru Analizi
+
+- Verilen: “Bütün insanlar ölümlüdür.” ve “Sokrates insandır.”
+- İstenen: Bu akıl yürütmenin hangi mantık türüne örnek olduğunu belirlemek.
+- Kullanılacak yöntem: Önermelerin yapısını inceleyerek mantık türlerini ayırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İlk öncül evrensel bir genellemedir: tüm A’lar B’dir. (Neden: evrensel öncül.)
+
+### 2. Adım
+İkinci öncül, belirli bir örnek (Sokrates) A sınıfına aittir. (Neden: özel örnek.)
+
+### 3. Adım
+Evrensel öncül ve özel örnek birleştirildiğinde zorunlu olarak “Sokrates ölümlüdür” sonucu çıkar. (Neden: öncüllerden zorunlu çıkarım.)
+
+### 4. Adım
+Bu çıkarım, öncüllerin doğruluğu kabul edildiğinde sonucun da kesin olarak doğru olmasını sağlayan bir akıl yürütme tipidir; yani **dedüksiyon** (çıkarımsal akıl yürütme) örneğidir. (Neden: tanım.)
+
+## Sonuç
+
+Doğru seçenek **C) Dedüksiyon**.
+
+## Kontrol
+
+Evrensel öncül (tüm insanlar → ölümlü) + özel örnek (Sokrates → insan) ⇒ zorunlu sonuç (Sokrates → ölümlü). Bu, klasik kıyas (modus ponens) şeklinde bir deduktif çıkarımdır; diğer seçenekler (analojik, tümevarım, hipotez, gözlem) bu yapıya uymaz. Dolayısıyla C seçeneği doğrudur.

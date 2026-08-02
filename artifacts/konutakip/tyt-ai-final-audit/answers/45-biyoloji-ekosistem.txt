@@ -1,0 +1,42 @@
+## Sorular
+
+### 1. Soru
+Bir ekosistemde birincil üreticiler yılda 1000 kcal enerji üretir. Bu enerjinin %10’u birincil tüketicilere, %5’i ikincil tüketicilere, %2’si üçüncül tüketicilere ve %1’i ayrıştırıcılara geçer. Geri kalan enerji en çok hangi biçimde kaybolur?
+
+A) Bitki köklerine depolanır
+B) Toprakta organik madde birikir
+C) Atmosfere ısı olarak yayılır
+D) Su buharı olarak buharlaşır
+E) Güneş ışığına dönüşür
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Toplam üretim 1000 kcal; birincil tüketicilere %10, ikincil tüketicilere %5, üçüncül tüketicilere %2, ayrıştırıcılara %1 geçiyor.
+- **İstenen:** Geri kalan enerjinin hangi biçimde kaybolduğunu belirlemek.
+- **Kullanılacak yöntem:** Yüzde hesaplayarak kalan enerjiyi bulmak ve enerji akışı prensibini uygulamak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Geçen enerjilerin toplam yüzdesini hesapla: 10 % + 5 % + 2 % + 1 % = 18 %.
+
+### 2. Adım
+Kalan yüzdeyi bul: 100 % − 18 % = 82 %.
+
+### 3. Adım
+Ekosistemlerde enerji akışında kaybolan %80‑90’luk kısım ısı (çevreye yayılım) şeklinde kaybolur. Bu, kalan %82’lik kısmın da ısı olarak atmosfere yayılması anlamına gelir.
+
+## Sonuç
+Geri kalan enerji en çok **atmosfere ısı olarak yayılır** (C seçeneği).
+
+## Kontrol
+Toplam enerji = 1000 kcal.
+Geçen enerji = 1000 × 0,18 = 180 kcal.
+Kalan enerji = 1000 − 180 = 820 kcal, ki bu da %82’ye eşittir. Enerjinin büyük kısmı ısı olarak kaybolur; bu da C seçeneğiyle tutarlı.

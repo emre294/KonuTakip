@@ -1,0 +1,50 @@
+AYT 5/7 UI DOGRULAMA RAPORU
+
+AYT ANA KONU: 197
+AYT HARITALANAN KONU: 197
+AYT ALT KAZANIM: 1101
+ALT KAZANIMSIZ KONU: 0
+BOSTA KALAN HARITA: 0
+
+UI KONTROLLERI:
+- BASARILI: TopicWithSubtopics ortak bileşeni
+- BASARILI: Alt kazanım aç/kapat
+- BASARILI: Alt kazanım tek tek tamamlama
+- BASARILI: Alt kazanım sayacı
+- BASARILI: Mini ilerleme çubuğu
+- BASARILI: SubjectCard ortak kullanımı
+- BASARILI: AYT ortak ExamSection bağlantısı
+- BASARILI: AYT alt kazanım haritası
+- BASARILI: AYT çift yönlü senkron
+
+5/7 TAMAM - AYT ALT KAZANIM UI ORTAK BILESENLE AKTIF
+
+============================================================
+AYT 6/7 AI BAGLANTI ON RAPORU
+
+AI ÖĞRETMEN
+- subtopic: VAR
+- alt kazanım: VAR
+- examType: VAR
+- AYT: VAR
+- topicName: VAR
+- subjectName: VAR
+
+AI KOÇ
+- subtopic: VAR
+- alt kazanım: VAR
+- examType: YOK
+- AYT: VAR
+- topicName: VAR
+- subjectName: VAR
+
+BACKEND
+- subtopic: YOK
+- alt kazanım: VAR
+- examType: VAR
+- AYT: VAR
+- topicName: VAR
+- subjectName: VAR
+
+6/7 SONRAKI ISLEM:
+AI Öğretmen, AI Koç ve backend AYT alt kazanım bağlamı için nokta atışı doğrulanacak.

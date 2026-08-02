@@ -1,0 +1,45 @@
+## Sorular
+
+### 1. Soru
+Ali, mütevazı bir yaşam sürdürerek lüks tüketimden kaçınır. Yukarıdaki cümlede “mütevazı” sözcüğünün anlamı aşağıdakilerden hangisidir?
+
+A) gösterişli
+B) cömert
+C) sade
+D) zengin
+E) ihtiyatsız
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:** “mütevazı” sözcüğü bir cümlede kullanılmıştır.
+- **İstenen:** Bu sözcüğün cümledeki anlamına en uygun seçenek.
+- **Kullanılacak yöntem:** Sözcüğün sözlük anlamı ve cümle içindeki bağlamı incelenir; seçeneklerle karşılaştırılır.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+“Sözlükte ‘mütevazı’ kelimesi ‘sade, gösterişten uzak, alçakgönüllü’ anlamına gelir.” Bu tanım, cümledeki kullanım amacıyla uyumludur.
+
+### 2. Adım
+Seçenekleri tanımlanan anlamla karşılaştır:
+- A) gösterişli → zıt anlam.
+- B) cömert → farklı kavram.
+- C) sade → tanımla aynı.
+- D) zengin → zıt anlam.
+- E) ihtiyatsız → alakasız.
+
+## Sonuç
+
+Doğru cevap **C) sade** seçeneğidir.
+
+## Kontrol
+
+“mütevazı = sade” ifadesi sözlükte aynı anlamda yer alır; diğer seçenekler tanımın karşıtı ya da alakasızdır. Bu yüzden sonuç tutarlıdır.

@@ -1,0 +1,29 @@
+## Soru Analizi
+
+- Verilen: Osmanlı Devleti'nde Kanun-ı Esasi'nin ilan edilerek anayasal yönetime geçildiği dönem soruluyor.
+- İstenen: Doğru dönemi belirten seçenek.
+- Kullanılacak yöntem: Tarihsel kronolojiyi hatırlayarak Kanun-ı Esasi'nin ilan edildiği yılı ve dönemi tespit etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Kanun-ı Esasi 23 Aralık 1876 tarihinde ilan edilmiştir. Bu tarih, I. Meşrutiyet dönemi olarak adlandırılır.
+
+### 2. Adım
+Seçenekleri inceleyelim:
+- A) Tanzimat Dönemi → 1839‑1876, anayasal yönetime geçiş yok.
+- B) Islahat Dönemi → 1856‑1876, yine anayasal bir kanun yok.
+- C) I. Meşrutiyet → 1876‑1878, Kanun-ı Esasi bu dönemde ilan edildi.
+- D) II. Meşrutiyet → 1908‑1918, farklı bir anayasa (1915) ve Kanun-ı Esasi yeniden yürürlüğe girdi, ancak ilk ilan 1876’da.
+- E) Lale Devri → 1718‑1730, çok önceki bir dönem.
+
+### 3. Adım
+Kanun-ı Esasi'nin ilan edildiği dönem yalnızca C seçeneğinde (I. Meşrutiyet) verilmiştir. Diğer seçeneklerde bu olay gerçekleşmez.
+
+## Sonuç
+
+Doğru cevap: **C) I. Meşrutiyet** seçeneği.
+
+## Kontrol
+
+Kanun-ı Esasi 1876’da ilan edildi; I. Meşrutiyet 1876‑1878 yıllarını kapsar. Bu tarih aralığı seçenek C ile tam eşleşir, diğer seçeneklerde böyle bir anayasal geçiş yoktur. Sonuç tutarlı.

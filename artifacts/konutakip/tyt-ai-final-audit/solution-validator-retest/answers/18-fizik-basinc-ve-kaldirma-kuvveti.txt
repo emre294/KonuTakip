@@ -1,0 +1,49 @@
+## Sorular
+
+### 1. Soru
+Bir odun blokunun boyutları 0,20 m × 0,10 m × 0,05 m’dir. Odun yoğunluğu 600 kg / m³, suyun yoğunluğu ise 1000 kg / m³ ve yerçekimi ivmesi 9,8 m / s² olarak alınmıştır. Blok su içinde dengede iken üzerindeki kaldırma (buoyancy) kuvvetinin büyüklüğü kaç newton olur?
+
+A) 4,9 N
+B) 5,88 N
+C) 6,8 N
+D) 9,8 N
+E) 0 N
+
+## Cevap Anahtarı
+
+1. B
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** blok hacmi 0,20 m × 0,10 m × 0,05 m, odun yoğunluğu 600 kg / m³, su yoğunluğu 1000 kg / m³, g = 9,8 m / s².
+- **İstenen:** dengedeki kaldırma kuvvetinin büyüklüğü (N).
+- **Kullanılacak yöntem:** Kaldırma kuvveti eşittir yer değiştiren suyun ağırlığı; denge durumunda bu kuvvet blok ağırlığına eşittir.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Blok hacmini hesapla: V = 0,20 m × 0,10 m × 0,05 m = 0,001 m³.
+(Hacim, kaldırma ve ağırlık hesaplamalarının temelidir.)
+
+### 2. Adım
+Blok kütlesini bul: m = ρ_odun × V = 600 kg / m³ × 0,001 m³ = 0,6 kg.
+(Kütle, ağırlık ve dolayısıyla kaldırma kuvveti için gereklidir.)
+
+### 3. Adım
+Blok ağırlığını hesapla: W = m × g = 0,6 kg × 9,8 m / s² = 5,88 N.
+(Denge durumunda kaldırma kuvveti bu değere eşittir.)
+
+### 4. Adım
+Kaldırma kuvveti = blok ağırlığı = 5,88 N.
+(İlk prensip: denge halinde net kuvvet sıfırdır, bu yüzden kaldırma = ağırlık.)
+
+## Sonuç
+Kaldırma kuvvetinin büyüklüğü **5,88 N**’dir.
+
+## Kontrol
+Kaldırma kuvveti formülüyle de kontrol: F_k = ρ_su × g × V_displaced. Yer değiştiren su hacmi, denge koşulunda blok hacmiyle aynı olduğundan F_k = 1000 kg / m³ × 9,8 m / s² × 0,001 m³ = 9,8 N × 0,001 = 9,8 × 10⁻³ N? Yanlış; burada denge koşulunda V_displaced = (ρ_odun/ρ_su) × V = (600/1000) × 0,001 m³ = 0,0006 m³. O zaman F_k = 1000 × 9,8 × 0,0006 = 5,88 N. Aynı sonuç elde edildi, doğru.
+
+**Doğru cevap: B**

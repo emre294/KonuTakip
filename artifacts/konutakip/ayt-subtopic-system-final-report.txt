@@ -1,0 +1,52 @@
+AYT ALT KAZANIM SISTEMI 7/7 SON TEST RAPORU
+
+AYT ANA KONU: 197
+AYT ALT KAZANIM: 1101
+TOPLAM TEST: 39
+BASARILI: 39
+HATALI: 0
+
+1. BASARILI - AYT ana konu sayısı 197
+   DETAY: Bulunan: 197
+2. BASARILI - AYT alt kazanım haritası 197 konu
+   DETAY: Bulunan: 197
+3. BASARILI - AYT toplam alt kazanım sayısı 1101
+   DETAY: Bulunan: 1101
+4. BASARILI - Yinelenen AYT ana konu ID yok
+5. BASARILI - Yinelenen AYT harita ID yok
+6. BASARILI - Alt kazanımsız AYT konu yok
+7. BASARILI - Boşta kalan AYT haritası yok
+8. BASARILI - Sıfır alt kazanımlı konu yok
+9. BASARILI - Her AYT konusunda en az 3 alt kazanım var
+10. BASARILI - Her AYT konusunda en fazla 10 alt kazanım var
+11. BASARILI - Meta veya çalışma tavsiyesi kazanımı yok
+12. BASARILI - AYT haritası subjects dosyasına import edilmiş
+13. BASARILI - makeTopic AYT alt kazanım haritasına bağlı
+14. BASARILI - Migration sürümü 2 aktif
+15. BASARILI - Ortak TYT ve AYT konu motoru aktif
+16. BASARILI - Eski TYT-only konu bulucu kaldırılmış
+17. BASARILI - Migration tüm müfredat konularını geziyor
+18. BASARILI - Alt kazanım ana konuyu senkronluyor
+19. BASARILI - Ana konu alt kazanımları senkronluyor
+20. BASARILI - AYT açılır alt kazanım UI aktif
+21. BASARILI - AYT alt kazanım tek tek tamamlama aktif
+22. BASARILI - AYT alt kazanım sayacı aktif
+23. BASARILI - AYT mini ilerleme çubuğu aktif
+24. BASARILI - AYT SubjectCard ortak bileşeni kullanıyor
+25. BASARILI - Ortak ilerleme motoru alt kazanım destekliyor
+26. BASARILI - AYT ders ilerlemesi ortak motoru kullanıyor
+27. BASARILI - AI Öğretmen TYT ve AYT müfredatını tarıyor
+28. BASARILI - AI Öğretmen dinamik sınav türü gönderiyor
+29. BASARILI - AI Öğretmen seçili AYT alanını kullanıyor
+30. BASARILI - AI Öğretmen alt kazanım sınırı aktif
+31. BASARILI - AI Koç TYT ve AYT kazanımlarını analiz ediyor
+32. BASARILI - AI Koç seçili AYT alanını kullanıyor
+33. BASARILI - AI Koç tamamlanmamış kazanımları önceliklendiriyor
+34. BASARILI - AI Koç tamamlanan kazanımları ana hedef yapmıyor
+35. BASARILI - AI Koç TYT ve AYT yöntemlerini ayırıyor
+36. BASARILI - Backend müfredat hiyerarşi motoru aktif
+37. BASARILI - Backend sınav türünü okuyor
+38. BASARILI - Backend TYT ve AYT kapsamını ayırıyor
+39. BASARILI - Backend AI Koç eksik kazanım önceliği aktif
+
+SONUC: 7/7 AYT ALT KAZANIM SISTEMI TAMAMLANDI

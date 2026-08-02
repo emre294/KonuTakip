@@ -1,0 +1,12 @@
+## Hedef
+- Köklü İfadeler konusundaki eksik alt kazanımları tamamlamak: kök dışına çıkarma, kök içine alma, payda rasyonelleştirme.
+
+## Günlük Program
+### Bugün
+- **09:00–09:30 — Konu Çalışması:** Köklü İfadeler tanımı ve temel kurallar.
+- **09:35–10:15 — Kök Dışına Çıkarma:** örnekler ve 3‑4 alıştırma sorusu.
+- **10:20–11:00 — Kök İçine Alma:** örnekler ve 3‑4 alıştırma sorusu.
+- **11:05–11:45 — Payda Rasyonelleştirme:** örnekler ve 3‑4 alıştırma sorusu.
+- **12:00–12:30 — Kısa Tekrar:** çözülen soruların notlarını gözden geçirme.
+- **14:00–14:30 — Soru Çözümü:** TYT formatında karışık 5 soru (tüm üç alt başlığı kapsayan).
+- **19:00–19:20 — Yanlış Analizi:** yapılan hataları belirleme ve düzeltme.

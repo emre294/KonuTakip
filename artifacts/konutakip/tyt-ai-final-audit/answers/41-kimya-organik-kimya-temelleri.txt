@@ -1,0 +1,46 @@
+## Sorular
+
+### 1. Soru
+Aşağıdaki organik bileşiklerden hangisinde hidroksil (‑OH) fonksiyonel grubu bulunmaz?
+
+A) Metanol (CH₃OH)
+B) Etanol (C₂H₅OH)
+C) Propan‑2‑ol (CH₃CH(OH)CH₃)
+D) Aseton (CH₃COCH₃)
+E) Bütanol (C₄H₉OH)
+
+## Cevap Anahtarı
+
+1. D
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** Dört seçenek alkol (‑OH) içerirken bir seçenek asit ya da keton gibi farklı bir fonksiyonel grup içerir.
+- **İstenen:** Hidroksil grubu (**‑OH**) içermeyen bileşiği belirlemek.
+- **Kullanılacak yöntem:** Bileşiklerin yapısal formüllerine bakarak hidroksil grubunun varlığını kontrol etmek.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Metanol (CH₃OH) formülünde “OH” grubu açıkça görülür; bu bir alkol olduğundan hidroksil içerir.
+
+### 2. Adım
+Etanol (C₂H₅OH) formülünde de “OH” grubu vardır; alkol olduğu için hidroksil içerir.
+
+### 3. Adım
+Propan‑2‑ol (CH₃CH(OH)CH₃) formülünde ortada bir “OH” grubu bulunur; alkol olduğu için hidroksil içerir.
+
+### 4. Adım
+Aseton (CH₃COCH₃) formülünde “OH” yoktur; karbonil (C=O) grubu vardır, bu bir ketondur ve hidroksil içermez.
+
+### 5. Adım
+Bütanol (C₄H₉OH) formülünde “OH” grubu vardır; alkol olduğu için hidroksil içerir.
+
+## Sonuç
+Hidroksil (‑OH) fonksiyonel grubu bulunmayan bileşik **Aseton**’dur. → **D şıkkı** doğru cevaptır.
+
+## Kontrol
+Diğer dört seçenekte “OH” ifadesi açıkça yer alırken, D seçeneğinde sadece “CO” bağları ve üç metil grubundan oluşan bir karbonil yapısı vardır. Bu, hidroksil grubunun eksikliğini doğrular.

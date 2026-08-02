@@ -1,0 +1,52 @@
+## Sorular
+
+### 1. Soru
+Bir insan popülasyonunda göz rengi ve saç kıvırıklığı iki bağımsız özellik olarak inceleniyor.
+- Göz rengi: kahverengi (B) baskın, mavi (b) çekinik.
+- Saç kıvırıklığı: kıvırcık (C) baskın, düz (c) çekinik.
+
+Bir çift, genotipleri BbCc (her iki özellikte de heterozigot) ve bbcc (her iki özellikte de çekinik) olan bireylerden oluşmaktadır. Bu çiftleşmeden doğacak bir çocuğun **kahverengi gözlü ve kıvırcık saçlı** olma olasılığı kaçtır?
+
+A) (1)/(8)
+B) (1)/(6)
+C) (1)/(4)
+D) (1)/(3)
+E) (1)/(2)
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+
+- **Verilen:**
+  - Göz rengi: B baskın, b çekinik; ebeveyn genotipleri Bb ve bb.
+  - Saç kıvırıklığı: C baskın, c çekinik; ebeveyn genotipleri Cc ve cc.
+  - İki özellik bağımsızdır.
+- **İstenen:** Çocuğun kahverengi göz (B_) ve kıvırcık saç (C_) olma olasılığı.
+- **Kullanılacak yöntem:** Tek özellikli çaprazların olasılıklarını bulup, bağımsızlık ilkesine göre çarpma.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Göz rengi için çapraz: Bb × bb.
+Dominant fenotip (kahverengi göz) oranı (1)/(2) çünkü yarısı BB ya da Bb olur.
+
+### 2. Adım
+Saç kıvırıklığı için çapraz: Cc × cc.
+Dominant fenotip (kıvırcık saç) oranı (1)/(2) çünkü yarısı CC ya da Cc olur.
+
+### 3. Adım
+İki özellik bağımsız olduğundan, istenen kombinasyonun olasılığı: (1)/(2) × (1)/(2) = (1)/(4).
+
+## Sonuç
+
+Çocuğun kahverengi gözlü ve kıvırcık saçlı olma olasılığı **(1)/(4)**’tür.
+
+## Kontrol
+
+Her bir tek özellikli çaprazda heterozigot × çekinik sonucu %50 baskın fenotip verir. Bağımsız iki özellikte %50 × %50 = %25 = (1)/(4). Sonuç tutarlı.

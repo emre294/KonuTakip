@@ -1,0 +1,333 @@
+{
+  "matematik-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Matematik",
+    "topicName": "Türev",
+    "http": 200,
+    "duration": 5,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "B"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\02-matematik-solution.txt",
+    "updatedAt": "2026-07-31T23:28:37.034Z"
+  },
+  "geometri-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Geometri",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: FALSE C: TRUE D: FALSE E: FALSE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:40:47.079Z"
+  },
+  "geometri-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Geometri",
+    "topicName": "Analitik Geometri - Doğru",
+    "http": 200,
+    "duration": 9,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "D"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\04-geometri-solution.txt",
+    "updatedAt": "2026-07-31T23:30:52.894Z"
+  },
+  "fizik-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Fizik",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:43:02.892Z"
+  },
+  "fizik-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Fizik",
+    "topicName": "Kondansatörler",
+    "http": 200,
+    "duration": 6,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "C"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\06-fizik-solution.txt",
+    "updatedAt": "2026-07-31T23:32:57.636Z"
+  },
+  "kimya-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Kimya",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:45:33.725Z"
+  },
+  "kimya-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Kimya",
+    "topicName": "Kimyasal Denge",
+    "http": 200,
+    "duration": 5,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "D"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\08-kimya-solution.txt",
+    "updatedAt": "2026-07-31T23:36:32.027Z"
+  },
+  "biyoloji-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Biyoloji",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:47:30.519Z"
+  },
+  "biyoloji-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Biyoloji",
+    "topicName": "Nükleik Asitler",
+    "http": 200,
+    "duration": 8,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "C"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\10-biyoloji-solution.txt",
+    "updatedAt": "2026-07-31T23:38:45.154Z"
+  },
+  "edebiyat-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Türk Dili ve Edebiyatı",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: TRUE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:17:51.491Z"
+  },
+  "edebiyat-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Türk Dili ve Edebiyatı",
+    "topicName": "Divan Edebiyatı",
+    "http": 200,
+    "duration": 9,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "B"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\12-edebiyat-solution.txt",
+    "updatedAt": "2026-07-31T23:40:55.403Z"
+  },
+  "tarih1-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Tarih 1",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: REASONS: - Soru 1: cevap anahtarı hatalı, 1913 Anayasası Meclis yetkilerini artırmaz - Soru 1: A ve D seçenekleri aynı kavramı (Kanun-i Esasları) içeriyor FINAL: INVALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:19:40.556Z"
+  },
+  "tarih1-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Tarih 1",
+    "topicName": "I. Meşrutiyet",
+    "http": 200,
+    "duration": 7,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "C"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\14-tarih1-solution.txt",
+    "updatedAt": "2026-07-31T23:43:18.989Z"
+  },
+  "cografya1-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Coğrafya 1",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: TRUE B: FALSE C: TRUE D: TRUE E: TRUE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:21:51.736Z"
+  },
+  "cografya1-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Coğrafya 1",
+    "topicName": "Türkiye'nin İklimi",
+    "http": 200,
+    "duration": 5,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": []
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\16-cografya1-solution.txt",
+    "updatedAt": "2026-07-31T23:45:33.134Z"
+  },
+  "tarih2-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Tarih 2",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: TRUE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:23:47.862Z"
+  },
+  "tarih2-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Tarih 2",
+    "topicName": "Soğuk Savaş Dönemi",
+    "http": 200,
+    "duration": 6,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": []
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\18-tarih2-solution.txt",
+    "updatedAt": "2026-07-31T23:47:44.081Z"
+  },
+  "cografya2-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Coğrafya 2",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:25:28.832Z"
+  },
+  "cografya2-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Coğrafya 2",
+    "topicName": "Türkiye'nin Jeopolitiği",
+    "http": 200,
+    "duration": 5,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": []
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\20-cografya2-solution.txt",
+    "updatedAt": "2026-07-31T23:50:09.995Z"
+  },
+  "felsefe-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Felsefe Grubu",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: TRUE B: FALSE C: FALSE D: FALSE E: FALSE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:27:28.132Z"
+  },
+  "felsefe-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Felsefe Grubu",
+    "topicName": "Klasik Mantık",
+    "http": 200,
+    "duration": 9,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": []
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\22-felsefe-solution.txt",
+    "updatedAt": "2026-07-31T23:52:54.742Z"
+  },
+  "din-generation": {
+    "completed": false,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Din Kültürü",
+    "error": "HTTP 500: Soru seti üç bağımsız kalite kontrolünden geçemedi. Hatalı soru kullanıcıya gösterilmedi. Son denetim sonucu: QUESTION 1 A: FALSE B: FALSE C: FALSE D: FALSE E: TRUE TARGET_COUNT: 1 ANSWER_KEY_MATCH: YES ISSUE: NONE FINAL: VALID Yapısal kontrol: complete=false questionCount=0 answerKeyCount=0 solutionCount=0 missingSections=Sorular,Cevap Anahtari,Cozumler missingOptions=NONE",
+    "updatedAt": "2026-08-01T00:29:20.266Z"
+  },
+  "din-solution": {
+    "completed": true,
+    "type": "SORU_COZME",
+    "subjectName": "AYT Din Kültürü",
+    "topicName": "İslam'ın Temel Kaynakları",
+    "http": 200,
+    "duration": 8,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "A"
+      ]
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\24-din-solution.txt",
+    "updatedAt": "2026-07-31T23:54:50.274Z"
+  },
+  "matematik-generation": {
+    "completed": true,
+    "type": "SORU_HAZIRLAMA",
+    "subjectName": "AYT Matematik",
+    "topicName": "Türev",
+    "http": 200,
+    "duration": 22,
+    "attempt": 1,
+    "provider": "nvidia",
+    "model": "openai/gpt-oss-120b",
+    "validation": {
+      "status": "BASARILI",
+      "findings": [],
+      "answerLetters": [
+        "B"
+      ],
+      "optionCount": 5,
+      "questionCount": 1
+    },
+    "answerFile": "ayt-ai-teacher-quality-answers\\01-matematik-generation.txt",
+    "updatedAt": "2026-08-01T01:28:07.669Z"
+  }
+}

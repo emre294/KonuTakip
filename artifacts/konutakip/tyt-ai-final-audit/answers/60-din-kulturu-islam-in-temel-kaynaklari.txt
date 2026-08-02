@@ -1,0 +1,44 @@
+## Sorular
+
+### 1. Soru
+Aşağıdakilerden hangisi İslam'ın temel kaynaklarından biridir?
+
+A) Kıyas
+B) Medeniyet
+C) İcma
+D) Fıkıh
+E) Tasavvuf
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- **Verilen:** Beş seçenek ve “İslam'ın temel kaynakları” kavramı.
+- **İstenen:** Temel kaynaklardan biri olan seçeneği belirlemek.
+- **Kullanılacak yöntem:** TYT müfredatına göre tanımlanan temel kaynakları hatırlayıp seçeneklerle karşılaştırmak.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+İslam'ın temel kaynakları, **Kur'an-ı Kerim**, **Hadis (Sünnet)** ve **İcma** olarak üç tanedir. Bu tanım TYT müfredatında yer alır.
+
+### 2. Adım
+Seçenekleri tek tek incele:
+- A) Kıyas – yorum yöntemi, kaynak değildir.
+- B) Medeniyet – toplumsal kavram, kaynak değildir.
+- C) İcma – sahabelerin ortak görüşü, temel kaynaklardan biridir.
+- D) Fıkıh – İslam hukuku bilimi, kaynak değildir.
+- E) Tasavvuf – mistik akım, kaynak değildir.
+
+### 3. Adım
+Yalnızca **C) İcma** temel kaynaklar arasında yer alır; diğerleri değildir.
+
+## Sonuç
+Doğru cevap **C) İcma**.
+
+## Kontrol
+Müfredatta “İslam’ın temel kaynakları” üç unsurdan oluşur: **Kur'an, Hadis (Sünnet) ve İcma**. Seçenek C bu üçten biridir, diğerleri müfredata göre kaynak sayılmaz; dolayısıyla cevap C kesin olarak doğrudur.

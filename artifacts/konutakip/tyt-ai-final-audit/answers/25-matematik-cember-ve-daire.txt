@@ -1,0 +1,60 @@
+## Sorular
+
+### 1. Soru
+Bir çemberde merkez açısı 90° olan bir sektörün alanı 63π cm²’dir. Bu sektörün tabanını oluşturan kirişin uzunluğu kaç cm’dir?
+
+A) 6√14 cm
+B) 12 cm
+C) 14 cm
+D) 18 cm
+E) 24 cm
+
+## Cevap Anahtarı
+
+1. A
+
+## Çözümler
+
+### 1. Soru Çözümü
+
+## Soru Analizi
+- **Verilen:** merkez açısı 90°, sektör alanı 63π cm².
+- **İstenen:** sektörün tabanını oluşturan kirişin uzunluğu.
+- **Kullanılacak yöntem:** sektör alanı formülüyle yarıçap bulunur, ardından kiriş formülü k = 2r sin(θ/2) uygulanır.
+
+## Adım Adım Çözüm
+
+### 1. Adım
+Sektör alanı formülünü yaz: A = (θ/360) π r².
+Neden: verilen açı ve alanı kullanarak r² elde etmek için.
+
+### 2. Adım
+Değerleri koy: 63π = (90/360) π r² → 63π = (1/4) π r².
+Neden: θ = 90° yerine konuldu.
+
+### 3. Adım
+π’yi sadeleştir ve r² bulun: r² = 63 × 4 = 252.
+Neden: π her iki tarafta aynı, çarpan 4 ile çarpılıyor.
+
+### 4. Adım
+r’yi al: r = √252 = √(36·7) = 6√7 cm.
+Neden: r²’nin karekökü alınarak yarıçap elde edilir.
+
+### 5. Adım
+Kiriş uzunluğu formülünü kullan: k = 2r sin(θ/2).
+Neden: verilen açı için kiriş hesabı bu formülle yapılır.
+
+### 6. Adım
+θ/2 = 45°, sin45° = √2/2. Değerleri koy: k = 2·6√7·(√2/2).
+Neden: sin45° değeri bilindiği için yerine konur.
+
+### 7. Adım
+Sadeleştir: k = 6√7·√2 = 6√14 cm.
+Neden: 2 ve 1/2 çarpımı iptal edildi, kökler birleştirildi.
+
+## Sonuç
+Kirişin uzunluğu **6√14 cm**’dir.
+
+## Kontrol
+k = 2r sin45° = 2·6√7·√2/2 = 6√14 ≈ 22.45 cm.
+Seçenek A bu değeri tam olarak verir; diğer seçenekler farklıdır. Sonuç tutarlı.

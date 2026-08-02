@@ -1,0 +1,38 @@
+## Sorular
+
+### 1. Soru
+Bir tarifte 3 kg un için 5 L su kullanılmaktadır. Aynı tarifte 9 kg un kullanılacaksa, kaç litre su gerekir?
+
+A) 12 L
+B) 13 L
+C) 15 L
+D) 16 L
+E) 18 L
+
+## Cevap Anahtarı
+
+1. C
+
+## Çözümler
+
+### 1. Soru Çözümü
+## Soru Analizi
+- Verilen: 3 kg un → 5 L su, 9 kg un → ? L su
+- İstenen: 9 kg un için gerekli su miktarı
+- Kullanılacak yöntem: oran‑orantı (doğrudan orantı)
+
+## Adım Adım Çözüm
+### 1. Adım
+Oranı kur: 3 kg un : 5 L su = 9 kg un : x L su. Aynı oranda olduğu için bu eşitliği yazarız.
+### 2. Adım
+Orantıyı yaz: 3/5 = 9/x veya çapraz çarpım ile 3·x = 5·9.
+### 3. Adım
+x’i bul: x = (5·9)/3 = 45/3 = 15. Sonuç olarak 15 L su gerekir.
+
+## Sonuç
+9 kg un için gereken su miktarı **15 L**’dir.
+
+## Kontrol
+Un miktarı 3 kg’dan 9 kg’a üç kat artmıştır; su miktarı da aynı oranda üç kat artmalıydı. 5 L × 3 = 15 L, hesapla tutuyor.
+
+**Doğru cevap: C**

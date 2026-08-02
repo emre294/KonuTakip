@@ -1,0 +1,49 @@
+## Konu Başlığı
+Negatif Üs
+
+## Kısa Tanım
+Negatif üs, bir sayının tersini (1 bölü) aynı sayının pozitif üsüne eşit kılar.
+
+## Temel Kavramlar
+- Üs: bir sayının kendisiyle kaç kez çarpılacağını gösterir.
+- Negatif üs: üs işareti “–” olduğunda, ifadenin çarpımının tersini alır.
+- Ters: 1 bölü ifadenin pozitif üsli hali.
+
+## Formüller ve Kurallar
+- a^(-n) = 1 / (a^n) (a ≠ 0, n pozitif tam sayı)
+- (a/b)^(-n) = (b/a)^n
+- (a^m)^(-n) = a^(-m·n)
+
+## Adım Adım Anlatım
+1. Negatif işareti gördüğünde üsün pozitif hâline çevir.
+2. Çevirdiğin ifadeyi payda olarak al.
+3. Sayı sıfır ise tanımsızdır; bu durumda işlem yapılamaz.
+
+## Çözümlü Örnek
+**Örnek 1**
+Soru: 3^(-2) ifadesinin değeri nedir?
+
+1. Adım: Negatif üs –2’yi pozitif 2’ye çeviririz.
+2. Adım: a^(-n) = 1 / (a^n) kuralını uygularız: 3^(-2) = 1 / (3^2).
+3. Adım: 3^2 = 9 olduğundan sonuç 1 / 9.
+
+**Sonuç** 3^(-2) = 1/9.
+
+**Örnek 2**
+Soru: (2/5)^(-3) ifadesini sadeleştiriniz.
+
+1. Adım: Negatif üs –3’ü pozitif 3’e çeviririz.
+2. Adım: (a/b)^(-n) = (b/a)^n kuralını kullanırız: (2/5)^(-3) = (5/2)^3.
+3. Adım: (5/2)^3 = 5^3 / 2^3 = 125 / 8.
+
+**Sonuç** (2/5)^(-3) = 125/8.
+
+## Sık Yapılan Hatalar
+- Negatif üs alırken sayıyı doğrudan negatif işaretli olarak çarpmak.
+- Payda ve payı karıştırıp ters çevirme adımını atlamak.
+- Sıfırın negatif üs alımını denemek; 0^(-n) tanımsızdır.
+
+## Kısa Tekrar Önerisi
+- Negatif üs gördüğünde “ters al” kuralını hatırla.
+- Payda‑pay değişimini unutma.
+- Sıfırın negatif üs alımının geçersiz olduğunu kontrol et.
