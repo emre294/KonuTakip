@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import {
   askNvidia,
   type NvidiaAttachment,
@@ -2869,8 +2869,13 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       });
     }
 
-    const requestTextForDeterministicQuiz =
-      JSON.stringify(parsed.data);
+    const requestTextForDeterministicQuiz = String(
+      parsed.data.lastUserMessage ??
+      parsed.data.userQuestion ??
+      parsed.data.message ??
+      parsed.data.prompt ??
+      "",
+    );
 
     const isDeDaQuizRequest =
       isQuestionGenerationRequest(feature, parsed.data) &&
@@ -2914,7 +2919,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       ].join("\n\n");
     }
 
-    const requestText = JSON.stringify(parsed.data);
+    const requestText = requestTextForDeterministicQuiz;
 
     if (
       isQuestionGenerationRequest(feature, parsed.data) &&

@@ -951,6 +951,7 @@ const [selectedAttachments, setSelectedAttachments] = useState<
                 .join("\n\n"),
             ),
           userQuestion: contextualQuestion,
+            lastUserMessage: trimmed,
           attachments: attachmentsToSend,
         });
 

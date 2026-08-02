@@ -339,10 +339,27 @@ export function buildFeaturePrompt(
   feature: AIFeature,
   requestData: Record<string, unknown>
 ): string {
-  const instruction = FEATURE_INSTRUCTIONS[feature];
-  const outputRules = TEXT_OUTPUT_FEATURES.has(feature)
-    ? TEXT_OUTPUT_RULES
-    : JSON_OUTPUT_RULES;
+  const instruction =
+    FEATURE_INSTRUCTIONS[feature];
+
+  const outputRules =
+    TEXT_OUTPUT_FEATURES.has(feature)
+      ? TEXT_OUTPUT_RULES
+      : JSON_OUTPUT_RULES;
+
+  const currentUserMessage = String(
+    requestData.lastUserMessage ??
+    requestData.userQuestion ??
+    requestData.message ??
+    requestData.prompt ??
+    "",
+  ).trim();
+
+  const contextData = {
+    ...requestData,
+  };
+
+  delete contextData.lastUserMessage;
 
   return `
 GÖREV TÜRÜ:
@@ -351,8 +368,18 @@ ${feature}
 ÖZEL TALİMAT:
 ${instruction}
 
-UYGULAMADAN GELEN İSTEK VERİSİ:
-${JSON.stringify(requestData, null, 2)}
+KULLANICININ GÜNCEL İSTEĞİ:
+${currentUserMessage || "Açık bir güncel istek belirtilmedi."}
+
+BAĞLAM VERİSİ:
+${JSON.stringify(contextData, null, 2)}
+
+ÖNCELİK KURALLARI:
+- Her zaman kullanıcının güncel isteğini esas al.
+- Önceki konuşma yalnızca yardımcı bağlamdır.
+- Güncel istek ile geçmiş konuşma çelişirse güncel istek geçerlidir.
+- Geçmiş konuşmadaki konu, kural veya örnekleri yeni istekmiş gibi ele alma.
+- Özel konu sistemlerini yalnızca güncel kullanıcı mesajı açıkça istediğinde kullan.
 
 ${outputRules}
 

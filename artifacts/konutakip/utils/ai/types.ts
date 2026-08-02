@@ -257,6 +257,8 @@ export interface AITeacherRequest extends BaseAIRequest {
    * When undefined, the teacher gives an introductory explanation.
    */
   userQuestion?: string;
+  /** Raw text typed by the student (without curriculum/history) */
+  lastUserMessage?: string;
 /** Uploaded image(s) or PDF(s) */
   attachments?: AITeacherAttachment[];
   /** Prior exchanges for multi-turn sessions */
