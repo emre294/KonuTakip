@@ -1686,6 +1686,36 @@ function normalizeQuestionResponseStructure(
     .trim();
 }
 
+function shouldHideQuestionAnswers(
+  requestText: string,
+): boolean {
+  return /(?:cevap(?:lar[ıi])?|cevap\s*anahtar[ıi]|çözüm(?:ler[ıi])?)\s*(?:verme|gösterme|yazma)|sadece\s*sorular[ıi]?\s*(?:ver|göster|yaz)|cevaps[ıi]z|çözümsüz/i.test(
+    requestText,
+  );
+}
+
+function applyQuestionAnswerVisibility(
+  answer: string,
+  requestText: string,
+): string {
+  if (!shouldHideQuestionAnswers(requestText)) {
+    return answer;
+  }
+
+  const sectionPattern =
+    /(?:^|\n)\s*(?:#{1,6}\s*)?(?:Cevap\s*Anahtar[ıi]|Çözümler?)\s*:?[ \t]*(?=\n|$)/im;
+
+  const match = sectionPattern.exec(answer);
+
+  if (!match) {
+    return answer.trim();
+  }
+
+  return answer
+    .slice(0, match.index)
+    .trim();
+}
+
 async function generateVerifiedQuestionAnswer(
   prompt: string,
   attachments: NvidiaAttachment[],
@@ -2896,10 +2926,12 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     if (isDeDaQuizRequest) {
       return response.json({
-        content:
+        content: applyQuestionAnswerVisibility(
           buildInstructionAwareDeDaResponse(
             requestTextForDeterministicQuiz,
           ),
+          requestTextForDeterministicQuiz,
+        ),
         provider: "local_verified",
         model: "konutakip-de-da-v2",
         usage: null,
@@ -2951,7 +2983,7 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     const options = getNvidiaOptions(feature, parsed.data);
 
-    const answer = isQuestionGenerationRequest(
+    const generatedAnswer = isQuestionGenerationRequest(
       feature,
       parsed.data,
     )
@@ -2969,6 +3001,11 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
           attachments,
           options,
         );
+
+    const answer = applyQuestionAnswerVisibility(
+      generatedAnswer,
+      requestText,
+    );
 
     console.log("[ROUTE] askNvidia bitti");
 
