@@ -55,10 +55,21 @@ function isQuestionGenerationRequest(
     return true;
   }
 
-  const serialized = JSON.stringify(requestData);
+  const currentUserMessage = String(
+    requestData.lastUserMessage ??
+    requestData.message ??
+    requestData.prompt ??
+    requestData.userQuestion ??
+    "",
+  ).trim();
 
-  return QUESTION_GENERATION_PATTERNS.some((pattern) =>
-    pattern.test(serialized),
+  if (!currentUserMessage) {
+    return false;
+  }
+
+  return QUESTION_GENERATION_PATTERNS.some(
+    (pattern) =>
+      pattern.test(currentUserMessage),
   );
 }
 
