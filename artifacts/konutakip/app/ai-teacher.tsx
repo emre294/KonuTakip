@@ -554,6 +554,28 @@ function UserBubble({
   );
 }
 
+function normalizeMathMarkdown(
+  value: string,
+): string {
+  return value
+    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, "√($1)")
+    .replace(/\\times/g, "×")
+    .replace(/\\cdot/g, "·")
+    .replace(/\\div/g, "÷")
+    .replace(/\\leq/g, "≤")
+    .replace(/\\geq/g, "≥")
+    .replace(/\\neq/g, "≠")
+    .replace(/\\infty/g, "∞")
+    .replace(/\\mathbb\s*\{R\}/g, "ℝ")
+    .replace(/\\mathbb\s*\{N\}/g, "ℕ")
+    .replace(/\\mathbb\s*\{Z\}/g, "ℤ")
+    .replace(/\\left/g, "")
+    .replace(/\\right/g, "")
+    .replace(/\\\{/g, "{")
+    .replace(/\\\}/g, "}");
+}
+
 function buildMarkdownStyles(
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>
 ) {
@@ -721,9 +743,7 @@ function AIBubble({
           accessibilityRole="text"
           accessibilityLabel={`AI Öğretmen yanıtı`}
         >
-          <Markdown style={mdStyles}>
-            {message.content}
-          </Markdown>
+          <Markdown style={mdStyles}>{normalizeMathMarkdown(message.content)}</Markdown>
         </View>
         <Text style={[styles.timestamp, { color: colors.mutedForeground }]}>
           {formatTime(message.timestamp)}

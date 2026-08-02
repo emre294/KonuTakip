@@ -2983,12 +2983,30 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
 
     const options = getNvidiaOptions(feature, parsed.data);
 
+    const internalQuestionPrompt =
+      isQuestionGenerationRequest(
+        feature,
+        parsed.data,
+      )
+        ? [
+            prompt,
+            `
+DAHİLİ KALİTE KONTROLÜ İÇİN ZORUNLU KURAL:
+
+- Kullanıcı cevapları veya çözümleri görmek istemese bile üretim aşamasında cevap anahtarını ve tüm çözümleri mutlaka oluştur.
+- Çıktıda ## Sorular, ## Cevap Anahtarı ve ## Çözümler bölümlerinin tamamı bulunsun.
+- Kullanıcıya gösterilmeyecek bölümler doğrulama tamamlandıktan sonra sistem tarafından kaldırılacaktır.
+- "Cevapları verme", "çözümleri verme" veya "sadece soruları ver" talimatını üretim aşamasında bölüm atlamak için kullanma.
+`.trim(),
+          ].join("\n\n")
+        : prompt;
+
     const generatedAnswer = isQuestionGenerationRequest(
       feature,
       parsed.data,
     )
       ? await generateVerifiedQuestionAnswer(
-          prompt,
+          internalQuestionPrompt,
           attachments,
           options,
           /de\s*(?:ve|\/)\s*da|de\/da|de-da/i.test(
