@@ -43,6 +43,54 @@ const QUESTION_GENERATION_PATTERNS = [
   /\bcevap\s*anahtarı\b/i,
 ];
 
+function getExplicitCurrentTopicRules(
+  requestData: Record<string, unknown>,
+): string {
+  const currentMessage = String(
+    requestData.lastUserMessage ??
+    requestData.message ??
+    requestData.prompt ??
+    requestData.userQuestion ??
+    "",
+  ).trim();
+
+  if (!currentMessage) {
+    return "";
+  }
+
+  const explicitMatch = currentMessage.match(
+    /^(.{2,80}?)\s+(?:konusunda|hakkında|konusundan|ile ilgili)\b/i,
+  );
+
+  const requestedTopic = String(
+    explicitMatch?.[1] ??
+    requestData.topicName ??
+    requestData.topic ??
+    "",
+  )
+    .replace(
+      /^(?:bana|lütfen|tyt|ayt|ösym|öğretmen|hocam)\s+/i,
+      "",
+    )
+    .trim();
+
+  if (!requestedTopic) {
+    return "";
+  }
+
+  return [
+    "GÜNCEL KONU KİLİDİ:",
+    "",
+    `- Kullanıcının bu mesajda açıkça istediği konu: ${requestedTopic}`,
+    "- Üreteceğin bütün sorular yalnızca bu konuya ait olmalıdır.",
+    "- Önceki konuşmadaki farklı konu, ders veya kazanım güncel isteğin önüne geçemez.",
+    "- Yakın ilişkili olsa bile başka bir ana konuya geçme.",
+    `- Her sorunun doğrudan "${requestedTopic}" konusunu ölçtüğünü sessizce doğrula.`,
+    "- Bir soru farklı bir konuyu ölçüyorsa onu yeniden üret.",
+    "- Kullanıcı parabol isterse genel fonksiyon, tanım kümesi, bileşke veya doğrusal fonksiyon sorusu üretme.",
+  ].join("\n");
+}
+
 function isQuestionGenerationRequest(
   feature: AIFeature,
   requestData: Record<string, unknown>,
@@ -2938,10 +2986,16 @@ aiRouter.post("/:feature", aiRateLimiter, async (request, response, next) => {
       });
     }
 
+    const explicitCurrentTopicRules =
+      getExplicitCurrentTopicRules(
+        parsed.data,
+      );
+
     let prompt = buildFeaturePrompt(feature, parsed.data);
 
     prompt = [
-      prompt,
+        prompt,
+        explicitCurrentTopicRules,
       getCurriculumHierarchyRules(
         parsed.data,
       ),
