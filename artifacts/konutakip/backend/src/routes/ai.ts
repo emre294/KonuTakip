@@ -840,7 +840,7 @@ function analyzeQuestionStructure(
 
   const numberedQuestions = [
     ...normalized.matchAll(
-      /(?:^|\n)\s*(?:#{1,6}\s*)?\d+\.\s*Soru\b/gi,
+      /(?:^|\n)\s*(?:#{1,6}\s*)?\d+\.\s*Soru\s*(?=\n|$)/gi,
     ),
   ].length;
 
