@@ -126,7 +126,8 @@ export default function SettingsScreen() {
       )}
 
       {/* ── Premium card ──────────────────────────────────────────────────── */}
-      <Animated.View entering={FadeInDown.delay(100).duration(500)}>
+      {false && (
+<Animated.View entering={FadeInDown.delay(100).duration(500)}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/premium"); }}
           activeOpacity={0.85}
@@ -158,6 +159,7 @@ export default function SettingsScreen() {
           )}
         </TouchableOpacity>
       </Animated.View>
+)}
 
       <Animated.View entering={FadeInDown.delay(120).duration(500)}>
         <Section title="HEDEFLER" colors={colors}>
@@ -177,16 +179,20 @@ export default function SettingsScreen() {
           <SettingRow icon="clipboard" label="Deneme Takibi" value={`${mockExamResults.length} deneme`} onPress={() => router.push("/mock-exams")} colors={colors} />
           <SettingRow icon="trending-up" label="Deneme Analizi" onPress={() => router.push("/exam-analytics")} colors={colors} />
           <SettingRow icon="award" label="Başarılar" value={`${unlockedCount}/${achievements.length}`} onPress={() => router.push("/achievements")} colors={colors} />
-          <SettingRow icon="zap" label="AI Çalışma Koçu" onPress={() => router.push("/ai-coach")} colors={colors}
+          {false && (
+<SettingRow icon="zap" label="AI Çalışma Koçu" onPress={() => router.push("/ai-coach")} colors={colors}
 />
+)}
 
-          <SettingRow
+          {false && (
+<SettingRow
             icon="book-open"
             label="AI Öğretmen"
             onPress={() => router.push("/ai-teacher")}
             colors={colors}
             last
           />
+)}
         </Section>
       </Animated.View>
 

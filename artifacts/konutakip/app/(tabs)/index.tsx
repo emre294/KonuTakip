@@ -737,7 +737,8 @@ const TaskItem = React.memo(function TaskItem({ session, onComplete, colors, isC
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { isPremium } = usePremium();
+  const { isPremium: _isPremium } = usePremium();
+  const isPremium = false;
   const { profile, sessions, completeSession, tytProgress, aytProgress, totalTopicsCompleted, studyStreak, topicCompletion, subtopicCompletion, totalSolvedQuestions } = useApp();
   const [quote] = useState<Quote>(getRandomQuote);
 
@@ -962,11 +963,14 @@ export default function HomeScreen() {
             <Ionicons name="trophy-outline" size={21} color={colors.warning} />
             <Text style={[styles.quickActionText, { color: colors.foreground }]}>Başarılar</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/ai-coach")} style={[styles.quickAction, { backgroundColor: colors.card }]}>
+          {false && (
+<TouchableOpacity onPress={() => router.push("/ai-coach")} style={[styles.quickAction, { backgroundColor: colors.card }]}>
             <Ionicons name="sparkles-outline" size={21} color="#7C3AED" />
             <Text style={[styles.quickActionText, { color: colors.foreground }]}>AI Koç</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+)}
+          {false && (
+<TouchableOpacity
             onPress={() => router.push("/ai-teacher")}
             style={[styles.quickAction, { backgroundColor: colors.card }]}
           >
@@ -984,6 +988,7 @@ export default function HomeScreen() {
               AI Öğretmen
             </Text>
           </TouchableOpacity>
+)}
         </View>
       </Animated.View>
     </ScrollView>
