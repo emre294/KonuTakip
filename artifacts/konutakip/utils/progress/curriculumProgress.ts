@@ -56,21 +56,18 @@ export function getSubjectProgressUnits(
 export function getSubjectsProgressUnits(
   subjects: Subject[],
   topicCompletion: Record<string, boolean>,
-  subtopicCompletion: Record<string, boolean>,
+  _subtopicCompletion: Record<string, boolean>,
 ): ProgressUnits {
   let completed = 0;
   let total = 0;
 
   for (const subject of subjects) {
     for (const topic of subject.topics) {
-      const units = getTopicProgressUnits(
-        topic,
-        topicCompletion,
-        subtopicCompletion,
-      );
+      total += 1;
 
-      completed += units.completed;
-      total += units.total;
+      if (topicCompletion[topic.id]) {
+        completed += 1;
+      }
     }
   }
 
